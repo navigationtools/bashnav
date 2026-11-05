@@ -28,7 +28,10 @@ six from one screen.
 in Safari, Share → *Add to Home Screen*. It opens like an app, full screen,
 with no browser bar. **Add each one from Safari rather than from the
 launcher's icon:** the launcher becomes an app too, and a tool opened from
-inside it has no Share button to add. The first time you open it with a signal it caches
+inside it has no Share button to add. **Then open each one once from its
+icon while you still have a signal** — an installed app keeps its own cache,
+separate from the browser's, so caching a tool in Safari does not fill the
+icon's copy. The first time you open it with a signal it caches
 itself; after that it runs with no network at all. Each tool says on its own
 home screen whether it is cached yet.
 
