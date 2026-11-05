@@ -438,6 +438,59 @@ cannot test that assumption. `tests/ios-home.sh` removes this one — a `$HOME`
 that cannot be written, which is the actual iOS condition — and it is the model
 for any future one.
 
+**iPadOS 26 draws the window controls over the top-left of an installed web
+app, and tells the page nothing about them.** Larry found it on the iPad mini:
+"the apple three colord button for kill, min, max coveres the back arrow so we
+can never go back." Five tools put their back control 12–14px from the left
+edge, 40px square, which is exactly where the controls land.
+
+What the platform offers a page, measured on the device rather than assumed:
+
+| | |
+|---|---|
+| `env(safe-area-inset-top)` | 32px full screen, **10px windowed** |
+| `env(safe-area-inset-left)` | 0 in both |
+| `env(titlebar-area-*)` | unsupported |
+| `navigator.windowControlsOverlay` | absent |
+| a media feature for the controls | none |
+
+The inset moves the *wrong way*: it shrinks when the controls appear, because
+it tracks the status bar and not the window chrome. Every working fix published
+for this is native — UIKit's windowing control style, `additionalSafeAreaInsets`,
+`UIDesignRequiresCompatibility` — and none of them is reachable from a page.
+
+So the only honest way to size a fix was to measure it. `docs/web/platform/` is
+a probe: a 10px grid pinned to the viewport origin, a replica of the real bar,
+live readouts of every variable above, and the candidate fixes switchable under
+the grid. Read off an iPad mini, portrait:
+
+        0    20   40   60   80   100
+        |    |    |    |    |    |
+        +---------------------------------  full screen: no controls at all
+        |  ‹  Probe                NIGHT
+        |
+        +---------------------------------  windowed
+        |  (  ●  ●  ●  )                    controls   x 21 → 62
+        |  [    ‹    ]                      back  was  x 12 → 54   COVERED
+        |              [    ‹    ]          back  now  x 88 → 130  clear
+
+`.bar` now carries `padding-left: calc(env(safe-area-inset-left) + 88px)` in
+all seven builds. 88 clears 62 with 26px to spare.
+
+**It is unconditional, and that is the decision, not an oversight.** The
+controls appear only when the window is resized, and the only way a page can
+detect that is `innerWidth < screen.width` — a guess, not an API, and one that
+Stage Manager or an external display can falsify. An indent that is always
+there costs 76px of empty bar, where there was nothing but a back arrow, and
+cannot be wrong at sea.
+
+The probe stays in the tree because the next OS will move something else.
+It ships **without a service worker** — a cached probe is a lying probe — and
+because every worker check walks `docs/web/*/sw.js`, a page with no worker was
+being skipped by all of them in silence. `run-tests.sh` now requires a served
+page without a worker to be named with its reason, so the exemption is visible
+rather than accidental.
+
 ### Build and release
 
 **`make-site.sh` named engine versions by hand**, so three site plates had been

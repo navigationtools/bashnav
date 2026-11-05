@@ -20,7 +20,7 @@
     at colregs-v1 since the app was written. tests/run-tests.sh now
     refuses a build and a cache that disagree, which is the same check
     the drill app got for the same reason.  */
-var BUILD = 16;
+var BUILD = 17;
 
 var D = window.COLREGS_DATA;
 var $ = function (id) { return document.getElementById(id); };

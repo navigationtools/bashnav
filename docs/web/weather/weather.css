@@ -86,6 +86,25 @@ body {
   position: sticky; top: 0; z-index: 20;
   display: flex; align-items: center; gap: 8px;
   padding: calc(env(safe-area-inset-top) + 8px) 12px 8px;
+  /*  88px, and it is not a style choice.
+
+      iPadOS 26 draws the window controls -- close, minimise, resize --
+      OVER the top-left of an installed web app, and tells the page
+      nothing about them: env(safe-area-inset-*) does not grow for them
+      (it SHRINKS, 32px to 10px, because it tracks the status bar),
+      env(titlebar-area-*) is unsupported, navigator.windowControlsOverlay
+      is absent, and no media feature says whether they are drawn.
+
+      Measured on an iPad mini against a 10px grid, docs/web/platform/:
+      the controls occupy x 21 -> 62. The back control used to start at
+      12, so the buttons sat on top of it and there was no way back.
+      88 clears 62 with 26px to spare.
+
+      It is unconditional on purpose. The controls appear only when the
+      window is resized, and the only way to detect that from a page is
+      innerWidth < screen.width, which is a guess, not an API. An indent
+      that is always there cannot be wrong at sea.  */
+  padding-left: calc(env(safe-area-inset-left) + 88px);
   background: var(--ground);
   border-bottom: 1px solid var(--line);
 }

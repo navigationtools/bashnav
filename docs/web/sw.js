@@ -1,6 +1,6 @@
 // The launcher's own cache.  Each tool caches itself under its own
 // scope, so a tool updating does not invalidate this and vice versa.
-const CACHE = 'bashnav-launcher-v2'
+const CACHE = 'bashnav-launcher-v3'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'bashnav-launcher-';

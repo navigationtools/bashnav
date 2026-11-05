@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '21 \u2014 27 Oct 2026';
+var BUILD = '22 \u2014 5 Nov 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
