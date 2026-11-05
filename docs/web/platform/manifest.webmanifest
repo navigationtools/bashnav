@@ -1,0 +1,14 @@
+{
+  "name": "Window Control Probe",
+  "short_name": "Probe",
+  "description": "Measures what the platform tells a web app about window controls and safe areas.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07090b",
+  "theme_color": "#07090b",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

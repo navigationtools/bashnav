@@ -1206,6 +1206,29 @@ WXLOG
   if [ "$swbad" = 0 ]; then ok "all $nsw service workers evict only their own caches"
   else bad "$swbad service-worker eviction fault(s) -- tools will delete each other's offline copy"; fi
 
+  # ---- an app with no worker is an app that no worker check sees ----
+  #  Every check above walks docs/web/*/sw.js. A directory that serves a
+  #  page and ships no worker is therefore skipped by all of them in
+  #  silence: it is online-only at sea, and the suite says nothing. That
+  #  is the exact shape this project refuses -- a check that stops
+  #  checking. So a served page with no worker must be named here, one
+  #  at a time, with its reason; anything else is a fault.
+  nowork=0
+  for d in docs/web/*/; do
+    [ -f "${d}index.html" ] || continue
+    [ -f "${d}sw.js" ] && continue
+    case $(basename "$d") in
+      #  platform/ is the window-control probe. It measures what the
+      #  platform tells a web app, and a cached probe is a lying probe.
+      platform) ;;
+      *) nowork=$((nowork+1))
+         echo "    ${d} serves a page with no sw.js -- offline-dead, and no sw check above sees it" ;;
+    esac
+  done
+  if [ "$nowork" = 0 ]
+  then ok "every served page has a worker, or is named here as deliberately without one"
+  else bad "$nowork served page(s) have no service worker"; fi
+
   # ---- a script you are told to run with ./ can be run with ./ -------
   #  CLAUDE.md's two-line version is "./build.sh" and
   #  "./tests/run-tests.sh", and run-tests.sh was the one file in the

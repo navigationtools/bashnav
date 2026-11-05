@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07090b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Probe">
+<title>Window Control Probe</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+/* =====================================================================
+   A measuring instrument, not an app.
+
+   iPadOS 26 draws the window controls (close / minimise / resize) over
+   the top-left of an installed web app, and as of 26.0 there is no CSS
+   variable, media feature or JS API that says where they are.  So the
+   only honest way to size a fix is to put a ruler under them and read
+   it off the glass.
+
+   Deliberately has NO service worker: a cached probe is a lying probe.
+   ===================================================================== */
+:root {
+  --ground: #07090b; --panel: #10151a; --panel-2: #161c23;
+  --line: #232b34; --text: #e6eaef; --dim: #8995a3;
+  --accent: #6fb3d9; --warn: #ffd60a; --bad: #ff4438; --good: #2fd45f;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--ground); color: var(--text); }
+body {
+  font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  padding: 0 0 48px;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ---- the ruler: fixed to the viewport origin, 10px grid, nothing else
+        on the page may offset it. --------------------------------------- */
+#ruler {
+  position: fixed; top: 0; left: 0; width: 240px; height: 160px;
+  z-index: 100; pointer-events: none;
+  background:
+    repeating-linear-gradient(to right,  rgba(111,179,217,.55) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(to bottom, rgba(111,179,217,.55) 0 1px, transparent 1px 10px);
+}
+#ruler b {
+  position: absolute; font: 700 9px/1 var(--mono); color: var(--warn);
+  text-shadow: 0 0 3px #000, 0 0 3px #000;
+}
+#ruler b.x { top: 2px; }
+#ruler b.y { left: 2px; }
+#ruler.off { display: none; }
+
+/* ---- the replica bar: the real thing, copied value for value --------- */
+.bar {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 8px;
+  padding: calc(env(safe-area-inset-top) + 8px) 12px 8px;
+  padding-left: calc(env(safe-area-inset-left) + 12px);
+  background: var(--panel); border-bottom: 1px solid var(--line);
+}
+.bar h1 { flex: 1; margin: 0; font: 600 17px/1.2 inherit; }
+.bar button {
+  min-height: 40px; padding: 0 12px; border: 1px solid var(--line);
+  border-radius: 8px; background: var(--panel-2); color: var(--text);
+  font: inherit;
+}
+.bar .back { font-size: 24px; line-height: 1; padding: 0 14px; }
+
+/* the four candidate fixes.  data-fix on <html>. */
+:root[data-fix="pad"]   .bar { padding-left: calc(env(safe-area-inset-left) + 76px); }
+:root[data-fix="right"] .bar .back { order: 3; }
+:root[data-fix="right"] .bar h1    { order: 1; }
+:root[data-fix="right"] .bar .mode { order: 2; }
+:root[data-fix="strip"] .bar { padding-top: calc(env(safe-area-inset-top) + 52px); }
+
+main { padding: 180px 16px 0; max-width: 46em; margin: 0 auto; }
+h2 { font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+     color: var(--dim); margin: 26px 0 8px; font-weight: 700; }
+table { width: 100%; border-collapse: collapse; font: 13px/1.4 var(--mono); }
+td { padding: 5px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+td:first-child { color: var(--dim); padding-right: 12px; white-space: nowrap; }
+td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.yes { color: var(--good); } .no { color: var(--bad); } .hm { color: var(--warn); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 2px; }
+.row button {
+  flex: 1 1 auto; min-height: 44px; padding: 0 10px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--panel-2); color: var(--text);
+  font: 600 13px/1 inherit;
+}
+.row button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+p.note { color: var(--dim); font-size: 13px; }
+#probe { position: absolute; visibility: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left); }
+#tb { position: absolute; visibility: hidden;
+  padding-top: env(titlebar-area-height, 9999px);
+  padding-left: env(titlebar-area-x, 9999px); }
+</style>
+</head>
+<body>
+
+<div id="ruler" aria-hidden="true"></div>
+<div id="probe"></div><div id="tb"></div>
+
+<header class="bar">
+  <button class="back" aria-label="Back">&#8249;</button>
+  <h1>Probe</h1>
+  <button class="mode">NIGHT</button>
+</header>
+
+<main>
+  <p class="note">The grid is 10&nbsp;px. Read where the window buttons land
+    against it, then screenshot this whole screen.</p>
+
+  <h2>Candidate fix</h2>
+  <div class="row" id="fixes">
+    <button data-fix="none"  aria-pressed="true">as shipped</button>
+    <button data-fix="pad"   aria-pressed="false">inset 76</button>
+    <button data-fix="right" aria-pressed="false">back on right</button>
+    <button data-fix="strip" aria-pressed="false">strip above</button>
+  </div>
+  <p class="note">Which one leaves the &#8249; reachable?</p>
+
+  <h2>Display mode</h2>
+  <table id="t-mode"></table>
+
+  <h2>Safe area insets</h2>
+  <table id="t-safe"></table>
+
+  <h2>Window control APIs</h2>
+  <table id="t-api"></table>
+
+  <h2>Geometry</h2>
+  <table id="t-geo"></table>
+
+  <div class="row">
+    <button id="hide" aria-pressed="false">hide grid</button>
+    <button id="again">re-read</button>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var probe = document.getElementById("probe");
+  var tb    = document.getElementById("tb");
+
+  //  Build the ruler labels once.  Every 20px, both axes.
+  var r = document.getElementById("ruler"), i, b;
+  for (i = 20; i <= 240; i += 20) {
+    b = document.createElement("b"); b.className = "x";
+    b.style.left = (i + 2) + "px"; b.textContent = i; r.appendChild(b);
+  }
+  for (i = 20; i <= 160; i += 20) {
+    b = document.createElement("b"); b.className = "y";
+    b.style.top = (i + 2) + "px"; b.textContent = i; r.appendChild(b);
+  }
+
+  function px(v) { return Math.round(parseFloat(v) || 0); }
+
+  function row(t, k, v, cls) {
+    var tr = t.insertRow(), a = tr.insertCell(), c = tr.insertCell();
+    a.textContent = k; c.textContent = v;
+    if (cls) c.className = cls;
+  }
+
+  function mq(q) { return window.matchMedia("(" + q + ")").matches; }
+
+  function fill(id, pairs) {
+    var t = document.getElementById(id);
+    while (t.rows.length) t.deleteRow(0);
+    pairs.forEach(function (p) { row(t, p[0], p[1], p[2]); });
+  }
+
+  function read() {
+    var cs = getComputedStyle(probe);
+    var st = cs.paddingTop, sr = cs.paddingRight,
+        sb = cs.paddingBottom, sl = cs.paddingLeft;
+
+    var tcs = getComputedStyle(tb);
+    //  9999 is the fallback: if it comes back, the variable does not exist.
+    var tbh = px(tcs.paddingTop), tbx = px(tcs.paddingLeft);
+
+    var modes = ["browser", "minimal-ui", "standalone", "fullscreen",
+                 "window-controls-overlay", "picture-in-picture"];
+    var mode = modes.filter(function (m) { return mq("display-mode: " + m); });
+
+    fill("t-mode", [
+      ["display-mode", mode.length ? mode.join(" + ") : "none matched",
+       mode.indexOf("browser") < 0 ? "yes" : "hm"],
+      ["navigator.standalone", String(navigator.standalone), ""],
+      ["orientation", (screen.orientation || {}).type || "?", ""]
+    ]);
+
+    fill("t-safe", [
+      ["safe-area-inset-top",    px(st) + " px", px(st) ? "yes" : "no"],
+      ["safe-area-inset-left",   px(sl) + " px", px(sl) ? "yes" : "no"],
+      ["safe-area-inset-right",  px(sr) + " px", px(sr) ? "yes" : "no"],
+      ["safe-area-inset-bottom", px(sb) + " px", px(sb) ? "yes" : "no"]
+    ]);
+
+    fill("t-api", [
+      ["env(titlebar-area-height)",
+       tbh === 9999 ? "unsupported" : tbh + " px",
+       tbh === 9999 ? "no" : "yes"],
+      ["env(titlebar-area-x)",
+       tbx === 9999 ? "unsupported" : tbx + " px",
+       tbx === 9999 ? "no" : "yes"],
+      ["navigator.windowControlsOverlay",
+       "windowControlsOverlay" in navigator ? "present" : "absent",
+       "windowControlsOverlay" in navigator ? "yes" : "no"],
+      ["  .visible",
+       (navigator.windowControlsOverlay || {}).visible === undefined
+         ? "n/a" : String(navigator.windowControlsOverlay.visible), ""]
+    ]);
+
+    var vv = window.visualViewport || {};
+    fill("t-geo", [
+      ["innerWidth x innerHeight", innerWidth + " x " + innerHeight, ""],
+      ["visualViewport w x h",
+       (vv.width ? Math.round(vv.width) + " x " + Math.round(vv.height) : "n/a"), ""],
+      ["visualViewport offset",
+       (vv.offsetLeft === undefined ? "n/a"
+         : Math.round(vv.offsetLeft) + ", " + Math.round(vv.offsetTop)), ""],
+      ["screen w x h", screen.width + " x " + screen.height, ""],
+      ["screen avail", screen.availWidth + " x " + screen.availHeight, ""],
+      ["devicePixelRatio", String(devicePixelRatio), ""],
+      ["user agent", navigator.userAgent.slice(0, 64), ""]
+    ]);
+  }
+
+  document.getElementById("fixes").addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-fix]");
+    if (!btn) return;
+    var all = this.querySelectorAll("button[data-fix]"), j;
+    for (j = 0; j < all.length; j++) all[j].setAttribute("aria-pressed", "false");
+    btn.setAttribute("aria-pressed", "true");
+    document.documentElement.setAttribute("data-fix", btn.getAttribute("data-fix"));
+  });
+
+  document.getElementById("hide").addEventListener("click", function () {
+    var on = this.getAttribute("aria-pressed") === "true";
+    this.setAttribute("aria-pressed", on ? "false" : "true");
+    r.classList.toggle("off", !on);
+    this.textContent = on ? "hide grid" : "show grid";
+  });
+
+  document.getElementById("again").addEventListener("click", read);
+
+  //  Re-read on every geometry change: dragging the window to a new size
+  //  is the whole experiment.
+  addEventListener("resize", read);
+  addEventListener("orientationchange", read);
+  if (window.visualViewport) {
+    visualViewport.addEventListener("resize", read);
+    visualViewport.addEventListener("scroll", read);
+  }
+  read();
+})();
+</script>
+</body>
+</html>
