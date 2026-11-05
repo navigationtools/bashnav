@@ -1,7 +1,7 @@
 #!/bin/sh
 # =====================================================================
 #  tides -- harmonic tide prediction, offline
-#  Part of Bash Navigation Software.  https://github.com/larrys614/bashnav
+#  Part of Bash Navigation Software.  https://github.com/navigationtools/bashnav
 #  Copyright 2026 M. Larry Sherman.  Apache License 2.0.
 # =====================================================================
 TIDES_VERSION=1.1

@@ -312,7 +312,7 @@ for SH in $SHELLS; do
                 "NOW THE HONEST PART" "SOURCES" "FEEDBACK" \
                 "WHERE IT IS WORTH MOST" \
                 "Apache License, Version 2.0" "NO WARRANTY" \
-                "SSN-614" "github.com/larrys614"; do
+                "SSN-614" "github.com/navigationtools"; do
       case "$a" in *"$want"*) ;; *) bad "$t about is missing: $want" ;; esac
     done
   done
@@ -409,7 +409,11 @@ for SH in $SHELLS; do
   #  nothing noticed - invisible to whoever wrote it, the first thing a
   #  reader sees.
   ls bin/ > "$tmp/tools.$$"
-  r=$($AW -f tests/toolrow-check.awk README.md "$tmp/tools.$$" )
+  #  The site address, as one setting, matching SITE in docs/make-site.sh.
+  #  toolrow-check finds our own published builds by it; if it is wrong
+  #  the check stops finding them and stops checking, silently.
+  SITEHOST=bashnav.navigationtools.org
+  r=$($AW -v site="$SITEHOST" -f tests/toolrow-check.awk README.md "$tmp/tools.$$" )
   case "$r" in
     *"TOOLROW 0") ok "every tool in bin/ is listed and has a section in the README" ;;
     *) printf '%s\n' "$r" | grep -v TOOLROW; bad "a tool is missing from the README" ;;
@@ -1172,7 +1176,7 @@ WXLOG
 
   # ---- every service worker evicts only its own caches ---------------
   #  caches.delete() is ORIGIN-wide, not scope-wide. Seven tools share
-  #  larrys614.github.io and every one of their workers used to activate
+  #  bashnav.navigationtools.org and every one of their workers used to activate
   #  with "delete every cache that is not mine", so each evicted all the
   #  others. Measured in a browser against the published layout: visit
   #  colregs, then drill, and colregs' cache is gone -- and it does NOT

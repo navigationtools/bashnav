@@ -1,5 +1,57 @@
 # Changelog
 
+## The address changed: `bashnav.navigationtools.org`
+
+**What.** The site is served at **`https://bashnav.navigationtools.org/`**, and
+the repository is `github.com/navigationtools/bashnav`. Every live link names
+one or the other: the help text in all six tools, the issue link
+`colregs review` builds, the README and the site's own pages.
+
+**Why.** bashnav moved into the `navigationtools` GitHub organisation, the
+shared home for the navigation tools — and the site went straight to a custom
+domain rather than to the organisation's `github.io` address. Browser storage
+belongs to the origin, so the address is worth settling once. `bashnav.navigationtools.org`
+is a name Larry owns: if the site is ever hosted somewhere other than GitHub
+Pages, the address goes with it, and so does every deck log saved against it.
+
+**The `/bashnav/` path segment is gone.** On a Pages default address the site
+would sit under `navigationtools.github.io/bashnav/`; on its own subdomain it
+sits at the root. The launcher is `/web/`, a tool is `/web/<tool>/`. Nothing
+inside the apps needed changing for that — every service worker registers
+`sw.js` with no leading slash and every manifest uses `"./"` — so they serve
+correctly at whatever depth they are given.
+
+**What it means for you.**
+
+1. **Old repository links redirect; the old site address does not.** GitHub
+   forwards the web, clone and push addresses of a transferred repository.
+   It does not forward `larrys614.github.io/bashnav/`, which simply stops
+   working.
+2. **The iPad needs the new address added to the Home Screen once.** The old
+   icon keeps working offline from its cached copy until you replace it, which
+   is a convenience and not a fallback: it will not receive another update.
+3. **The new address starts with empty browser storage.** A deck log in
+   IndexedDB and a loaded drill pack are keyed to the origin that saved them,
+   so they stay at the old address, on the device that wrote them. Nothing in
+   the browser can carry them across. Export anything worth keeping before you
+   rely on the new address.
+4. **Links already shared** — crew, Clipper — point at the old Pages address
+   and need replacing.
+
+Both addresses are single settings rather than literals spread through the
+tools. `GH_USER` in `src/colregs/10-head.sh` and `GH` in `docs/make-site.sh`
+carry the repository owner; `SITE` in `docs/make-site.sh` carries the site,
+substituted into the template as `{{SITE}}`. `docs/index.html` is generated
+from `docs/site-template.html`, and `bin/` and `release/bashnav-ipad.sh` are
+built from `src/`. The only hand-edited references are the ones in prose.
+
+`docs/CNAME` is what tells GitHub Pages to serve the custom domain. It holds
+one line and must stay in `docs/`; without it the site reverts to the
+`github.io` address, and every browser-stored deck log is orphaned again.
+
+Earlier entries below keep the old address: they record what was true when they
+were written.
+
 ## The other half of the a-Shell story
 
 a-Shell's author replied to the heredoc report:

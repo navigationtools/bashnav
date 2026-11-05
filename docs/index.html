@@ -281,13 +281,13 @@ AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm</pre
   <h2>The six tools <span class="rule">&mdash; offline, installable, no account</span></h2>
   <p>Each is its own page with its own manifest and service worker, so each installs as a <strong>separate home-screen icon</strong> and caches itself on first load. Each one tells you on its own screen whether it is cached yet, rather than leaving you to guess.</p>
   <ul>
-    <li><a href="https://larrys614.github.io/bashnav/web/"><b>The launcher</b></a> &mdash; a tile per tool.</li>
-    <li><a href="https://larrys614.github.io/bashnav/web/celnav/"><b>celnav</b></a> &mdash; an altitude from a photograph of the sun or moon, and <b>thirty-three lessons in nine modules</b> that teach celestial navigation from first principles.</li>
-    <li><a href="https://larrys614.github.io/bashnav/web/colregs/"><b>colregs</b></a> &mdash; lights and day shapes for 22 vessel types from any bearing, 28 encounter scenarios, sound signals that actually sound, fifteen lessons on the rules and seven on contact management, with the tracking party and Ekelund as exercises.</li>
-    <li><a href="https://larrys614.github.io/bashnav/web/tides/"><b>tides</b></a> &mdash; harmonic prediction for 8,334 stations: the day&rsquo;s table, the curve, the moon and sun, and whether there is enough water.</li>
-    <li><a href="https://larrys614.github.io/bashnav/web/deck-log/"><b>deck-log</b></a> &mdash; the boat&rsquo;s records, append-only in UTC, with the spares replayed from the log rather than stored.</li>
-    <li><a href="https://larrys614.github.io/bashnav/web/weather/"><b>weather</b></a> &mdash; your own barometer, reasoned over and shown working. It will not show you its forecast until yours is written down.</li>
-    <li><a href="https://larrys614.github.io/bashnav/web/drill/"><b>drill</b></a> &mdash; a study machine with no material in it. You load a pack from your own device; it is read in the browser and never leaves it.</li>
+    <li><a href="https://bashnav.navigationtools.org/web/"><b>The launcher</b></a> &mdash; a tile per tool.</li>
+    <li><a href="https://bashnav.navigationtools.org/web/celnav/"><b>celnav</b></a> &mdash; an altitude from a photograph of the sun or moon, and <b>thirty-three lessons in nine modules</b> that teach celestial navigation from first principles.</li>
+    <li><a href="https://bashnav.navigationtools.org/web/colregs/"><b>colregs</b></a> &mdash; lights and day shapes for 22 vessel types from any bearing, 28 encounter scenarios, sound signals that actually sound, fifteen lessons on the rules and seven on contact management, with the tracking party and Ekelund as exercises.</li>
+    <li><a href="https://bashnav.navigationtools.org/web/tides/"><b>tides</b></a> &mdash; harmonic prediction for 8,334 stations: the day&rsquo;s table, the curve, the moon and sun, and whether there is enough water.</li>
+    <li><a href="https://bashnav.navigationtools.org/web/deck-log/"><b>deck-log</b></a> &mdash; the boat&rsquo;s records, append-only in UTC, with the spares replayed from the log rather than stored.</li>
+    <li><a href="https://bashnav.navigationtools.org/web/weather/"><b>weather</b></a> &mdash; your own barometer, reasoned over and shown working. It will not show you its forecast until yours is written down.</li>
+    <li><a href="https://bashnav.navigationtools.org/web/drill/"><b>drill</b></a> &mdash; a study machine with no material in it. You load a pack from your own device; it is read in the browser and never leaves it.</li>
   </ul>
   <p>They are not ports in the loose sense. Every lesson file and every data table is produced by <em>running the awk engine&rsquo;s own functions and capturing what they print</em> rather than transcribed, and the test suite regenerates all of them on every run and compares them with what is committed &mdash; so a change to the shell that has not reached the browser fails at the desk rather than at sea. The shared arithmetic is held to the same standard: <strong>21,264 comparisons</strong> for the rules of the road and <strong>4,099</strong> for contact management, against every awk on the machine.</p>
   <p class="small dim">The celestial engine was additionally diffed against the awk over 20,568 reference values when it was ported, and reproduces the shell tool&rsquo;s own self-test against an independent reference ephemeris to 0.151&prime;. The self-test runs on every suite run; that 20,568-row comparison was a one-off and its harness is not yet in the repository, which is a gap and is recorded as one.</p>
@@ -539,7 +539,7 @@ You see a power-driven vessel showing her red sidelight, on your starboard beam,
   <ul>
     <li><b>Nothing leaves the device.</b> No upload, no account, no network call &mdash; the file is read in the browser and stays there.</li>
     <li><b>Material somebody else owns can be studied without being published.</b> The machine is published; what you study is yours and stays yours.</li>
-    <li><b>A pack is one JSON file</b> &mdash; sections with their reference text, and questions tagged to the section they belong to. The format is documented in <a href="https://github.com/larrys614/bashnav/blob/main/docs/web/drill/README.md"><code>docs/web/drill/README.md</code></a>.</li>
+    <li><b>A pack is one JSON file</b> &mdash; sections with their reference text, and questions tagged to the section they belong to. The format is documented in <a href="https://github.com/navigationtools/bashnav/blob/main/docs/web/drill/README.md"><code>docs/web/drill/README.md</code></a>.</li>
   </ul>
     <figure>
       <img class="shot" src="img/app/drill-home.png" alt="The drill home screen with no pack loaded: load a pack, why it works this way, and how to make one" loading="lazy">
@@ -567,7 +567,7 @@ colregs night</pre>
   <p class="eyebrow">Getting it</p>
   <h2>Install</h2>
   <p>Copy the file, make it executable, run it. That is the whole procedure.</p>
-  <pre class="cmd">git clone https://github.com/larrys614/bashnav.git
+  <pre class="cmd">git clone https://github.com/navigationtools/bashnav.git
 cd bashnav
 ./bin/celnav doctor        <span class="c"># checks your awk, your clock, the data folder</span>
 ./bin/colregs about</pre>
@@ -576,7 +576,7 @@ cd bashnav
     <p><b>Nothing to install.</b> Open a tool above in Safari and add it to the home screen — no shell, no <code>awk</code>, no package manager, no <code>gawk</code>. That is the route this page leads with and the one to use.</p>
     <p class="small dim">The shell build does still run on an iPad, under <a href="https://holzschu.github.io/a-Shell_iOS/">a-Shell</a> or <a href="https://ish.app">iSH</a>, which is worth knowing if you would rather have the tools at a prompt than as apps. a-Shell already carries an <code>awk</code> with the maths library. Under iSH <em>only</em>, the BusyBox <code>awk</code> is sometimes built without it, and <code>apk add gawk</code> inside iSH supplies one — <code>apk</code> is Alpine's package manager and exists nowhere else. <code>celnav doctor</code> says which you have and names the fix. iOS gives an app only its own sandbox to write in, so the tools keep their data under <code>~/Documents</code>, the one place a-Shell can create files.</p>
   <h3>Documentation</h3>
-  <p><a href="celnav-manual.pdf">celnav manual</a> (PDF, 11 pages) &middot; <a href="celnav-quickref.pdf">quick reference card</a> (PDF) &middot; <a href="https://github.com/larrys614/bashnav">source on GitHub</a></p>
+  <p><a href="celnav-manual.pdf">celnav manual</a> (PDF, 11 pages) &middot; <a href="celnav-quickref.pdf">quick reference card</a> (PDF) &middot; <a href="https://github.com/navigationtools/bashnav">source on GitHub</a></p>
 </section>
 
 <section id="safety">

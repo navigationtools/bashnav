@@ -88,9 +88,20 @@ apart the ones that encoded the old *shape* from the ones that were protecting
    `sub(/^[^(]*\(#/)`, which on a row whose link is a URL with no `#` in it did
    nothing at all, so it reported *"the row for celnav links to
    #celnav](https://..."*. It now checks the property instead: every tool has a
-   row and a heading, every `#anchor` lands on a heading, every link to
-   `…/bashnav/web/<name>/` lands on a build that is in `docs/web/`, and every
-   relative link lands on a file in the repository.
+   row and a heading, every `#anchor` lands on a heading, every link to a
+   build on the site lands on one that is in `docs/web/`, and every relative
+   link lands on a file in the repository.
+
+   It finds *our own* published builds by the site host, which is passed in
+   as `-v site=`. It used to find them by the literal `/bashnav/web/`, which
+   appeared in every site link while the site was served from a Pages default
+   address. Moving to a custom domain put the site at the root of its own
+   subdomain and that path segment disappeared — and because the function
+   returns when it does not find the marker, every published link would have
+   passed **without being checked**. A check that silently stops checking is
+   worse than one that fails, because nothing says so. The address is written
+   in one place on each side: `SITE` in `docs/make-site.sh` for the links,
+   `SITEHOST` in `tests/run-tests.sh` for the check.
 
 2. **`readme-check.awk`** was given `-v WANT=6`. A number typed in two places
    is the trap that left three site plates silently empty when `make-site.sh`

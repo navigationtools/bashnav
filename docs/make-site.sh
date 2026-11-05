@@ -3,7 +3,13 @@
 # tools' real output. Run it after changing anything that shows on the site.
 set -e
 cd "$(dirname "$0")/.."
-GH=${GH_USER:-larrys614}
+GH=${GH_USER:-navigationtools}
+#  WHERE THE SITE IS SERVED, as one setting. The apps themselves are
+#  entirely relative -- every service worker registers 'sw.js' with no
+#  leading slash and every manifest uses "./" -- so they work at any
+#  depth and none of them needs to know this. Only the links written on
+#  the front page do, which is why it is here and not in the tools.
+SITE=${BASHNAV_SITE:-https://bashnav.navigationtools.org}
 
 #  Which awk builds the site.  Every invocation below goes through $AW,
 #  and the binaries are pinned to the same one, so the whole site can be
@@ -72,7 +78,7 @@ $AW $CRE -v cmd=scen -v seed=42 </dev/null \
   ./bin/colregs refsound | sed -n '/restricted visibility/,/Aground/p' | sed 's/^  //' | head -8
 } > docs/plates/sound.txt
 
-$AW -v gh="$GH" '
+$AW -v gh="$GH" -v site="$SITE" '
 function esc(s){ gsub(/&/,"\\&amp;",s); gsub(/</,"\\&lt;",s); gsub(/>/,"\\&gt;",s); return s }
 function plate(f,   line,out){
   out=""
@@ -109,6 +115,7 @@ function platelights(f,   line,out,t){
   if($0 ~ /\{\{ENCOUNTER\}\}/) { sub(/\{\{ENCOUNTER\}\}/, plate("docs/plates/encounter.txt")) }
   if($0 ~ /\{\{SCENARIO\}\}/)  { sub(/\{\{SCENARIO\}\}/,  plate("docs/plates/scenario.txt")) }
   gsub(/\{\{GH\}\}/, gh)
+  gsub(/\{\{SITE\}\}/, site)
   print
 }' docs/site-template.html > docs/index.html
 

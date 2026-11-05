@@ -553,6 +553,6 @@ function rv_url(rfile,   line,body,t,i,nf){
   #  stranger's careful review will go anywhere, and the title already
   #  says what this is. Maintainers can label it themselves.
   printf "https://github.com/%s/bashnav/issues/new?title=%s&body=%s\n",
-     (rvrepo!=""?rvrepo:"larrys614"), rv_enc(t), rv_enc(body)
+     (rvrepo!=""?rvrepo:"navigationtools"), rv_enc(t), rv_enc(body)
   return 0
 }

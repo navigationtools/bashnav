@@ -1,7 +1,7 @@
 # Repository state
 
 Last updated 2026-10-28. Published at
-**https://github.com/larrys614/bashnav**.
+**https://github.com/navigationtools/bashnav**.
 
 New here? Start with [`CLAUDE.md`](CLAUDE.md), then
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md),
@@ -329,7 +329,7 @@ the three links to it from `docs/index.html` were 404s, and so was every tool.
 
 Moving it to `docs/web/` fixes that without changing a single URL, because
 `docs/` *is* the site root — the tools are still at
-`https://larrys614.github.io/bashnav/web/<tool>/`. That matters more than it
+`https://bashnav.navigationtools.org/web/<tool>/`. That matters more than it
 sounds: the origin and path are what a service worker caches under, what
 IndexedDB keys on, and what an Add-to-Home-Screen icon points at. A layout that
 changed the URL would have orphaned every installed icon and every stored log.

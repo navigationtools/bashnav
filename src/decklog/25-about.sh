@@ -56,7 +56,7 @@ about_text() {
     '  code. Part of Bash Navigation Software, with celnav, colregs and' \
     '  tides.' \
     '' \
-    '  https://github.com/larrys614/bashnav' \
+    '  https://github.com/navigationtools/bashnav' \
     '' \
     '  Apache License 2.0.' \
     ''

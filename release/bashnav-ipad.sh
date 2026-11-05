@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003646814
+BASHNAV_BYTES=003646856
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -473,7 +473,7 @@ about_feedback() {
     '' \
     '  Where:' \
     '' \
-    '    https://github.com/larrys614/bashnav/issues' \
+    '    https://github.com/navigationtools/bashnav/issues' \
     '' \
     '  If you think the program disagrees with the Convention, with an' \
     '  almanac, or with a published tide table, say so plainly.  Assume' \
@@ -5676,7 +5676,7 @@ ENGINE="$COLREGS_HOME/engine-$COLREGS_VERSION.awk"
 CONTACTS="$COLREGS_HOME/contacts-$COLREGS_VERSION.awk"
 REVIEW="$COLREGS_HOME/review-$COLREGS_VERSION.awk"
 #  where a review issue goes; override with GH_USER to test against a fork
-GH_USER=${GH_USER:-larrys614}
+GH_USER=${GH_USER:-navigationtools}
 CONF="$COLREGS_HOME/colregs.conf"
 PROG="$COLREGS_HOME/progress"
 
@@ -5845,7 +5845,7 @@ about_feedback() {
     '' \
     '  Where:' \
     '' \
-    '    https://github.com/larrys614/bashnav/issues' \
+    '    https://github.com/navigationtools/bashnav/issues' \
     '' \
     '  If you think the program disagrees with the Convention, with an' \
     '  almanac, or with a published tide table, say so plainly.  Assume' \
@@ -10680,7 +10680,7 @@ function rv_url(rfile,   line,body,t,i,nf){
   #  stranger's careful review will go anywhere, and the title already
   #  says what this is. Maintainers can label it themselves.
   printf "https://github.com/%s/bashnav/issues/new?title=%s&body=%s\n",
-     (rvrepo!=""?rvrepo:"larrys614"), rv_enc(t), rv_enc(body)
+     (rvrepo!=""?rvrepo:"navigationtools"), rv_enc(t), rv_enc(body)
   return 0
 }
 #__BN_END_REVIEW__
@@ -10794,7 +10794,7 @@ bn_unpack() {
 }
 # =====================================================================
 #  tides -- harmonic tide prediction, offline
-#  Part of Bash Navigation Software.  https://github.com/larrys614/bashnav
+#  Part of Bash Navigation Software.  https://github.com/navigationtools/bashnav
 #  Copyright 2026 M. Larry Sherman.  Apache License 2.0.
 # =====================================================================
 TIDES_VERSION=1.1
@@ -20818,7 +20818,7 @@ about_text() {
     '  code. Part of Bash Navigation Software, with celnav, colregs and' \
     '  tides.' \
     '' \
-    '  https://github.com/larrys614/bashnav' \
+    '  https://github.com/navigationtools/bashnav' \
     '' \
     '  Apache License 2.0.' \
     ''
@@ -22061,7 +22061,7 @@ about_text() {
     '  M. Larry Sherman had the ideas and the sea time. Claude wrote the' \
     '  code. Part of Bash Navigation Software.' \
     '' \
-    '  https://github.com/larrys614/bashnav' \
+    '  https://github.com/navigationtools/bashnav' \
     '' \
     '  Apache License 2.0.' \
     ''

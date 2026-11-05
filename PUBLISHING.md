@@ -5,18 +5,18 @@ about ten minutes. Run **one block at a time** and check the output before movin
 on. Blocks are marked *(read-only)* or *(changes things)*.
 
 > **The repository does not exist until you do step 3.** Until then,
-> `github.com/larrys614/bashnav` is a 404 — which is what the link from
+> `github.com/navigationtools/bashnav` is a 404 — which is what the link from
 > `colregs review` will land on, and what any link in the README points at. That
 > is expected, not a fault: nothing is lost, and a review already written is
 > saved as a file on the reviewer's own machine to send once the repo is up.
 
 ## 1. Your username — (read-only)
 
-Already filled in throughout as **`larrys614`**. Nothing to do unless you want a
+Already filled in throughout as **`navigationtools`**. Nothing to do unless you want a
 different account, in which case set it here and run step 2:
 
 ```sh
-GH_USER=larrys614
+GH_USER=navigationtools
 ```
 
 ## 2. Put your username into the files — (changes things)
@@ -101,11 +101,19 @@ In the repository: **Settings → Pages**. Under "Build and deployment", set
 Source to **Deploy from a branch**, Branch to **main**, folder to **/docs**, and
 Save.
 
-A minute or two later the site is live at:
+A minute or two later the site is live at the Pages address,
+`https://YOUR-USERNAME.github.io/bashnav/`.
+
+**bashnav does not stay there.** `docs/CNAME` holds a custom domain, so once
+DNS is in place Pages serves the site at:
 
 ```
-https://YOUR-USERNAME.github.io/bashnav/
+https://bashnav.navigationtools.org/
 ```
+
+That file is the whole mechanism: Pages reads `CNAME` from the published
+folder and serves the site at the name inside it. Delete it and the site falls
+back to the `github.io` address.
 
 Put that URL into the repository's "About" panel (the gear icon top right of the
 repository home page) along with a few topics: `navigation`, `celestial-navigation`,
@@ -119,16 +127,31 @@ Worth understanding before you point anyone at either.
 settings. What you see there is GitHub's own application showing you your
 repository — it renders the README for you and gates Settings behind your login.
 
-**`github.io` is a plain web host.** Pages takes one folder from one branch and
-serves it as an ordinary website. No application, no rendering, no login.
-`larrys614.github.io/bashnav/web/drill/` is `docs/web/drill/index.html` handed
-out the way any web server hands out a file.
+**The published site is a plain web host.** Pages takes one folder from one
+branch and serves it as an ordinary website. No application, no rendering, no
+login. `bashnav.navigationtools.org/web/drill/` is `docs/web/drill/index.html`
+handed out the way any web server hands out a file.
 
-The mapping is mechanical — account name becomes the subdomain, repository name
-becomes the first path segment:
+Without a custom domain the mapping is mechanical — account name becomes the
+subdomain, repository name becomes the first path segment:
 
-    github.com/larrys614/bashnav      the repository
-    larrys614.github.io/bashnav/      the site built from docs/ inside it
+    github.com/navigationtools/bashnav      the repository
+    navigationtools.github.io/bashnav/      what Pages would serve by default
+
+**`docs/CNAME` replaces that**, and it changes the shape of the address as
+well as the name. The site moves to the root of its own subdomain, so the
+`/bashnav/` path segment disappears:
+
+    bashnav.navigationtools.org/            the front page
+    bashnav.navigationtools.org/web/        the launcher
+    bashnav.navigationtools.org/web/drill/  one tool
+
+Nothing inside the apps had to change for that, and it is worth knowing why:
+every service worker registers `sw.js` with no leading slash, and every
+manifest uses `"./"` for `start_url` and `scope`. They are relative throughout,
+so they work at whatever depth they are served from. The only things that knew
+the old path were the links on the front page, and those come from one setting
+in `docs/make-site.sh`.
 
 **Why two domains rather than one.** A published page can run JavaScript. Served
 from `github.com`, that JavaScript would share an origin with the cookie that
@@ -137,10 +160,24 @@ publishing a page could harvest the logins of whoever visited. A separate domain
 is a separate origin, so published code cannot reach GitHub's session at all.
 
 The browser build depends on the same mechanism: its origin is
-`larrys614.github.io`, and a deck log in IndexedDB or a drill pack in storage is
-keyed to that origin. This is why the move to `docs/web/` was done in a way that
-kept the URL identical — a changed URL is a changed storage key, and every saved
-log and loaded pack would have been orphaned.
+`bashnav.navigationtools.org`, and a deck log in IndexedDB or a drill pack in
+storage is keyed to that origin. A changed URL is a changed storage key, so
+anything saved in the browser belongs to the address it was saved at. The
+earlier move of the apps to `docs/web/` was arranged to keep the URL identical
+for exactly that reason.
+
+**The move to the organisation changed it**, from `larrys614.github.io/bashnav/`
+to `bashnav.navigationtools.org/`, and that cost was accepted deliberately: the
+new address starts with empty browser storage. A deck log written at the old
+address stays there, on the device that wrote it, and is still readable while
+that device holds the old cached copy — but it does not follow the app to the
+new address, and nothing in the browser can carry it across. Export anything
+worth keeping from the old address before relying on the new one.
+
+**The custom domain is the reason this is a one-off.** `bashnav.navigationtools.org`
+is a name Larry owns, so the origin is no longer tied to where the files happen
+to be hosted. If the site later moves off GitHub Pages, the address — and
+therefore every saved deck log and loaded drill pack — goes with it.
 
 **The distinction that matters most here:** `.io` serves only what is under the
 published folder. `.com` shows **everything in the repository**, served or not.

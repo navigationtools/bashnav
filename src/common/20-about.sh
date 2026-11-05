@@ -78,7 +78,7 @@ about_feedback() {
     '' \
     '  Where:' \
     '' \
-    '    https://github.com/larrys614/bashnav/issues' \
+    '    https://github.com/navigationtools/bashnav/issues' \
     '' \
     '  If you think the program disagrees with the Convention, with an' \
     '  almanac, or with a published tide table, say so plainly.  Assume' \

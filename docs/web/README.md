@@ -31,13 +31,13 @@ This directory lives at `docs/web/`, and GitHub Pages is set to
 `docs/` the root of the website, so these tools are served one level below it
 and the documentation site is served at the top. Each tool is its own page:
 
-    https://larrys614.github.io/bashnav/web/
-    https://larrys614.github.io/bashnav/web/colregs/
-    https://larrys614.github.io/bashnav/web/celnav/
-    https://larrys614.github.io/bashnav/web/tides/
-    https://larrys614.github.io/bashnav/web/deck-log/
-    https://larrys614.github.io/bashnav/web/weather/
-    https://larrys614.github.io/bashnav/web/drill/
+    https://bashnav.navigationtools.org/web/
+    https://bashnav.navigationtools.org/web/colregs/
+    https://bashnav.navigationtools.org/web/celnav/
+    https://bashnav.navigationtools.org/web/tides/
+    https://bashnav.navigationtools.org/web/deck-log/
+    https://bashnav.navigationtools.org/web/weather/
+    https://bashnav.navigationtools.org/web/drill/
 
 Open one in **Safari** on the iPad and use **Share → Add to Home Screen**. Each
 URL gets its own icon, because each has its own manifest.

@@ -43,7 +43,7 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()
     //  DELETE ONLY THIS TOOL'S OWN OLD CACHES.  caches.delete() is
-    //  ORIGIN-wide, not scope-wide: every tool on larrys614.github.io
+    //  ORIGIN-wide, not scope-wide: every tool on bashnav.navigationtools.org
     //  shares one CacheStorage, so "delete everything that is not mine"
     //  had each worker evicting all the others.  Visit colregs then
     //  drill and colregs' cache is gone -- and it does not come back,

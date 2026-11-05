@@ -256,7 +256,7 @@ about_text() {
     '  M. Larry Sherman had the ideas and the sea time. Claude wrote the' \
     '  code. Part of Bash Navigation Software.' \
     '' \
-    '  https://github.com/larrys614/bashnav' \
+    '  https://github.com/navigationtools/bashnav' \
     '' \
     '  Apache License 2.0.' \
     ''

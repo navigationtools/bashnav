@@ -79,9 +79,21 @@ function resolve(i,   tgt, anc, rest, f){
   if(tgt ~ /^mailto:/) return
   if(tgt ~ /^https?:/){
     #  only our own published builds are ours to verify; anything else is
-    #  somebody else's server and not this suite's business
-    if((anc = index(tgt, "/bashnav/web/")) == 0) return
-    rest = substr(tgt, anc + 13)
+    #  somebody else's server and not this suite's business.
+    #
+    #  FOUND BY THE HOST, NOT BY A PATH SEGMENT. This used to look for
+    #  the literal "/bashnav/web/", which was in every site link while
+    #  the site was served from a Pages default address. On its own
+    #  subdomain the site sits at the root and that segment is gone --
+    #  so the search would have failed, and this function returns when
+    #  it fails, which means every published link would have passed
+    #  without being checked at all. A check that silently stops
+    #  checking is worse than one that fails, because nothing says so.
+    #
+    #  site is passed in from run-tests.sh and is the one place the
+    #  address is written, matching SITE in docs/make-site.sh.
+    if((anc = index(tgt, site "/web/")) == 0) return
+    rest = substr(tgt, anc + length(site) + 5)
     sub(/\/.*$/, "", rest)
     f = (rest == "") ? "docs/web/index.html" : "docs/web/" rest "/index.html"
     if(!there(f)){

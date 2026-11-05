@@ -10,14 +10,14 @@ the device.
 
 | | |
 |---|---|
-| **[celnav](https://larrys614.github.io/bashnav/web/celnav/)** | Celestial navigation. An altitude from a photograph of the sun or moon, and thirty-three lessons in nine modules that teach the subject from first principles. |
-| **[colregs](https://larrys614.github.io/bashnav/web/colregs/)** | The rules of the road. Lights and shapes drawn from any angle, 28 encounter scenarios, sound signals, contact management, and lessons on the rules themselves. |
-| **[tides](https://larrys614.github.io/bashnav/web/tides/)** | Harmonic prediction for 8,334 stations worldwide: the day's table, the curve, the moon and sun, and the question a tide table exists to answer — is there enough water. |
-| **[deck-log](https://larrys614.github.io/bashnav/web/deck-log/)** | The boat's records — deck, engine, provisions — kept append-only in UTC, with the spares worked out by replaying the log rather than stored. |
-| **[weather](https://larrys614.github.io/bashnav/web/weather/)** | Read your own barometer. It will not show you its forecast until yours is written down, then scores both against what happened. Ten lessons on the physics underneath. |
-| **[drill](https://larrys614.github.io/bashnav/web/drill/)** | A study machine with no material in it. You load a content pack from your own device; it is read in the browser and never leaves it. |
+| **[celnav](https://bashnav.navigationtools.org/web/celnav/)** | Celestial navigation. An altitude from a photograph of the sun or moon, and thirty-three lessons in nine modules that teach the subject from first principles. |
+| **[colregs](https://bashnav.navigationtools.org/web/colregs/)** | The rules of the road. Lights and shapes drawn from any angle, 28 encounter scenarios, sound signals, contact management, and lessons on the rules themselves. |
+| **[tides](https://bashnav.navigationtools.org/web/tides/)** | Harmonic prediction for 8,334 stations worldwide: the day's table, the curve, the moon and sun, and the question a tide table exists to answer — is there enough water. |
+| **[deck-log](https://bashnav.navigationtools.org/web/deck-log/)** | The boat's records — deck, engine, provisions — kept append-only in UTC, with the spares worked out by replaying the log rather than stored. |
+| **[weather](https://bashnav.navigationtools.org/web/weather/)** | Read your own barometer. It will not show you its forecast until yours is written down, then scores both against what happened. Ten lessons on the physics underneath. |
+| **[drill](https://bashnav.navigationtools.org/web/drill/)** | A study machine with no material in it. You load a content pack from your own device; it is read in the browser and never leaves it. |
 
-**[Open the launcher](https://larrys614.github.io/bashnav/web/)** to reach all
+**[Open the launcher](https://bashnav.navigationtools.org/web/)** to reach all
 six from one screen.
 
 ---
@@ -337,7 +337,7 @@ implementation of the same thing. That is where the arithmetic lives and why
 the two agree.
 
 ```sh
-git clone https://github.com/larrys614/bashnav.git
+git clone https://github.com/navigationtools/bashnav.git
 cd bashnav
 ./bin/celnav doctor        # checks your awk, your clock and the data folder
 ```

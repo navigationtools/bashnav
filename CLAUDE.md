@@ -77,8 +77,8 @@ failure mode is somebody else's copyright in a public repository, permanently.
 
 **A file does not have to be on the website to be public.** GitHub Pages serves
 only what is under `docs/`, so `src/`, `bin/` and `tests/` are not part of
-`larrys614.github.io`. They are still visible to anyone on
-`github.com/larrys614/bashnav`, because the repository is public. Keeping
+`bashnav.navigationtools.org`. They are still visible to anyone on
+`github.com/navigationtools/bashnav`, because the repository is public. Keeping
 something out of `docs/` keeps it off the website and nothing more — the only
 thing that keeps material out of public view is not committing it. `PUBLISHING.md`
 explains the two domains.

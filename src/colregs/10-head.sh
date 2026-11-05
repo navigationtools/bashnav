@@ -13,7 +13,7 @@ ENGINE="$COLREGS_HOME/engine-$COLREGS_VERSION.awk"
 CONTACTS="$COLREGS_HOME/contacts-$COLREGS_VERSION.awk"
 REVIEW="$COLREGS_HOME/review-$COLREGS_VERSION.awk"
 #  where a review issue goes; override with GH_USER to test against a fork
-GH_USER=${GH_USER:-larrys614}
+GH_USER=${GH_USER:-navigationtools}
 CONF="$COLREGS_HOME/colregs.conf"
 PROG="$COLREGS_HOME/progress"
 
