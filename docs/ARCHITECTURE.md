@@ -227,6 +227,93 @@ on the code. `NOTICE` carries it and must not be dropped.
 
 ---
 
+## The browser build: three boundaries
+
+The shell tools are one file each, run by a shell you can see. The browser
+build runs inside a platform with rules of its own, and almost everything that
+surprises somebody about it comes from three ideas. They explain why moving the
+site address emptied every saved deck log, why each tool carries a version
+number for its cache, and why an app opened from a home-screen icon has no
+address bar.
+
+```
+   ORIGIN      https://bashnav.navigationtools.org
+   ========================================================
+   the name everything is filed under. Change any part of
+   it and the browser treats it as a different machine.
+
+      +------------------------------------------------+
+      |  STORAGE, keyed to the origin                   |
+      |                                                 |
+      |    IndexedDB .... the deck log                  |
+      |    Cache ........ the files each tool precaches |
+      |    localStorage . settings, the loaded pack     |
+      +------------------------------------------------+
+
+      +------------------------------------------------+
+      |  SERVICE WORKER, one per tool, scoped to its    |
+      |  own directory                                  |
+      |                                                 |
+      |     the app  -->  worker  -->  network          |
+      |                     |                           |
+      |                     +-->  its own Cache         |
+      |                                                 |
+      |  Answers from the Cache when the network is     |
+      |  gone. Outlives the page that installed it.     |
+      +------------------------------------------------+
+
+      +------------------------------------------------+
+      |  DISPLAY: the same files, two ways to run them  |
+      |                                                 |
+      |    in Safari ....... a page. Address bar,       |
+      |                      Share button, back.        |
+      |    from the icon ... an app. Own container,     |
+      |                      own task-switcher entry,   |
+      |                      no browser chrome at all.  |
+      +------------------------------------------------+
+```
+
+**1. The origin is the identity.** Scheme and host together —
+`https://bashnav.navigationtools.org`. Every stored thing is filed under it. Two
+origins are two different machines as far as the browser is concerned, even
+when they serve byte-identical files. A deck log written at one address cannot
+be read at another, and nothing in the browser can carry it across. That is
+why the site address is worth settling once, on a name we own, rather than
+moving it twice.
+
+**2. A service worker is a local proxy that outlives the page.** Each tool
+installs a small script that sits between the app and the network, scoped to
+its own directory. When the network is gone it answers from its own cache — and
+it keeps running after the tab is closed, updates on its own schedule, and
+serves the files it cached until a new version replaces them. That last part is
+why `CACHE` in each `sw.js` carries a version: it is the only thing that tells
+a returning browser to throw the old files away. A served file changed without
+that version moving is a tool that quietly disagrees with the program it was
+generated from, which is what `tests/run-tests.sh` checks on every run.
+
+Each tool has its own worker and its own cache on purpose. `caches.delete()` is
+origin-wide rather than scope-wide, so a worker written to evict "every cache
+that is not mine" would take the other five with it. They evict only their own
+family.
+
+**3. An installed web app is a separate process, not a tab.** Add to Home
+Screen and the manifest's `"display": "standalone"` says *run this like an
+app*: its own container, its own entry in the task switcher, and no browser
+chrome. The consequence that catches people is navigation — the launcher's
+scope is `./`, so every tool reached from the launcher's icon stays inside that
+installed app, with no address bar and no Share button. To add a tool to the
+home screen on its own, open that tool's URL **in Safari**, where it is a page
+rather than an app.
+
+Every path inside the apps is relative for the same family of reasons: each
+worker registers `'sw.js'` with no leading slash, each manifest uses `"./"` for
+`start_url` and `scope`, and no precached path is absolute. They therefore
+serve correctly at whatever depth they are given — which is what let the site
+move from a path under `github.io` to the root of its own domain without a
+single change inside the apps.
+
+---
+
 ## What is deliberately not here
 
 - **No position input.** A tide cannot be computed from a position — it depends

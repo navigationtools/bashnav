@@ -26,7 +26,9 @@ six from one screen.
 
 **On a phone or an iPad.** Open a link above, then add it to the home screen —
 in Safari, Share → *Add to Home Screen*. It opens like an app, full screen,
-with no browser bar. The first time you open it with a signal it caches
+with no browser bar. **Add each one from Safari rather than from the
+launcher's icon:** the launcher becomes an app too, and a tool opened from
+inside it has no Share button to add. The first time you open it with a signal it caches
 itself; after that it runs with no network at all. Each tool says on its own
 home screen whether it is cached yet.
 
