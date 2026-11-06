@@ -92,7 +92,8 @@ and your change will be silently overwritten by the next build.
 4. **No newline after the `:` of a ternary.** gawk sometimes allows it, mawk
    never does.
 5. **POSIX `sh`, not bash.** No arrays, no `[[`, no `local`, no `$'...'`, no
-   `${var,,}`. It has to run under dash and under a-Shell's shell.
+   `${var,,}`. It has to run under dash and under the BSDs' `sh`, and the
+   suite runs every shell on the machine for that reason.
 
 ## Never `git add -A` in this repository
 
