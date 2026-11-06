@@ -294,7 +294,7 @@ same lesson from the same numbers.
 
 ### colregs
 
-Lights and shapes for 22 vessel types, drawn from any bearing you choose, so
+Lights and shapes for 28 vessel types, drawn from any bearing you choose, so
 you learn the arcs rather than a memorised picture. 28 encounter scenarios
 with the wind and the vessel kind both shown. Sound signals, drawn because a
 page cannot make a noise. Fifteen lessons on the rules themselves, and seven

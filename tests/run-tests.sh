@@ -430,6 +430,18 @@ for SH in $SHELLS; do
     *) printf '%s\n' "$r" | grep -v INSTALL; bad "the install instructions are stale" ;;
   esac
 
+  #  and the counts in that prose must come from the engine, not from
+  #  somebody's memory of it. sh and git only, so once per run.
+  if [ "$AW" != "$FIRSTAWK" ]; then :
+  else
+    if o=$(sh tests/counts-check.sh 2>&1); then
+      ok "every vessel and scenario count in the README and the site is the engine's"
+    else
+      printf '%s\n' "$o" | grep -v '^COUNTS'
+      bad "a count in the public prose disagrees with the engine"
+    fi
+  fi
+
   #  no -v WANT: readme-check.awk derives the expected number of pictures
   #  from the file itself.  See the note at the top of it.
   r=$($AW -f tests/readme-check.awk README.md)

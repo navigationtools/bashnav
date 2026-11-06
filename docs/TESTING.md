@@ -61,6 +61,7 @@ content changes.
 | `count-check.awk` | counts quoted in prose against what the program actually has |
 | `toolrow-check.awk` | a tool in `bin/` with no table row or no section, and any README link &mdash; anchor, published app or file &mdash; that leads nowhere |
 | `install-check.awk` | an install section that has fallen behind what exists |
+| `counts-check.sh` | a count in the README or the site that the engine disagrees with, and any count written as a word |
 | `ipad-install-check.sh` | the iPad installer must install, prove the tools run, set the PATH, and survive being run twice &mdash; plus the write-probe regression at shell level |
 | `ashell-check.sh` | constructs a-Shell cannot run: a heredoc feeding a command that prints, and a compound command redirected to a file |
 | `ios-home.sh` | every tool must start when `$HOME` cannot be written &mdash; the iOS condition, which no tool survived until 2026-08-30 |
@@ -394,6 +395,42 @@ previous commit as well, so it predates this work. And the tides harness writes
 `shot-day.png` and `shot-pick.png` **into the repository root** rather than a
 temporary directory — untracked PNGs in a repo that is one `git add -A` from
 publication, which is the hazard `CLAUDE.md` opens with.
+
+### A number in the prose that nobody was retyping
+
+The site and the README described colregs as covering "22 vessel types" and,
+two hundred lines further down the same template, "twenty vessel types" and
+"Fourteen scenarios". The engine had `NVES=28` and `NENC=28`. None of the
+three was a disagreement about the rules — they were counts typed by hand into
+the two documents a reader meets first, and then not retyped when the engine
+grew.
+
+It is the same fault as `make-site.sh` naming engine versions by hand, and it
+has the same rule: **a number that describes the code is derived from the
+code, never typed twice.** Where prose has to carry the figure, something must
+compare the two, because nothing else will — a wrong count reads perfectly
+well, which is exactly why it survives.
+
+`tests/counts-check.sh` reads `NVES` and `NENC` out of the engine and compares
+them with every `<n> vessel types` and `<n> scenarios` in `README.md`,
+`docs/site-template.html` and the generated `docs/index.html`. The generated
+page is included on purpose: it catches a stale build as well as a stale
+template.
+
+It also **refuses a count written as a word**. "twenty vessel types" cannot be
+compared with 28 by any cheap means, and writing it that way is how one of the
+three hid in plain sight beside a digit that was also wrong. Digits only, so
+they can be checked.
+
+Confirmed both ways: with `28` the check passes, and changing one occurrence
+to `26` produces
+
+    README.md:297 says 26 vessel types, engine has NVES=28
+    COUNTS 1
+
+Only derivable counts are checked. "Fifteen lessons on the rules" is not in
+there, because the engine exposes no lesson count to compare it with; if one
+is added, this check is where it goes.
 
 ### A check written for one tool, when the fault belongs to all of them
 
