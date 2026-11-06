@@ -1,8 +1,11 @@
 # Read this before changing anything
 
 Bash Navigation Software: five marine tools and a launcher, written in POSIX
-`sh` and POSIX `awk`, with no dependencies, no network, and no install step.
-They are meant to run on an iPad in a-Shell, at sea, on a boat with no signal.
+`sh` and POSIX `awk`, with no dependencies, no network, and no install step,
+and the same six tools built as browser apps. They are meant to work at sea,
+on a boat with no signal. On an iPad that means the browser apps, installed to
+the home screen; the shell build runs on macOS, Linux and the BSDs, still
+ships, and is the reference the browser builds are checked against.
 
     celnav    celestial navigation, sight reduction, the fix, a teaching track
     colregs   rules of the road, lights, encounters, contact management
@@ -24,6 +27,48 @@ are a later session picking this up, these four documents are the handover:
 Read `docs/HACKING.md` before you write a line of awk. Most of it is not
 obvious, none of it is stylistic, and every rule in it is there because
 something shipped broken.
+
+## Before any other work: the shared inbox
+
+bashnav is one of several projects Larry runs with Claude, and they pass work
+to each other through a shared repository. **This runs first, before anything
+else in this file:**
+
+> Before any other work: `git pull` in `~/navigationtools/spec`, read every
+> file in `~/navigationtools/spec/handoffs/inbox/bashnav/` whose Status is
+> open, and tell Larry what is waiting. Close an item by setting
+> `Status: done` and adding a `## Reply`. Tasks for another project go in that
+> project's inbox. Change only this project's repository, and in `spec` only
+> inbox notes.
+
+`~/navigationtools/spec/handoffs/README.md` holds the full protocol: who reads
+which inbox, who may write where, and the rule that the contracts in `spec`
+change through one session only, so there is one author.
+
+### Where things are
+
+    ~/navigationtools/bashnav    this repository, on Larry's Mac
+    ~/navigationtools/spec       the shared repository above
+
+Every project Larry runs lives under `~/navigationtools/<project>`. For any
+path other than this repository's own, read `spec`; do not carry one forward
+from an earlier session.
+
+**Why that last sentence is here.** This repository used to sit in
+`~/Downloads/bashnav`, and it moved. The move was recorded in `spec`, in the
+Navigation Tools session's plan — accurately, and in a file nothing told this
+session to read. Meanwhile an older handover still named the old path, and
+the instruction above, which gives `spec`'s location and therefore the whole
+convention, had been pasted into a session rather than written down here. So
+the correct path was on disk, one directory from a folder that had already
+been listed, and a session went on using a remembered path until a command
+failed. A fact that lives only in one session's memory is not shared, and a
+fact that is only pasted is only as reliable as somebody remembering to paste
+it.
+
+`origin` in this repository carries **two push URLs**, GitHub and the
+Synology, so one `git push origin main` reaches both. Adding any push URL to
+a remote disables its default, which is why GitHub is listed explicitly.
 
 ## The two-line version
 
