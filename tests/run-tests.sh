@@ -431,15 +431,19 @@ for SH in $SHELLS; do
   esac
 
   #  and the counts in that prose must come from the engine, not from
-  #  somebody's memory of it. sh and git only, so once per run.
-  if [ "$AW" != "$FIRSTAWK" ]; then :
+  #  somebody's memory of it.
+  #
+  #  RUN PER AWK, not once. The first version of this check parsed with
+  #  sed and carried a GNU-only \? into a basic regular expression. It
+  #  passed here and failed on Larry's Mac, where BSD sed matched
+  #  nothing and every count came out empty. It is an awk program now,
+  #  and it runs under every awk on the machine like everything else --
+  #  which is the only arrangement that would have caught it.
+  if o=$(AWK="$AW" sh tests/counts-check.sh 2>&1); then
+    ok "every vessel and scenario count in the README and the site is the engine's"
   else
-    if o=$(sh tests/counts-check.sh 2>&1); then
-      ok "every vessel and scenario count in the README and the site is the engine's"
-    else
-      printf '%s\n' "$o" | grep -v '^COUNTS'
-      bad "a count in the public prose disagrees with the engine"
-    fi
+    printf '%s\n' "$o" | grep -v '^COUNTS'
+    bad "a count in the public prose disagrees with the engine"
   fi
 
   #  no -v WANT: readme-check.awk derives the expected number of pictures

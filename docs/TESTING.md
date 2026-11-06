@@ -61,7 +61,7 @@ content changes.
 | `count-check.awk` | counts quoted in prose against what the program actually has |
 | `toolrow-check.awk` | a tool in `bin/` with no table row or no section, and any README link &mdash; anchor, published app or file &mdash; that leads nowhere |
 | `install-check.awk` | an install section that has fallen behind what exists |
-| `counts-check.sh` | a count in the README or the site that the engine disagrees with, and any count written as a word |
+| `counts-check.awk` | a count in the README or the site that the engine disagrees with, and any count written as a word |
 | `ipad-install-check.sh` | the iPad installer must install, prove the tools run, set the PATH, and survive being run twice &mdash; plus the write-probe regression at shell level |
 | `ashell-check.sh` | constructs a-Shell cannot run: a heredoc feeding a command that prints, and a compound command redirected to a file |
 | `ios-home.sh` | every tool must start when `$HOME` cannot be written &mdash; the iOS condition, which no tool survived until 2026-08-30 |
@@ -411,11 +411,29 @@ code, never typed twice.** Where prose has to carry the figure, something must
 compare the two, because nothing else will — a wrong count reads perfectly
 well, which is exactly why it survives.
 
-`tests/counts-check.sh` reads `NVES` and `NENC` out of the engine and compares
+`tests/counts-check.awk` reads `NVES` and `NENC` out of the engine and compares
 them with every `<n> vessel types` and `<n> scenarios` in `README.md`,
 `docs/site-template.html` and the generated `docs/index.html`. The generated
 page is included on purpose: it catches a stale build as well as a stale
 template.
+
+**It is awk, and it runs per awk, because the first version was neither.**
+That version parsed with `sed` and wrote `\(encounter \)\?` to make a word
+optional — a GNU extension to *basic* regular expressions. GNU sed matches it;
+BSD sed on macOS does not. So on Larry's Mac the pattern matched nothing,
+every number was extracted as empty, and the check reported
+
+    README.md:14 says  scenarios, engine has NENC=28
+
+against all six lines: a check failing for a reason with nothing to do with
+what it checks, which is worse than no check, because the next person learns
+to ignore it. It passed here and failed there, and it was guarded by
+`$AW != $FIRSTAWK` so it ran once rather than across the matrix — the one
+arrangement that could not catch a portability fault.
+
+awk's regular expressions are *extended* and POSIX, so `?` is simply `?`, and
+awk is the one tool this repository already guarantees everywhere. The check
+now runs under every awk on the machine, like everything else.
 
 It also **refuses a count written as a word**. "twenty vessel types" cannot be
 compared with 28 by any cheap means, and writing it that way is how one of the
