@@ -369,11 +369,8 @@ Six scripts, one of which is the launcher:
 | **[bashnav](#bashnav)** | the launcher — one menu reaching the other five |
 
 Works on macOS, Linux and the BSDs. **For an iPad, use the browser apps** —
-the shell build ran there under a-Shell and that route is being retired in
-favour of the apps, which are better on a phone in every way that matters. If
-you do run the shell build under a-Shell, note that iOS gives an app only its
-own sandbox to write in: `~/Documents` is the one place a-Shell can create
-files, and that is where each tool keeps its data folder.
+there is nothing to install, and they are better on a small screen in every
+way that matters.
 
 ### bashnav
 

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bash Navigation Software</title>
-<meta name="description" content="Marine navigation tools written in POSIX shell and awk. Celestial navigation and the rules of the road, offline, in a single file.">
+<meta name="description" content="Marine navigation tools for sailors. Celestial navigation, the rules of the road, tides and the deck log &mdash; offline, on the iPad.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&family=Spectral:ital,wght@0,300;0,600;1,300&display=swap">
@@ -578,7 +578,6 @@ cd bashnav
   <p class="small dim">On macOS, Linux and the BSDs there is nothing to install — the system awk already has what the tools need.</p>
     <h3>On an iPad</h3>
     <p><b>Nothing to install.</b> Open a tool above in Safari and add it to the home screen — no shell, no <code>awk</code>, no package manager, no <code>gawk</code>. That is the route this page leads with and the one to use.</p>
-    <p class="small dim">The shell build does still run on an iPad, under <a href="https://holzschu.github.io/a-Shell_iOS/">a-Shell</a> or <a href="https://ish.app">iSH</a>, which is worth knowing if you would rather have the tools at a prompt than as apps. a-Shell already carries an <code>awk</code> with the maths library. Under iSH <em>only</em>, the BusyBox <code>awk</code> is sometimes built without it, and <code>apk add gawk</code> inside iSH supplies one — <code>apk</code> is Alpine's package manager and exists nowhere else. <code>celnav doctor</code> says which you have and names the fix. iOS gives an app only its own sandbox to write in, so the tools keep their data under <code>~/Documents</code>, the one place a-Shell can create files.</p>
   <h3>Documentation</h3>
   <p><a href="celnav-manual.pdf">celnav manual</a> (PDF, 11 pages) &middot; <a href="celnav-quickref.pdf">quick reference card</a> (PDF) &middot; <a href="https://github.com/navigationtools/bashnav">source on GitHub</a></p>
 </section>
