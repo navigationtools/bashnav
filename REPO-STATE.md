@@ -732,6 +732,83 @@ to a cached file requires, would have left the page looking in a cache that
 no longer existed and reporting "not cached" on a tool that was cached. It
 now finds the cache by prefix instead of naming it.
 
+## Position: where tides gets it from, and the merge question behind it
+
+*Agreed 7 November 2026 with Larry. Decided, not built.*
+
+The iPad gains a second source of position when deck-log starts reading the
+watch's QR codes: every `nav` record carries `lat` and `lon` from the watch's
+own GPS. That is a better source at sea than the iPad itself, which on a
+WiFi-only mini has no GPS at all and offshore has no network to guess from.
+`tides near` already works by position; it simply has nothing feeding it.
+
+### What is being built: the clipboard hand-off
+
+1. On a scan, deck-log takes the **newest timestamp across everything
+   scanned** — not the last code seen. The flip-book loops, so its order is
+   not guaranteed chronological, and a pass collects every code anyway.
+2. If that record is **under 24 hours old**, deck-log copies its position to
+   the clipboard.
+3. `tides` offers one tap to use it, and **shows the position and its age**
+   rather than applying it silently: *"using 41°14'N 072°05'W, logged 19 h
+   ago"*. Larry's point, and he is right: 170 miles of staleness still beats
+   picking the wrong city — but it has to be visible, not assumed. Same
+   discipline as the four value states.
+4. If the clipboard is empty or holds something else, tides says so and you
+   type the position as now.
+
+### Why not read a file, which is what was asked for first
+
+Larry's first shape was: deck-log exports `most_recent_position`, tides reads
+it on startup. The export half is easy. **The read half the browser will not
+allow**: a page can only read a file the user picks in a dialog, every time.
+That is by design and not an iOS quirk.
+
+And the two installed apps cannot reach each other's storage either — see
+"the browser build: three boundaries" in `docs/ARCHITECTURE.md`. *From the
+icon: own container.* That is the same boundary that made three tools show
+nothing offline: caching a tool in Safari does not fill the icon's copy.
+
+So the position can be produced automatically; it has to be collected by a
+gesture. Of the shapes that work, the clipboard is one tap, needs no file and
+crosses no boundary.
+
+### The merge, narrowed
+
+The only arrangement where the watch's fix reaches tides with no gesture at
+all is one app with one container. All six merged was measured and is the
+wrong trade:
+
+| | all six | tides + deck-log |
+|---|---|---|
+| clashing element ids | 16 | **7** |
+| clashing top-level globals | 32 | **11** |
+| combined size | 4,980 KB | 3,884 KB |
+
+Larry's narrowing is the right one: **if a merge happens, it is `tides` and
+`deck-log` only, made solid before anything else is touched.** They are the
+pair that needs to share a position, and the collision list is bounded: the
+ids are the shared furniture (`back`, `main`, `mode`, `off-state`, `title`,
+`v-about`, `ver`) and four of the eleven globals (`CACHE`, `FAMILY`, `FILES`,
+`BUILD`) are service-worker machinery that *should* become one thing when two
+apps become one.
+
+**The cost, stated plainly:** deck-log is 148 KB today and tides is 3,736 KB.
+Merged, anyone installing the deck log pulls all 8,334 tide stations with it.
+
+**The first step is not merging.** Namespace those 7 ids and 11 globals *in
+place*, two separate apps, no behaviour change. That is where nearly all the
+risk lives, it is independently testable, and if the merge never happens
+nothing has been lost.
+
+The hazard is not theoretical. `docs/web/celnav/index.html` carries a comment
+explaining why its back button is called `nav-back`: the camera sight already
+had a `#back`, two elements with one id is invalid and silently broken, and
+`camui.js` disabled the other one on load because to `getElementById` they
+were the same button. That happened inside **one** tool, between two of its
+own views, and cost a round. A merge is that failure multiplied, and the
+failures are silent, which is the expensive kind.
+
 ## Next: set and drift
 
 *Agreed 2026-08-29. Designed, not built.* Lives **in `tides`**.
