@@ -1206,7 +1206,7 @@ WXLOG
   #  a browser: the families coexist, and a tool's own older version is
   #  still evicted when its CACHE moves.
   swbad=0
-  for f in $(find docs/web -name sw.js | sort); do
+  for f in $(find docs -name sw.js | sort); do
     grep -q 'k => k !== CACHE' "$f" && {
       swbad=$((swbad+1)); echo "    $f deletes every cache on the origin, not only its own"; }
     grep -q 'const FAMILY' "$f" || {
@@ -1218,7 +1218,7 @@ WXLOG
     [ "$ff" = "$want" ] || {
       swbad=$((swbad+1)); echo "    $f: FAMILY '$ff' does not match CACHE '$fc'"; }
   done
-  nsw=$(find docs/web -name sw.js | wc -l | tr -d ' ')
+  nsw=$(find docs -name sw.js | wc -l | tr -d ' ')
   if [ "$swbad" = 0 ]; then ok "all $nsw service workers evict only their own caches"
   else bad "$swbad service-worker eviction fault(s) -- tools will delete each other's offline copy"; fi
 
@@ -1229,20 +1229,34 @@ WXLOG
   #  is the exact shape this project refuses -- a check that stops
   #  checking. So a served page with no worker must be named here, one
   #  at a time, with its reason; anything else is a fault.
+  #
+  #  IT WALKS ALL OF docs/, NOT docs/web/*/. The narrower pattern had
+  #  the fault it was written to catch: docs/index.html, the site's own
+  #  front page, sits outside docs/web/*/ and so was never looked at --
+  #  the check could not see the one page every visitor meets first.
+  #  The same blind spot was about to swallow docs/coastal/, where the
+  #  coastal navigation course's built pages will land. GitHub Pages
+  #  serves everything under docs/, so everything under docs/ is checked.
   nowork=0
-  for d in docs/web/*/; do
-    [ -f "${d}index.html" ] || continue
+  for f in $(find docs -name index.html | sort); do
+    d=$(dirname "$f")/
     [ -f "${d}sw.js" ] && continue
-    case $(basename "$d") in
-      #  platform/ is the window-control probe. It measures what the
-      #  platform tells a web app, and a cached probe is a lying probe.
-      platform) ;;
+    case "$d" in
+      #  The site's front page. It lists the tools and explains how to
+      #  install them, which is a thing you read with a signal before
+      #  you leave. The OFFLINE home is the launcher at docs/web/, which
+      #  has its own worker. Online-only here is a choice, and this line
+      #  is where it is stated rather than left to look like an oversight.
+      docs/) ;;
+      #  The window-control probe. It measures what the platform tells a
+      #  web app, and a cached probe is a lying probe.
+      docs/web/platform/) ;;
       *) nowork=$((nowork+1))
          echo "    ${d} serves a page with no sw.js -- offline-dead, and no sw check above sees it" ;;
     esac
   done
   if [ "$nowork" = 0 ]
-  then ok "every served page has a worker, or is named here as deliberately without one"
+  then ok "every served page under docs/ has a worker, or is named here as deliberately without one"
   else bad "$nowork served page(s) have no service worker"; fi
 
   # ---- a script you are told to run with ./ can be run with ./ -------

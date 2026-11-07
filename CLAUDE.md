@@ -93,6 +93,32 @@ a remote disables its default, which is why GitHub is listed explicitly.
 Never edit `bin/` directly. It is generated, CI checks that it matches `src/`,
 and your change will be silently overwritten by the next build.
 
+## `docs/coastal/` is generated too, and belongs to another project
+
+*Decided by Larry, 7 November 2026.* The coastal navigation course is a
+separate, private repository, but its **built pages are published from here**,
+at `bashnav.navigationtools.org/coastal/`, because GitHub Pages serves one
+site per repository and bashnav's site is this repository.
+
+    docs/coastal/     generated. Never hand-edited. Source lives in the
+                      coastal-navigation repository; its build copies the
+                      output in at publish time.
+
+Same rule as `bin/`: a change made here is overwritten by the next build of a
+repository you are not looking at.
+
+**Why it is here at all.** The course was going to live at
+`navigationtools.org/coastal/` — a different hostname, so a different origin,
+so its lessons could not load tides' code and would have needed a copy of
+`work.js`, a drift check, and a shim for the trig functions. On this origin a
+lesson loads `../web/tides/engine.js` and `../web/tides/work.js` directly:
+77 KB of the real files, no copy, and no shim to get subtly wrong. Larry moved
+it for stability and less complexity, and that is what it bought.
+
+**What it does not buy:** installed home-screen icons keep separate storage
+containers even on one origin, so the course still cannot read deck-log's or
+tides' data. Same origin solves code sharing, not data sharing.
+
 ## The five rules that break things silently
 
 1. **POSIX awk only.** No gawk extensions. Test under `mawk` *and* `gawk` —

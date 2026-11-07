@@ -62,6 +62,7 @@ content changes.
 | `toolrow-check.awk` | a tool in `bin/` with no table row or no section, and any README link &mdash; anchor, published app or file &mdash; that leads nowhere |
 | `install-check.awk` | an install section that has fallen behind what exists |
 | `counts-check.awk` | a count in the README or the site that the engine disagrees with, and any count written as a word |
+| the served-page walk in `run-tests.sh` | anything under `docs/` that serves an `index.html` with no service worker, unless named with a reason |
 | `ipad-install-check.sh` | the iPad installer must install, prove the tools run, set the PATH, and survive being run twice &mdash; plus the write-probe regression at shell level |
 | `ashell-check.sh` | constructs a-Shell cannot run: a heredoc feeding a command that prints, and a compound command redirected to a file |
 | `ios-home.sh` | every tool must start when `$HOME` cannot be written &mdash; the iOS condition, which no tool survived until 2026-08-30 |
