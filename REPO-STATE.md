@@ -801,6 +801,48 @@ place*, two separate apps, no behaviour change. That is where nearly all the
 risk lives, it is independently testable, and if the merge never happens
 nothing has been lost.
 
+### To do before deciding the merge: two icons, one app
+
+*Larry's idea, 7 November. Not built, not measured.*
+
+Add to Home Screen captures the URL you are on, so one set of files can carry
+two icons:
+
+    /web/nav/?tool=tides      ->  icon "tides"
+    /web/nav/?tool=decklog    ->  icon "deck-log"
+
+and the app reads `location.search` to decide what to be. Per-icon identity is
+already per-page in these builds, not per-app: `apple-mobile-web-app-title`
+gives each icon its own name and `apple-touch-icon` its own picture. One trap:
+the manifests pin `"start_url": "./index.html"`, which throws the query string
+away, so each variant needs its own small manifest or none at all.
+
+**The question that decides whether this is worth anything: do two icons from
+the same origin and scope share one storage container?** The whole purpose is
+a shared container, so the watch's position reaches tides with no gesture.
+`docs/ARCHITECTURE.md` says *from the icon: own container* — but that was
+written about icon-versus-Safari, which is what the offline test proved. Icon
+versus icon has never been measured here.
+
+  * **If they share:** the merge's benefit with two icons, two names and two
+    pictures kept. The best outcome available.
+  * **If they do not:** nothing is gained over today, and the merge is back to
+    one icon or nothing.
+
+**Measure it, do not reason about it.** Add a section to
+`docs/web/platform/` that writes a stamped value to localStorage and
+IndexedDB and shows what it reads back; add two icons pointing at the probe
+with different query strings; write from one, open the other, read the
+screen. Five minutes on the glass, and it is the same sitting as the QR test.
+
+Two things it would not solve either way:
+
+1. **The collisions remain.** One page hosting both tools is still 7 ids and
+   11 globals to namespace. This solves the icon problem, not that one, and
+   namespacing in place is still the right first step.
+2. **The size cost remains** unless the worker learns to precache only the
+   tool its icon asked for. Possible; more machinery.
+
 The hazard is not theoretical. `docs/web/celnav/index.html` carries a comment
 explaining why its back button is called `nav-back`: the camera sight already
 had a `#back`, two elements with one id is invalid and silently broken, and
