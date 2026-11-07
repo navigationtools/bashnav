@@ -346,10 +346,16 @@ p.note { color: var(--dim); font-size: 13px; }
             if (f.length) {
               f.forEach(function (c) { seen[c.rawValue] = 1; });
               n = Object.keys(seen).length;
+              //  the WHOLE payload, not the first 40 bytes. What this watch
+              //  emits is the other half of the question and it is only
+              //  answerable by reading one off the glass: whether swdir is
+              //  in the nav record or the weather one, whether cog comes
+              //  before sog, whether wsrc, tsrc and bio are there at all.
               say.innerHTML = "<b>" + n + " distinct code" + (n === 1 ? "" : "s") +
-                "</b> in " + Math.round((Date.now() - t0) / 1000) + "s &mdash; last one " +
-                f[0].rawValue.length + " bytes, starting " +
-                f[0].rawValue.slice(0, 40).replace(/</g, "&lt;");
+                "</b> in " + Math.round((Date.now() - t0) / 1000) + "s. Last one, " +
+                f[0].rawValue.length + " bytes:<br>" +
+                f[0].rawValue.replace(/&/g, "&amp;").replace(/</g, "&lt;")
+                             .replace(/\n/g, "<br>");
             }
           }).catch(function () { /* a frame that will not decode is normal */ });
         }, 200);
