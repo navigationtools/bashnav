@@ -54,6 +54,21 @@ Every project Larry runs lives under `~/navigationtools/<project>`. For any
 path other than this repository's own, read `spec`; do not carry one forward
 from an earlier session.
 
+### Where files for Larry go
+
+    ~/Downloads/claude_downloads/bashnav/     patches, documents, anything built for him
+
+Never loose in `~/Downloads`, and never in another project's folder. When this
+session is linked to his Mac, write there directly and read the file back off
+disk to confirm it arrived; when it is not, name the file clearly with a
+version and say which folder it belongs in.
+`~/Downloads/claude_downloads/README_claude_downloads.md` holds the full rules.
+Patches that reach him by a download card *as well* get applied twice, because
+a browser-saved copy is named `..._1.patch` and still matches `00NN-*.patch` —
+so write to disk and do not also send the card. Specs and handoffs still go in
+`spec`; `claude_downloads` is for working files, not a substitute for the
+repositories.
+
 **Why that last sentence is here.** This repository used to sit in
 `~/Downloads/bashnav`, and it moved. The move was recorded in `spec`, in the
 Navigation Tools session's plan — accurately, and in a file nothing told this
