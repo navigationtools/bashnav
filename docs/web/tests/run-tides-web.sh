@@ -12,12 +12,19 @@
 #
 #   1  the engine     every number the JS computes, against the number the
 #                     awk computes, over thousands of station-days
-#   2  the page       what the page SHOWS, against the awk tool's own
+#   2  the work       the six coastal calculators: work.js's working,
+#                     line for line, against `tides work`, every figure
+#                     read back against its geometry, and the lesson
+#                     link.  Needs only node, so it runs before the
+#                     browser stages and is never skipped
+#   3  the page       what the page SHOWS, against the awk tool's own
 #                     output.  A module diff cannot catch a wiring fault,
 #                     and the one that mattered -- predicting the UT day
 #                     and labelling it in station time -- passed every
 #                     module diff while the table was visibly wrong
-#   3  the moon       the drawn phase against the computed fraction
+#                     -- and the work view, opened by URL as the course
+#                     links to it, against `tides work`
+#   4  the moon       the drawn phase against the computed fraction
 set -e
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 cd "$ROOT"
@@ -51,27 +58,31 @@ $AWK -v FILE=src/tides/stations.dat -v IDFILE="$WORK/ids" -v DATES="$DATES" \
      </dev/null > "$WORK/ref.tsv"
 node docs/web/tests/tides-diff.js "$WORK/ref.tsv"
 
-#  Stages 2 and 3 drive a headless Chromium.  Playwright is not something
+echo
+echo "2. the work calculators, against the awk"
+node docs/web/tests/tides-work.js "$AWK"
+
+#  Stages 3 and 4 drive a headless Chromium.  Playwright is not something
 #  to make anyone install to check a tide table, so if it is absent they
 #  are SKIPPED and said to be skipped -- not silently passed, and not
 #  treated as a failure.  Stage 1 is the one that proves the physics.
 if node -e 'require("playwright")' >/dev/null 2>&1; then
   echo
-  echo "2. the page, against the awk tool's own output"
+  echo "3. the page and the work view, against the awk tool's own output"
   python3 docs/web/tests/serve.py 8088 "$ROOT/docs/web" >/dev/null 2>&1 &
   SRV=$!
   sleep 1
   node docs/web/tests/tides-ui.js
 
   echo
-  echo "3. the moon, against the computed fraction"
+  echo "4. the moon, against the computed fraction"
   node docs/web/tests/tides-moon.js
 
   echo
   echo "TIDES WEB: all stages passed"
 else
   echo
-  echo "2, 3. SKIPPED -- the browser stages need playwright:  npm i -D playwright"
+  echo "3, 4. SKIPPED -- the browser stages need playwright:  npm i -D playwright"
   echo
   echo "TIDES WEB: the engine passed; the page and the moon were not checked"
 fi

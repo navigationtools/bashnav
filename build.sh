@@ -175,6 +175,9 @@ build_tides() {
     echo '#__BN_END_TABLES__'
     echo '#__BN_START_ENGINE__'
     cat src/tides/engine.awk
+    #  the coastal-navigation calculators ride in the same payload, after
+    #  the engine whose functions they call
+    cat src/tides/work.awk
     echo '#__BN_END_ENGINE__'
     echo '#__BN_START_STATIONS__'
     cat src/tides/stations.dat

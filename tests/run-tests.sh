@@ -630,7 +630,7 @@ WXLOG
   fp=0
   for grp in "src/colregs/engine.awk src/colregs/contacts.awk src/colregs/review.awk" \
              "src/celnav/engine.awk src/celnav/teach.awk" \
-             "src/tides/tables.awk src/tides/engine.awk"; do
+             "src/tides/tables.awk src/tides/engine.awk src/tides/work.awk"; do
     r=$($AW -f tests/fnparam-check.awk $grp)
     n=$(echo "$r" | tail -1 | $AW '{print $2}')
     if [ "$n" != 0 ]; then bad "$n parameters shadow a function name"; echo "$r" | grep -v '^BAD' | head -4; fp=1; fi
@@ -701,7 +701,7 @@ WXLOG
     "src/common/log.awk src/common/colour.awk src/decklog/views.awk src/decklog/screens.awk" \
     "src/colregs/engine.awk src/colregs/contacts.awk src/colregs/review.awk" \
     "src/celnav/engine.awk src/celnav/teach.awk" \
-    "src/tides/engine.awk" \
+    "src/tides/engine.awk src/tides/work.awk" \
     "src/seamanship/engine.awk"; do
     [ -f "${grp%% *}" ] || continue
     r=$($AW -f tests/fnvar-check.awk $grp 2>/dev/null | tail -1)
@@ -723,7 +723,8 @@ WXLOG
   #  did not cover that file or that name.
   r=$($AW -f tests/awkvars-check.awk src/celnav/engine.awk src/celnav/teach.awk \
         src/colregs/engine.awk src/colregs/contacts.awk src/colregs/review.awk \
-        src/tides/engine.awk src/tides/tables.awk docs/ansi2svg.awk \
+        src/tides/engine.awk src/tides/tables.awk src/tides/work.awk docs/ansi2svg.awk \
+        tests/tides-work-check.awk \
         tests/contacts-check.awk tests/review-check.awk tests/tides-check.awk \
         tests/annex1-check.awk tests/fields-check.awk tests/count-check.awk \
         tests/colregs-wind.awk tests/colregs-vessel.awk tests/colregs-bearing.awk \
@@ -858,6 +859,45 @@ WXLOG
   if $AW -v t="$tt" 'BEGIN{exit !(t<12)}' </dev/null; then :; else bad "worst high/low water time error $tt min"; fi
   if $AW -v h="$th" 'BEGIN{exit !(h<0.06)}' </dev/null; then :; else bad "worst high/low water height error $th m"; fi
   ok "tides match NOAA's published tables ($tn turns, worst $tt min and $th m)"
+
+  # ---- tides work: the coastal-navigation calculators --------------
+  #  Known worked answers, from an independent Python working of each
+  #  definition (tests/tides-work-ref.py), through the same wk_run() the
+  #  tool calls - including the falling tide, the 360/0 wrap, a stream
+  #  faster than the boat, the extrapolation flags, and input that must
+  #  be refused with a message rather than a crash.
+  r=$($AW -f src/tides/tables.awk -f src/tides/engine.awk -f src/tides/work.awk \
+        -f tests/tides-work-check.awk -v SF=src/tides/stations.dat -v DAT=tests/tides-work.dat </dev/null 2>&1)
+  case "$r" in
+    *"TIDESWORK 0 of "*) ok "tides work gives the worked answers ($(printf '%s' "$r" | tail -1 | $AW '{print $4}') checks)" ;;
+    *) bad "tides work disagrees with its worked answers"; printf '%s\n' "$r" | head -8 ;;
+  esac
+  #  Every example the help prints must run, through the real tool, and
+  #  end in an answer - and WORK.md, which the coastal course reads as
+  #  the contract, must still carry each one.  An example that has
+  #  drifted from the code is a broken link on somebody else's site.
+  o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides work help 2>&1)
+  n=$(printf '%s\n' "$o" | grep -c '^    tides work ' || true)
+  check "tides work help gives an example for each calculator" "7" "$n"
+  wbad=0
+  printf '%s\n' "$o" | grep '^    tides work ' | sed 's/^    tides work //' > "$tmp/work-ex"
+  while IFS= read -r _l; do
+    # shellcheck disable=SC2086
+    w=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides work $_l 2>&1) || { bad "example failed: tides work $_l"; wbad=1; }
+    case "$w" in *"ANSWER"*) ;; *) bad "example gave no answer: tides work $_l"; wbad=1 ;; esac
+    _n=${_l%% *}; _p=${_l#* }
+    grep -F -q -- "$_p" docs/web/tides/WORK.md || { bad "WORK.md does not carry the $_n example: $_p"; wbad=1; }
+  done < "$tmp/work-ex"
+  [ "$wbad" = 0 ] && ok "every tides work example runs, and WORK.md carries it"
+  #  Bad input is a plain message and exit status 2, never an awk error.
+  st=0; w=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides work cts track=abc stw=5 streams=1:1 2>&1) || st=$?
+  case "$w" in "  work cts: track=abc is not a number") [ "$st" = 2 ] && ok "tides work refuses bad input plainly" || bad "bad input exited $st" ;;
+    *) bad "tides work bad input said: $w" ;; esac
+  #  the menu reaches it too
+  w=$(printf '7\nstream\nspr=2.6 nps=1.4 range=4.1 sprange=5.9 nprange=3.1\n\n\nq\n' | TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides 2>&1 || true)
+  case "$w" in *"ANSWER   1.8 kn"*) ok "the menu reaches the work calculators" ;; *) bad "menu 7 did not work a stream rate" ;; esac
+  e=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides work cts track=045 stw=6 streams=135:1.5 | cat -v | grep -c '\^\[' || true)
+  check "tides work is clean when piped" "0" "$e"
 
   # ---- no network, ever --------------------------------------------
   #  The founding promise of both tools, and the reason the review

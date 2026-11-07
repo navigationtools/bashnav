@@ -994,5 +994,7 @@ BEGIN{
     printf "%s|%s|%s|%s|%.5f|%.5f|%d|%s\n",
       TD_ID, TD_NAME, TD_REGION, TD_COUNTRY, TD_LAT, TD_LON, TD_TZ, TD_KIND
   }
-  else if(cmd!=""){ print "tides: unknown cmd " cmd; exit 2 }
+  #  cmd=work is dispatched by work.awk's own BEGIN block, which runs after
+  #  this one: see the head of that file for why it is not called from here.
+  else if(cmd!="" && cmd!="work"){ print "tides: unknown cmd " cmd; exit 2 }
 }

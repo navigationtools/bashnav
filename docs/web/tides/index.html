@@ -92,6 +92,14 @@
         or two. For a sight, use celnav.</p>
     </div>
 
+    <div class="panel">
+      <h2>Coastal work</h2>
+      <p class="note">The calculators a coastal passage needs, each with its working
+        shown: heights between the turns, secondary ports, stream rates, which
+        atlas page, the course to steer and the set and drift.</p>
+      <div class="workmenu"></div>
+    </div>
+
     <details class="asterm" id="term-wrap">
       <summary>Show it as the terminal does</summary>
       <pre id="term" aria-label="Terminal rendering"></pre>
@@ -142,6 +150,37 @@
       <h2 id="res-head">Results</h2>
       <div id="results"></div>
     </div>
+
+    <div class="panel">
+      <h2>Coastal work</h2>
+      <p class="note">Four of the six need no station at all.</p>
+      <div class="workmenu"></div>
+    </div>
+  </section>
+
+  <!-- ================= coastal work =================
+       Opened directly by a URL carrying ?work=<name>&key=value...,
+       which is how the coastal navigation course links here.  The
+       parameter names are a contract: see WORK.md. -->
+  <section class="view" id="v-work" hidden>
+    <p class="lessonlink" id="w-lesson" hidden><a id="w-lesson-a" href="#">&#8249; Back to the lesson</a></p>
+    <div class="panel">
+      <div class="wtabs" id="w-tabs" role="tablist"></div>
+      <p class="note" id="w-sub"></p>
+      <div class="fields" id="w-form"></div>
+      <div class="btnrow" style="margin-top:12px">
+        <button class="btn go" id="w-go">Work it</button>
+        <button class="btn" id="w-ex">Example</button>
+        <button class="btn" id="w-clear">Clear</button>
+      </div>
+    </div>
+    <div class="panel" id="w-result" hidden>
+      <h2>The working</h2>
+      <div id="w-out"></div>
+    </div>
+    <p class="lessonlink" id="w-lesson2" hidden><a id="w-lesson2-a" href="#">&#8249; Back to the lesson</a></p>
+    <p class="note">A link to this, with the values above:
+      <span class="mono wurl" id="w-url"></span></p>
   </section>
 
   <!-- ================= about ================= -->
@@ -199,6 +238,7 @@
 
 <script src="tables.js"></script>
 <script src="engine.js"></script>
+<script src="work.js"></script>
 <script src="tides.js"></script>
 </body>
 </html>

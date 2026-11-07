@@ -81,6 +81,35 @@ do_day() {
       -v nowdate="$(utctoday)" -v nowtime="$(date -u '+%H:%M')" \
       -v charted="$CHARTED" -v draft="$DRAFT" -v clear="$CLEAR" -v air="$AIR" -v mast="$MAST"
 }
+#  The coastal-navigation calculators.  Each key=value argument is passed
+#  through untouched, joined with | into one -v string; the engine reads
+#  and checks them, so the shell and the browser refuse the same input
+#  with the same words.  The chosen station is the default for the two
+#  calculators that need one, and now is the default time.
+do_work() {
+  wn="$1"; [ $# -gt 0 ] && shift
+  wa=""
+  for a in "$@"; do wa="$wa|$a"; done
+  eng -v cmd=work -v wname="$wn" -v wargs="$wa" -v defstation="$station" \
+      -v nowdate="$(utctoday)" -v nowtime="$(date -u '+%H:%M')" -v nofig="${NOFIG:-0}"
+}
+#  From the menu: show the six with an example each, take a name and a
+#  line of parameters, and go round again until return.  The parameter
+#  line is split on spaces with globbing off, so a value is never taken
+#  for a file pattern.
+work_menu() {
+  while :; do
+    eng -v cmd=work -v wname=help
+    printf "  calculator (return to go back): "; IFS= read -r wn || return 0
+    [ -z "$wn" ] && return 0
+    printf "  parameters, key=value separated by spaces:\n  "; IFS= read -r wp || return 0
+    set -f
+    # shellcheck disable=SC2086
+    do_work "$wn" $wp || true
+    set +f
+    printf "  return for the list again "; IFS= read -r _x || return 0
+  done
+}
 help_text() {
   printf '%s\n' \
     '' \
@@ -92,6 +121,7 @@ help_text() {
     '  tides use <id>           choose a station' \
     '  tides today [date]       the day'\''s table, curve and depth helper' \
     '  tides sky [date]         the same, with the moon and sun panel' \
+    '  tides work <name> k=v .. coastal navigation, working shown (tides work help)' \
     '  tides where              which station is chosen, and where the files are' \
     '  tides day|night|plain    colour mode' \
     '  tides about              what this is, where the data comes from' \
@@ -145,6 +175,7 @@ menu() {
       '    4  Depth and clearance' \
       '    5  Choose a station by name' \
       '    6  Choose a station near a position' \
+      '    7  Coastal work: twelfths, secondary ports, streams, course to steer' \
       '' \
       '    c  Colour   a  About   h  Help   q  Quit'
     printf "  > "; IFS= read -r c || exit 0
@@ -156,6 +187,7 @@ menu() {
       5) find_loop ;;
       6) printf "  latitude: "; IFS= read -r la; printf "  longitude: "; IFS= read -r lo
          [ -n "$la" ] && do_near "$la" "$lo" ;;
+      7) work_menu ;;
       c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
            case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
       a|A) about_text ;;
@@ -236,6 +268,7 @@ case "$1" in
                -v yy=$(echo "$d"|cut -d- -f1) -v mm=$(echo "$d"|cut -d- -f2) \
                -v dd=$(echo "$d"|cut -d- -f3) \
                -v hh=$(echo "$t"|cut -d: -f1) -v mi=$(echo "$t"|cut -d: -f2) ;;
+  work)    shift; do_work "$@"; exit $? ;;
   where)   echo "station: ${stationname:-none} ${station}"
            echo "engine:  $ENGINE"
            echo "data:    $STATIONS"
@@ -247,7 +280,7 @@ case "$1" in
   version|--version) echo "tides $TIDES_VERSION" ;;
   *) echo "tides: there is no command '$1'."
      echo
-     echo "  Working    today  sky  height  near  find  use"
+     echo "  Working    today  sky  height  near  find  use  work"
      echo "  Setup      day  night  plain  about  where  version"
      echo
      echo "  'tides help' explains each of them."

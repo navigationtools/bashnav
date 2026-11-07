@@ -1,5 +1,79 @@
 # Changelog
 
+## tides 1.2 — the coastal work calculators
+
+**What.** Six calculators in `tides`, in the shell (`tides work <name>
+key=value ...`, and menu item 7) and in the browser build (a Coastal work
+screen, opened directly by `?work=<name>&...`). Each shows its working step
+by step and ends with the answer:
+
+| name | what it works out |
+| --- | --- |
+| `twelfths` | height at a time by the rule of twelfths and by the cosine method, with the hourly table and the difference; from a station it takes the turns from the prediction and adds the harmonic height — three answers side by side |
+| `secondary` | a secondary port's HW and LW from its standard port: time differences interpolated round the 12-hour circle, height differences between neaps and springs, extrapolation flagged |
+| `stream` | a stream rate between the atlas's neap and spring figures, by the day's range; extrapolation flagged |
+| `atlas` | which page of the tidal stream atlas you are on (hours from the nearest HW, ±30 min rounding stated), the range of the tide you are in, and where it sits between mean neaps and springs |
+| `cts` | course to steer across one or more hours of stream, solved once on the summed stream as taught; leeway into the wind; true, magnetic and compass; SOG and time for the leg; "cannot make good this track" when the stream wins |
+| `setdrift` | set and drift from a DR and a fix, by plane sailing at the mean latitude |
+
+**Why.** The daily navigational question underway is what the water is doing
+to you and what to steer for it — the set-and-drift and atlas-page design
+`REPO-STATE.md` has carried since August. And a coastal navigation course is
+being written that teaches these methods and wants a working tool beside each
+lesson; it links into the browser build with fixed URL parameters, so those
+names are now a contract, written down in `docs/web/tides/WORK.md`, and every
+result carries a link back to the lesson when the URL names one.
+
+**How it is built, and why that way.**
+
+1. **One set of arithmetic.** The calculators are `src/tides/work.awk`,
+   packed into the tides engine payload after `engine.awk`. Its dispatch is
+   its own `BEGIN` block, so `engine.awk` still loads on its own — mawk
+   resolves every call at parse time.
+2. **The vector helpers are lifted from `src/colregs/contacts.awk`** — the
+   bearing of a vector and the signed angle, the tracking party's tools —
+   and copied rather than shared, because contacts.awk calls colregs'
+   engine and cannot be loaded into tides.
+3. **The browser prints the same lines.** `docs/web/tides/work.js` is a port
+   whose working is the awk's, character for character, including printf's
+   round-half-even on exact ties (a 1.50 m range gives twelfths of
+   0.125 m). Where the shell draws a character figure the page draws SVG
+   from the same numbers.
+4. **The working shows bearings to a tenth and the answer the whole degree
+   you steer**, so a lesson's 246.3° is visible in the working and the
+   helm gets 246.
+
+**What it impacts.**
+
+1. `tides` goes to **1.2**; its engine file is `engine-1.2.awk`.
+2. The browser worker goes to **`tides-v5`** and the page to **build 5**,
+   with `work.js` precached, so installed copies pick it up.
+3. **The offline panel now uses the worker's current cache.** It had named
+   `tides-v1` by hand, which the worker deletes as an old member of its own
+   family when it updates, so "Save everything for offline use" saved into a
+   cache the next update threw away. The name is now derived from `BUILD`.
+4. **The tides page harness waits for the station it chose.** It waited for
+   any prediction, so on a fast machine the previous station's answer was
+   sometimes compared and the terminal-picture check failed on a race. It
+   also writes its screenshots to a temporary folder now, not the
+   repository root.
+5. Tests: `tests/tides-work-check.awk` holds 60 worked cases to values from
+   `tests/tides-work-ref.py`, an independent Python working; `run-tests.sh`
+   runs every help example through the real tool and checks `WORK.md` still
+   carries each; `docs/web/tests/tides-work.js` compares the port with the
+   awk and reads every figure back; `tides-ui.js` opens the calculators by
+   URL and compares what the page shows.
+6. **`COURSE_BASE` is `https://bashnav.navigationtools.org/practical-navigator/coastal/`.**
+   The first build of this patch carried `https://navigationtools.org/coastal/`,
+   written before the course moved onto this origin under its settled name.
+   It was corrected before the patch was applied, so the stale address never
+   enters the history. Impact: every *Back to the lesson* link lands on the
+   course where it now lives, on the same origin, so inside one installed
+   icon it stays in the app rather than opening the browser panel. The
+   lesson pattern `^[a-c][0-9]-[0-9]+$` is unchanged; the course's new level
+   structure may need it widened later, which will be its own change.
+7. `bin/tides` and `release/bashnav-ipad.sh` are rebuilt.
+
 ## A scope probe: can one icon hold the course and tides, offline?
 
 **What.** `docs/web/platform/scope/` — a second probe, with its own manifest

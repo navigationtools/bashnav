@@ -16,7 +16,7 @@ New here? Start with [`CLAUDE.md`](CLAUDE.md), then
 |---|---|---|---|
 | `bin/celnav` | 1.6 | 258 KB | celestial navigation: almanac, sight reduction, plotting, fix, and a teaching track |
 | `bin/colregs` | 1.15 | 255 KB | rules of the road: lights, shapes, sounds, encounters, collision-avoidance scenarios, contact management, and an interactive review |
-| `bin/tides` | 1.1 | 2.8 MB | harmonic tide prediction, 8,334 stations worldwide |
+| `bin/tides` | 1.2 | 2.9 MB | harmonic tide prediction, 8,334 stations worldwide, and the six coastal work calculators |
 | `bin/deck-log` | 1.1 | 49 KB | the boat's records &mdash; deck, engine, provisions &mdash; append-only in UTC, spares derived by replaying the log |
 | `bin/weather` | 1.0 | 106 KB | reasons over the log's observations and shows its working; ten lessons, the Coriolis tier and the wind demonstration; forecast scoring |
 | `bin/bashnav` | 1.0 | 3 KB | the launcher: a menu in front of the other five, and one home-screen icon on an iPad |
@@ -851,9 +851,34 @@ were the same button. That happened inside **one** tool, between two of its
 own views, and cost a round. A merge is that failure multiplied, and the
 failures are silent, which is the expensive kind.
 
-## Next: set and drift
+## Set and drift, and the atlas page — built
 
-*Agreed 2026-08-29. Designed, not built.* Lives **in `tides`**.
+*Agreed 2026-08-29; **built 2026-11-07** as `tides work`, with four more
+calculators beside it.* The design below is what was built. Where it lives
+and how it is checked:
+
+    src/tides/work.awk          the six calculators, the reference
+    docs/web/tides/work.js      the browser port, same lines of working
+    docs/web/tides/WORK.md      the URL contract the coastal course links with
+    tests/tides-work.dat        worked answers, from tests/tides-work-ref.py
+
+    setdrift   measuring set and drift: DR from a fix, then DR -> fix
+    cts        using it: the current triangle, multi-hour, leeway, var, dev
+    atlas      which page of the atlas: hours from HW at the standard port,
+               and where the day's range sits between neaps and springs
+    stream, secondary, twelfths   the arithmetic that goes round them
+
+The vector helpers came from `src/colregs/contacts.awk` as planned — copied,
+not shared, because that file calls colregs' engine and cannot load into
+tides. **Still open:** the reverse triangle (from an observed track and
+heading, the stream that did it) is not a separate calculator; `setdrift`
+answers the same question from two fixes. The atlas means are the Admiralty
+definition from M2 and S2 and are offered only where the tide is
+semidiurnal; a secondary port gets the range and the name of its standard
+port. No calculator predicts a stream — that still needs an atlas or a
+diamond, which is the decision above.
+
+The original design note follows.
 
 Larry's framing, and he is right about the priority: the daily navigational
 problem underway is not clearance under a bridge, it is what the water is

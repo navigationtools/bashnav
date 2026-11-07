@@ -969,6 +969,33 @@ machine. Two things about how that check is built:
 
 ---
 
+### The coastal calculators: an independent working, then sameness
+
+`tides work` is checked the way the harmonic engine is, in two halves.
+
+1. **The awk against the method.** `tests/tides-work-check.awk` runs the
+   cases in `tests/tides-work.dat` through `wk_run()`, the same entry the
+   tool uses, and compares its results with numbers printed by
+   `tests/tides-work-ref.py`. That script works each method from its
+   definition and, where there is a second way, uses it: the twelfths are
+   integrated from the staircase rather than read from 0-1-3-6-9-11-12, and
+   the course to steer is found by bisection on the ground track rather than
+   the asin of the cross-track part. The coastal course's own chapter
+   examples are in there too. One expected value was first typed by hand and
+   was wrong; the script caught it — which is the rule above, again.
+2. **The browser against the awk.** `docs/web/tests/tides-work.js` compares
+   `work.js`'s working with `tides work`'s, line for line, over every case
+   and every help example, refusals included; reads each SVG figure back
+   through its `data-pt` marks and checks the triangle closes on the right
+   bearings at one scale; and checks the lesson link is built only for a
+   real lesson id.
+
+Faults planted and caught: leeway applied the wrong way, a twelfths
+cumulative of 8 for 9 (which passed until cases were added in tidal hours 1,
+5 and 6 — the staircase is only tested where a case lands), `toFixed` for
+printf's rounding, the falling-tide sign dropped, and the water vector drawn
+three degrees off.
+
 ## Golden files
 
 `tests/golden/` holds 27,245 lines of expected screen output across 13 files —

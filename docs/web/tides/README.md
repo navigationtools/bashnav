@@ -8,6 +8,8 @@ browser with no network. It is the same engine as the POSIX `awk` tool in
     engine.js         the port: astronomy, nodal factors, synthesis
     tables.js         the UTide constituent tables  (generated)
     tides.js          the app
+    work.js           the six coastal calculators: a port of src/tides/work.awk
+    WORK.md           the URL contract the coastal course links with
     tides.css         two modes, dark and night
     stations.idx      the search index, with byte offsets  (generated)
     stations.dat      the harmonic constants  (copied from src/tides/)
@@ -30,6 +32,42 @@ charted vertical clearances are *above* HAT and the tide takes them away.
 Getting that pair of signs the wrong way round is the classic way to put a
 mast into a bridge, so the two are separate functions in the engine and
 separately labelled on the screen.
+
+## Coastal work
+
+Six calculators, each showing its working step by step, because the point is
+teaching: the rule of twelfths (with the cosine method and, at a station, the
+harmonic height beside it), a secondary port from its standard port, a stream
+rate between neaps and springs, which page of the tidal stream atlas you are
+on, the course to steer, and set and drift from a DR and a fix. They are on
+the day screen and the station picker, and a URL opens one directly:
+
+    ?work=cts&track=045&stw=6&streams=135:1.5,150:2.0&lesson=a6-2
+
+The coastal navigation course links into them that way, so **the parameter
+names are a contract**, written down in [`WORK.md`](WORK.md) with every unit
+and default. `lesson=` adds a link back to the lesson, built from the one
+constant `COURSE_BASE` at the top of `work.js`.
+
+```
+   URL  ?work=..&..&lesson=..          form  "Work it"
+          |                              |   (writes the URL back)
+          v                              v
+   WORK.fromQuery() ----> WORK.run(name, params, ctx) ----> lines + figure
+                              ^                               |
+                    station loaded first,            <pre> working, SVG,
+                    for atlas and twelfths           "Back to the lesson"
+```
+
+**Why a port and not a page of its own.** `work.js` prints the same lines of
+working as `tides work` in the shell, character for character, and
+`docs/web/tests/tides-work.js` compares the two on every worked case. The awk
+is held to an independent Python working (`tests/tides-work-ref.py`), so
+there is one set of arithmetic to trust and the browser is checked against
+it, the same arrangement as the harmonic engine. The pictures are the one
+place the builds differ on purpose: the shell draws characters, the page
+draws SVG from the same numbers, and the SVG's points are read back and
+checked against the geometry they claim.
 
 ## Why you pick a station and not a place
 
@@ -81,11 +119,14 @@ Three things about that are easy to get wrong:
 
 ## Offline
 
-The worker caches the app and the index on install. `stations.dat` is
+The worker caches the app, the calculators and the index on install. `stations.dat` is
 deliberately **not** in that list: one large file in `addAll()` fails the
 whole install on a flaky connection, and then nothing at all is cached.
 It is cached on first successful fetch instead, and the About screen has a
-button that fetches it with a progress bar. Prove it once at the dock:
+button that fetches it with a progress bar. That button writes into the
+worker's current cache, named from `BUILD` (`tides-v5` for build 5), so a
+later update keeps the saved file rather than evicting it with the old
+cache. Prove it once at the dock:
 open a station, turn the network off, relaunch from the icon.
 
 ## Regenerating
@@ -102,6 +143,10 @@ own line back out byte for byte.
 
     sh docs/web/tests/run-tides-web.sh            quick
     sh docs/web/tests/run-tides-web.sh --full     615 stations x 4 dates
+
+Stage 2 is the coastal calculators: every worked case and help example,
+the working compared line for line with `tides work`, the figures read back,
+the lesson link built and refused. It needs only node.
 
 See `docs/web/tests/README.md`. Heights agree with the awk engine to about a
 femtometre and the turning times are exact. The page is driven and

@@ -52,7 +52,7 @@ extraction repeats if the executable is newer than the extracted engine
 
     ~/.celnav/    engine-1.6.awk  teach-1.6.awk  celnav.conf
     ~/.colregs/   engine-1.15.awk  contacts-1.15.awk  review-1.15.awk  colregs.conf
-    ~/.tides/     engine-1.1.awk  tables-1.1.awk  stations.dat  config  lastlist
+    ~/.tides/     engine-1.2.awk  tables-1.2.awk  stations.dat  config  lastlist
     ~/.bashnav/   decklog-1.1.awk  weather-1.0.awk  log  boat  *.conf
 
 ### `$HOME` is not writable on iOS, so the folder is chosen, not assumed
@@ -148,6 +148,7 @@ marking without the shell having to remember anything. That is also what makes
     src/tides/10-head.sh          config, colour, awk detection, eng()
     src/tides/tables.awk          generated: constituent definitions
     src/tides/engine.awk          harmonic prediction, station search, drawing
+    src/tides/work.awk            the coastal work calculators (in the engine payload)
     src/tides/stations.dat        generated: 8,334 stations
     src/tides/30-ui.sh            commands and menu
     src/tides/gen/*.py            the generators (run offline, output committed)
@@ -323,7 +324,9 @@ single change inside the apps.
   headland and behave nothing like you.
 - **No tidal streams.** The 8,334 stations are height stations. Set and drift
   is a different measurement made at different places; nothing here predicts a
-  current. See `REPO-STATE.md` for where that is going.
+  current. `tides work` does the arithmetic AROUND a stream — the rate from an
+  atlas's two figures, which atlas page, the course to steer, set and drift
+  from a fix — with the stream itself taken from the atlas or the chart.
 - **No weather.** A prediction is the astronomical tide and nothing else. A
   deep low can raise the sea half a metre above it.
 - **No GPS, no AIS, no charts.** These are cross-checking and training tools.

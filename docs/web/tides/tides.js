@@ -23,7 +23,14 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '4 \u2014 7 Nov 2026';
+var BUILD = '5 \u2014 7 Nov 2026';
+/*  The worker's cache, derived from BUILD so there is no second number to
+    drift: run-tests.sh already holds BUILD to sw.js's CACHE.  The offline
+    panel once named 'tides-v1' by hand, which the worker evicts as an old
+    member of its own family the first time it updates -- so "Save for
+    offline" wrote into a cache that the next update deleted, and the
+    panel read its state from that same doomed cache. */
+var CACHE_NAME = 'tides-v' + BUILD.split(' ')[0];
 
 var IDX_URL = 'stations.idx';
 var DAT_URL = 'stations.dat';
@@ -70,10 +77,11 @@ function setMode(m) {
 /* ---- navigation ---------------------------------------------------- */
 function go(v) {
   VIEW = v;
-  ['day', 'pick', 'about'].forEach(function (n) { $('v-' + n).hidden = (n !== v); });
+  ['day', 'pick', 'about', 'work'].forEach(function (n) { $('v-' + n).hidden = (n !== v); });
   $('back').hidden = (v === 'day');
   $('title').textContent = v === 'pick' ? 'Choose a station'
-                         : v === 'about' ? 'About' : 'tides';
+                         : v === 'about' ? 'About'
+                         : v === 'work' ? 'Coastal work' : 'tides';
   window.scrollTo(0, 0);
 }
 
@@ -351,7 +359,10 @@ function choose(id) {
     recentPush(id);
     if (!DAY) setToday();
     rebuild();
-    go('day');
+    /*  A course link opens the work view while the last station is still
+        loading in the background; arriving must not pull the reader out
+        of the calculator they were sent to. */
+    if (VIEW !== 'work') go('day');
   }).catch(function (e) {
     showResults('Results', [], 'Could not open that station: ' + e.message);
   });
@@ -862,7 +873,7 @@ function lpad(s, n) { while (s.length < n) s = ' ' + s; return s; }
 function offlineState() {
   var n = $('off-state');
   if (!('caches' in window)) { n.textContent = 'This browser will not cache for offline use.'; return; }
-  caches.open('tides-v1').then(function (c) {
+  caches.open(CACHE_NAME).then(function (c) {
     return Promise.all([c.match(IDX_URL), c.match(DAT_URL), c.match('./')]);
   }).then(function (r) {
     var shell = !!r[2], idx = !!r[0], dat = !!r[1];
@@ -903,7 +914,7 @@ function saveOffline() {
       });
     })();
   }).then(function (resp) {
-    return caches.open('tides-v1').then(function (c) {
+    return caches.open(CACHE_NAME).then(function (c) {
       return c.put(DAT_URL, resp);
     });
   }).then(function () {
@@ -916,6 +927,200 @@ function saveOffline() {
     $('off-state').textContent = 'Could not save it: ' + e.message;
   });
 }
+
+
+/* =====================================================================
+   Coastal work: the six calculators.
+
+   The arithmetic and every line of the working are in work.js, which is
+   held to `tides work` character for character.  This part is only the
+   form, the URL and the drawing:
+
+       URL ?work=cts&track=045&...&lesson=a6-2
+         |
+         v
+       WORK.fromQuery()  ->  [[key, value], ...]   in the URL's order
+         |
+         +-- a station needed?  load it first (async), then
+         v
+       WORK.run(name, params, ctx)  ->  { lines, res, fig } or a refusal
+         |
+         +-- lines, split at @@FIG  ->  <pre class="working">
+         +-- fig                    ->  WORK.figure() -> SVG
+         +-- lesson=                ->  WORK.lessonHref() -> back link
+
+   "Work it" writes the form back into the URL with replaceState, so the
+   address bar is always a link to what is on the screen.
+   ===================================================================== */
+var WNAME = 'twelfths';
+var WLESSON = '';
+
+function workNeedsStation(name, a) {
+  if (name === 'atlas') return true;
+  if (name !== 'twelfths') return false;
+  return !(a.lw || a.hw || a.lwh || a.hwh);
+}
+function asObj(params) {
+  var o = {};
+  params.forEach(function (p) { if (p[1] !== '') o[p[0]] = p[1]; });
+  return o;
+}
+function drawWorkMenus() {
+  var boxes = document.querySelectorAll('.workmenu');
+  for (var b = 0; b < boxes.length; b++) {
+    boxes[b].textContent = '';
+    WORK.NAMES.forEach(function (n) {
+      var r = el('button', 'row');
+      r.appendChild(el('b', null, WORK.SPEC[n].title));
+      r.appendChild(el('span', null, WORK.SPEC[n].sub));
+      r.addEventListener('click', function () { openWork(n, null); });
+      boxes[b].appendChild(r);
+    });
+  }
+}
+function drawWorkTabs() {
+  var box = $('w-tabs');
+  box.textContent = '';
+  WORK.NAMES.forEach(function (n) {
+    var b = el('button', null, WORK.SPEC[n].title);
+    b.setAttribute('role', 'tab');
+    b.setAttribute('aria-selected', n === WNAME ? 'true' : 'false');
+    b.addEventListener('click', function () { openWork(n, null); });
+    box.appendChild(b);
+  });
+}
+function drawWorkForm(vals) {
+  var sp = WORK.SPEC[WNAME], box = $('w-form');
+  box.textContent = '';
+  $('w-sub').textContent = sp ? sp.sub.charAt(0).toUpperCase() + sp.sub.slice(1) + '.' : '';
+  if (!sp) return;
+  sp.fields.forEach(function (f) {
+    var d = el('div', 'f'), id = 'wf-' + f[0];
+    var lab = el('label', null, f[1]);
+    lab.setAttribute('for', id);
+    var inp = el('input', 'wf');
+    inp.id = id; inp.type = 'text';
+    inp.setAttribute('data-k', f[0]);
+    inp.setAttribute('autocomplete', 'off'); inp.setAttribute('autocapitalize', 'off');
+    inp.setAttribute('spellcheck', 'false');
+    inp.placeholder = f[2] || '';
+    inp.value = vals && vals[f[0]] !== undefined ? vals[f[0]] : '';
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') workFromForm(); });
+    d.appendChild(lab); d.appendChild(inp);
+    box.appendChild(d);
+  });
+}
+function formParams() {
+  var out = [], ins = $('w-form').querySelectorAll('input');
+  for (var i = 0; i < ins.length; i++) {
+    var v = ins[i].value.replace(/^\s+|\s+$/g, '');
+    if (v !== '') out.push([ins[i].getAttribute('data-k'), v]);
+  }
+  return out;
+}
+function workUrl(params) {
+  var q = new URLSearchParams();
+  q.append('work', WNAME);
+  params.forEach(function (p) { if (p[0] !== 'work' && p[0] !== 'lesson') q.append(p[0], p[1]); });
+  if (WLESSON) q.append('lesson', WLESSON);
+  return location.pathname + '?' + q.toString();
+}
+function showLesson() {
+  var href = WORK.lessonHref(WLESSON);
+  ['w-lesson', 'w-lesson2'].forEach(function (id) {
+    $(id).hidden = !href;
+    if (href) $(id + '-a').setAttribute('href', href);
+  });
+}
+/*  Open the work view on one calculator.  params null: a fresh form,
+    with the chosen station filled in where one is wanted. */
+function openWork(name, params) {
+  WNAME = name;
+  drawWorkTabs();
+  var vals = params ? asObj(params) : {};
+  if (!params && STATION && WORK.SPEC[name] &&
+      WORK.SPEC[name].fields.some(function (f) { return f[0] === 'station'; }) && name === 'atlas') {
+    vals.station = STATION.st.id;
+  }
+  drawWorkForm(vals);
+  $('w-result').hidden = true;
+  $('w-out').textContent = '';
+  showLesson();
+  $('w-url').textContent = location.origin + workUrl(params || []);
+  go('work');
+  if (params) workRun(params);
+}
+function workFromForm() {
+  var p = formParams();
+  try { history.replaceState(null, '', workUrl(p)); } catch (e) { /* file: */ }
+  $('w-url').textContent = location.origin + workUrl(p);
+  workRun(p);
+}
+function nowUT() {
+  var n = new Date();
+  return { d: n.getUTCFullYear() + '-' + pad2(n.getUTCMonth() + 1) + '-' + pad2(n.getUTCDate()),
+           t: pad2(n.getUTCHours()) + ':' + pad2(n.getUTCMinutes()) };
+}
+function workRun(params) {
+  var a = asObj(params), now = nowUT();
+  var def = STATION ? STATION.st.id : lsGet('station', '');
+  var ctx = { defStation: def, nowdate: now.d, nowtime: now.t, load: null };
+  var id = WORK.stationId(a, def);
+  if (!workNeedsStation(WNAME, a) || !id || !IDX || IDX.byId[id] === undefined) {
+    ctx.load = function () { return { err: 'no station with that id' }; };
+    workShow(WORK.run(WNAME, params, ctx));
+    return;
+  }
+  $('w-result').hidden = false;
+  $('w-out').textContent = 'Loading the station…';
+  openStation(id).then(function (p) {
+    ctx.load = function () { return p; };
+    workShow(WORK.run(WNAME, params, ctx));
+  }).catch(function (e) {
+    ctx.load = function () { return { err: e.message }; };
+    workShow(WORK.run(WNAME, params, ctx));
+  });
+}
+function workPre(lines) {
+  var pre = el('pre', 'working');
+  lines.forEach(function (L, i) {
+    if (/^  ANSWER/.test(L)) pre.appendChild(el('b', 'ans', L));
+    else pre.appendChild(document.createTextNode(L));
+    if (i < lines.length - 1) pre.appendChild(document.createTextNode('\n'));
+  });
+  return pre;
+}
+function workShow(r) {
+  var out = $('w-out');
+  out.textContent = '';
+  $('w-result').hidden = false;
+  if (!r.ok) {
+    out.appendChild(el('p', 'wrefuse', r.err.charAt(0).toUpperCase() + r.err.slice(1) + '.'));
+    out.appendChild(el('p', 'note', 'Nothing was worked. WORK.md lists every parameter, its units and its default.'));
+    out.setAttribute('data-state', 'refused');
+    return;
+  }
+  var k = r.lines.indexOf('@@FIG');
+  var before = k < 0 ? r.lines : r.lines.slice(0, k), after = k < 0 ? [] : r.lines.slice(k + 1);
+  //  the leading blank line is the terminal's spacing, not the page's
+  if (before.length && before[0] === '') before = before.slice(1);
+  out.appendChild(workPre(before));
+  if (k >= 0) {
+    var fig = el('div', 'wfigbox');
+    fig.innerHTML = WORK.figure(r);      // built from numbers only: see work.js
+    out.appendChild(fig);
+    out.appendChild(workPre(after));
+  }
+  if (WNAME === 'atlas' && r.res.means) {
+    var b = el('button', 'btn wide', 'Work the stream rate for this range');
+    b.addEventListener('click', function () {
+      openWork('stream', [['range', wfix(r.res.range)], ['sprange', wfix(r.res.sprange)], ['nprange', wfix(r.res.nprange)]]);
+    });
+    out.appendChild(b);
+  }
+  out.setAttribute('data-state', 'worked');
+}
+function wfix(v) { return WORK.fx(v, 2); }
 
 /* =====================================================================
    Start
@@ -940,6 +1145,21 @@ window.addEventListener('DOMContentLoaded', function () {
   $('b-gps').addEventListener('click', doGps);
   $('b-offline').addEventListener('click', saveOffline);
   $('ver').textContent = 'build ' + BUILD;
+  drawWorkMenus();
+  $('w-go').addEventListener('click', workFromForm);
+  $('w-ex').addEventListener('click', function () {
+    var ex = WORK.EXAMPLES[WNAME], v = {};
+    if (ex) ex.split(' ').forEach(function (kv) { var e = kv.indexOf('='); v[kv.substr(0, e)] = kv.substr(e + 1); });
+    drawWorkForm(v);
+  });
+  $('w-clear').addEventListener('click', function () { drawWorkForm({}); $('w-result').hidden = true; });
+
+  /*  ?work=... opens the calculator straight away -- before the station
+      index has loaded, because four of the six never need it.  The two
+      that do wait for it below. */
+  var WQ = WORK.fromQuery(location.search), wq = asObj(WQ);
+  var startWork = wq.work !== undefined;
+  WLESSON = wq.lesson || '';
 
   BOAT.forEach(function (k) {
     var f = $('i-' + k);
@@ -959,7 +1179,11 @@ window.addEventListener('DOMContentLoaded', function () {
     qt = setTimeout(doSearch, 140);
   });
 
-  go('pick');
+  if (startWork) {
+    WNAME = wq.work;
+    if (!workNeedsStation(WNAME, wq)) openWork(WNAME, WQ);
+    else { drawWorkTabs(); go('work'); showLesson(); $('w-result').hidden = false; $('w-out').textContent = 'Loading the station index\u2026'; }
+  } else go('pick');
   showResults('Results', [], 'Loading the station index\u2026');
 
   loadIndex().then(function () {
@@ -971,9 +1195,11 @@ window.addEventListener('DOMContentLoaded', function () {
       setToday();
       choose(last);
     }
+    if (startWork && workNeedsStation(WNAME, wq)) openWork(WNAME, WQ);
     offlineState();
   }).catch(function (e) {
     showResults('Results', [], 'Could not load the station index: ' + e.message);
+    if (startWork && workNeedsStation(WNAME, wq)) openWork(WNAME, WQ);
   });
 
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {

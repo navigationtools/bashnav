@@ -298,3 +298,51 @@ details.asterm pre {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ---- coastal work ---------------------------------------------------
+   The working is the point, so it is shown as the terminal shows it:
+   monospaced, line for line the same as `tides work`, scrolling inside
+   its own box on a narrow screen rather than reflowing, because a column
+   of twelfths that wraps is no longer a column.  The figures are SVG and
+   take every colour from the custom properties above, so night mode
+   turns them red with everything else. */
+.workmenu { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.workmenu .row { margin: 0; }
+.wtabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+.wtabs button {
+  min-height: 44px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--panel-2); color: var(--text); font: inherit; font-size: 13px;
+}
+.wtabs button[aria-selected="true"] { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.fields input.wf { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+pre.working {
+  margin: 0; padding: 10px 0; overflow-x: auto; font-size: 12px; line-height: 1.45;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--text);
+  white-space: pre;
+}
+pre.working b.ans { color: var(--now); font-weight: 700; }
+p.wrefuse { color: var(--bad); font-size: 15px; }
+.lessonlink { margin: 4px 0 12px; }
+.lessonlink a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.wurl { word-break: break-all; color: var(--dim); }
+svg.wfig { display: block; width: 100%; height: auto; margin: 8px 0 2px; }
+svg.wfig .axis, svg.wfig .grid { stroke: var(--line); stroke-width: 1; }
+svg.wfig .c-12 { stroke: var(--curve); stroke-width: 2.5; fill: none; }
+svg.wfig .c-cos { stroke: var(--dim); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
+svg.wfig .c-harm { stroke: var(--low); stroke-width: 2; fill: none; }
+svg.wfig .c-water { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 7 4; fill: none; }
+svg.wfig .c-tide { stroke: var(--low); stroke-width: 2; fill: none; }
+svg.wfig .now { stroke: var(--now); stroke-width: 1.5; stroke-dasharray: 4 3; }
+svg.wfig .pt { fill: var(--text); }
+svg.wfig .pt.acc { fill: var(--now); }
+svg.wfig .pt.hv { fill: var(--low); }
+svg.wfig .lab { fill: var(--dim); font: 12px -apple-system, system-ui, sans-serif; }
+svg.wfig .lab.acc { fill: var(--now); font-weight: 700; }
+.wkey { font-size: 12px; color: var(--dim); margin: 0 0 6px; }
+.wkey span { margin-right: 12px; white-space: nowrap; }
+.wkey span::before { content: ""; display: inline-block; width: 16px; height: 3px; margin-right: 5px; vertical-align: middle; }
+.wkey .k12::before { background: var(--curve); }
+.wkey .kcos::before { background: var(--dim); }
+.wkey .kharm::before, .wkey .ktide::before { background: var(--low); }
+.wkey .kwater::before { background: var(--accent); }
+.wkey .know::before { background: var(--now); }

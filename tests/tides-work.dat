@@ -1,0 +1,86 @@
+# Known worked answers for `tides work`, checked by tests/tides-work-check.awk.
+#
+#   calculator|key=value ...|key=expected ...
+#
+# Every expected number was computed by tests/tides-work-ref.py, an
+# independent Python working of the same definitions (see its header), and
+# copied from what it printed - never typed from the awk's own output.
+# Numbers compare within 0.006; whole-minute times and whole degrees must
+# match exactly, because they are what a navigator writes down.
+# err=<text> means the input must be REFUSED with a message containing it.
+#
+# ---- twelfths: rising, falling over midnight, the points where the two agree
+twelfths|lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 t=08:30|t12=2.664516 tcos=2.671986 kind=rise
+twelfths|hw=23:10 hwh=4.0 lw=05:20 lwh=1.0 t=01:00|t12=3.358108 tcos=3.391950 kind=fall
+twelfths|lw=00:00 lwh=1 hw=06:00 hwh=3 t=03:00|t12=2.0 tcos=2.0
+twelfths|lw=00:00 lwh=1 hw=06:00 hwh=3 t=02:00|t12=1.5 tcos=1.5
+twelfths|lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 t=05:12|t12=0.8 tcos=0.8
+# every tidal hour of the staircase is reached by some case: hours 1, 5 and 6 here
+twelfths|lw=00:00 lwh=1 hw=06:00 hwh=3 t=00:45|t12=1.125 tcos=1.076120
+twelfths|lw=00:00 lwh=1 hw=06:00 hwh=3 t=04:30|t12=2.666667 tcos=2.707107
+twelfths|lw=00:00 lwh=1 hw=06:00 hwh=3 t=05:30|t12=2.916667 tcos=2.965926
+# ---- twelfths from the prediction: Dover's turns as `tides today` prints them
+# (HW 09:45 6.61, LW 16:54 0.93); the harmonic is what `tides height` prints
+twelfths|station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00|t12=6.510699 tcos=6.592883 tharm=6.589 kind=fall
+twelfths|station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=13:00|t12=4.157273 tcos=4.174174 tharm=3.996
+# ---- secondary: both turns; then a HW beyond springs, on the second arc of the circle
+secondary|hw=05:36 hwh=6.4 mhws=6.8 mhwn=5.3 dhws=-0.4 dhwn=-0.3 thw1=0000 tdhw1=-10 thw2=0600 tdhw2=5 lw=11:51 lwh=1.1 mlwn=2.1 mlws=0.8 dlwn=0.0 dlws=0.1 tlw1=0100 tdlw1=-5 tlw2=0700 tdlw2=10|Htime=340 Htdiff=4.0 Hheight=6.026667 Hhdiff=-0.373333 Hx=0 Ltime=709 Ltdiff=-2.125 Lheight=1.176923 Lhdiff=0.076923 Lx=0
+secondary|hw=20:15 hwh=7.2 mhws=6.8 mhwn=5.3 dhws=-0.4 dhwn=-0.3 thw1=0000 tdhw1=-10 thw2=0600 tdhw2=5|Htime=1214 Htdiff=-0.625 Hheight=6.773333 Hhdiff=-0.426667 Hx=1
+# ---- stream: between, beyond springs, below neaps and clamped at nothing
+stream|spr=2.6 nps=1.4 range=4.1 sprange=5.9 nprange=3.1|rate=1.828571 f=0.357143 x=0
+stream|spr=2 nps=1 range=7 sprange=5 nprange=2|rate=2.666667 f=1.666667 x=1
+stream|spr=2 nps=1 range=0.2 sprange=5 nprange=3|rate=0 f=-1.4 x=1 clamp=1
+# ---- course to steer: two hours and every correction; the 360/0 wrap; leeway to starboard
+cts|track=045 stw=6 streams=135:1.5,150:2.0 leeway=5 wind=port var=-2 dev=1 dist=12|ok=1 water=28.382107 cts=23 mag=25 comp=24 sog=5.490581 mg=10.981162 time=131.133668
+cts|track=355 stw=5 streams=010:1|ok=1 water=352.032826 cts=352 mag=352 comp=352 sog=5.959223
+cts|track=270 stw=5 streams=180:1.2 leeway=4 wind=stbd var=3 dev=-2 dist=5|ok=1 water=283.886540 cts=288 mag=285 comp=287 sog=4.853864 time=61.806423
+# ---- the stream faster than the boat: across the track, and dead against it
+cts|track=355 stw=5 streams=090:6|ok=0
+cts|track=005 stw=5 streams=180:6|ok=0
+# ---- set and drift: plain; leeway to starboard; across the antimeridian
+setdrift|start=50.10,-1.50 co=090 stw=6 hours=3 fix=50.05,-1.20|drlat=50.1 drlon=-1.032309 set=245.080780 drift=7.120140 rate=2.373380
+setdrift|start=50.80,-1.10 co=200 stw=5 hours=2 fix=50.65,-1.20 leeway=6 wind=stbd|drlat=50.638284 drlon=-1.163685 set=296.964930 drift=1.550259 rate=0.775130
+setdrift|start=-10.0,179.9 co=090 stw=6 hours=2 fix=-10.05,-179.85|drlat=-10.0 drlon=-179.896915 set=137.263069 drift=4.084537 rate=2.042269
+# ---- atlas: Dover, and the half-hour rounding on both sides of HW 09:45
+atlas|station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00|page=0 dt=15 range=5.68 means=1 sprange=5.922 nprange=3.09 f=0.914548
+atlas|station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:15|page=1 dt=30
+atlas|station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=09:15|page=0 dt=-30 range=5.38
+atlas|station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=09:14|page=-1 dt=-31
+atlas|station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=13:00|page=3
+# a secondary port and a mixed tide: the means are not available, and say so
+atlas|station=noaa/8510884 date=2026-08-30 t=12:00|means=0 page=1
+atlas|station=noaa/9414290 date=2026-08-30 t=12:00|means=0
+# ---- input that must be refused with a plain message
+cts|track=abc stw=5 streams=1:1|err=track=abc is not a number
+cts|track=400 stw=5 streams=1:1|err=out of range
+cts|track=10 stw=5|err=streams= is needed
+cts|track=10 stw=5 streams=1:1 leeway=5|err=leeway needs wind=
+cts|track=10 stw=5 streams=1x1|err=is not set:rate
+cts|track=10 stw=0 streams=1:1|err=stw= must be more than 0
+twelfths|lw=25:00 lwh=1 hw=06:00 hwh=3 t=03:00|err=is not a time
+twelfths|lw=00:00 lwh=1 hw=06:00 hwh=3 t=07:00|err=is not between the two turns
+twelfths|lw=00:00 lwh=3 hw=06:00 hwh=1 t=03:00|err=must be higher
+twelfths|lw=00:00 lwh=1 hw=06:00 t=03:00|err=hwh= is needed
+secondary|hw=05:36 hwh=6.4|err=mhws= is needed
+secondary|lw=05:36 lwh=1 mlwn=2 mlws=2 dlwn=0 dlws=0 tlw1=0000 tdlw1=0 tlw2=0600 tdlw2=0|err=nothing to interpolate
+stream|spr=1 nps=1 range=1 sprange=2 nprange=1 foo=2|err=does not take foo=
+stream|spr=1 nps=1 range=1 sprange=1 nprange=2|err=must be larger
+setdrift|start=91,0 co=0 stw=5 hours=1 fix=0,0|err=out of range
+setdrift|start=50,0 co=0 stw=5 hours=0 fix=50,0|err=hours= must be more than 0
+setdrift|start=50 co=0 stw=5 hours=1 fix=50,0|err=is not a position
+atlas|station=nope/x date=2026-11-07 t=10:00|err=no station with that id
+atlas|station=ticon/dover-dov-gbr-bodc date=2026-02-30 t=10:00|err=is not a date
+atlas|station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=1000x|err=is not a time
+atlas|station=x;rm date=2026-11-07 t=10:00|err=is not a station id
+bogus||err=there is no calculator
+# ---- the answers the coastal course's chapters print (their own worked
+# examples), each confirmed by tests/tides-work-ref.py before it went in
+twelfths|lw=04:30 lwh=1.50 hw=10:52 hwh=4.39 t=07:00|t12=2.479725 tcos=2.466946
+stream|spr=4.2 nps=2.0 range=2.61 sprange=3.9 nprange=1.9|rate=2.781
+cts|track=255 stw=7.0 streams=030:1.5|water=246.284810 cts=246 sog=5.858516
+cts|track=255 stw=7.0 streams=030:1.5 leeway=5 wind=port|water=246.284810 cts=241
+cts|track=250 stw=7.5 streams=290:1.2,285:0.9,280:0.4,100:0.3,105:0.8,110:1.1 dist=48.4|water=249.781465 cts=250 sog=7.540799 time=385.105072
+setdrift|start=50.4630,-2.4550 co=250 stw=6.5 hours=2 fix=50.3660,-2.8260|set=235.073900 drift=2.399461 rate=1.199731
+secondary|hw=10:52 hwh=4.39 lw=04:30 lwh=1.50 mhws=5.5 mhwn=4.4 mlwn=2.2 mlws=0.8 dhws=-0.2 dhwn=-0.1 dlwn=0.0 dlws=0.1 thw1=0000 tdhw1=20 thw2=0600 tdhw2=10 tlw1=0000 tdlw1=5 tlw2=0600 tdlw2=25|Htime=670 Hheight=4.290909 Ltime=290 Lheight=1.55
+# station ids carry underscores
+atlas|station=ticon/southampton-sou-gbr-da_idh date=2026-11-07 t=10:00|means=1

@@ -310,6 +310,21 @@ Harmonic prediction from constants measured at each station — 8,334 of them,
 carried in the tool rather than fetched. The day's heights, the curve, the
 moon and the sun, and the clearance under a bridge where there is one.
 
+And the coastal work that goes with a tide table, each with its working shown:
+the rule of twelfths beside the cosine method and the harmonic height, a
+secondary port from its standard port, a stream rate between neaps and
+springs, which page of the tidal stream atlas you are on, the course to steer
+across one or more hours of stream, and set and drift from a DR and a fix.
+
+```sh
+tides work help                                   # the six, an example each
+tides work cts track=045 stw=6 streams=135:1.5,150:2.0 leeway=5 wind=port
+```
+
+The browser build opens the same calculators from a URL —
+`.../web/tides/?work=cts&track=045&stw=6&streams=135:1.5` — and
+[`docs/web/tides/WORK.md`](docs/web/tides/WORK.md) is the list of parameters.
+
 ### deck-log
 
 Append-only, in UTC. Nothing is ever rewritten: a correction is a new entry

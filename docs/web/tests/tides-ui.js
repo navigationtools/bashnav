@@ -5,7 +5,12 @@
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
+//  Screenshots go to a temporary folder, never the repository root: an
+//  untracked PNG in the working tree is one `git add -A` from being
+//  published (CLAUDE.md).  SHOTDIR keeps them somewhere you choose.
+const SHOTS = process.env.SHOTDIR || fs.mkdtempSync(path.join(os.tmpdir(), 'tides-shots-'));
 
 const BASE = 'http://127.0.0.1:8088/tides/';
 const SRC = path.resolve(__dirname, '..', '..', '..', 'src', 'tides') + path.sep;
@@ -54,8 +59,11 @@ const CASES = [
   let bad = 0;
   for (const c of CASES) {
     // choose the station and the date through the app's own code paths
+    //  Wait for THIS station's prediction.  Waiting for any PRED let the
+    //  previous station's answer through whenever the new one was still
+    //  loading, and the comparison then failed on a race, not a fault.
     await page.evaluate(id => window.choose(id), c.id);
-    await page.waitForFunction(() => window.PRED && !window.PRED.err, { timeout: 15000 });
+    await page.waitForFunction(id => window.PRED && !window.PRED.err && window.PRED.id === id, c.id, { timeout: 15000 });
     await page.evaluate(([y, m, d]) => {
       window.DAY = { y: y, m: m, d: d, jd0: TIDE.jdate(y, m, d) };
       window.rebuild();
@@ -88,7 +96,7 @@ const CASES = [
   // ---- the terminal picture, against the awk's own grid --------------
   // A date that is not today, so neither side draws the now marker.
   await page.evaluate(id => window.choose(id), 'noaa/8452660');
-  await page.waitForFunction(() => window.PRED && !window.PRED.err);
+  await page.waitForFunction(id => window.PRED && !window.PRED.err && window.PRED.id === id, 'noaa/8452660');
   await page.evaluate(() => {
     window.DAY = { y: 2027, m: 3, d: 15, jd0: TIDE.jdate(2027, 3, 15) };
     window.rebuild();
@@ -155,13 +163,120 @@ const CASES = [
 
   await page.setViewportSize({ width: 744, height: 1133 });
   await page.waitForTimeout(200);
-  await page.screenshot({ path: 'shot-day.png', fullPage: true });
+  await page.screenshot({ path: path.join(SHOTS, 'shot-day.png'), fullPage: true });
   await page.evaluate(() => window.go('pick'));
   await page.fill('#q', 'lon new');
   await page.waitForTimeout(300);
   const hits = await page.$$eval('#results .row b', e => e.map(x => x.textContent));
   console.log('  search "lon new" -> ' + JSON.stringify(hits.slice(0, 3)));
-  await page.screenshot({ path: 'shot-pick.png', fullPage: true });
+  await page.screenshot({ path: path.join(SHOTS, 'shot-pick.png'), fullPage: true });
+
+  // ---- coastal work: opened by URL, as the course links to it ---------
+  //  What the page SHOWS, against `tides work` itself: the working text
+  //  either side of the figure must be the awk's, line for line.
+  function awkWork(name, args) {
+    const wargs = '|' + args.split(' ').join('|');
+    const r = require('child_process').spawnSync('mawk', [
+      '-v', 'cmode=plain', '-v', 'SF=' + SRC + 'stations.dat', '-v', 'cmd=work',
+      '-v', 'wname=' + name, '-v', 'wargs=' + wargs, '-v', 'nofig=1',
+      '-f', SRC + 'tables.awk', '-f', SRC + 'engine.awk', '-f', SRC + 'work.awk'
+    ], { input: '', encoding: 'utf8', cwd: SRC });
+    return r.stdout.replace(/^\n/, '').replace(/\n+$/, '');
+  }
+  const WCASES = [
+    ['cts', 'track=045 stw=6 streams=135:1.5,150:2.0 leeway=5 wind=port var=-2 dev=1 dist=12', 'a6-2'],
+    ['setdrift', 'start=50.10,-1.50 co=090 stw=6 hours=3 fix=50.05,-1.20', ''],
+    ['stream', 'spr=2.6 nps=1.4 range=4.1 sprange=5.9 nprange=3.1', 'b2-11'],
+    ['secondary', 'hw=05:36 hwh=6.4 mhws=6.8 mhwn=5.3 dhws=-0.4 dhwn=-0.3 thw1=0000 tdhw1=-10 thw2=0600 tdhw2=5', ''],
+    ['twelfths', 'hw=23:10 hwh=4.0 lw=05:20 lwh=1.0 t=01:00', ''],
+    ['twelfths', 'station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00', 'a5-3'],
+    ['atlas', 'station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00', 'a7-1']
+  ];
+  for (const [name, args, lesson] of WCASES) {
+    const q = 'work=' + name + '&' + args.split(' ').map(kv => {
+      const e = kv.indexOf('=');
+      return kv.slice(0, e) + '=' + encodeURIComponent(kv.slice(e + 1));
+    }).join('&') + (lesson ? '&lesson=' + lesson : '');
+    await page.goto(BASE + '?' + q, { waitUntil: 'networkidle' });
+    await page.waitForFunction(() => {
+      const o = document.getElementById('w-out');
+      return o && o.getAttribute('data-state');
+    }, null, { timeout: 20000 });
+    const got = await page.evaluate(() => {
+      const pres = Array.from(document.querySelectorAll('#v-work pre.working')).map(p => p.textContent);
+      const a = document.getElementById('w-lesson-a');
+      return {
+        state: document.getElementById('w-out').getAttribute('data-state'),
+        text: pres.join('\n@@FIG\n').replace(/\n+$/, ''),
+        svg: document.querySelectorAll('#w-out svg.wfig').length,
+        visible: !document.getElementById('v-work').hidden,
+        lesson: document.getElementById('w-lesson').hidden ? null : a.getAttribute('href'),
+        url: location.search
+      };
+    });
+    const want = awkWork(name, args);
+    const wantLesson = lesson ? 'https://bashnav.navigationtools.org/practical-navigator/coastal/' + lesson.split('-')[0] + '.html#' + lesson : null;
+    const okText = got.state === 'worked' && got.text === want;
+    const okFig = (name === 'secondary' || name === 'atlas') ? got.svg === 0 : got.svg === 1;
+    const okL = got.lesson === wantLesson;
+    const ok = okText && okFig && okL && got.visible;
+    console.log((ok ? '  ok   ' : '  FAIL ') + '?work=' + name + '  ' + args.slice(0, 48) +
+                (lesson ? '  lesson ' + lesson : ''));
+    if (!ok) {
+      bad++;
+      if (!got.visible) console.log('    the work view is not showing');
+      if (!okFig) console.log('    figures drawn: ' + got.svg);
+      if (!okL) console.log('    lesson link ' + got.lesson + ', wanted ' + wantLesson);
+      if (!okText) {
+        const A = want.split('\n'), B = got.text.split('\n');
+        for (let i = 0, n = 0; i < Math.max(A.length, B.length) && n < 4; i++)
+          if (A[i] !== B[i]) { console.log('    awk  |' + A[i] + '|'); console.log('    page |' + B[i] + '|'); n++; }
+      }
+    }
+  }
+  //  A lesson value that is not a lesson builds no link at all; bad input
+  //  is a plain refusal on the screen, not an exception.
+  for (const [q, what] of [
+    ['work=cts&track=abc&stw=5&streams=1:1&lesson=a6-2%22%3E%3Cb%3E', 'a bad track and a lesson that is not one'],
+    ['work=bogus&lesson=a6-2', 'a calculator that does not exist'],
+    ['work=atlas&station=nope%2Fx&date=2026-11-07&t=10:00', 'a station that does not exist'],
+    ['work=secondary&hw=05:36&hwh=6.4&mhws=6.8&mhwn=5.3&dhws=-0.4&dhwn=-0.3&thw1=0000&tdhw1=-10&thw2=0600&tdhw2=+5',
+     'WORKS: a + that a URL turns into a space is trimmed away']]) {
+    await page.goto(BASE + '?' + q, { waitUntil: 'networkidle' });
+    await page.waitForFunction(() => document.getElementById('w-out').getAttribute('data-state'), null, { timeout: 20000 });
+    const r = await page.evaluate(() => ({
+      state: document.getElementById('w-out').getAttribute('data-state'),
+      msg: document.getElementById('w-out').textContent,
+      lesson: document.getElementById('w-lesson').hidden ? null : document.getElementById('w-lesson-a').getAttribute('href')
+    }));
+    const lessonOk = /lesson=a6-2$/.test(q) ? r.lesson === 'https://bashnav.navigationtools.org/practical-navigator/coastal/a6.html#a6-2' : r.lesson === null;
+    const ok = r.state === (/^WORKS/.test(what) ? 'worked' : 'refused') && lessonOk;
+    console.log((ok ? '  ok   ' : '  FAIL ') + (/^WORKS/.test(what) ? '' : 'refused plainly: ') + what + '  ("' + r.msg.split('.')[0].slice(0, 60) + '")');
+    if (!ok) { bad++; console.log('    state ' + r.state + ', lesson ' + r.lesson); }
+  }
+  //  The form writes itself back into the URL, and the calculators fit a phone
+  await page.goto(BASE + '?work=cts&track=045&stw=6&streams=135:1.5&lesson=a6-2', { waitUntil: 'networkidle' });
+  await page.waitForFunction(() => document.getElementById('w-out').getAttribute('data-state'));
+  await page.fill('#wf-stw', '7');
+  await page.click('#w-go');
+  await page.waitForTimeout(150);
+  const u = await page.evaluate(() => location.search);
+  const uok = /work=cts/.test(u) && /stw=7/.test(u) && /lesson=a6-2/.test(u);
+  console.log((uok ? '  ok   ' : '  FAIL ') + 'the form writes the URL back: ' + u.slice(0, 70));
+  if (!uok) bad++;
+  for (const w of [390, 320]) {
+    await page.setViewportSize({ width: w, height: 900 });
+    await page.waitForTimeout(150);
+    const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    console.log((over <= 1 ? '  ok   ' : '  FAIL ') + 'the work view does not scroll sideways at ' + w + 'px');
+    if (over > 1) bad++;
+  }
+  await page.evaluate(() => window.setMode('night'));
+  await page.screenshot({ path: path.join(SHOTS, 'shot-work-night.png'), fullPage: true });
+  await page.evaluate(() => window.setMode('dark'));
+  await page.setViewportSize({ width: 744, height: 1133 });
+  await page.screenshot({ path: path.join(SHOTS, 'shot-work.png'), fullPage: true });
+  console.log('  screenshots in ' + SHOTS);
 
   console.log('');
   if (errs.length) { console.log('CONSOLE ERRORS (' + errs.length + '):'); errs.slice(0, 10).forEach(e => console.log('  ' + e)); bad += errs.length; }
