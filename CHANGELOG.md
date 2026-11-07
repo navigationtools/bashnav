@@ -1,5 +1,44 @@
 # Changelog
 
+## Seven UK tide stations carried another station's name
+
+**What.** Seven of the sixteen UK stations from the Channel Coastal Observatory
+(the `ticon/*-cco` records) had the right constants and the right position
+under the wrong name. Searching for "West Bay Harbour" returned Port Isaac's
+tide; "Scarborough" returned West Bay Harbour; "Brighton" returned Hastings,
+and so on round a closed loop of seven. Corrected in `src/tides/stations.dat`:
+
+| Station id | Was named | Now named |
+| --- | --- | --- |
+| `ticon/brighton-btn-gbr-cco` | Teignmouth Pier | Brighton |
+| `ticon/hastings_pier-hgp-gbr-cco` | Brighton | Hastings Pier |
+| `ticon/port_isaac-pti-gbr-cco` | West Bay Harbour | Port Isaac |
+| `ticon/scarborough-sca-gbr-cco` | Severn Bridge | Scarborough |
+| `ticon/severn_bridge-ssc-gbr-cco` | Port Isaac | Severn Bridge |
+| `ticon/teignmouth_pier-tnp-gbr-cco` | Hastings Pier | Teignmouth Pier |
+| `ticon/west_bay_harbour-wbh-gbr-cco` | Scarborough | West Bay Harbour |
+
+**Why.** The id, the position and the constants of each record already agreed
+with each other; only the name had moved. The current Neaps tide-database
+names each of these files correctly, so the names now match the id, the
+position and upstream. Only the name field changed: no constant, position or
+station was added or removed.
+
+**What it impacts.**
+
+1. **`tides find` by name** now returns the station you asked for. Before, a
+   name search for any of the seven gave a curve for a port up to 400 miles
+   away, with nothing on the screen to say so. "Nearest to a position" was
+   always right, because it uses the coordinates.
+2. **West Bay Harbour sits on the Myth of Malham and Fastnet course** (Lyme
+   Bay), which is how this was found: mapping the coastal navigation course
+   against the stations along the route.
+3. **The browser build:** `stations.dat` and `stations.idx` are regenerated
+   (byte offsets after these lines move), and the tides worker goes to
+   `tides-v4` so installed copies fetch the new index.
+4. **`bin/tides` and `release/bashnav-ipad.sh`** are rebuilt from the
+   corrected file.
+
 ## The address changed: `bashnav.navigationtools.org`
 
 **What.** The site is served at **`https://bashnav.navigationtools.org/`**, and
