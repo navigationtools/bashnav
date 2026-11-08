@@ -19,9 +19,9 @@
 //    node docs/web/tests/qr-read.js
 'use strict';
 var fs = require('fs');
-var zlib = require('zlib');
 var crypto = require('crypto');
 var path = require('path');
+var PNG = require('./png.js');
 
 var ROOT = path.join(__dirname, '..', '..', '..');
 var WEB = path.join(ROOT, 'docs', 'web');
@@ -69,66 +69,23 @@ ok('the platform page still carries the watch\'s code and its text', !!mB && !!m
 if (!mB || !mT) { done(); }
 var WANT = JSON.parse('"' + mT[1] + '"');
 
-//  A small PNG reader: 8-bit greyscale, which is what qr_ref.py writes.
-//  node has zlib built in, so this needs nothing installed -- the suite
-//  runs offline on whatever is on the machine, like everything else.
-function png(b64) {
-  var buf = Buffer.from(b64, 'base64'), p = 8, w = 0, h = 0, depth = 0, ctype = 0, idat = [];
-  while (p < buf.length) {
-    var len = buf.readUInt32BE(p), typ = buf.toString('ascii', p + 4, p + 8);
-    var d = buf.slice(p + 8, p + 8 + len);
-    if (typ === 'IHDR') { w = d.readUInt32BE(0); h = d.readUInt32BE(4); depth = d[8]; ctype = d[9]; }
-    if (typ === 'IDAT') idat.push(d);
-    p += 12 + len;
-  }
-  if (depth !== 8 || ctype !== 0) throw new Error('expected 8-bit greyscale, got depth ' + depth + ' type ' + ctype);
-  var raw = zlib.inflateSync(Buffer.concat(idat));
-  var g = Buffer.alloc(w * h), q = 0, x, y;
-  function paeth(a, b, c) {
-    var e = a + b - c, pa = Math.abs(e - a), pb = Math.abs(e - b), pc = Math.abs(e - c);
-    return (pa <= pb && pa <= pc) ? a : (pb <= pc ? b : c);
-  }
-  for (y = 0; y < h; y++) {
-    var f = raw[q++], row = raw.slice(q, q + w); q += w;
-    for (x = 0; x < w; x++) {
-      var A = x ? g[y * w + x - 1] : 0, B = y ? g[(y - 1) * w + x] : 0,
-          C = (x && y) ? g[(y - 1) * w + x - 1] : 0, v = row[x];
-      if (f === 1) v = (v + A) & 255;
-      else if (f === 2) v = (v + B) & 255;
-      else if (f === 3) v = (v + ((A + B) >> 1)) & 255;
-      else if (f === 4) v = (v + paeth(A, B, C)) & 255;
-      g[y * w + x] = v;
-    }
-  }
-  return { w: w, h: h, g: g };
-}
+//  The picture is decoded by docs/web/tests/png.js, which the
+//  photograph check uses too: one copy of the filter arithmetic.
 
-var pic = png(mB[1]);
+var pic = PNG.read(Buffer.from(mB[1], 'base64'));
 ok('the fixture is a square picture', pic.w === pic.h && pic.w > 100, pic.w + ' x ' + pic.h);
 
-//  greyscale -> the RGBA a canvas would hand us
-function rgba(g, w, h) {
-  var a = new Uint8ClampedArray(w * h * 4), i;
-  for (i = 0; i < w * h; i++) { a[i * 4] = a[i * 4 + 1] = a[i * 4 + 2] = g[i]; a[i * 4 + 3] = 255; }
-  return a;
-}
 function scale(g, w, h, n) {
   var W = w * n, H = h * n, o = Buffer.alloc(W * H), x, y;
   for (y = 0; y < H; y++) for (x = 0; x < W; x++) o[y * W + x] = g[((y / n) | 0) * w + ((x / n) | 0)];
-  return { w: W, h: H, g: o };
+  return { w: W, h: H, grey: o };
 }
 function quiet(g, w, h, pad) {
   var W = w + pad * 2, H = h + pad * 2, o = Buffer.alloc(W * H, 255), x, y;
   for (y = 0; y < h; y++) for (x = 0; x < w; x++) o[(y + pad) * W + x + pad] = g[y * w + x];
-  return { w: W, h: H, g: o };
+  return { w: W, h: H, grey: o };
 }
-function rot90(g, w, h) {
-  var o = Buffer.alloc(w * h), x, y;
-  for (y = 0; y < h; y++) for (x = 0; x < w; x++) o[x * h + (h - 1 - y)] = g[y * w + x];
-  return { w: h, h: w, g: o };
-}
-
-function read(p) { return QR.decode(rgba(p.g, p.w, p.h), p.w, p.h); }
+function read(p) { return QR.decode(PNG.rgba(p), p.w, p.h); }
 
 //  ---- 3. the watch's code, byte for byte -------------------------
 var r = read(pic);
@@ -145,19 +102,19 @@ if (r) {
 //  code filling the frame has no quiet zone of its own, and nobody holds
 //  an iPad square to a watch. Each of these is a different path through
 //  the locator.
-var p2 = scale(pic.g, pic.w, pic.h, 2);
+var p2 = scale(pic.grey, pic.w, pic.h, 2);
 ok('at twice the size', (read(p2) || {}).text === WANT);
 
-var pq = quiet(pic.g, pic.w, pic.h, 40);
+var pq = quiet(pic.grey, pic.w, pic.h, 40);
 ok('with a wide quiet zone around it', (read(pq) || {}).text === WANT);
 
-var r90 = rot90(pic.g, pic.w, pic.h);
+var r90 = PNG.rot90(pic);
 ok('turned ninety degrees', (read(r90) || {}).text === WANT);
 
-var r180 = rot90(r90.g, r90.w, r90.h);
+var r180 = PNG.rot90(r90);
 ok('turned upside down', (read(r180) || {}).text === WANT);
 
-var r270 = rot90(r180.g, r180.w, r180.h);
+var r270 = PNG.rot90(r180);
 ok('and the fourth way up', (read(r270) || {}).text === WANT);
 
 //  ---- 5. it must not invent an answer ----------------------------
@@ -166,17 +123,17 @@ ok('and the fourth way up', (read(r270) || {}).text === WANT);
 //  returns nothing: deck-log would file it.
 var noise = Buffer.alloc(pic.w * pic.h);
 for (var i = 0; i < noise.length; i++) noise[i] = ((i * 2654435761) >>> 24) & 255;
-ok('noise decodes to nothing', read({ w: pic.w, h: pic.h, g: noise }) === null);
+ok('noise decodes to nothing', read({ w: pic.w, h: pic.h, grey: noise }) === null);
 
 var blank = Buffer.alloc(pic.w * pic.h, 255);
-ok('a blank frame decodes to nothing', read({ w: pic.w, h: pic.h, g: blank }) === null);
+ok('a blank frame decodes to nothing', read({ w: pic.w, h: pic.h, grey: blank }) === null);
 
 //  Half the code cut away: the finder patterns are there, the data is
 //  not. ECC must not be allowed to "recover" a different message.
-var half = Buffer.from(pic.g);
+var half = Buffer.from(pic.grey);
 for (var y2 = (pic.h >> 1); y2 < pic.h; y2++)
   for (var x2 = 0; x2 < pic.w; x2++) half[y2 * pic.w + x2] = 255;
-var hr = read({ w: pic.w, h: pic.h, g: half });
+var hr = read({ w: pic.w, h: pic.h, grey: half });
 ok('half a code gives nothing, or at least not a different message',
    hr === null || hr.text === WANT, hr ? 'got ' + hr.text.substr(0, 40) : '');
 

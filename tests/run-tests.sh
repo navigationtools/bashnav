@@ -1178,6 +1178,25 @@ WXLOG
     say "  --    the QR read check needs node, skipped"
   fi
 
+  #  AND THE SAME DECODER AGAINST TWO PHOTOGRAPHS OF THE WATCH.
+  #
+  #  A clean rendering says the decoder implements the standard. A
+  #  photograph -- with the screen's own pixel grid and its dither in it
+  #  -- says whether it reads the watch, which is the only question that
+  #  matters. Neither photograph decodes at the size it is committed;
+  #  scaled down, both do, which is the rule the reader is built around.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/qr-photo.js 2>&1); then
+      ok "two photographs of the watch decode, scaled down $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
+      echo "$r" | sed -n 's/^  note  /      /p'
+    else
+      bad "a photograph of the watch no longer decodes"
+      echo "$r" | head -10
+    fi
+  else
+    say "  --    the photograph check needs node, skipped"
+  fi
+
   if command -v node >/dev/null 2>&1; then
     if r=$(node tests/contacts-figs-check.js 2>&1); then
       ok "$(echo "$r" | sed -n 's/^  ok  *//p')"

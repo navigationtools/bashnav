@@ -593,6 +593,31 @@ statement about the foredeck**, and saying so here is the point: the suite is
 allowed to be silent about a risk, but it is not allowed to look like it has
 covered it.
 
+### Two photographs of the watch, because a clean rendering is not the question
+
+`docs/web/tests/qr-photo.js` decodes two photographs of Larry's quatix, taken
+in his kitchen, with the screen's own pixel grid and dither in them. The
+difference between this and the clean-rendering check above is the difference
+between *the decoder implements the standard* and *the decoder reads the
+watch*.
+
+1. **Neither photograph decodes at the size it is committed.** Scaled down,
+   both do — 500 px for one, 600 px for the other. That is the rule the reader
+   is built around, so the check is also the rule's evidence: if someone later
+   removes the downscale as a pointless step, this fails.
+2. **The downscale here is a box average, cruder than the browser's.** A check
+   that passes with the worse filter passes with the better one.
+3. **"Reads at native size" is printed, never asserted.** If a future decoder
+   manages it, that is good news, and a check that failed on good news would
+   simply be deleted by whoever met it.
+4. **They cost about 300 KB**, at 700 px, greyscale, posterised to 32 levels,
+   rather than eight megabytes for the originals. Larry agreed to publishing
+   them; the payloads carry his home position.
+
+One of the fourteen photographs he took decodes under nothing — not this
+decoder, not OpenCV, not zbar. It is not in the repository, because a fixture
+that asserts "still unreadable" would fail the day something improved.
+
 ### Checksums, because a vendored file nobody watches is not vendored
 
 The same test pins the SHA-256 of `docs/web/vendor/jsQR-1.4.0.js` and of its

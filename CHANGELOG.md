@@ -1,5 +1,33 @@
 # Changelog
 
+## Two photographs of the watch join the suite
+
+**What.** `docs/web/tests/photos/` holds two photographs of the quatix —
+700 px, greyscale, posterised, about 300 KB the pair — and
+`docs/web/tests/qr-photo.js` decodes them through the same ladder the page
+uses, checking the payload byte for byte. `docs/web/tests/png.js` is new: one
+copy of the PNG reader, shared with the clean-rendering check.
+
+**Why.** The existing check proves the decoder implements the standard. It
+cannot say whether the decoder reads *the watch*, because a rendered picture
+has none of what a photograph has: the screen's pixel grid, its dither, the
+lens. These two do.
+
+**What it impacts.**
+
+1. **The downscale rule is now evidence, not just a claim.** Neither photo
+   decodes at 700 px; scaled down, both do. If someone later removes the
+   downscale as a pointless step, this fails and tells them why.
+2. **The box average used here is cruder than the browser's**, so passing is
+   conservative.
+3. **Reading at native size is reported, never asserted.** A check that failed
+   on good news would be deleted by whoever met it.
+4. **They are published deliberately.** The payloads carry Larry's home
+   position, and he ruled on that before they went in.
+5. **One photograph was left out.** It decodes under nothing — not this
+   decoder, not OpenCV, not zbar — and a fixture asserting "still unreadable"
+   would fail the day something improved.
+
 ## The QR reader scales the frame down before decoding, and reads 13 of 14
 
 **What.** `docs/web/shared/qr.js` now scales each captured frame down to a
