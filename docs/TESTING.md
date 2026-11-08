@@ -614,9 +614,17 @@ watch*.
    rather than eight megabytes for the originals. Larry agreed to publishing
    them; the payloads carry his home position.
 
-One of the fourteen photographs he took decodes under nothing — not this
-decoder, not OpenCV, not zbar. It is not in the repository, because a fixture
-that asserts "still unreadable" would fail the day something improved.
+5. **The payloads were cross-checked against another decoder.** All thirteen
+   photographs that jsQR reads were also decoded by zxing-cpp, in the
+   WeatherGlass session, and the two **agree byte for byte**. Two independent
+   implementations reaching the same 205 to 271 characters is better evidence
+   that the text is right than either one alone.
+
+One of the fourteen will not read with jsQR at all — not cropped, not
+sharpened, not thresholded, at any scale. zxing-cpp reads it. So the limit on
+that frame is this decoder's, not the photograph's, and it is not in the
+repository: a fixture asserting "still unreadable" would fail the day
+something improved, which is the wrong way round for a test.
 
 ### Checksums, because a vendored file nobody watches is not vendored
 

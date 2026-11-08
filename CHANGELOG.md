@@ -1,5 +1,41 @@
 # Changelog
 
+## A threshold fallback, and the score corrected to 13 of 14
+
+**What.** `docs/web/shared/qr.js` now tries an Otsu-thresholded copy of each
+frame when the plain one fails at that rung, and reports which it was
+(`500px threshold`). The claim that one photograph "reads under nothing" is
+corrected wherever it appears.
+
+**Why.** The WeatherGlass session decoded all fourteen photographs with
+zxing-cpp and wrote the text beside them. Two things came out of comparing
+that with ours.
+
+1. **The thirteen we read agree byte for byte** — two independent decoders,
+   the same 205 to 271 characters each time. That is much better evidence than
+   either alone, and it is the kind of check a port can almost never get.
+2. **The fourteenth is jsQR's limit, not the photograph's.** It will not read
+   here cropped, sharpened or thresholded, at any scale tried; zxing-cpp reads
+   it. The earlier wording was true of the decoders to hand and false in
+   general, so it is corrected rather than left standing.
+
+**What it impacts.**
+
+1. **The threshold fallback is a real gain, measured not assumed.** Of the
+   thirteen photographs that read, **eight needed it** at the rung that
+   worked: the plain frame failed and the thresholded one succeeded. One of
+   the two committed fixtures now reads a rung earlier because of it.
+2. **It is global where jsQR's own is local**, which is why it is worth trying
+   second rather than instead. A watch face is a small bright disc in a dark
+   cabin — the case a global threshold handles well and a local one can be
+   confused by.
+3. **It costs a millisecond or two**, on an image already reduced to a few
+   hundred pixels square.
+4. **The legacy WG Log format is now written down** in the inbox note, and the
+   deck-log reader will have to accept it alongside contract 4.6: `sog` before
+   `cog`, `swdir` inside `nav`, `pchg` before `ptend`, calm as `wdir=-|wspd=0`,
+   and an observation that can span two codes.
+
 ## Two photographs of the watch join the suite
 
 **What.** `docs/web/tests/photos/` holds two photographs of the quatix —
@@ -61,9 +97,11 @@ problems at once.
    `docs/HACKING.md`.** Asking for 1920 was right for capture and useless on
    its own; "it didn't read, so give it more pixels" is the obvious move and
    it is backwards here.
-6. **One photograph reads under nothing** — not this decoder, not OpenCV, not
-   zbar. A photograph can be too small and too soft, and that is recorded
-   rather than smoothed over.
+6. **One photograph does not read.** *(Corrected after the WeatherGlass
+   session decoded all fourteen with zxing-cpp: the limit on that frame is
+   jsQR's, not the photograph's. The original wording here said it read under
+   nothing, which was true of the decoders tried at the time and not true in
+   general.)*
 
 ## The camera readout was above the video, where nobody was looking
 

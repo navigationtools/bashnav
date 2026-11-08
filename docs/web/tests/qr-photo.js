@@ -60,20 +60,24 @@ var PHOTOS = [
 PHOTOS.forEach(function (p) {
   var pic = PNG.read(path.join(__dirname, 'photos', p.file));
   var native = QR.decode(PNG.rgba(pic), pic.w, pic.h);
-  var got = null, won = 0, i, n, q, r;
+  var got = null, won = 0, how = '', i, n, q, r;
 
   for (i = 0; i < SIZES.length; i++) {
     n = SIZES[i];
     if (n > pic.w) continue;
     q = (n === pic.w) ? pic : PNG.down(pic, n);
-    r = QR.decode(PNG.rgba(q), q.w, q.h);
-    if (r) { got = r; won = n; break; }
+    var img = PNG.rgba(q);
+    r = QR.decode(img, q.w, q.h);
+    if (r) { got = r; won = n; how = 'plain'; break; }
+    //  The same fallback the page takes, through the same code.
+    r = QR.decode(QR.otsu(img, q.w, q.h), q.w, q.h);
+    if (r) { got = r; won = n; how = 'threshold'; break; }
   }
 
   ok('a photograph of the watch decodes (' + p.what + ')', !!got,
      'none of ' + SIZES.join(', ') + ' px read ' + p.file);
   if (got) {
-    ok('and byte for byte at ' + won + ' px', got.text === p.text,
+    ok('and byte for byte at ' + won + ' px, ' + how, got.text === p.text,
        'got ' + got.text.length + ' bytes, expected ' + p.text.length);
   }
 
@@ -83,7 +87,7 @@ PHOTOS.forEach(function (p) {
   //  just be deleted by whoever met it.
   console.log('  note  ' + p.file + ': ' + pic.w + ' px native reads ' +
               (native ? 'yes' : 'no') + ', ladder read at ' +
-              (won ? won + ' px' : 'nothing'));
+              (won ? won + ' px ' + how : 'nothing'));
 });
 
 if (fail) { console.log('  ' + fail + ' of ' + checks + ' checks failed'); process.exit(1); }

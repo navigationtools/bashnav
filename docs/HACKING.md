@@ -615,9 +615,14 @@ read, so give it more pixels" is the obvious move and it is backwards here. A
 measurement settled it in an hour; reasoning about it had already produced one
 wrong answer, in a commit message, with confidence.
 
-One of the fourteen reads under nothing — not this decoder, not OpenCV, not
-zbar. A photograph can simply be too small and too soft, and a reader that
-claimed otherwise would be lying.
+One of the fourteen will not read with this decoder at all — not cropped, not
+sharpened, not thresholded, at any scale tried. **zxing-cpp reads it**, which
+the WeatherGlass session established independently, so the limit is jsQR's and
+not the photograph's. That is the honest score: 13 of 14 here, 14 of 14 there,
+on a blurred frame neither of us would want to rely on at sea.
+
+The thirteen that do read were decoded independently by both libraries and
+**agree byte for byte**, which is better evidence than either on its own.
 
 ## `row()` sets `textContent`, so write the character, not the entity
 
