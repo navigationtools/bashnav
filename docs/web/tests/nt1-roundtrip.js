@@ -59,11 +59,11 @@ var CORPUS = [
 
 //  ---- 1. the round trip -----------------------------------------
 var recs = CORPUS.map(function (l) { return LOG.parse(l); });
-var enc = NT1.encode(recs, { seq: 42, size: 1600, secret: 'a secret' });
+var enc = NT1.encode(recs, { seq: 42, size: 1600 });
 
 var got = [];
 enc.pieces.forEach(function (p) {
-  var d = NT1.decode(p, { secret: 'a secret', ref: new Date('2026-11-05T00:00Z') });
+  var d = NT1.decode(p, { ref: new Date('2026-11-05T00:00Z') });
   ok('piece decodes', d.ok, d.err);
   got = got.concat(NT1.lines(d));
 });
@@ -79,23 +79,46 @@ for (var i = 0; i < Math.min(want.length, have.length); i++) {
 
 //  ---- 2. re-wrapping must not break it (contract 3.4) -----------
 var flat = enc.pieces[0].replace(/\n/g, ' ');
-var dflat = NT1.decode(flat, { secret: 'a secret', ref: new Date('2026-11-05T00:00Z') });
+var dflat = NT1.decode(flat, { ref: new Date('2026-11-05T00:00Z') });
 ok('a piece with its line breaks replaced by spaces still decodes', dflat.ok, dflat.err);
 ok('and gives the same records', JSON.stringify(NT1.lines(dflat)) ===
-   JSON.stringify(NT1.lines(NT1.decode(enc.pieces[0], { secret: 'a secret', ref: new Date('2026-11-05T00:00Z') }))));
+   JSON.stringify(NT1.lines(NT1.decode(enc.pieces[0], { ref: new Date('2026-11-05T00:00Z') }))));
 
 var folded = enc.pieces[0].replace(/ /g, '\n   ');
 ok('and folded the other way too',
-   NT1.decode(folded, { secret: 'a secret', ref: new Date('2026-11-05T00:00Z') }).ok);
+   NT1.decode(folded, { ref: new Date('2026-11-05T00:00Z') }).ok);
 
-//  ---- 3. the check code -----------------------------------------
-ok('the wrong secret is refused',
-   NT1.decode(enc.pieces[0], { secret: 'not it' }).err === 'check code does not match');
+//  ---- 3. the check code (CRC-16/CCITT-FALSE, contract v0.9) -----
+//
+//  The published test vector first. This is the check that lets the
+//  watch be written in Monkey C from the specification instead of from
+//  a reading of this file: if its CRC says 29B1 too, the two agree, and
+//  nobody has to compare source.
+ok('CRC-16/CCITT-FALSE of 123456789 is 29B1', NT1.crc16('123456789') === '29B1',
+   'got ' + NT1.crc16('123456789'));
+ok('and of the empty string is the initial value FFFF', NT1.crc16('') === 'FFFF',
+   'got ' + NT1.crc16(''));
+
+//  The worked example in the comment at the top of nt1.js carries a
+//  code. A reader will trust it, so it has to stay true: this fails if
+//  anyone edits the example records without recomputing it.
+var EXBODY = 'D who=LS src=watch wsrc=garmin tsrc=garmin\n' +
+  '11040300,41_14.0N,072_05.0W,096,094,7.9,225,20,4;1012.4,7,-2.6,18.0\n' +
+  'B11040300,72,45,30';
+ok('the example in the file header is a real code', NT1.crc16('42 1/2 ' + EXBODY) === 'B2FD',
+   'got ' + NT1.crc16('42 1/2 ' + EXBODY));
+
 var tampered = enc.pieces[0].replace('1012.4', '1012.5');
 ok('a changed value is refused',
-   NT1.decode(tampered, { secret: 'a secret' }).err === 'check code does not match');
+   NT1.decode(tampered, {}).err === 'check code does not match');
+
+//  Truncation is the failure that actually happens -- a message cut by
+//  a character limit, or a paste that caught part of the screen.
+var cut = enc.pieces[0].substring(0, enc.pieces[0].length - 12);
+ok('a piece cut short is refused', NT1.decode(cut, {}).err === 'check code does not match');
+
 ok('the header carries NT1, the sequence and the piece',
-   /^NT1 42 1\/[0-9]+ [A-Z2-7]{4}$/.test(enc.pieces[0].split('\n')[0]),
+   /^NT1 42 1\/[0-9]+ [0-9A-F]{4}$/.test(enc.pieces[0].split('\n')[0]),
    enc.pieces[0].split('\n')[0]);
 
 //  ---- 4. values that have to survive ----------------------------
@@ -105,25 +128,25 @@ ok('the header carries NT1, the sequence and the piece',
 });
 
 //  ---- 5. splitting into pieces ----------------------------------
-var small = NT1.encode(recs, { seq: 7, size: 220, secret: 's' });
+var small = NT1.encode(recs, { seq: 7, size: 220 });
 ok('a small piece size makes several pieces', small.pieces.length > 1,
    small.pieces.length + ' piece(s)');
 small.pieces.forEach(function (p, n) {
   ok('piece ' + (n + 1) + ' is within the size', p.length <= 220, p.length + ' chars');
-  ok('piece ' + (n + 1) + ' stands alone', NT1.decode(p, { secret: 's',
-     ref: new Date('2026-11-05T00:00Z') }).ok);
+  ok('piece ' + (n + 1) + ' stands alone', NT1.decode(p,
+     { ref: new Date('2026-11-05T00:00Z') }).ok);
 });
 var all = [];
 small.pieces.forEach(function (p) {
-  all = all.concat(NT1.lines(NT1.decode(p, { secret: 's', ref: new Date('2026-11-05T00:00Z') })));
+  all = all.concat(NT1.lines(NT1.decode(p, { ref: new Date('2026-11-05T00:00Z') })));
 });
 ok('split into pieces, nothing is lost', all.slice().sort().join('\n') === want.join('\n'));
 
 //  ---- 6. calm wind (contract 4.4, item 5) -----------------------
 var calm = LOG.parse(mk('2026-11-04T18:00Z', 'nav',
   [['lat','42 10.0N'],['lon','073 02.0W'],['wspd','0'],['who','LS'],['src','watch']]));
-var ce = NT1.encode([calm], { seq: 1, secret: 's' });
-var cd = NT1.decode(ce.pieces[0], { secret: 's', ref: new Date('2026-11-05T00:00Z') });
+var ce = NT1.encode([calm], { seq: 1 });
+var cd = NT1.decode(ce.pieces[0], { ref: new Date('2026-11-05T00:00Z') });
 ok('calm: wspd 0 with no wdir round-trips', NT1.lines(cd)[0] === calm.line,
    'want ' + calm.line + '\n        have ' + NT1.lines(cd)[0]);
 ok('calm: wdir is still absent, not empty', cd.records[0].v.wdir === undefined);
@@ -179,10 +202,10 @@ var sent = gen.map(function (L) {
 });
 
 var g = NT1.encode(gen.map(function (L) { return LOG.parse(L); }),
-                   { seq: 99, size: 400, secret: 'k' });
+                   { seq: 99, size: 400 });
 var back = [];
 g.pieces.forEach(function (p) {
-  var dd = NT1.decode(p, { secret: 'k', ref: new Date('2026-11-01T00:00Z') });
+  var dd = NT1.decode(p, { ref: new Date('2026-11-01T00:00Z') });
   ok('generated piece decodes', dd.ok, dd.err);
   back = back.concat(NT1.lines(dd));
 });

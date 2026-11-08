@@ -1,14 +1,18 @@
 // =====================================================================
 //  NT1 -- observations by inReach.
 //
-//  Contract: spec/contracts/navigationtools_inreach_transport.md, v0.8.
+//  Contract: spec/contracts/navigationtools_inreach_transport.md, v0.9.
 //  Decision D6 puts this file in bashnav, beside decklog.js, and the
 //  website's Email Worker takes a copy from a tagged release. So this
 //  file is the one authority for the format: what it writes, the Worker
 //  reads, and the same code expands a piece on both sides.
 //
-//  IT HOLDS NO SECRET. The check-code secret is a setting on the iPad
-//  and in the Worker, passed in. This repository is public.
+//  IT HOLDS NO SECRET, AND NEEDS NONE. The check code is a CRC-16: it
+//  catches a mangled piece, which is the failure that actually happens.
+//  Keeping anyone else out is DMARC's job (contract 8.1), and DMARC is
+//  better at it than four characters could ever be. So this file can be
+//  read, copied and reimplemented by anyone, which is the point -- the
+//  watch has to compute the same four characters in Monkey C.
 //
 //  THE ONE RULE EVERYTHING ELSE SERVES: no information is lost. A value
 //  in the message is the value in the record, never a rounded copy, so
@@ -16,7 +20,7 @@
 //  port are BYTE IDENTICAL -- and deck-log's merge, which compares
 //  whole lines, keeps one instead of two.
 //
-//      NT1 42 1/2 K7QX
+//      NT1 42 1/2 B2FD
 //      D who=LS src=watch wsrc=garmin tsrc=garmin
 //      11040300,41_14.0N,072_05.0W,096,094,7.9,225,20,4;1012.4,7,-2.6,18.0
 //      B11040300,72,45,30
@@ -118,53 +122,100 @@ var NT1 = (function () {
   }
 
   // ---------------------------------------------------------------
-  //  The check code (contract 4.1, decision D5).
+  //  The check code (contract 4.1, decision D5; v0.9).
   //
-  //  THE CONTRACT DOES NOT SPECIFY THE ALGORITHM -- only that it is
-  //  four characters from the piece's text and a secret. D6 makes this
-  //  file the shared module both sides run, so defining it here is what
-  //  makes the two ends agree. It is written down rather than chosen
-  //  silently.
+  //  CRC-16/CCITT-FALSE: polynomial 0x1021, initial value 0xFFFF, no
+  //  reflection of input or output, no final XOR. Four upper-case hex
+  //  characters.
+  //
+  //      NT1 42 1/2 B2FD
+  //
+  //  That is the real code for the example at the top of this file, not
+  //  an invented one: a reader can check an implementation against it
+  //  without running anything else.
+  //
+  //  WHAT IT IS FOR. The failure that actually happens to a piece is
+  //  mechanical: a message cut short by a character limit, a paste that
+  //  caught only part of the screen, a mail client that mangled a line.
+  //  A CRC catches all of those, which is what Larry asked for -- "simple
+  //  and standard".
+  //
+  //  WHAT IT IS NOT FOR. It does not establish who sent the message, and
+  //  it is not meant to: anyone holding this file can compute it. The
+  //  earlier design used a keyed hash to try, which was twenty bits
+  //  pretending to be a signature. Every inReach mails from the same
+  //  garmin.com address, so the Worker requires DMARC for that domain
+  //  (contract 8.1) and holds anything that fails, and THAT is what keeps
+  //  other people's messages out. A held store Larry can read is a better
+  //  answer to a forgery than a check code that silently drops it.
+  //
+  //  WHY STANDARD MATTERS MORE THAN CLEVER. Three programs have to agree
+  //  on these four characters -- this file, the website's Email Worker,
+  //  and the watch in Monkey C. CRC-16/CCITT-FALSE has one published
+  //  definition and a test vector any implementation can check itself
+  //  against, so the watch can be written from the specification rather
+  //  than from this source. A hash invented here could only ever be
+  //  copied, and a copy that drifts is a message that cannot be read.
   //
   //  Computed over a NORMALISED piece with the code itself removed,
   //  because contract 3.4 says re-wrapping must not break a message. A
-  //  byte-exact hash over raw text would fail the moment Messenger or a
+  //  byte-exact CRC over raw text would fail the moment Messenger or a
   //  mail client folded a line.
   //
-  //  WHAT FOUR CHARACTERS ARE AND ARE NOT. Twenty bits is a CHECK, not
-  //  a signature: it proves the piece was not mangled and that whoever
-  //  built it had the secret. It would not stop someone who could send
-  //  mail from guessing. That is why the Worker requires DMARC for
-  //  garmin.com AS WELL (contract 8.1) -- every inReach sends from that
-  //  address, so the check code is what distinguishes Larry's iPad from
-  //  any other inReach, and DMARC is what keeps everyone else out.
+  //  OVER BYTES, NOT CHARACTERS. A CRC is defined over octets, and a
+  //  note field may hold any character Larry types. The bytes are the
+  //  UTF-8 encoding of the normalised text, stated here because it is
+  //  exactly the kind of thing two implementations assume differently
+  //  and only discover at sea. Encoded by hand rather than with
+  //  TextEncoder: this stays synchronous and runs in whatever the iPad
+  //  has.
   //
-  //  The alphabet is RFC 4648 base32: no 0/O and no 1/I, because this
-  //  is read off a screen and typed by a human when something has gone
-  //  wrong.
-  var CKA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  //  Hex, not the base32 alphabet the keyed version used. That alphabet
+  //  existed to keep 0/O and 1/I apart for a human reading a code off a
+  //  screen; upper-case hex has no letter that can be confused with a
+  //  digit at all, so it gets the same property for free.
 
   function norm(s) {
     return String(s).replace(/[\s]+/g, ' ').replace(/^ /, '').replace(/ $/, '');
   }
 
-  //  A keyed 32-bit mix, FNV-1a over secret, text and secret again, then
-  //  folded. Synchronous on purpose: SubtleCrypto is a Promise, and a
-  //  Send screen that must build twenty pieces should not be async for
-  //  a 20-bit check.
-  function ckey(text, secret) {
-    var s = String(secret === undefined || secret === null ? '' : secret);
-    var m = s + '\u0001' + norm(text) + '\u0001' + s;
-    var h = 0x811c9dc5, i;
-    for (i = 0; i < m.length; i++) {
-      h ^= m.charCodeAt(i) & 0xff;
-      h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
-      h ^= (m.charCodeAt(i) >> 8) & 0xff;
-      h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+  //  UTF-8 bytes of a string, surrogate pairs included.
+  function utf8(s) {
+    var out = [], i, c, c2;
+    for (i = 0; i < s.length; i++) {
+      c = s.charCodeAt(i);
+      if (c >= 0xD800 && c <= 0xDBFF && i + 1 < s.length) {
+        c2 = s.charCodeAt(i + 1);
+        if (c2 >= 0xDC00 && c2 <= 0xDFFF) {
+          c = 0x10000 + ((c - 0xD800) << 10) + (c2 - 0xDC00);
+          i++;
+        }
+      }
+      if (c < 0x80) out.push(c);
+      else if (c < 0x800) out.push(0xC0 | (c >> 6), 0x80 | (c & 63));
+      else if (c < 0x10000) out.push(0xE0 | (c >> 12), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
+      else out.push(0xF0 | (c >> 18), 0x80 | ((c >> 12) & 63), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
     }
-    var out = '';
-    for (i = 0; i < 4; i++) { out += CKA.charAt(h & 31); h = h >>> 5; }
     return out;
+  }
+
+  var HEX = '0123456789ABCDEF';
+
+  //  crc16(text) -> four upper-case hex characters.
+  //
+  //  The bit-at-a-time form, not a 256-entry table: a piece is at most a
+  //  couple of thousand characters and this runs once per piece, so the
+  //  table would buy nothing and would be one more thing to get wrong.
+  function crc16(text) {
+    var b = utf8(norm(text)), c = 0xFFFF, i, j;
+    for (i = 0; i < b.length; i++) {
+      c ^= (b[i] << 8);
+      for (j = 0; j < 8; j++) {
+        c = (c & 0x8000) ? (((c << 1) ^ 0x1021) & 0xFFFF) : ((c << 1) & 0xFFFF);
+      }
+    }
+    return HEX.charAt((c >> 12) & 15) + HEX.charAt((c >> 8) & 15) +
+           HEX.charAt((c >> 4) & 15) + HEX.charAt(c & 15);
   }
 
   // ---------------------------------------------------------------
@@ -322,7 +373,7 @@ var NT1 = (function () {
   // ---------------------------------------------------------------
   //  encode(records, opts) -> { pieces, items, obs, defaults }
   //
-  //  opts: seq (number), size (default 1600), secret (string)
+  //  opts: seq (number), size (default 1600)
   //
   //  Each piece stands alone (contract 3.3): its own header, its own
   //  defaults line, whole observations only. A missing piece costs its
@@ -333,7 +384,6 @@ var NT1 = (function () {
     opts = opts || {};
     var size = opts.size || 1600;
     var seq = opts.seq || 1;
-    var secret = opts.secret || '';
 
     var obs = group(recs);
     var d = defaults(obs);
@@ -366,7 +416,7 @@ var NT1 = (function () {
     for (i = 0; i < groups.length; i++) {
       var body = (dline ? dline + '\n' : '') + groups[i].join('\n');
       var stem = seq + ' ' + (i + 1) + '/' + groups.length + ' ';
-      var code = ckey(stem + body, secret);
+      var code = crc16(stem + body);
       pieces.push('NT1 ' + stem + code + '\n' + body);
     }
     return { pieces: pieces, items: items.length, obs: obs.length, defaults: d };
@@ -375,7 +425,7 @@ var NT1 = (function () {
   // ---------------------------------------------------------------
   //  decode(piece, opts) -> { ok, err, seq, n, of, records, bad }
   //
-  //  opts: secret, ref (Date for the year rule), check (default true)
+  //  opts: ref (Date for the year rule), check (default true)
   //
   //  It NEVER throws. A piece that arrives cut in half is still worth
   //  the observations it holds, and the Worker's held store exists to
@@ -394,7 +444,7 @@ var NT1 = (function () {
 
     var rest = toks.slice(4);
     if (opts.check !== false) {
-      var want = ckey(seq + ' ' + pn + ' ' + rest.join(' '), opts.secret || '');
+      var want = crc16(seq + ' ' + pn + ' ' + rest.join(' '));
       if (want !== code) { out.err = 'check code does not match'; return out; }
     }
 
@@ -529,7 +579,7 @@ var NT1 = (function () {
 
   return {
     encode: encode, decode: decode, lines: lines,
-    venc: venc, vdec: vdec, ckey: ckey, norm: norm,
+    venc: venc, vdec: vdec, crc16: crc16, norm: norm,
     tsWire: tsWire, tsFull: tsFull,
     NAV_POS: NAV_POS, WX_POS: WX_POS, BIO_POS: BIO_POS,
     NAV_ORDER: NAV_ORDER, WX_ORDER: WX_ORDER, BIO_ORDER: BIO_ORDER

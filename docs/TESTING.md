@@ -505,6 +505,31 @@ The fixture is committed, so the check runs offline like everything else.
 > **Invented reference data in a validation test is worse than no test.** If
 > you cannot fetch the reference, do not write the check.
 
+### A published test vector, because the third implementation is not ours
+
+`docs/web/tests/nt1-roundtrip.js` checks that the NT1 check code of
+`123456789` is `29B1`. That one line is the whole reason the check code is
+CRC-16/CCITT-FALSE rather than something invented here.
+
+Three programs have to produce the same four characters for a message to be
+readable: `docs/web/deck-log/nt1.js`, the website's Email Worker, and the
+watch, written in Monkey C in a different repository by a different session.
+The first two share a file. The third cannot — a watch app does not load
+JavaScript — so it has to be written from the *specification*.
+
+1. **With a published algorithm, each end validates itself.** The watch
+   computes `29B1` or it does not, and that is settled before either end
+   sees a real message.
+2. **With an invented one, the only reference is this source.** The watch
+   would have to be a careful reading of it, and a careful reading that drifts
+   by one bit is a message that arrives and cannot be read — at sea, where
+   nobody can compare the two files.
+
+The round trip also checks that the worked example in `nt1.js`'s own header
+comment carries a real code, so the documentation cannot quietly stop being
+true, and that a piece cut short is refused — truncation being the failure
+that actually happens to a message with a character limit.
+
 ### The exception: a port, where the awk *is* the published answer
 
 `docs/web/tests/` compares the browser builds against the awk engines, which is

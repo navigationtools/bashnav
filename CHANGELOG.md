@@ -1,5 +1,51 @@
 # Changelog
 
+## The NT1 check code becomes a CRC-16, and stops pretending to be a signature
+
+**What.** `docs/web/deck-log/nt1.js` — the shared module that writes and reads
+NT1, the format observations travel in by inReach — now computes its four-
+character check code with **CRC-16/CCITT-FALSE** (polynomial `0x1021`, initial
+value `0xFFFF`, no reflection, no final XOR), written as upper-case hex, over
+the UTF-8 bytes of the normalised piece. It replaces a keyed FNV-1a mix, and
+the secret that went with it is gone from the module, from `encode()` and from
+`decode()`. Contract `spec/contracts/navigationtools_inreach_transport.md` is
+at v0.9.
+
+**Why.** Two reasons, and the second is the one that matters.
+
+1. **The keyed hash was defending against the wrong failure.** It tried to
+   prove who built a piece. Twenty bits cannot do that, and nothing needs it
+   to: every inReach mails from the same `garmin.com` address, so the Email
+   Worker requires DMARC for that domain and holds what fails it. What
+   actually goes wrong to a piece is mechanical — cut short by a character
+   limit, pasted from part of a screen, folded by a mail client — and a CRC
+   catches exactly that.
+2. **Three programs have to agree on these four characters,** and one of them
+   is the watch, in Monkey C, which cannot load this file. A standard
+   algorithm has a published definition and a test vector, so the watch can be
+   written from the specification and check itself (`123456789` → `29B1`)
+   before it ever sends a message. An algorithm invented here could only be
+   copied, and a copy that drifts by one bit produces messages that arrive and
+   cannot be read.
+
+**What it impacts.**
+
+1. **Any NT1 message built before this change will not verify after it,** and
+   the reverse. Nothing has been sent yet, so nothing is lost; if that stops
+   being true, the piece can still be read with `decode(piece, {check: false})`
+   and the held store exists for exactly this.
+2. **The Send screen and settings lose the check-code secret** before they are
+   built — it is no longer a setting, because there is no secret.
+3. **The website's Email Worker takes a copy of this file** (decision D6) and
+   must be updated with it; a Worker still running the keyed version will
+   reject every piece.
+4. **`docs/web/tests/nt1-roundtrip.js`** grows the published vector, a check
+   that the worked example in the module header is a real code, and a
+   truncation case. 49 checks, all passing.
+5. **The transcription property survives the change.** The old base32 alphabet
+   left out `0`/`O` and `1`/`I` for someone reading a code off a screen;
+   upper-case hex has no letter that can be mistaken for a digit at all.
+
 ## Seven UK tide stations carried another station's name
 
 **What.** Seven of the sixteen UK stations from the Channel Coastal Observatory
