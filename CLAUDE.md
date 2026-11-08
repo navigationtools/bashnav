@@ -34,12 +34,25 @@ bashnav is one of several projects Larry runs with Claude, and they pass work
 to each other through a shared repository. **This runs first, before anything
 else in this file:**
 
-> Before any other work: `git pull` in `~/navigationtools/spec`, read every
-> file in `~/navigationtools/spec/handoffs/inbox/bashnav/` whose Status is
-> open, and tell Larry what is waiting. Close an item by setting
-> `Status: done` and adding a `## Reply`. Tasks for another project go in that
-> project's inbox. Change only this project's repository, and in `spec` only
-> inbox notes.
+> Before any other work: read `~/navigationtools/spec/ENVIRONMENT.md`
+> (where every repository lives, its remotes and branch) and check `pwd`
+> against it; then read every file in
+> `~/navigationtools/spec/handoffs/inbox/bashnav/` whose Status is
+> open (on disk; no git pull needed), and tell Larry what is waiting.
+> Close an item by setting `Status: done` and adding a `## Reply`. Tasks for
+> another project go in that project's inbox. Change only this project's
+> repository, and in `spec` only inbox notes. If you rename anything, ask
+> Larry to update `spec/ENVIRONMENT.md` in the same commit. Do not run git:
+> give Larry one block to commit and push, and he runs it in his Terminal.
+> After saving any file to Larry's folder, read it back from disk before
+> giving him a commit block.
+
+That is README v1.5, and four of its clauses are there because something went
+wrong without them: **read ENVIRONMENT.md first** (a session used a path that
+had moved), **check `pwd` against it** (it was one directory away), **rename
+and update ENVIRONMENT.md in the same commit** (a GitHub rename left the file
+describing a repository that no longer had that name), and **read a saved file
+back off disk** before telling Larry it is there.
 
 `~/navigationtools/spec/handoffs/README.md` holds the full protocol: who reads
 which inbox, who may write where, and the rule that the contracts in `spec`
@@ -50,9 +63,15 @@ change through one session only, so there is one author.
     ~/navigationtools/bashnav    this repository, on Larry's Mac
     ~/navigationtools/spec       the shared repository above
 
-Every project Larry runs lives under `~/navigationtools/<project>`. For any
-path other than this repository's own, read `spec`; do not carry one forward
-from an earlier session.
+**`spec/ENVIRONMENT.md` is the authority for both of these and for every other
+path, remote and branch.** The two lines above are a convenience; when they and
+that file differ, that file is right. Read it at the start, and check `pwd`
+against it rather than trusting a path remembered from an earlier session.
+
+**Repositories, their folders and their inboxes are lower case with hyphens,
+and the three always match** — `weatherglass`, `practical-navigator`. A
+product name inside a repository is its own thing: `WeatherGlass/` and
+`WeatherGlassLog/` are Connect IQ app directories and are correct as they are.
 
 ### Where files for Larry go
 
