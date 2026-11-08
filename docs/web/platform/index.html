@@ -147,9 +147,12 @@ p.note { color: var(--dim); font-size: 13px; }
   <p class="note">The picture below is a real observation &mdash; one
     <code>nav</code> and one <code>wx</code> record &mdash; made by the watch&rsquo;s
     own encoder (<code>WeatherGlass/tools/qr_ref.py</code>): byte mode, level L,
-    version 10, mask 0. If this browser can read it, deck-log needs no decoder
-    of its own.</p>
+    version 10, mask 0. The question was whether this browser can read it by
+    itself. It cannot &mdash; <code>BarcodeDetector</code> is absent on iPadOS
+    and iOS &mdash; so deck-log carries a decoder, and the rows below show both
+    answers on this device.</p>
   <img id="qrimg" alt="A QR code holding one observation">
+  <canvas id="qrcan" hidden></canvas>
   <table id="t-qr"></table>
   <p id="qrsay"></p>
 
@@ -166,6 +169,11 @@ p.note { color: var(--dim); font-size: 13px; }
   </div>
 </main>
 
+<!-- The decoder, and the one wrapper everything goes through. This page
+     is a probe and is deliberately NOT precached by any service worker,
+     so these are fetched over the network like anything else here. -->
+<script src="../vendor/jsQR-1.4.0.js"></script>
+<script src="../shared/qr.js"></script>
 <script>
 (function () {
   "use strict";
@@ -253,7 +261,15 @@ p.note { color: var(--dim); font-size: 13px; }
       ["screen w x h", screen.width + " x " + screen.height, ""],
       ["screen avail", screen.availWidth + " x " + screen.availHeight, ""],
       ["devicePixelRatio", String(devicePixelRatio), ""],
-      ["user agent", navigator.userAgent.slice(0, 64), ""]
+      ["user agent", navigator.userAgent.slice(0, 64), ""],
+      //  SAFARI CAPS THE VERSION IT REPORTS. An iPad mini on iPadOS
+      //  26.6.1 and an iPhone on iOS 26 both say "CPU OS 18_7" here --
+      //  checked against Settings > General > About on 8 November 2026.
+      //  Said on the page because this is the page people read to find
+      //  out what they are running, and the line above would mislead
+      //  them. Feature-detect; never version-sniff.
+      ["that version is capped", "Safari reports 18_7 on iPadOS/iOS 26 &mdash; " +
+       "feature-detect, do not version-sniff", ""]
     ]);
   }
 
@@ -279,10 +295,16 @@ p.note { color: var(--dim); font-size: 13px; }
 
     var has = (typeof BarcodeDetector !== "undefined");
     qrRow("BarcodeDetector", has ? "present" : "absent", has ? "yes" : "no");
+
+    //  The vendored decoder runs either way, and on this device. node
+    //  proving it in the suite is a different claim from the browser
+    //  Larry is actually holding.
+    vendorTry();
+
     if (!has) {
-      say.innerHTML = "<b>No native reader.</b> deck-log would need a decoder " +
-        "of its own, or a paste box instead of a camera.";
-      qrRow("decodes the watch's code", "cannot try", "no");
+      say.innerHTML = "<b>No native reader</b>, which is why deck-log carries " +
+        "one. The row above is that decoder, on this device, on the real code.";
+      qrRow("decodes the watch's code", "no native reader to try", "no");
       return;
     }
 
@@ -321,6 +343,43 @@ p.note { color: var(--dim); font-size: 13px; }
     });
   }
 
+  //  Decode the picture above with docs/web/vendor, through the wrapper
+  //  in docs/web/shared/qr.js -- the same path deck-log will take.
+  //
+  //  Drawn at its NATURAL pixel size, not the 180px the CSS shows: a QR
+  //  code sampled smaller than it was drawn is a code that will not read,
+  //  and that is a mistake worth not making in the page whose job is to
+  //  tell the truth about this.
+  function vendorTry() {
+    if (typeof QR === "undefined" || !QR.available()) {
+      qrRow("jsQR (vendored)", "did not load", "no"); return;
+    }
+    var img = document.getElementById("qrimg");
+    function go() {
+      var w = img.naturalWidth, h = img.naturalHeight;
+      if (!w || !h) { qrRow("jsQR (vendored)", "picture did not load", "no"); return; }
+      var can = document.getElementById("qrcan");
+      can.width = w; can.height = h;
+      var cx = can.getContext("2d", { willReadFrequently: true });
+      cx.drawImage(img, 0, 0, w, h);
+      var t0 = now();
+      var r = QR.decode(cx.getImageData(0, 0, w, h).data, w, h);
+      var ms = Math.round(now() - t0);
+      if (!r) { qrRow("jsQR (vendored)", "no code found", "no"); return; }
+      var same = (r.text === QR_TEXT);
+      qrRow("jsQR (vendored)", same ? "yes, byte for byte" : "yes, but altered",
+            same ? "yes" : "no");
+      qrRow("version / bytes / time", r.version + " / " + r.text.length +
+            " / " + ms + " ms", "");
+      if (!same) qrRow("first difference at", String(firstDiff(QR_TEXT, r.text)), "no");
+    }
+    if (img.complete && img.naturalWidth) go(); else img.onload = go;
+  }
+
+  function now() {
+    return (window.performance && performance.now) ? performance.now() : Date.now();
+  }
+
   function firstDiff(a, b) {
     var i; for (i = 0; i < a.length && i < b.length; i++) if (a[i] !== b[i]) return i;
     return Math.min(a.length, b.length);
@@ -328,37 +387,64 @@ p.note { color: var(--dim); font-size: 13px; }
 
   //  The live camera is a separate, explicit tap: it asks for permission,
   //  and a probe should not do that on load.
+  //
+  //  THIS IS THE TEST THE FIXTURES CANNOT DO. A decoder reading a clean
+  //  picture is checked in the suite and proves nothing about glare on a
+  //  watch crystal, focus at 15 cm, or a dim screen at three in the
+  //  morning. That is the whole reason a library with field miles on it
+  //  was taken instead of one written here -- so this is where the claim
+  //  gets tested, by pointing it at the watch.
+  //
+  //  It uses whichever reader exists: BarcodeDetector if the browser ever
+  //  grows one, the vendored decoder otherwise, and it says which.
   document.getElementById("camgo").addEventListener("click", function () {
     var btn = this, vid = document.getElementById("cam");
     var say = document.getElementById("qrsay");
-    if (typeof BarcodeDetector === "undefined") {
-      say.innerHTML = "<b>No native reader</b>, so there is nothing to point."; return;
+    var can = document.getElementById("qrcan");
+    var native = (typeof BarcodeDetector !== "undefined");
+    if (!native && !(typeof QR !== "undefined" && QR.available())) {
+      say.innerHTML = "<b>No reader at all</b>, so there is nothing to point."; return;
     }
     if (!isSecureContext) { say.innerHTML = "<b>Not a secure context</b>, so no camera."; return; }
-    btn.disabled = true; btn.textContent = "looking\u2026";
+    btn.disabled = true; btn.textContent = "looking…";
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
       .then(function (stream) {
         vid.style.display = "block"; vid.srcObject = stream; vid.play();
-        var det = new BarcodeDetector({ formats: ["qr_code"] });
-        var n = 0, seen = {}, t0 = Date.now();
+        var det = native ? new BarcodeDetector({ formats: ["qr_code"] }) : null;
+        var seen = {}, t0 = Date.now(), frames = 0, hits = 0, worst = 0;
+
+        //  the WHOLE payload, not the first 40 bytes. What the watch
+        //  emits is the other half of the question and it is only
+        //  answerable by reading one off the glass: whether swdir is in
+        //  the nav record or the weather one, whether cog comes before
+        //  sog, whether wsrc, tsrc and bio are there at all.
+        function got(text, ms) {
+          hits++;
+          if (ms > worst) worst = ms;
+          seen[text] = 1;
+          var n = Object.keys(seen).length;
+          say.innerHTML = "<b>" + n + " distinct code" + (n === 1 ? "" : "s") +
+            "</b> by " + (native ? "BarcodeDetector" : "jsQR") + " in " +
+            Math.round((Date.now() - t0) / 1000) + "s &mdash; " + hits + " reads of " +
+            frames + " frames, slowest " + worst + " ms. Last one, " +
+            text.length + " bytes:<br>" +
+            text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/\n/g, "<br>");
+        }
+
         var tick = setInterval(function () {
-          det.detect(vid).then(function (f) {
-            if (f.length) {
-              f.forEach(function (c) { seen[c.rawValue] = 1; });
-              n = Object.keys(seen).length;
-              //  the WHOLE payload, not the first 40 bytes. What this watch
-              //  emits is the other half of the question and it is only
-              //  answerable by reading one off the glass: whether swdir is
-              //  in the nav record or the weather one, whether cog comes
-              //  before sog, whether wsrc, tsrc and bio are there at all.
-              say.innerHTML = "<b>" + n + " distinct code" + (n === 1 ? "" : "s") +
-                "</b> in " + Math.round((Date.now() - t0) / 1000) + "s. Last one, " +
-                f[0].rawValue.length + " bytes:<br>" +
-                f[0].rawValue.replace(/&/g, "&amp;").replace(/</g, "&lt;")
-                             .replace(/\n/g, "<br>");
-            }
-          }).catch(function () { /* a frame that will not decode is normal */ });
+          frames++;
+          if (native) {
+            var n0 = now();
+            det.detect(vid).then(function (f) {
+              if (f.length) got(f[0].rawValue, Math.round(now() - n0));
+            }).catch(function () { /* a frame that will not decode is normal */ });
+          } else {
+            var m0 = now();
+            var r = QR.fromVideo(vid, can);
+            if (r) got(r.text, Math.round(now() - m0));
+          }
         }, 200);
+
         btn.textContent = "stop";
         btn.disabled = false;
         btn.onclick = function () {

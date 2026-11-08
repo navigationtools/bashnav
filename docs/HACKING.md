@@ -444,6 +444,15 @@ app, and tells the page nothing about them.** Larry found it on the iPad mini:
 can never go back." Five tools put their back control 12–14px from the left
 edge, 40px square, which is exactly where the controls land.
 
+**And the user agent will not tell you which iPadOS this is.** Safari caps the
+version it reports: the iPad mini on **26.6.1** and the iPhone on iOS 26 both
+say `CPU OS 18_7`, checked against Settings → General → About. A session
+reading the probe's own user-agent line concluded the device was on 18.7 and
+that the window controls could not be a 26 behaviour — wrong on both counts,
+from a string the platform does not mean literally. So: **feature-detect,
+never version-sniff**, which is what the fix below does anyway, and the probe
+page now says so beside the readout.
+
 What the platform offers a page, measured on the device rather than assumed:
 
 | | |
@@ -575,6 +584,36 @@ as if it were the source. **A comment asserting what the other implementation
 does is worth nothing — go and read it.**
 
 ---
+
+
+## Third-party code: one file, and the rules that keep it to one
+
+`docs/web/vendor/jsQR-1.4.0.js` is the only code in this repository that was
+not written for it. Everything about how it is handled is a rule, not a habit.
+
+1. **Nothing calls it directly.** `docs/web/shared/qr.js` is the only caller.
+   Replacing the decoder is then a change to one file instead of a search.
+2. **It is vendored, never fetched.** A `<script src="https://…">` is a tool
+   that stops working at sea, which is the one place it has to work.
+3. **It is byte for byte as published, and its checksum is in the suite.**
+   Editing it in place would also mean, under Apache 2.0, carrying a notice
+   that we changed it — so don't: wrap it, or take a new release properly.
+4. **Its licence and its attribution travel with it** — `LICENSE-jsQR.txt`
+   beside the file, jsQR named in `NOTICE`. The suite checks the second,
+   because an obligation that depends on remembering is one that gets dropped.
+5. **The version is in the filename,** so an upgrade is visible at every place
+   that loads it rather than being a silent change to a file whose name stayed
+   the same.
+
+**Why it is here at all**, since the repository's premise is that you can read
+what you are trusting: `BarcodeDetector` is absent on iPadOS 26.6.1 and on
+iOS — measured on Larry's own devices, not read in a table — so reading the
+watch's codes means a decoder in the page. Writing one was the alternative and
+the specification is finite; what cannot be written from a specification, or
+tested from a fixture, is the part before it starts — binarising a frame with
+glare on a crystal, locating a code held at an angle, holding focus at 15 cm,
+a dim red screen at three in the morning. That is what was taken, and
+`docs/web/vendor/README.md` says so in full.
 
 ## Publishing notes
 

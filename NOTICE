@@ -13,6 +13,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
 
 -----------------------------------------------------------------------
+THIRD-PARTY CODE
+-----------------------------------------------------------------------
+
+jsQR 1.4.0
+  Copyright the jsQR authors (Cosmo Wolfe and contributors).
+  https://github.com/cozmo/jsQR
+  Licensed under the Apache License, Version 2.0 -- the same licence as
+  this work. Full text in docs/web/vendor/LICENSE-jsQR.txt.
+
+  Redistributed unmodified as docs/web/vendor/jsQR-1.4.0.js. It reads
+  the QR codes the watch displays, because the browser on iPadOS has no
+  reader of its own. docs/web/vendor/README.md records where it came
+  from, its checksum, and why it is here rather than written in this
+  repository.
+
+  This is the only code in bashnav that bashnav did not write.
+
+-----------------------------------------------------------------------
 THIRD-PARTY DATA
 -----------------------------------------------------------------------
 

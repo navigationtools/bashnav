@@ -1,5 +1,58 @@
 # Changelog
 
+## A QR reader, and the first third-party code in this repository
+
+**What.** `docs/web/vendor/jsQR-1.4.0.js` — jsQR, Apache 2.0, byte for byte as
+published — with its licence beside it, its attribution in `NOTICE`, and its
+SHA-256 pinned by the suite. `docs/web/shared/qr.js` is the only thing that
+calls it. `docs/web/platform/` now decodes the watch's code with it on load,
+and its camera button uses it, so the reader can be pointed at the real watch.
+Nothing in deck-log is wired to it yet.
+
+**Why.** The iPad cannot read a QR code by itself: `BarcodeDetector` is absent
+on iPadOS 26.6.1 and on iOS 26, measured on Larry's own devices rather than
+assumed. The system Camera app does decode, but it has nowhere to put the
+result — a payload that is not a URL is handed to the default browser as a
+*search*, which sends a position report off the boat, lands it in Safari
+rather than in the installed app's storage, and fails entirely with no signal.
+So the decoder has to be in the page.
+
+Writing one was the alternative, and the reason it was not chosen is worth
+keeping. The QR specification is finite and the watch's encoder gives us an
+oracle, so a generated corpus would have passed at a hundred per cent — and
+that number would have been misleading, because a corpus feeds a decoder a
+clean bitmap and a camera does not. The work a QR reader earns over years is
+everything before the specification starts: binarising a frame with glare
+across a watch crystal, locating a code held at an angle, focus at 15 cm, a
+dim red screen at three in the morning. None of it can be tested from a
+fixture. What was bought is not an implementation of a published standard; it
+is other people's bad lighting.
+
+**What it impacts.**
+
+1. **It reads the watch's actual code, byte for byte** — the real one from
+   `qr_ref.py`, version 10, 231 bytes, about 55 ms. The fixture in the suite
+   is that code, read out of `docs/web/platform/index.html` so there is a
+   single copy of it, checked at four orientations and two scales, with noise,
+   a blank frame and half a code required to decode to nothing.
+2. **The suite pins both checksums.** A vendored file nobody watches is not
+   vendored; this one cannot be edited, re-minified or upgraded without a
+   failure and a decision.
+3. **One caller, one file to change.** If jsQR ever disappoints, replacing it
+   touches `docs/web/shared/qr.js` and nothing else.
+4. **What is still unproven is the camera**, which is the whole reason a
+   library was taken. The suite is deliberately silent about it rather than
+   appearing to cover it; the camera button on the platform page is where that
+   gets answered, on the foredeck.
+5. **deck-log is not wired to it yet, on purpose.** What the scan screen does
+   with the text depends on D10 — whether the watch's codes carry NT1 — which
+   is an open question in the inbox. Building an importer for a format that is
+   about to change is the one way to waste this work.
+6. **`docs/web/platform/` also stopped repeating a platform lie.** Safari caps
+   the iPadOS version it reports: 26.6.1 arrives as `CPU OS 18_7`. The page
+   now says so beside the readout, and `docs/HACKING.md` records that a
+   session was misled by it. Feature-detect; never version-sniff.
+
 ## The NT1 check code becomes a CRC-16, and stops pretending to be a signature
 
 **What.** `docs/web/deck-log/nt1.js` — the shared module that writes and reads

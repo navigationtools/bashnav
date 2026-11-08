@@ -1136,6 +1136,28 @@ WXLOG
     say "  --    the NT1 round-trip needs node, skipped"
   fi
 
+  #  THE QR READER, AND THE ONE DEPENDENCY THIS PROJECT HAS.
+  #
+  #  Two different things are checked here and they fail for different
+  #  reasons. The checksums say the vendored file is the one that was
+  #  vetted -- a vendored dependency with no checksum is a dependency
+  #  nobody is watching. The fixture says it still reads the watch's
+  #  actual code: not one generated to suit the decoder, but the real
+  #  one from qr_ref.py embedded in docs/web/platform/, read straight out
+  #  of that page so there is a single copy of it.
+  #
+  #  What it cannot check is a camera. See docs/TESTING.md.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/qr-read.js 2>&1); then
+      ok "the watch's own QR code reads byte for byte $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
+    else
+      bad "the QR reader does not read the watch's code, or the vendored file has changed"
+      echo "$r" | head -10
+    fi
+  else
+    say "  --    the QR read check needs node, skipped"
+  fi
+
   if command -v node >/dev/null 2>&1; then
     if r=$(node tests/contacts-figs-check.js 2>&1); then
       ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
