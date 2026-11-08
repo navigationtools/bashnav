@@ -1234,13 +1234,36 @@ WXLOG
   #  the fault it was written to catch: docs/index.html, the site's own
   #  front page, sits outside docs/web/*/ and so was never looked at --
   #  the check could not see the one page every visitor meets first.
-  #  The same blind spot was about to swallow docs/coastal/, where the
-  #  coastal navigation course's built pages will land. GitHub Pages
-  #  serves everything under docs/, so everything under docs/ is checked.
+  #  GitHub Pages serves everything under docs/, so everything under
+  #  docs/ is checked.
+  #
+  #  AND IT LOOKS UPWARD FOR THE WORKER, because that is how scope
+  #  works. A worker at docs/practical-navigator/sw.js controls
+  #  docs/practical-navigator/coastal/ and .../offshore/ beneath it.
+  #  Demanding a worker in the SAME directory failed that layout -- the
+  #  Practical Navigator's two sections share one worker by design, and
+  #  this check would have refused their first publish for a fault they
+  #  did not have.
+  #
+  #  SCOPE IS NECESSARY, NOT SUFFICIENT. Being inside a worker's scope
+  #  does not mean the worker precaches you: docs/web/platform/ sits
+  #  inside the launcher's scope and is deliberately in no cache at all.
+  #  tests/sw-precache-check.sh proves files are actually cached, and it
+  #  compares each worker against the index.html in ITS OWN directory.
+  #  When a nested layout lands, that check has to walk the worker's
+  #  whole subtree; it is named here so the gap is visible rather than
+  #  discovered.
   nowork=0
   for f in $(find docs -name index.html | sort); do
     d=$(dirname "$f")/
-    [ -f "${d}sw.js" ] && continue
+    #  walk up to docs/ looking for a worker whose scope covers this page
+    u=$(dirname "$f"); found=0
+    while : ; do
+      [ -f "$u/sw.js" ] && { found=1; break; }
+      [ "$u" = "docs" ] && break
+      u=$(dirname "$u")
+    done
+    [ "$found" = 1 ] && continue
     case "$d" in
       #  The site's front page. It lists the tools and explains how to
       #  install them, which is a thing you read with a signal before
@@ -1249,7 +1272,11 @@ WXLOG
       #  is where it is stated rather than left to look like an oversight.
       docs/) ;;
       #  The window-control probe. It measures what the platform tells a
-      #  web app, and a cached probe is a lying probe.
+      #  web app, and a cached probe is a lying probe. It is inside the
+      #  launcher's scope but in none of its FILES, so it is fetched
+      #  fresh every time -- which is the point. Offline it falls back
+      #  to the launcher's home page, which is odd but harmless: a probe
+      #  has nothing to say without the platform under it.
       docs/web/platform/) ;;
       *) nowork=$((nowork+1))
          echo "    ${d} serves a page with no sw.js -- offline-dead, and no sw check above sees it" ;;

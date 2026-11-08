@@ -93,25 +93,31 @@ a remote disables its default, which is why GitHub is listed explicitly.
 Never edit `bin/` directly. It is generated, CI checks that it matches `src/`,
 and your change will be silently overwritten by the next build.
 
-## `docs/coastal/` is generated too, and belongs to another project
+## `docs/practical-navigator/` is generated too, and belongs to another project
 
 *Decided by Larry, 7 November 2026.* The coastal navigation course is a
 separate, private repository, but its **built pages are published from here**,
-at `bashnav.navigationtools.org/coastal/`, because GitHub Pages serves one
-site per repository and bashnav's site is this repository.
+at `bashnav.navigationtools.org/practical-navigator/`, because GitHub Pages
+serves one site per repository and bashnav's site is this repository.
 
-    docs/coastal/     generated. Never hand-edited. Source lives in the
-                      coastal-navigation repository; its build copies the
-                      output in at publish time.
+    docs/practical-navigator/      generated. Never hand-edited. Source lives
+      coastal/                     in the practical-navigator repository; its
+      offshore/                    build copies the output in at publish time.
+      sw.js                        ONE worker for both sections, by their
+                                   design: its scope covers them both.
 
 Same rule as `bin/`: a change made here is overwritten by the next build of a
 repository you are not looking at.
+
+The course is **The bashnav Practical Navigator**; "coastal-navigation" was
+the working name and is retired.
 
 **Why it is here at all.** The course was going to live at
 `navigationtools.org/coastal/` — a different hostname, so a different origin,
 so its lessons could not load tides' code and would have needed a copy of
 `work.js`, a drift check, and a shim for the trig functions. On this origin a
-lesson loads `../web/tides/engine.js` and `../web/tides/work.js` directly:
+lesson loads `../../web/tides/engine.js` and `../../web/tides/work.js`
+directly:
 77 KB of the real files, no copy, and no shim to get subtly wrong. Larry moved
 it for stability and less complexity, and that is what it bought.
 

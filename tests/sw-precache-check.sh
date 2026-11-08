@@ -24,7 +24,7 @@ set -e
 cd "$(dirname "$0")/.."
 rc=0
 
-for sw in docs/web/sw.js docs/web/*/sw.js; do
+for sw in $(find docs -name sw.js | sort); do
   [ -f "$sw" ] || continue
   dir=$(dirname "$sw")
   page="$dir/index.html"

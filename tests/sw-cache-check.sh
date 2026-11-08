@@ -33,7 +33,7 @@ if ! git rev-parse --git-dir >/dev/null 2>&1; then
   exit 0
 fi
 
-for sw in docs/web/*/sw.js; do
+for sw in $(find docs -name sw.js | sort); do
   app=$(dirname "$sw"); name=$(basename "$app")
   cache=$(sed -n "s/.*CACHE *= *'\([^']*\)'.*/\1/p" "$sw" | head -1)
   if [ -z "$cache" ]; then
