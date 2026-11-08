@@ -95,8 +95,16 @@ td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
 p.note { color: var(--dim); font-size: 13px; }
 #qrimg { width: 180px; height: 180px; image-rendering: pixelated;
   border: 1px solid var(--line); border-radius: 6px; background: #fff; }
-#cam { width: 100%; max-width: 420px; border-radius: 8px; background: #000;
-  border: 1px solid var(--line); display: none; }
+#camwrap { position: relative; width: 100%; max-width: 420px; display: none; }
+#cam { width: 100%; border-radius: 8px; background: #000;
+  border: 1px solid var(--line); display: block; }
+/*  The aiming box is 70% of the SHORTER side, centred -- the same crop
+    the decoder is given. A box that does not match what is read is a
+    box that teaches the wrong aim.  */
+#aim { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 70%; aspect-ratio: 1 / 1; border: 2px solid var(--ok, #6c6);
+  border-radius: 6px; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0,0,0,.35); }
+@supports not (aspect-ratio: 1 / 1) { #aim { width: 70%; padding-bottom: 70%; height: 0; } }
 #qrsay { font: 13px/1.5 var(--mono); word-break: break-all; color: var(--dim); }
 #qrsay b { color: var(--text); }
 #probe { position: absolute; visibility: hidden;
@@ -161,7 +169,10 @@ p.note { color: var(--dim); font-size: 13px; }
   </div>
   <p class="note">Point it at the picture above on another screen, or at the
     watch. Nothing is sent anywhere and nothing is kept.</p>
-  <video id="cam" playsinline muted></video>
+  <div id="camwrap">
+    <video id="cam" playsinline muted></video>
+    <div id="aim"></div>
+  </div>
 
   <div class="row">
     <button id="hide" aria-pressed="false">hide grid</button>
@@ -400,10 +411,16 @@ p.note { color: var(--dim); font-size: 13px; }
   //  was taken instead of one written here -- so this is where the claim
   //  gets tested, by pointing it at the watch.
   //
-  //  It uses whichever reader exists: BarcodeDetector if the browser ever
-  //  grows one, the vendored decoder otherwise, and it says which.
+  //  IT REPORTS EVERY TICK, NOT ONLY ON SUCCESS. The first version said
+  //  nothing until it read something, so a failure looked exactly like a
+  //  broken page: Larry pointed it at the watch, saw nothing at all, and
+  //  had no way to tell whether the camera was even running. A probe
+  //  that is silent when the answer is "no" is not a probe. Frames,
+  //  resolution, reads and the slowest decode are on screen throughout,
+  //  so a failure is still a measurement.
   document.getElementById("camgo").addEventListener("click", function () {
     var btn = this, vid = document.getElementById("cam");
+    var wrap = document.getElementById("camwrap");
     var say = document.getElementById("qrsay");
     var can = document.getElementById("qrcan");
     var native = (typeof BarcodeDetector !== "undefined");
@@ -412,56 +429,104 @@ p.note { color: var(--dim); font-size: 13px; }
     }
     if (!isSecureContext) { say.innerHTML = "<b>Not a secure context</b>, so no camera."; return; }
     btn.disabled = true; btn.textContent = "looking…";
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+
+    //  ASK FOR RESOLUTION. Left to itself a browser hands out 640x480,
+    //  and a version-10 code is 57 modules across: filling a third of a
+    //  640-wide frame gives about four pixels per module before the lens
+    //  and the screen's own pixels are allowed their say. That is on the
+    //  edge, and the edge is where it fails. 1920 is a request, not a
+    //  demand -- whatever arrives is printed below.
+    var want = {
+      video: {
+        facingMode: { ideal: "environment" },
+        width:  { ideal: 1920 },
+        height: { ideal: 1080 }
+      }
+    };
+
+    navigator.mediaDevices.getUserMedia(want)
       .then(function (stream) {
-        vid.style.display = "block"; vid.srcObject = stream; vid.play();
+        wrap.style.display = "block"; vid.srcObject = stream; vid.play();
+
+        var track = stream.getVideoTracks()[0];
+        var set = (track && track.getSettings) ? track.getSettings() : {};
         var det = native ? new BarcodeDetector({ formats: ["qr_code"] }) : null;
+
         var seen = {}, t0 = Date.now(), frames = 0, hits = 0, worst = 0;
+        var lastText = "", lastWhere = "";
+
+        function status() {
+          var secs = Math.round((Date.now() - t0) / 1000);
+          var n = Object.keys(seen).length;
+          var head = "<b>" + (n ? n + " distinct code" + (n === 1 ? "" : "s") : "nothing yet") +
+            "</b> \u2014 " + (native ? "BarcodeDetector" : "jsQR") + ", " +
+            (vid.videoWidth || set.width || "?") + "×" + (vid.videoHeight || set.height || "?") +
+            " camera, " + hits + " reads of " + frames + " frames in " + secs + "s" +
+            (worst ? ", slowest " + worst + " ms" : "");
+          if (!n) {
+            head += ".<br>Fill the green box with the code. If it will not focus, " +
+              "back off to about 20 cm \u2014 closer than the lens can focus is a blur, " +
+              "and a blur has no modules in it.";
+          } else {
+            head += ", last read from the " + lastWhere + ".<br>" + lastText.length + " bytes:<br>" +
+              lastText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/\n/g, "<br>");
+          }
+          say.innerHTML = head;
+        }
 
         //  the WHOLE payload, not the first 40 bytes. What the watch
         //  emits is the other half of the question and it is only
         //  answerable by reading one off the glass: whether swdir is in
         //  the nav record or the weather one, whether cog comes before
         //  sog, whether wsrc, tsrc and bio are there at all.
-        function got(text, ms) {
+        function got(text, ms, where) {
           hits++;
           if (ms > worst) worst = ms;
-          seen[text] = 1;
-          var n = Object.keys(seen).length;
-          say.innerHTML = "<b>" + n + " distinct code" + (n === 1 ? "" : "s") +
-            "</b> by " + (native ? "BarcodeDetector" : "jsQR") + " in " +
-            Math.round((Date.now() - t0) / 1000) + "s &mdash; " + hits + " reads of " +
-            frames + " frames, slowest " + worst + " ms. Last one, " +
-            text.length + " bytes:<br>" +
-            text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/\n/g, "<br>");
+          seen[text] = 1; lastText = text; lastWhere = where;
         }
 
+        var busy = false;
         var tick = setInterval(function () {
+          if (busy) return;              //  never queue decodes behind each other
           frames++;
           if (native) {
+            busy = true;
             var n0 = now();
             det.detect(vid).then(function (f) {
-              if (f.length) got(f[0].rawValue, Math.round(now() - n0));
-            }).catch(function () { /* a frame that will not decode is normal */ });
-          } else {
-            var m0 = now();
-            var r = QR.fromVideo(vid, can);
-            if (r) got(r.text, Math.round(now() - m0));
+              busy = false;
+              if (f.length) got(f[0].rawValue, Math.round(now() - n0), "frame");
+              status();
+            }).catch(function () { busy = false; status(); });
+            return;
           }
-        }, 200);
 
+          //  The centred crop first, because that is where the aiming
+          //  box tells you to put it and it is a quarter of the pixels.
+          //  Then the whole frame, so a code held off to one side is
+          //  still found -- and the readout says WHICH worked, because
+          //  "only ever the full frame" and "only ever the crop" mean
+          //  different things about where to aim.
+          var m0 = now();
+          var r = QR.fromVideo(vid, can, { crop: 0.7 });
+          var where = "box";
+          if (!r) { r = QR.fromVideo(vid, can); where = "whole frame"; }
+          if (r) got(r.text, Math.round(now() - m0), where);
+          status();
+        }, 250);
+
+        status();
         btn.textContent = "stop";
         btn.disabled = false;
         btn.onclick = function () {
           clearInterval(tick);
           stream.getTracks().forEach(function (t) { t.stop(); });
-          vid.style.display = "none"; btn.textContent = "try the camera on it";
+          wrap.style.display = "none"; btn.textContent = "try the camera on it";
           btn.onclick = null;
         };
       })
       .catch(function (e) {
         btn.disabled = false; btn.textContent = "try the camera on it";
-        say.innerHTML = "<b>Camera refused:</b> " + e.name + " &mdash; " + e.message;
+        say.innerHTML = "<b>Camera refused:</b> " + e.name + " \u2014 " + e.message;
       });
   });
 

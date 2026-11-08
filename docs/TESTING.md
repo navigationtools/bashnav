@@ -101,6 +101,16 @@ specific reason: the previous lint written here used a GNU `sed` extension,
 passed on Linux and failed on Larry's Mac, and what let it get that far was a
 guard that ran it once rather than per awk.
 
+A third limit arrived the first time the check met new code rather than old.
+The camera readout builds its string across several statements and assigns it
+to `innerHTML` at the end, so the statement scan could not see where it was
+going — and one of those lines is `replace(/&/g, "&amp;")`, which exists to
+*produce* entities from text on its way into markup. A line containing
+`replace(` is therefore allowed. **Two of the three flags it raised were
+right and one was not, which is the ratio that decides whether a lint
+survives**: the two were fixed by writing the character, the third by naming
+the idiom.
+
 ### Three of these changed shape when the README did
 
 The browser-first README broke four checks, and the useful part was telling

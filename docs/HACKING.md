@@ -592,9 +592,14 @@ Every table on these pages is built by a helper that assigns `textContent`.
 That is the right choice — it cannot inject markup — and it means an HTML
 entity in the string arrives on screen as `&mdash;`, spelled out.
 
-Write `—`, or `\u2014`. The files are UTF-8 and have been all along.
-`tests/entity-check.awk` enforces it, and allows entities in a string whose
-statement mentions `innerHTML`, which is the one place they belong.
+Write `—`, or `\u2014`. The files are UTF-8 and have been all along, and a
+real em dash inside an `innerHTML` string renders exactly the same as the
+entity would — so there is no case where the entity is the better spelling.
+
+`tests/entity-check.awk` enforces it. It allows two things: a string whose
+statement mentions `innerHTML`, and any line containing `replace(`, which is
+the escaping idiom — `replace(/&/g, "&amp;")` exists to *produce* entities
+from text on its way into markup, and is correct.
 
 ## Third-party code: one file, and the rules that keep it to one
 

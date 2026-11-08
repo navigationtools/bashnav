@@ -1,5 +1,46 @@
 # Changelog
 
+## The camera probe said nothing when the answer was no
+
+**What.** The camera test on `docs/web/platform/` now asks for a 1920×1080
+stream instead of accepting the default, draws an aiming box over the video,
+decodes the centred crop before the whole frame, and reports frames,
+resolution, reads and the slowest decode **on every tick** rather than only on
+success. `docs/web/shared/qr.js` gains `opts.crop` for the frame grab.
+`tests/entity-check.awk` gains one exception.
+
+**Why.** Pointed at the watch, it read nothing and said nothing — which looks
+exactly like a broken page. A probe that is silent when the answer is "no" is
+not a probe, and that was the first thing to fix, ahead of any theory about
+why it failed.
+
+The likely cause is resolution. Left to itself a browser hands out 640×480. A
+version-10 code is 57 modules across, so filling a third of a 640-wide frame
+gives roughly four pixels per module before the lens and the watch's own
+pixels have their say — on the edge, and the edge is where it fails. 1920 is a
+request rather than a demand, so whatever actually arrives is now printed on
+screen.
+
+**What it impacts.**
+
+1. **The crop is read first, then the whole frame**, and the readout says
+   which one worked. A quarter of the pixels keeps a decode inside the gap
+   between frames, and it throws away the cabin, which is where a binariser
+   otherwise spends its contrast budget. "Only ever the full frame" and "only
+   ever the box" mean different things about where to aim, so the distinction
+   is reported rather than hidden.
+2. **The aiming box matches the crop exactly.** A box that does not is a box
+   that teaches the wrong aim.
+3. **Decodes no longer queue behind each other.** A `busy` flag skips a tick
+   while one is still running, so a slow frame costs a frame instead of
+   building a backlog that makes the camera look frozen.
+4. **The lint learned an exception the first time it met new code.** The
+   readout builds its string across several statements, so the statement scan
+   could not see the `innerHTML` at the end, and one of those lines is the
+   `replace(/&/g, "&amp;")` escaping idiom — which exists to produce entities
+   and is correct. Two of its three flags were right; those became characters,
+   and the third became a named exception.
+
 ## The row warning not to trust the platform printed an entity
 
 **What.** `docs/web/platform/` showed `Safari reports 18_7 on iPadOS/iOS 26

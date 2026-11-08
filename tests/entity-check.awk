@@ -33,6 +33,17 @@ FILENAME ~ /\.html$/ && /<\/script/             { js = 0; next }
 !js            { next }
 /^[ \t]*\/\// { next }
 
+#  THE ESCAPING IDIOM IS THE OTHER WAY ROUND. A line like
+#
+#      text.replace(/&/g, "&amp;").replace(/</g, "&lt;")
+#
+#  exists to PRODUCE entities, from user text on its way into innerHTML.
+#  It is the correct thing and it is allowed. This exception was added
+#  when the check first met the camera readout, where the string is
+#  built across several statements and assigned to innerHTML at the end,
+#  so the statement scan below could not see where it was going.
+/replace[ \t]*\(/ { if ($0 ~ /[;{}][ \t]*$/) stmt = ""; next }
+
 {
   stmt = stmt " " $0
   if ($0 ~ /&(mdash|ndash|amp|lt|gt|quot|apos|nbsp|rsquo|lsquo|ldquo|rdquo|hellip|deg|times|middot|copy|#[0-9]+|#x[0-9A-Fa-f]+);/ &&
