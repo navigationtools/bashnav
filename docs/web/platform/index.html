@@ -551,7 +551,7 @@ p.note { color: var(--dim); font-size: 13px; }
           var r = QR.fromVideo(vid, can, { crop: 0.7 });
           var where = "box";
           if (!r) { r = QR.fromVideo(vid, can); where = "whole frame"; }
-          if (r) got(r.text, Math.round(now() - m0), where);
+          if (r) got(r.text, Math.round(now() - m0), where + " at " + r.how);
           status();
         }, 250);
 

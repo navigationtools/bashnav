@@ -53,32 +53,54 @@ var QR = (function () {
   }
 
   // ---------------------------------------------------------------
-  //  fromVideo(video, canvas, opts) -> the same, for one frame
+  //  fromVideo(video, canvas, opts) -> { text, version, corners, how }
+  //                                    or null
   //
   //  The CALLER owns getUserMedia and the loop. Deck-log and the probe
   //  want different screens around this; what they share is the frame
-  //  grab, which is fiddly and identical.
+  //  grab, which is fiddly, identical, and -- as fourteen photographs
+  //  of Larry's watch established -- the entire difficulty.
   //
-  //  The canvas is sized to the video's own pixels, not to how big it
-  //  looks: a code photographed at 1280 wide and sampled at 320 is a
-  //  code that will not decode, and the CSS size of an element has
-  //  nothing to do with the camera behind it.
+  //  SMALLER READS BETTER. THIS IS THE OPPOSITE OF WHAT IT SOUNDS LIKE.
   //
-  //  opts.crop (0 < f <= 1) takes a centred square of that fraction of
-  //  the shorter side instead of the whole frame. Two reasons, and the
-  //  second is the one that matters on a watch:
+  //  Thirteen of those fourteen photographs, 3024x3024 off an iPhone,
+  //  decode in 6 to 20 ms when scaled DOWN to 400-700 px. At 1920 and
+  //  at full size most of them do not decode at all.
   //
-  //  1. A 1920x1080 frame is fourteen times the pixels of a 390x390
-  //     picture, and the decoder's work goes up with it. Cropping keeps
-  //     a frame inside the interval between frames, so the camera stays
-  //     live instead of queueing up behind the decoder.
-  //  2. It throws away the galley, the horizon and the rest of the
-  //     cabin, which are where a binariser spends its contrast budget.
-  //     A watch face is small and dim; it wants the whole budget.
+  //  The reason is the binariser. jsQR thresholds in small fixed
+  //  blocks, which is the right design when a module is a few pixels
+  //  across. Photograph a watch at 3024 and a module is twenty to forty
+  //  pixels, so every block lands wholly inside one module, there is no
+  //  light and dark in the block to threshold between, and what decides
+  //  the block is the screen's own dither -- the LCD pixel grid, which
+  //  is plainly visible in the photographs. Scale the frame down until
+  //  a module is five to eight pixels and that disappears: the dither
+  //  averages away and each block spans an edge again.
   //
-  //  The caller is expected to show the viewer where the crop is. An
-  //  aiming box that lies about what is being read is worse than none.
+  //  So the camera is asked for the HIGHEST resolution it has, and then
+  //  most of it is thrown away before decoding. The detail is not
+  //  wasted -- it is what survives the downscale as clean edges.
+  //
+  //  opts.crop (0 < f <= 1): a centred square of that fraction of the
+  //  shorter side. It throws away the galley, the horizon and the rest
+  //  of the cabin, which are where a binariser otherwise spends its
+  //  contrast budget, and it means the pixels that remain are the ones
+  //  aimed at. The caller must show the viewer where the crop is; an
+  //  aiming box that lies about what is read is worse than none.
+  //
+  //  opts.sizes: the ladder of widths to try, in order. Each attempt is
+  //  one drawImage and one decode of a small image -- 6 to 40 ms -- so
+  //  trying several costs less than missing the code and waiting for
+  //  the next frame. The order below is the order the photographs came
+  //  out in: 500 read most often, 400 and 600 next, 700 recovered a few
+  //  that nothing else did.
+  //
+  //  'how' says which rung won, because "always 400" and "always 700"
+  //  mean different things about how the thing is being held, and that
+  //  is worth seeing rather than averaging away.
   // ---------------------------------------------------------------
+  var SIZES = [500, 400, 600, 700];
+
   function fromVideo(video, canvas, opts) {
     opts = opts || {};
     var vw = video.videoWidth, vh = video.videoHeight;
@@ -92,17 +114,30 @@ var QR = (function () {
       sw = side; sh = side;
     }
 
-    if (canvas.width !== sw) canvas.width = sw;
-    if (canvas.height !== sh) canvas.height = sh;
-    var cx = canvas.getContext('2d', { willReadFrequently: true });
-    cx.drawImage(video, sx, sy, sw, sh, 0, 0, sw, sh);
-    var img;
-    try {
-      img = cx.getImageData(0, 0, sw, sh);
-    } catch (e) {
-      return null;                          //  tainted canvas; not our case
+    var sizes = opts.sizes || SIZES, i, n, r;
+    for (i = 0; i < sizes.length; i++) {
+      n = sizes[i];
+      if (n > Math.min(sw, sh)) n = Math.min(sw, sh);   //  never upscale
+      if (canvas.width !== n) canvas.width = n;
+      if (canvas.height !== n) canvas.height = n;
+      var cx = canvas.getContext('2d', { willReadFrequently: true });
+      //  Ask for the better downscale filter where it exists. A box
+      //  filter at this ratio aliases the very dither we are scaling
+      //  away, which would defeat the point of scaling.
+      cx.imageSmoothingEnabled = true;
+      if ('imageSmoothingQuality' in cx) cx.imageSmoothingQuality = 'high';
+      cx.drawImage(video, sx, sy, sw, sh, 0, 0, n, n);
+      var img;
+      try {
+        img = cx.getImageData(0, 0, n, n);
+      } catch (e) {
+        return null;                        //  tainted canvas; not our case
+      }
+      r = decode(img.data, n, n);
+      if (r) { r.how = n + 'px'; return r; }
+      if (n === Math.min(sw, sh)) break;    //  the ladder hit the source size
     }
-    return decode(img.data, sw, sh);
+    return null;
   }
 
   return { available: available, decode: decode, fromVideo: fromVideo };

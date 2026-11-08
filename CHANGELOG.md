@@ -1,5 +1,42 @@
 # Changelog
 
+## The QR reader scales the frame down before decoding, and reads 13 of 14
+
+**What.** `docs/web/shared/qr.js` now scales each captured frame down to a
+ladder of small sizes — 500, 400, 600, 700 px — and decodes those instead of
+the frame as captured. It reports which rung succeeded, and the platform
+page prints it (`from the box at 500px`).
+
+**Why.** Fourteen photographs of the watch, 3024×3024, were measured against
+the decoder. At full size and at 1920 px most did not decode. Scaled to
+400–700 px, **thirteen of the fourteen decoded, in 6 to 20 ms**.
+
+jsQR thresholds in small fixed blocks, which suits a module a few pixels
+across. At 3024 a module is twenty to forty pixels, so every block falls
+wholly inside one module, there is no light and dark to threshold between, and
+the block is decided by the screen's own dither — the LCD grid is visible in
+the photographs. Scaling until a module is five to eight pixels removes both
+problems at once.
+
+**What it impacts.**
+
+1. **The camera is still asked for its highest resolution.** The detail is not
+   wasted; it is what survives the downscale as clean edges.
+2. **A ladder rather than one size**, because each attempt is one `drawImage`
+   and one decode of a small image, cheaper than missing a code and waiting
+   for the next frame.
+3. **`imageSmoothingQuality` is set to high** where it exists. A box filter at
+   this ratio aliases the very dither being scaled away.
+4. **The rung is reported**, because "always 400" and "always 700" say
+   different things about how the thing is being held.
+5. **The previous change's reasoning was wrong and is corrected in
+   `docs/HACKING.md`.** Asking for 1920 was right for capture and useless on
+   its own; "it didn't read, so give it more pixels" is the obvious move and
+   it is backwards here.
+6. **One photograph reads under nothing** — not this decoder, not OpenCV, not
+   zbar. A photograph can be too small and too soft, and that is recorded
+   rather than smoothed over.
+
 ## The camera readout was above the video, where nobody was looking
 
 **What.** The live readout moved from `#qrsay`, which sits above the button,

@@ -586,6 +586,39 @@ does is worth nothing — go and read it.**
 ---
 
 
+## More pixels made the QR reader worse, and that is not a paradox
+
+Fourteen photographs of the watch, 3024×3024 from an iPhone, were fed to the
+decoder. At full size and at 1920 px, most of them did not decode at all.
+Scaled down to 400–700 px, **thirteen of the fourteen decoded in 6 to 20 ms**.
+
+The cause is the binariser. jsQR thresholds in small fixed blocks, which is
+the right design when a module is a few pixels across. Photograph a watch at
+3024 and a module is twenty to forty pixels, so:
+
+1. **Every block lands wholly inside one module.** There is no light and dark
+   in the block to threshold between.
+2. **What decides the block is then the screen's own dither** — the LCD pixel
+   grid, clearly visible in the photographs.
+3. **Scaling down to five to eight pixels per module fixes both.** The dither
+   averages away and each block spans an edge again.
+
+So `docs/web/shared/qr.js` asks the camera for the highest resolution it has
+and then throws most of it away before decoding. That is not waste: the detail
+is what survives the downscale as clean edges. It tries a ladder — 500, 400,
+600, 700 — because each attempt is one `drawImage` and one decode of a small
+image, cheaper than missing the code and waiting for the next frame, and it
+reports which rung won.
+
+**The general shape of the mistake is worth more than the fix.** "It didn't
+read, so give it more pixels" is the obvious move and it is backwards here. A
+measurement settled it in an hour; reasoning about it had already produced one
+wrong answer, in a commit message, with confidence.
+
+One of the fourteen reads under nothing — not this decoder, not OpenCV, not
+zbar. A photograph can simply be too small and too soft, and a reader that
+claimed otherwise would be lying.
+
 ## `row()` sets `textContent`, so write the character, not the entity
 
 Every table on these pages is built by a helper that assigns `textContent`.
