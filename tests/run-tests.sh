@@ -1113,6 +1113,29 @@ WXLOG
   #     than an error. Drawn the other way they came out blue and green
   #     on the red night palette, and only rendering all three and
   #     looking at them found it.
+  #  NT1: EVERY RECORD OUT AND BACK, BYTE FOR BYTE.
+  #
+  #  The whole inReach format exists to pass this. deck-log's merge
+  #  compares WHOLE LINES, so a record that comes back from the wire one
+  #  byte different from the one that went out is not a duplicate -- it
+  #  is a conflict, both copies are kept and flagged, and every
+  #  observation sits in the log twice for ever.
+  #
+  #  The generated half of it is the half that earns its keep: it walks
+  #  every combination of present, absent, 0, '-' and '/' across every
+  #  key, which is how the two format faults were found. The hand-written
+  #  cases only ever cover what somebody thought of.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/nt1-roundtrip.js 2>&1); then
+      ok "NT1 round-trips every record byte for byte $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
+    else
+      bad "an NT1 record does not come back the way it went out"
+      echo "$r" | head -10
+    fi
+  else
+    say "  --    the NT1 round-trip needs node, skipped"
+  fi
+
   if command -v node >/dev/null 2>&1; then
     if r=$(node tests/contacts-figs-check.js 2>&1); then
       ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
