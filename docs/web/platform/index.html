@@ -268,7 +268,7 @@ p.note { color: var(--dim); font-size: 13px; }
       //  Said on the page because this is the page people read to find
       //  out what they are running, and the line above would mislead
       //  them. Feature-detect; never version-sniff.
-      ["that version is capped", "Safari reports 18_7 on iPadOS/iOS 26 &mdash; " +
+      ["that version is capped", "Safari reports 18_7 on iPadOS/iOS 26 \u2014 " +
        "feature-detect, do not version-sniff", ""]
     ]);
   }
@@ -299,14 +299,19 @@ p.note { color: var(--dim); font-size: 13px; }
     //  The vendored decoder runs either way, and on this device. node
     //  proving it in the suite is a different claim from the browser
     //  Larry is actually holding.
-    vendorTry();
-
+    //
+    //  Called AFTER the native verdict in both branches, so a reader and
+    //  what it managed stay next to each other in the table. vendorTry()
+    //  may finish asynchronously if the picture has not loaded yet, which
+    //  is exactly why the order cannot be left to chance.
     if (!has) {
-      say.innerHTML = "<b>No native reader</b>, which is why deck-log carries " +
-        "one. The row above is that decoder, on this device, on the real code.";
       qrRow("decodes the watch's code", "no native reader to try", "no");
+      say.innerHTML = "<b>No native reader</b>, which is why deck-log carries " +
+        "one. The rows below are that decoder, on this device, on the real code.";
+      vendorTry();
       return;
     }
+    vendorTry();
 
     BarcodeDetector.getSupportedFormats().then(function (fmts) {
       var ok = fmts.indexOf("qr_code") >= 0;

@@ -586,6 +586,16 @@ does is worth nothing — go and read it.**
 ---
 
 
+## `row()` sets `textContent`, so write the character, not the entity
+
+Every table on these pages is built by a helper that assigns `textContent`.
+That is the right choice — it cannot inject markup — and it means an HTML
+entity in the string arrives on screen as `&mdash;`, spelled out.
+
+Write `—`, or `\u2014`. The files are UTF-8 and have been all along.
+`tests/entity-check.awk` enforces it, and allows entities in a string whose
+statement mentions `innerHTML`, which is the one place they belong.
+
 ## Third-party code: one file, and the rules that keep it to one
 
 `docs/web/vendor/jsQR-1.4.0.js` is the only code in this repository that was

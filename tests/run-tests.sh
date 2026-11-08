@@ -732,6 +732,26 @@ WXLOG
   if [ "$n" = 0 ]; then ok "no code assigns to one of awk's built-in variables"
   else bad "$n assignments to awk built-ins"; echo "$r" | grep -v "^BAD" | head -5; fi
 
+  #  HTML ENTITIES IN JAVASCRIPT STRINGS.
+  #
+  #  An entity means something only on its way to innerHTML. On its way
+  #  to textContent it is four or five literal characters on the screen,
+  #  which is what the platform page showed Larry: "&mdash;" printed in
+  #  the middle of the row warning him not to trust what the platform
+  #  reports.
+  #
+  #  Run per awk like everything else here. The last lint written for
+  #  this repository used a GNU sed extension and passed on Linux while
+  #  failing on Larry's Mac, and the reason it got that far was a guard
+  #  that ran it once instead of under every awk.
+  r=$($AW -f tests/entity-check.awk \
+        $(find docs/web -name '*.js' ! -path '*/vendor/*' | sort) \
+        $(find docs/web -name '*.html' | sort) \
+        $(find tests -name '*.js' | sort))
+  n=$(echo "$r" | tail -1 | $AW '{print $2}')
+  if [ "$n" = 0 ]; then ok "no HTML entity sits in a string bound for textContent"
+  else bad "$n HTML entities in strings that never reach innerHTML"; echo "$r" | grep -v "^BAD" | head -6; fi
+
   # ---- the tides tool ----------------------------------------------
   TH="$tmp/tides-$SH-$AW"; rm -rf "$TH"
   o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides version 2>/dev/null)

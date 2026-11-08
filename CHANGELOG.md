@@ -1,5 +1,33 @@
 # Changelog
 
+## The row warning not to trust the platform printed an entity
+
+**What.** `docs/web/platform/` showed `Safari reports 18_7 on iPadOS/iOS 26
+&mdash; feature-detect, do not version-sniff`, with the entity spelled out on
+screen. The string now carries the character. The same page's QR rows were
+reordered so the native reader's verdict sits next to the native reader's row
+rather than after the vendored decoder's, which could arrive late because it
+waits for the picture to load. `tests/entity-check.awk` is new.
+
+**Why.** The table helper assigns `textContent`, which is the right choice —
+it cannot inject markup — and which means an entity in the string is four or
+five literal characters. Found by Larry on the iPad, in a screenshot of the
+row whose subject is that what the platform reports is not what it means.
+
+**What it impacts.**
+
+1. **The lint looks only at JavaScript.** In HTML an entity is correct, so in
+   an `.html` file it examines what lies between `<script>` and `</script>`. A
+   version without that rule flagged seven good lines of markup, which is how
+   a check gets switched off instead of fixed.
+2. **It reads statements, not lines.** The string that shipped was folded
+   across two lines; a line-at-a-time rule would not have seen it.
+3. **It runs under every awk**, like the other lints, and the reason is
+   recorded in `docs/TESTING.md`: the last lint written here used a GNU `sed`
+   extension and failed on Larry's Mac, and what let it get that far was a
+   guard that ran it once rather than per awk.
+4. **Nothing else in the tree trips it**, under mawk, gawk and the system awk.
+
 ## A QR reader, and the first third-party code in this repository
 
 **What.** `docs/web/vendor/jsQR-1.4.0.js` — jsQR, Apache 2.0, byte for byte as

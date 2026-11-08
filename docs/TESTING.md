@@ -77,6 +77,30 @@ switched off, which is worse than no lint. A URL printed for a person to
 *read* is fine — the licence text and the review link are both just words on a
 screen. What is banned is fetching one.
 
+### An entity in the row that warned you not to trust the platform
+
+`tests/entity-check.awk`. The platform page gained a row saying that Safari
+caps the iPadOS version it reports, and the warning was written with `&mdash;`
+in the middle of it. The table's helper sets `textContent`, so the iPad
+displayed the characters `&mdash;` — inside the one row whose subject is that
+what the platform tells you is not what it means.
+
+The check looks for an HTML entity in a JavaScript string whose statement
+never mentions `innerHTML`. Two limits are deliberate:
+
+1. **Only JavaScript is examined.** In HTML an entity is correct and ordinary,
+   so in an `.html` file this looks between `<script>` and `</script>` and
+   nowhere else. A first version without that rule flagged seven perfectly good
+   lines of markup, which is how a check gets switched off.
+2. **A "statement" is everything since the last line ending in `;`, `{` or
+   `}`.** The string that shipped was folded across two lines, so a line-at-a-
+   time rule would have missed it; most of this code builds strings that way.
+
+It runs under every awk on the machine, like the other lints, and for a
+specific reason: the previous lint written here used a GNU `sed` extension,
+passed on Linux and failed on Larry's Mac, and what let it get that far was a
+guard that ran it once rather than per awk.
+
 ### Three of these changed shape when the README did
 
 The browser-first README broke four checks, and the useful part was telling
