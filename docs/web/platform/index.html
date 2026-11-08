@@ -105,6 +105,14 @@ p.note { color: var(--dim); font-size: 13px; }
   width: 70%; aspect-ratio: 1 / 1; border: 2px solid var(--ok, #6c6);
   border-radius: 6px; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0,0,0,.35); }
 @supports not (aspect-ratio: 1 / 1) { #aim { width: 70%; padding-bottom: 70%; height: 0; } }
+/*  A read has to be visible without reading. Hands are full: a watch in
+    one, an iPad in the other, and the text is small.  */
+#aim.hit { border-color: #3f3; border-width: 5px; box-shadow: 0 0 0 9999px rgba(0,80,0,.35); }
+#camsay { font: 13px/1.5 var(--mono); color: var(--dim); margin-top: 10px;
+  word-break: break-all; }
+#camsay b { color: var(--text); }
+#camsay .big { display: block; font-size: 17px; margin: 4px 0; }
+#camsay .hit { color: #3f3; }
 #qrsay { font: 13px/1.5 var(--mono); word-break: break-all; color: var(--dim); }
 #qrsay b { color: var(--text); }
 #probe { position: absolute; visibility: hidden;
@@ -173,6 +181,13 @@ p.note { color: var(--dim); font-size: 13px; }
     <video id="cam" playsinline muted></video>
     <div id="aim"></div>
   </div>
+  <!--  The live readout sits HERE, under the video, and not in #qrsay
+        up above the button. While the camera is running the viewer is
+        looking at the picture and at the watch in their other hand;
+        anything written further up the page is off the top of the
+        screen and might as well not exist. That is exactly how the
+        first run looked like nothing happening at all.  -->
+  <p id="camsay" hidden></p>
 
   <div class="row">
     <button id="hide" aria-pressed="false">hide grid</button>
@@ -421,13 +436,15 @@ p.note { color: var(--dim); font-size: 13px; }
   document.getElementById("camgo").addEventListener("click", function () {
     var btn = this, vid = document.getElementById("cam");
     var wrap = document.getElementById("camwrap");
-    var say = document.getElementById("qrsay");
+    var aim = document.getElementById("aim");
+    var say = document.getElementById("camsay");      //  under the video
+    var top = document.getElementById("qrsay");       //  the static verdict
     var can = document.getElementById("qrcan");
     var native = (typeof BarcodeDetector !== "undefined");
     if (!native && !(typeof QR !== "undefined" && QR.available())) {
-      say.innerHTML = "<b>No reader at all</b>, so there is nothing to point."; return;
+      top.innerHTML = "<b>No reader at all</b>, so there is nothing to point."; return;
     }
-    if (!isSecureContext) { say.innerHTML = "<b>Not a secure context</b>, so no camera."; return; }
+    if (!isSecureContext) { top.innerHTML = "<b>Not a secure context</b>, so no camera."; return; }
     btn.disabled = true; btn.textContent = "looking…";
 
     //  ASK FOR RESOLUTION. Left to itself a browser hands out 640x480,
@@ -446,7 +463,13 @@ p.note { color: var(--dim); font-size: 13px; }
 
     navigator.mediaDevices.getUserMedia(want)
       .then(function (stream) {
-        wrap.style.display = "block"; vid.srcObject = stream; vid.play();
+        wrap.style.display = "block"; say.hidden = false;
+        vid.srcObject = stream; vid.play();
+        //  Put the picture and its readout on the screen together. The
+        //  button is near the middle of a long page and the video opens
+        //  below it; without this the viewer is aiming at something they
+        //  can see and reading something they cannot.
+        if (wrap.scrollIntoView) wrap.scrollIntoView({ block: "center" });
 
         var track = stream.getVideoTracks()[0];
         var set = (track && track.getSettings) ? track.getSettings() : {};
@@ -458,20 +481,37 @@ p.note { color: var(--dim); font-size: 13px; }
         function status() {
           var secs = Math.round((Date.now() - t0) / 1000);
           var n = Object.keys(seen).length;
-          var head = "<b>" + (n ? n + " distinct code" + (n === 1 ? "" : "s") : "nothing yet") +
-            "</b> \u2014 " + (native ? "BarcodeDetector" : "jsQR") + ", " +
-            (vid.videoWidth || set.width || "?") + "×" + (vid.videoHeight || set.height || "?") +
-            " camera, " + hits + " reads of " + frames + " frames in " + secs + "s" +
-            (worst ? ", slowest " + worst + " ms" : "");
+          var res = (vid.videoWidth || set.width || "?") + "\u00d7" +
+                    (vid.videoHeight || set.height || "?");
+          var head;
           if (!n) {
-            head += ".<br>Fill the green box with the code. If it will not focus, " +
-              "back off to about 20 cm \u2014 closer than the lens can focus is a blur, " +
+            //  SAY THAT IT IS RUNNING. "Nothing yet" after four seconds
+            //  and a dead page look the same if the page says nothing,
+            //  and that is what the first attempt looked like.
+            head = "<span class=\"big\">looking\u2026 nothing read yet</span>" +
+              "camera " + res + ", " + frames + " frames in " + secs + "s" +
+              (worst ? ", slowest attempt " + worst + " ms" : "") +
+              ".<br>Fill the green box with the code. If it will not focus, back " +
+              "off to about 20 cm \u2014 closer than the lens can focus is a blur, " +
               "and a blur has no modules in it.";
           } else {
-            head += ", last read from the " + lastWhere + ".<br>" + lastText.length + " bytes:<br>" +
+            head = "<span class=\"big hit\">read \u2713 " + n + " distinct code" +
+              (n === 1 ? "" : "s") + ", " + lastText.length + " bytes</span>" +
+              "camera " + res + ", " + hits + " reads of " + frames + " frames in " +
+              secs + "s, slowest " + worst + " ms, last from the " + lastWhere +
+              ".<br>" +
               lastText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/\n/g, "<br>");
           }
           say.innerHTML = head;
+        }
+
+        //  A read has to be visible without reading: the box goes solid
+        //  for a moment. Both hands are full and the text is small.
+        var flash = 0;
+        function hit() {
+          aim.className = "hit";
+          clearTimeout(flash);
+          flash = setTimeout(function () { aim.className = ""; }, 700);
         }
 
         //  the WHOLE payload, not the first 40 bytes. What the watch
@@ -483,6 +523,7 @@ p.note { color: var(--dim); font-size: 13px; }
           hits++;
           if (ms > worst) worst = ms;
           seen[text] = 1; lastText = text; lastWhere = where;
+          hit();
         }
 
         var busy = false;
@@ -520,13 +561,14 @@ p.note { color: var(--dim); font-size: 13px; }
         btn.onclick = function () {
           clearInterval(tick);
           stream.getTracks().forEach(function (t) { t.stop(); });
-          wrap.style.display = "none"; btn.textContent = "try the camera on it";
+          wrap.style.display = "none"; say.hidden = true; aim.className = "";
+          btn.textContent = "try the camera on it";
           btn.onclick = null;
         };
       })
       .catch(function (e) {
         btn.disabled = false; btn.textContent = "try the camera on it";
-        say.innerHTML = "<b>Camera refused:</b> " + e.name + " \u2014 " + e.message;
+        top.innerHTML = "<b>Camera refused:</b> " + e.name + " \u2014 " + e.message;
       });
   });
 

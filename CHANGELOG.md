@@ -1,5 +1,36 @@
 # Changelog
 
+## The camera readout was above the video, where nobody was looking
+
+**What.** The live readout moved from `#qrsay`, which sits above the button,
+to a new `#camsay` directly under the video. Starting the camera scrolls the
+video and its readout into view together. A successful read turns the aiming
+box solid green for 700 ms and prints `read ✓ n distinct codes, n bytes` in
+larger type above the detail.
+
+**Why.** Pointed at the watch, the probe appeared to do nothing. It was in
+fact reporting every tick — into a paragraph further up a long page, off the
+top of the screen, while the viewer was looking at the video and at the watch
+in their other hand. A readout that is correct and invisible is the same thing
+as no readout, and this is the second time in one evening that this page has
+made "no" look like "broken".
+
+**What it impacts.**
+
+1. **A read is now visible without reading.** Both hands are full — a watch in
+   one, an iPad in the other — and the text is small. The box going solid is
+   the signal; the text is the detail for afterwards.
+2. **"Looking… nothing read yet" is stated explicitly**, with the camera
+   resolution, frame count and elapsed time beside it, so a page that is
+   working and finding nothing cannot be mistaken for a page that has stopped.
+3. **The static verdict stays where it was.** `#qrsay` still carries the
+   on-load answer about `BarcodeDetector` and the vendored decoder; only the
+   live camera text moved.
+4. **Verified end to end against a fake camera feed** — chromium driven with
+   the watch's own code as the video source — which reads it 15 times out of
+   15 frames, from the box, in 41 ms at 1280×720. That exercises the frame
+   grab, the crop and the readout; it still says nothing about optics.
+
 ## The camera probe said nothing when the answer was no
 
 **What.** The camera test on `docs/web/platform/` now asks for a 1920×1080
