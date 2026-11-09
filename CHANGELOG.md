@@ -1,5 +1,40 @@
 # Changelog
 
+## Sea temperature gets its own band, because water freezes before air does
+
+**What.** `implausible()` gave `airt`, `seat` and `dewp` one shared band of
+−60 to +60 °C. `seat` now has its own: **−2 to +40 °C**, with its own message
+below the floor — *"sea water freezes near −1.9"*. Changed in
+`src/decklog/screens.awk`, which is the reference, and in the browser port
+`docs/web/deck-log/views.js`; `bin/` and the iPad bundle are rebuilt, and
+deck-log's cache and build move to 4.
+
+**Why.** A WG Log test code carried `seat=-17.8`. That is 0 °F — a screen that
+opened on zero and was pressed through — and sea water freezes at about
+−1.9 °C, so no sea anywhere has ever been that cold. The log accepted it
+without a word, because the band it was checked against was written for air.
+
+**Two mistakes had to line up** for a 0 °F sea to reach a record: the watch
+offering the value, and the log taking it. WeatherGlass is fixing the first.
+This is the second, and it is the one that matters more, because a log that
+accepts an impossible reading will accept the next one too, from a source
+nobody is fixing.
+
+**What it impacts.**
+
+1. **−2 rather than −1.9**, to leave room for brackish water, which freezes
+   nearer 0 and can be measured a shade under. The ceiling, 40, is above the
+   warmest sea recorded.
+2. **`airt` and `dewp` are unchanged.** Air at −40 is a real reading in the
+   Southern Ocean; the shared band was right for them all along.
+3. **The message names the physics**, so the reason is on the screen at the
+   moment of the mistake rather than in a file nobody reads at sea.
+4. **The awk and the browser are diffed over the whole numeric range** by the
+   suite — 23,430 comparisons under three awks — so the two cannot drift.
+5. **Found by decoding a photograph of the watch**, not by review. The value
+   arrived in a QR code, was read by the decoder added this week, and looked
+   wrong to a human. None of the checks had anything to say about it.
+
 ## A threshold fallback, and the score corrected to 13 of 14
 
 **What.** `docs/web/shared/qr.js` now tries an Otsu-thresholded copy of each

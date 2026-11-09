@@ -22,7 +22,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '3 \u2014 5 Nov 2026';
+var BUILD = '4 \u2014 9 Nov 2026';
 
 var REG = { eq: [], pt: [], eqById: {}, ptById: {} };
 var RECS = [];                 // every parsed record, oldest first

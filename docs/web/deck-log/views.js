@@ -198,8 +198,21 @@ var VIEWS = (function () {
     if (key === 'mslp') { if (x < 870 || x > 1090) return x.toFixed(1) + ' hPa is outside anything recorded on earth'; }
     if (key === 'wspd') { if (x < 0 || x > 250) return g(x) + ' knots'; }
     if (key === 'wdir') { if (x < 0 || x > 360) return g(x) + ' is not a compass direction'; }
-    if (key === 'airt' || key === 'seat' || key === 'dewp') {
+    if (key === 'airt' || key === 'dewp') {
       if (x < -60 || x > 60) return g(x) + ' degrees';
+    }
+    //  SEA TEMPERATURE HAS ITS OWN FLOOR, AND IT IS PHYSICS, NOT TASTE.
+    //  Sea water freezes at about -1.9 C; below that it is ice or a
+    //  mistake. -2.0 leaves room for brackish water. The ceiling is the
+    //  warmest sea anyone records, in the Gulf.
+    //
+    //  Shared with airt and dewp until a watch offered seat=-17.8 -- a
+    //  screen that opened on 0 F and was pressed through -- and this
+    //  function let it past. Two mistakes had to line up, and only one
+    //  of them was the watch's.
+    if (key === 'seat') {
+      if (x < -2) return g(x) + ' degrees: sea water freezes near -1.9';
+      if (x > 40) return g(x) + ' degrees';
     }
     if (key === 'sog') { if (x < 0 || x > 60) return g(x) + ' knots'; }
     if (key === 'crs') { if (x < 0 || x > 360) return g(x) + ' is not a course'; }
