@@ -1050,6 +1050,56 @@ than `&&`-ed onto the check, because `if [ … ] && o=$(check)` sends every
 skipped pass down the `else` branch and reports a **failure** — which is worse
 than the slowness it was meant to fix.
 
+## The suite may not read a keyboard, and a failure must show its end
+
+Two faults in the harness itself, found while applying the tides calculators.
+Neither was in the patch; both had been there as long as the checks had.
+
+### A check waited for a person, and the answer depended on who ran it
+
+`guard()` started each check with the suite's own standard input. Run from a
+Terminal, that is the person's keyboard. `tides find` lists its matches and
+then asks *"Number to use it, or return to search again"* and reads a line, so
+`ios-home.sh` sat on that question until `guard` killed it 180 seconds later
+and reported **"a tool cannot run on iOS"**.
+
+`guard` did what it exists for: the hang was caught, timed and named. What it
+did not do was make the hang impossible, and that is the worse fault — one run
+gave two failures and the next gave three, because a shell got through
+whenever a key happened to be pressed.
+
+**A suite whose answer depends on who ran it, and whether they touched the
+keyboard, is worse than one that fails.** A failure is read and fixed; a
+result that moves teaches you to run it again until it is green, and that
+habit will one day swallow a real fault.
+
+Standard input is now closed twice: `exec </dev/null` for the whole suite and
+everything it starts, and again inside `guard`, because a guarded check is the
+one that can wait for ever and a reader of `guard()` should meet the rule
+where the risk is. `ios-home.sh` closes it on its own `find` step as well,
+since its header invites running it alone.
+
+Reproduced both ways before and after, with standard input a pipe that never
+speaks: `tides find` was still waiting when the test gave up; afterwards
+`ios-home.sh` finished in 0.4 s and the whole suite passed.
+
+### The report cut off the only line that said what went wrong
+
+On a failure the callers printed `head -10 "$GUARD_OUT"`. `ios-home.sh` prints
+a progress line before each step, and its first ten lines are ten *version*
+steps that all passed. The step it was stuck on was line 11, and `guard`'s own
+*"TIMED OUT after 180s"* note is appended, so it is the last line of all.
+**Both were cut off**, and the report showed ten healthy lines above a verdict
+that explained nothing.
+
+`gshow` replaces the four `head` calls. It prints the end, where a failure and
+the timeout note both are, keeps the first three lines for context, and says
+how many it elided. Short output is printed whole.
+
+The general rule, since the next harness will have the same choice to make:
+**a failing check's output is read from the end.** Whatever stopped it is the
+last thing it managed to say.
+
 ## What still needs a human
 
 Two things the suite cannot judge, and where feedback is genuinely wanted:

@@ -54,12 +54,34 @@ check(){ if [ "$2" = "$3" ]; then ok "$1"; else bad "$1 (got '$3', want '$2')"; 
 #  substitution runs in a subshell where backgrounding and wait do not
 #  behave, and the first version of this silently swallowed every
 #  check's output and turned four passes into four blank failures.
+#  NOTHING IN THIS SUITE MAY READ A KEYBOARD.
+#
+#  guard() ran each check with the suite's own standard input, which
+#  from a Terminal is the person running it. tides' `find` lists its
+#  matches and then asks "Number to use it, or return to search again"
+#  and reads a line, so ios-home.sh sat on that question until guard
+#  shot it 180 seconds later and the check was reported as "a tool
+#  cannot run on iOS".
+#
+#  guard DID its job: the hang was killed and named. What it did not do
+#  was make the hang impossible, and that is the worse fault. The run
+#  gave 2 failures once and 3 the next time, because a shell got through
+#  whenever a key happened to be pressed. A SUITE WHOSE ANSWER DEPENDS
+#  ON WHO RAN IT, AND WHETHER THEY TOUCHED THE KEYBOARD, IS WORSE THAN
+#  ONE THAT FAILS: it teaches you to run it again until it is green.
+#
+#  So it is closed twice. Here, for the whole suite and everything it
+#  starts, and again inside guard, because a guarded check is the one
+#  that can wait for ever and a reader of guard() should see the rule
+#  where the risk is.
+exec </dev/null
+
 GUARD_OUT=""
 guard() {
   g_sec=$1; shift
   GUARD_OUT="$tmp/guard.out"
   : > "$GUARD_OUT"
-  "$@" > "$GUARD_OUT" 2>&1 &
+  "$@" </dev/null > "$GUARD_OUT" 2>&1 &
   g_pid=$!
   ( sleep "$g_sec"; kill -9 "$g_pid" 2>/dev/null ) 2>/dev/null &
   g_kill=$!
@@ -81,6 +103,30 @@ guard() {
     printf '  ... TIMED OUT after %ss and was killed. Last step above.\n' "$g_sec" >> "$GUARD_OUT"
   fi
   return "$g_rc"
+}
+
+#  WHAT A FAILED CHECK SHOWS, AND WHY IT IS THE END AND NOT THE START.
+#
+#  The callers used to print `head -10 "$GUARD_OUT"`. ios-home.sh prints
+#  a progress line before each step, and its first ten lines are the ten
+#  "version" steps -- all of which passed. The step it was stuck on was
+#  line 11, and guard's own "TIMED OUT after 180s" note is APPENDED, so
+#  it is the last line of all. Both were cut off.
+#
+#  So the report said "a tool cannot run on iOS" above ten lines that
+#  looked perfectly healthy. The diagnosis those progress lines exist to
+#  give was printed and never shown.
+#
+#  gshow prints the last lines, where a failure and the timeout note
+#  both are, and keeps the first three for context when the output is
+#  long enough to need eliding.
+gshow() {
+  g_n=${1:-12}
+  g_tot=$(wc -l < "$GUARD_OUT" | tr -d ' ')
+  if [ "$g_tot" -le "$g_n" ]; then cat "$GUARD_OUT"; return; fi
+  head -n 3 "$GUARD_OUT"
+  printf '    ... %s lines omitted ...\n' "$((g_tot - g_n))"
+  tail -n "$((g_n - 3))" "$GUARD_OUT"
 }
 
 ./build.sh >/dev/null
@@ -584,7 +630,7 @@ WXLOG
   elif guard 60 sh tests/ashell-check.sh; then
     ok "no heredoc prints, and no compound command is redirected"
   else
-    head -8 "$GUARD_OUT"
+    gshow 8
     bad "a construct a-Shell cannot run"
   fi
 
@@ -595,7 +641,7 @@ WXLOG
     ok "the iPad installer installs, runs and can be run twice"
     grep '^  SKIP' "$GUARD_OUT" || true
   else
-    head -10 "$GUARD_OUT"
+    gshow 10
     bad "the iPad installer"
   fi
 
@@ -606,7 +652,7 @@ WXLOG
     ok "every tool starts when \$HOME is unwritable, as it is on iOS"
     grep '^  SKIP' "$GUARD_OUT" || true
   else
-    head -10 "$GUARD_OUT"
+    gshow 10
     bad "a tool cannot run on iOS"
   fi
 
@@ -617,7 +663,7 @@ WXLOG
   elif guard 60 sh tests/launcher-check.sh "$SH"; then
     ok "the launcher finds every tool and its README menu is current"
   else
-    head -12 "$GUARD_OUT"
+    gshow 12
     bad "bashnav launcher"
   fi
 

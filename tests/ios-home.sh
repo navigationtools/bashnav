@@ -85,7 +85,12 @@ else
   #  tides has to unpack 2.9 MB and then find a station in it.
   at "read-only HOME: tides unpacks 2.9 MB and searches"
   o=$(cd "$h2/Documents" && $run HOME="$h2" PATH=/usr/bin:/bin \
-      $SH "$here/bin/tides" find falmouth 2>&1) || true
+      #  </dev/null because `find` asks "Number to use it, or return
+      #  to search again" and reads a line. run-tests.sh closes standard
+      #  input for the whole suite, but this file's own header invites
+      #  running it on its own, and then there is nothing between that
+      #  question and the person's keyboard.
+      $SH "$here/bin/tides" find falmouth </dev/null 2>&1) || true
   case "$o" in *"Falmouth Heights"*) ;;
     *) say "tides could not unpack and search with a read-only \$HOME" ;; esac
   at "read-only HOME: celnav doctor"

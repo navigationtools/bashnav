@@ -1,5 +1,42 @@
 # Changelog
 
+## The suite could wait for a keypress, and hid the line that said so
+
+**What.** `tests/run-tests.sh` closes standard input for the whole suite
+(`exec </dev/null`) and again inside `guard()`; `tests/ios-home.sh` closes it
+on its own `tides find` step; and the four `head -8/-10/-12 "$GUARD_OUT"`
+calls become `gshow`, which prints the **end** of a failed check's output.
+
+**Why.** Found by the practical-navigator session while applying the tides
+calculators, and neither fault was in that patch.
+
+1. **A check waited for a person.** `guard()` ran each check with the suite's
+   own standard input, which from a Terminal is the keyboard. `tides find`
+   asks *"Number to use it, or return to search again"* and reads a line, so
+   `ios-home.sh` sat there until `guard` killed it after 180 seconds and the
+   run reported "a tool cannot run on iOS".
+2. **The report cut off the explanation.** `ios-home.sh` prints a progress
+   line per step; its first ten are ten *version* steps that all passed. The
+   step it hung on was line 11, and `guard`'s timeout note is appended last.
+   `head -10` showed neither.
+
+**What it impacts.**
+
+1. **The run is deterministic again.** One run gave two failures and the next
+   gave three, because a shell got through whenever a key happened to be
+   pressed. A suite whose answer depends on who ran it is worse than one that
+   fails: it teaches you to re-run until green.
+2. **`guard` was working.** It caught the hang, timed it and named the check.
+   Catching a hang and making it impossible are different jobs, and only the
+   first was done.
+3. **A failing check is now read from the end**, where whatever stopped it is
+   the last thing it managed to say. `gshow` keeps the first three lines for
+   context and says how many it elided; short output prints whole.
+4. **Verified against the real condition**, with standard input a pipe that
+   never speaks: before, `tides find` was still waiting when the test gave up;
+   after, `ios-home.sh` finished in 0.4 s and the full suite passed with
+   nothing on its input.
+
 ## tides 1.2 — the coastal work calculators
 
 **What.** Six calculators in `tides`, in the shell (`tides work <name>
