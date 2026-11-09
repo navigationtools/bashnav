@@ -1283,6 +1283,25 @@ WXLOG
     say "  --    the photograph check needs node, skipped"
   fi
 
+  #  GRID 1, THE FORMAT THE ROUTER READS.
+  #
+  #  The refusals are the point. A bad grid does not become an error,
+  #  it becomes a ROUTE -- a boat sailing through a gap in the wind, or
+  #  an hour of stream applied to the wrong hour -- so each case pairs a
+  #  malformed file with the sentence it must be refused with. A check
+  #  that only asked "was it refused" would pass while the reader said
+  #  something useless.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/grid.js 2>&1); then
+      ok "GRID 1 accepts what it should and refuses what it should $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
+    else
+      bad "a grid that should load does not, or one that should not does"
+      echo "$r" | head -10
+    fi
+  else
+    say "  --    the grid check needs node, skipped"
+  fi
+
   if command -v node >/dev/null 2>&1; then
     if r=$(node tests/contacts-figs-check.js 2>&1); then
       ok "$(echo "$r" | sed -n 's/^  ok  *//p')"

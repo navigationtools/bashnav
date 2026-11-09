@@ -1,5 +1,49 @@
 # Changelog
 
+## GRID 1: the format the router reads, written before the router
+
+**What.** `docs/web/route/GRID.md` and `docs/web/route/grid.js` — a plain-text
+format for wind and current grids, and a reader that refuses anything outside
+it. `docs/web/tests/grid.js` checks 43 cases, most of them malformed files
+paired with the sentence each must be refused with.
+
+**Why first.** Two converters write this format — GRIB to wind, the Shom atlas
+to current, both in the course's repository — and the router reads it. The
+weather app may read it later. **A format defined inside its first consumer
+becomes whatever that consumer happens to do**, so it is defined on its own,
+and it is the smallest piece of the router with the most depending on it.
+
+**Why strict.** A bad grid does not become an error. It becomes a *route* — a
+boat sailing through a gap in the wind, or an hour of stream applied to the
+wrong hour. A grid that is wrong in a way nothing notices is worse than one
+that will not load, because the router will draw a perfectly convincing track
+from it.
+
+**What it impacts.**
+
+1. **The row count is checked twice**, against two independent things: `rows`
+   against `times × lat × lon` from the grid description, and `rows` against
+   the number of data rows on disk. The second catches a truncated file, which
+   is the failure that actually happens to a text file. Same reasoning as the
+   NT1 check code: the realistic fault is mechanical, not malicious.
+2. **One unit, one sign convention, one index order**, each written in the
+   file and not only in the document. A format that takes knots and metres per
+   second is one where half the files are in the other and nothing says which.
+   Half the bugs in this class of code are a sign.
+3. **Spans must be a whole number of steps.** Quarter-degree steps over two
+   degrees must give 8, not 7.999999999999999 — rounded, then checked against
+   the rounding, and refused rather than silently truncated.
+4. **`-` means no data, and does not read back as zero.** A gap over land that
+   arrives as a calm is a route through it.
+5. **The reader never throws.** A bad grid is a result with one sentence and a
+   line number: a reader that throws inside a router is a route that
+   disappears rather than a grid that is wrong.
+6. **The test file's own builder had the bug it was written to catch.** Its
+   defaults used `o.x || default`, which swallows an empty string, so the "no
+   times" case quietly tested the default instead — a check that passed by not
+   running. Fixed, and recorded here because it is the second time this week a
+   check has looked like it was working.
+
 ## The suite could wait for a keypress, and hid the line that said so
 
 **What.** `tests/run-tests.sh` closes standard input for the whole suite
