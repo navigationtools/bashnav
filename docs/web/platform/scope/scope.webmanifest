@@ -1,0 +1,14 @@
+{
+  "name": "Scope Probe — one icon, tides inside it",
+  "short_name": "Scope",
+  "description": "Does a manifest scope of / keep a link to /web/tides/ inside this installed app, and does tides work offline from in here? A measurement, not an app.",
+  "start_url": "/web/platform/scope/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07090b",
+  "theme_color": "#07090b",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

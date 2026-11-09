@@ -1,5 +1,49 @@
 # Changelog
 
+## A scope probe: can one icon hold the course and tides, offline?
+
+**What.** `docs/web/platform/scope/` — a second probe, with its own manifest
+declaring `"scope": "/"`. It reports the display mode, the scope the manifest
+actually declared, whether a worker controls the page, the state of a
+registration of `/web/tides/sw.js`, which tides cache exists, whether
+`stations.dat` is in it, and online/offline. It registers that worker on a
+tap, offers two links into tides, and carries the steps to run. Linked from
+the window-control probe.
+
+**Why.** The Practical Navigator wants to be one installed icon that works at
+sea. A lesson linking to `/web/tides/` is the problem: on iPadOS a link out of
+an installed app opens the in-app browser panel, which has its own storage, so
+tides can find nothing cached. The proposed fix is a manifest scope wider than
+the app's own folder — allowed by the standard when `start_url` is inside it
+— plus registering tides' worker from the course page so tides precaches
+itself into *this* app's storage. None of that is worth building on until it
+is seen to work on Larry's iPad.
+
+**What it impacts.**
+
+1. **The tides cache is found by prefix, never by a version written here.**
+   The request named `tides-v5`; a constant in this page would be a second
+   home for a number that lives in tides' worker, and the first place it would
+   go stale. It would then report "no cache" the day tides moved — the wrong
+   answer at the worst moment. It matches `tides-` and prints what it found.
+2. **`stations.dat` is reported separately from the app being cached**, since
+   the 2.9 MB station file is fetched on demand rather than precached. In a
+   local run the app cached and the station file did not, which is exactly the
+   gap the course asked about.
+3. **It does not use `navigator.serviceWorker.ready`.** That resolves when a
+   worker controls *this* page, and the one being registered is scoped to
+   `/web/tides/`, which this page is not inside — so it never resolves. The
+   first version sat on it reporting "not registered" while the registration
+   had succeeded, which is a probe lying about the one thing it exists to
+   measure. It polls the registration instead and refreshes while waiting.
+4. **Reads are numbered**, so one finishing after a newer one started throws
+   its results away. Without that the summary showed every row twice, on the
+   one screen the test asks to be photographed.
+5. **Nothing here is precached, deliberately.** Same as the window-control
+   probe: a cached probe is a lying probe.
+6. **No check of ours refuses a wide manifest scope** — there is no manifest
+   check at all — so nothing needs relaxing for this page or for the course.
+
 ## Sea temperature gets its own band, because water freezes before air does
 
 **What.** `implausible()` gave `airt`, `seat` and `dewp` one shared band of

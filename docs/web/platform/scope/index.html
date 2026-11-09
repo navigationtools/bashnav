@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07090b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Scope">
+<title>Scope Probe</title>
+<link rel="manifest" href="scope.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+/* =====================================================================
+   ONE ICON, TIDES INSIDE IT. A measurement, not an app.
+
+   The Practical Navigator wants to be installed as a single icon and to
+   work at sea with no signal. A lesson that links to /web/tides/ is the
+   problem: on iPadOS a link out of an installed web app opens the
+   in-app browser panel, which has its OWN storage, so tides may find
+   nothing cached and show nothing.
+
+   The proposed fix is a manifest scope of "/" -- wider than this
+   page's own folder, which the standard allows as long as start_url is
+   inside it. If it works, a link to /web/tides/ stays inside this
+   installed app and uses this app's storage, into which we have also
+   registered tides' own worker.
+
+   NOTHING HERE IS CACHED ON PURPOSE. This page is inside the
+   launcher's worker scope but in none of its files, so it is fetched
+   fresh every time. A cached probe is a lying probe.
+   ===================================================================== */
+:root { --bg:#07090b; --panel:#0e1317; --line:#1e2730; --text:#dfe8ef;
+        --dim:#8da0ae; --ok:#6ad08a; --no:#e2635c; --warn:#e3b341;
+        --mono: ui-monospace, "SF Mono", Menlo, monospace; }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--text);
+       font:15px/1.5 -apple-system, system-ui, sans-serif;
+       padding: env(safe-area-inset-top) env(safe-area-inset-right)
+                env(safe-area-inset-bottom) env(safe-area-inset-left); }
+.bar { display:flex; align-items:center; gap:10px; padding:10px 14px;
+       border-bottom:1px solid var(--line); background:var(--panel);
+       position:sticky; top:0; z-index:2;
+       /* The 88px is the window-control measurement from docs/HACKING.md:
+          iPadOS draws its traffic lights over the top-left of an
+          installed app and tells the page nothing about them. */
+       padding-left: calc(env(safe-area-inset-left) + 88px); }
+h1 { font-size:17px; margin:0; }
+main { padding:14px; max-width:46em; margin:0 auto; }
+h2 { font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+     color:var(--dim); margin:26px 0 8px; }
+table { width:100%; border-collapse:collapse; font:13px/1.45 var(--mono); }
+td { padding:7px 4px; border-bottom:1px solid var(--line); vertical-align:top; }
+td:first-child { color:var(--dim); }
+td:last-child { text-align:right; word-break:break-all; }
+.yes { color:var(--ok); } .no { color:var(--no); } .wait { color:var(--warn); }
+.note { color:var(--dim); font-size:13.5px; }
+.row { display:flex; gap:10px; flex-wrap:wrap; margin:14px 0; }
+button, .lnk { background:var(--panel); color:var(--text);
+        border:1px solid var(--line); border-radius:8px;
+        padding:12px 16px; font:14px/1 var(--mono); text-decoration:none;
+        flex:1 1 auto; text-align:center; min-height:44px;
+        display:inline-flex; align-items:center; justify-content:center; }
+.lnk { background:#13202a; }
+#sum { background:var(--panel); border:1px solid var(--line);
+       border-radius:10px; padding:12px 14px; margin-top:6px; }
+#sum table td { border-bottom:1px solid #16202a; }
+ol { padding-left:1.3em; } li { margin:.45em 0; }
+code { font:12.5px var(--mono); color:var(--text); }
+</style>
+</head>
+<body>
+
+<div class="bar"><h1>Scope Probe</h1></div>
+
+<main>
+
+<p class="note">Does a manifest <code>scope</code> of <code>/</code> keep a
+link to <code>/web/tides/</code> <b>inside</b> this installed app, and does
+tides then work offline from in here? Nothing on this page is cached, and
+nothing is sent anywhere.</p>
+
+<h2>Summary &mdash; screenshot this</h2>
+<div id="sum"><table id="t-sum"></table></div>
+
+<div class="row">
+  <button id="reg">register tides' worker</button>
+  <button id="again">re-read</button>
+</div>
+
+<h2>Open tides</h2>
+<div class="row">
+  <a class="lnk" id="l-plain" href="/web/tides/">/web/tides/</a>
+</div>
+<div class="row">
+  <a class="lnk" id="l-station"
+     href="/web/tides/?station=ticon/dover-dov-gbr-bodc&amp;date=2027-05-14">with a station and date</a>
+</div>
+<p class="note">Pass: tides opens with <b>no browser-panel toolbar</b> along
+the bottom, and the second one opens on Dover for 14 May 2027. Fail: a panel
+appears, or tides opens and says nothing is cached.</p>
+
+<h2>Detail</h2>
+<table id="t-detail"></table>
+
+<h2>What to do, in order</h2>
+<ol>
+  <li><b>Online, in Safari</b>, open this page, then Share &rarr; Add to Home
+      Screen.</li>
+  <li><b>Open it from the new icon</b> and tap <i>register tides' worker</i>.
+      Wait until the summary shows tides' worker <b>activated</b> and a
+      tides cache present. That may take a few seconds: it is fetching the
+      whole tides app.</li>
+  <li><b>Test online.</b> Tap each of the two links above, coming back each
+      time.</li>
+  <li><b>Test offline.</b> Airplane mode on, close this app completely
+      (swipe it away), relaunch from the icon, and tap both links again.</li>
+  <li><b>Screenshot the summary</b>, and anything that failed.</li>
+</ol>
+
+<p class="note">Step 4 is the one that matters. Steps 1 to 3 can pass while
+the thing we actually need &mdash; tides working at sea, from inside the
+course &mdash; still fails.</p>
+
+</main>
+
+<script>
+'use strict';
+
+//  The tides cache is found BY PREFIX, never by a version written here.
+//  tides' worker names its cache from its own BUILD, so a constant in
+//  this file would be a second place for that number to live and the
+//  first place it would go stale -- this page would then report "no
+//  cache" the day tides moved to the next version, which is exactly the
+//  wrong answer at exactly the wrong moment.
+var TIDES_SW    = '/web/tides/sw.js';
+var TIDES_SCOPE = '/web/tides/';
+var TIDES_PREFIX = 'tides-';
+var STATIONS    = '/web/tides/stations.dat';
+
+function $(id) { return document.getElementById(id); }
+
+function row(t, k, v, cls) {
+  var tr = t.insertRow(), a = tr.insertCell(), c = tr.insertCell();
+  a.textContent = k; c.textContent = v;
+  if (cls) c.className = cls;
+}
+
+function mode() {
+  if (window.matchMedia('(display-mode: standalone)').matches) return 'standalone';
+  if (window.matchMedia('(display-mode: minimal-ui)').matches) return 'minimal-ui';
+  if (navigator.standalone === true) return 'standalone (iOS legacy flag)';
+  return 'browser';
+}
+
+//  Read the scope out of the manifest rather than printing what we think
+//  we wrote. The question this page exists to answer is whether the
+//  platform HONOURED a wide scope, and the first thing to establish is
+//  that a wide scope was actually declared.
+function manifestScope() {
+  return fetch('scope.webmanifest', { cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(function (m) { return { scope: m.scope, start: m.start_url }; })
+    .catch(function (e) { return { scope: 'could not read: ' + e.message, start: '?' }; });
+}
+
+function regs() {
+  if (!('serviceWorker' in navigator)) return Promise.resolve([]);
+  return navigator.serviceWorker.getRegistrations().catch(function () { return []; });
+}
+
+function tidesCaches() {
+  if (!('caches' in window)) return Promise.resolve({ names: [], stations: 'no Cache API' });
+  return caches.keys().then(function (ks) {
+    var mine = ks.filter(function (k) { return k.indexOf(TIDES_PREFIX) === 0; });
+    if (!mine.length) return { names: [], all: ks, stations: 'no tides cache' };
+    //  Is the 2.9 MB station file actually in there? The offline tide
+    //  height for a race port depends on it, and it is fetched on
+    //  demand rather than precached -- so its presence is a separate
+    //  question from the app being cached.
+    return caches.open(mine[0]).then(function (c) {
+      return c.match(STATIONS).then(function (hit) {
+        return { names: mine, all: ks, stations: hit ? 'yes' : 'NOT cached' };
+      });
+    }).catch(function () { return { names: mine, all: ks, stations: 'could not check' }; });
+  }).catch(function (e) { return { names: [], all: [], stations: 'error: ' + e.message }; });
+}
+
+//  Each read is numbered, and a read that finishes after a newer one
+//  started throws its results away.
+//
+//  Without this the tables doubled: read() clears them synchronously
+//  but fills them when three promises have resolved, and the poll above
+//  calls it twice a second. Two overlapping reads each cleared once and
+//  each appended once, so the summary showed every row twice -- on the
+//  one screen the whole test asks Larry to photograph.
+var pass = 0;
+
+function read() {
+  var mine = ++pass;
+  var sum = $('t-sum'), det = $('t-detail');
+  while (sum.rows.length) sum.deleteRow(0);
+  while (det.rows.length) det.deleteRow(0);
+
+  var dm = mode();
+  row(sum, 'opened from the icon', dm, dm.indexOf('standalone') === 0 ? 'yes' : 'no');
+  row(sum, 'network', navigator.onLine ? 'online' : 'OFFLINE',
+      navigator.onLine ? '' : 'wait');
+
+  Promise.all([manifestScope(), regs(), tidesCaches()]).then(function (r) {
+    if (mine !== pass) return;              //  a newer read has started
+    var man = r[0], rs = r[1], tc = r[2];
+
+    row(sum, 'manifest scope', String(man.scope),
+        man.scope === '/' ? 'yes' : 'no');
+
+    var ctrl = navigator.serviceWorker && navigator.serviceWorker.controller;
+    row(sum, 'a worker controls this page', ctrl ? 'yes' : 'no', ctrl ? 'yes' : 'wait');
+
+    var t = null, i;
+    for (i = 0; i < rs.length; i++) {
+      if (rs[i].scope.indexOf(TIDES_SCOPE) >= 0 ||
+          rs[i].scope.slice(-TIDES_SCOPE.length) === TIDES_SCOPE) { t = rs[i]; break; }
+    }
+    var state = 'not registered';
+    if (t) {
+      state = t.active ? 'activated' : (t.installing ? 'installing' : (t.waiting ? 'waiting' : 'registered'));
+    }
+    row(sum, "tides' worker", state, state === 'activated' ? 'yes' : 'wait');
+    row(sum, "tides' cache", tc.names.length ? tc.names.join(' ') : 'none',
+        tc.names.length ? 'yes' : 'wait');
+    row(sum, 'stations.dat cached', tc.stations, tc.stations === 'yes' ? 'yes' : 'wait');
+
+    //  ---- detail ----
+    row(det, 'manifest start_url', String(man.start), '');
+    row(det, 'page url', location.pathname, '');
+    row(det, 'controlling worker scope', ctrl ? ctrl.scriptURL : '—', '');
+    row(det, 'registrations', String(rs.length), '');
+    for (i = 0; i < rs.length; i++) {
+      row(det, '  ' + (i + 1), rs[i].scope +
+          (rs[i].active ? ' (active)' : rs[i].installing ? ' (installing)' : ''), '');
+    }
+    row(det, 'all cache names', (tc.all && tc.all.length) ? tc.all.join(' ') : 'none', '');
+    row(det, 'user agent', navigator.userAgent.slice(0, 72), '');
+    //  SAFARI CAPS THE VERSION IT REPORTS: an iPad on iPadOS 26.6.1 says
+    //  "CPU OS 18_7". Said here because this is a page people read to
+    //  find out what they are running. Feature-detect; never
+    //  version-sniff.
+    row(det, 'that version is capped',
+        'Safari reports 18_7 on iPadOS/iOS 26 — feature-detect, do not version-sniff', '');
+  });
+}
+
+//  NOT navigator.serviceWorker.ready.
+//
+//  That promise resolves when a worker controls THIS page, and the one
+//  being registered is scoped to /web/tides/, which this page is not
+//  inside. It therefore never resolves. The first version of this probe
+//  sat on it for ever, reporting "not registered" while the
+//  registration had in fact succeeded -- a probe lying about the single
+//  thing it exists to measure.
+//
+//  So poll the registration itself, and refresh the readout while
+//  waiting, so a slow precache looks like progress rather than a hang.
+function waitActive(reg) {
+  return new Promise(function (done) {
+    var t0 = Date.now();
+    (function poll() {
+      read();
+      if (reg.active) return done(reg);
+      if (Date.now() - t0 > 60000) return done(reg);   //  report what there is
+      setTimeout(poll, 500);
+    })();
+  });
+}
+
+$('reg').addEventListener('click', function () {
+  var b = this, say = $('t-detail');
+  if (!('serviceWorker' in navigator)) {
+    row(say, 'register', 'no service workers in this browser', 'no'); return;
+  }
+  b.disabled = true; b.textContent = 'registering…';
+  //  A page MAY register a worker for another path on the same origin,
+  //  as long as the worker script is served from within the scope it
+  //  asks for. That is what puts tides into THIS app's storage.
+  navigator.serviceWorker.register(TIDES_SW, { scope: TIDES_SCOPE })
+    .then(function (reg) {
+      b.textContent = 'registered, waiting for it to activate…';
+      return waitActive(reg);
+    })
+    .then(function () {
+      b.disabled = false; b.textContent = 'register tides’ worker';
+      read();
+    })
+    .catch(function (e) {
+      b.disabled = false; b.textContent = 'register tides’ worker';
+      row($('t-detail'), 'register failed', e.name + ': ' + e.message, 'no');
+    });
+});
+
+$('again').addEventListener('click', read);
+addEventListener('online', read);
+addEventListener('offline', read);
+read();
+</script>
+</body>
+</html>
