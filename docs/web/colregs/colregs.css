@@ -12,6 +12,8 @@
    ===================================================================== */
 
 :root {
+  --stage-bg: #000;       /* lights are seen against a night sky: representational,
+                             not themed, and stays black in day mode too */
   --ground:  #07090b;
   --panel:   #10151a;
   --panel-2: #161c23;
@@ -134,10 +136,10 @@ main { padding: 16px 14px 8px; max-width: 760px; margin: 0 auto; }
 
 /* ---------- the drawing ---------- */
 .stage {
-  background: #000; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--stage-bg); border: 1px solid var(--line); border-radius: var(--radius);
   padding: 8px; margin-bottom: 12px; overflow: hidden;
 }
-:root[data-mode="night"] .stage { background: #000; }
+:root[data-mode="night"] .stage { background: var(--stage-bg); }
 .stage svg { display: block; width: 100%; height: auto; }
 .stage-sound { padding: 18px 12px; }
 
@@ -179,7 +181,7 @@ input[type="range"]::-moz-range-thumb {
   display: inline-block; min-width: 22px; padding: 1px 5px; margin-right: 2px;
   text-align: center; border-radius: 4px;
   font-family: ui-monospace, Menlo, monospace; font-weight: 700;
-  background: #000; border: 1px solid var(--line);
+  background: var(--stage-bg); border: 1px solid var(--line);
 }
 .k-w { color: var(--lamp-w); } .k-r { color: var(--lamp-r); }
 .k-g { color: var(--lamp-g); } .k-y { color: var(--lamp-y); }

@@ -14,6 +14,10 @@
    ===================================================================== */
 
 :root {
+  --term-bg: #000;        /* a terminal is black: representational, not themed.
+                             Stays black in day mode too. */
+  --term-fg: #d8dee4;     /* the base text on it; night mode overrides it red,
+                             which is correct and was already the behaviour */
   --ground:  #07090b;
   --panel:   #10151a;
   --panel-2: #161c23;
@@ -216,7 +220,7 @@ details.asterm summary::before { content: "\25B8\00a0"; }
 details.asterm[open] summary::before { content: "\25BE\00a0"; }
 details.asterm pre {
   margin: 6px 0 0; padding: 10px;
-  background: #000; color: #d8dee4;
+  background: var(--term-bg); color: var(--term-fg);
   border: 1px solid var(--line); border-radius: 6px;
   font-family: ui-monospace, Menlo, monospace; font-size: 12px; line-height: 1.35;
   overflow-x: auto;
