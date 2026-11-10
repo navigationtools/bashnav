@@ -12,6 +12,11 @@ CELNAV takes sextant altitudes and gives you a fix, with the full working shown 
 solution drawn on screen. It is one shell script. It needs no internet, no downloaded
 almanac, no Python, and no libraries.
 
+**On an iPad or iPhone, CELNAV also runs in the browser, and there it can measure an
+altitude from a photograph** — the device's camera standing in for the sextant. That
+instrument has its own errors, some of them large, so it has a section of its own:
+**section 13, The camera sight**. Read it before you trust a position from it.
+
 Four constraints shaped the design, and each one has a consequence worth knowing.
 
 **1. It must work when nothing else does.**
@@ -545,6 +550,202 @@ intercept the others are squeezed together — which is usually the plot telling
 one sight is bad.
 
 ---
+
+## 13. The camera sight — an altitude from a photograph
+
+**This section describes the browser build.** The shell program in sections 2
+to 12 has no camera; everything below is in `celnav` as it runs in Safari on
+the iPad or iPhone, where the device's own camera takes the place of the
+sextant. It is an instrument in its own right, with its own errors, and the
+errors are large enough that this section is worth reading before you trust a
+position from it.
+
+### 13.1 What it measures, and why not by counting pixels
+
+The obvious method is to count pixels from the horizon up to the body and
+convert with `atan(y / f)`. That is correct only for a body sitting exactly on
+the frame's vertical centre line. Anywhere else it is wrong, and wrong by more
+the further off-axis the body sits and the more the camera is rolled — which,
+on a boat, is always.
+
+What the program does instead is both exact and simpler. The visible horizon is
+where a **plane** through the camera's centre cuts the image. Fit that line,
+take two points on it, turn them into rays, and the cross product of those rays
+is the plane's normal **n**. The body is a third ray **b**. Then
+
+        Hs = asin( b . n )
+
+```
+                      * body                b = the body's ray
+                     /                      n = normal to the horizon plane
+                    /                       Hs = angle between b and the plane
+                   /  b
+                  /
+       camera    o - - - - - - - - - -  the horizon plane
+                 |\                     (seen edge-on here)
+                 | \
+                 |  n
+                 |
+```
+
+Three consequences worth knowing:
+
+1. **It is exact wherever the body sits in the frame.** No assumption is made
+   about the body being centred, high, or near an edge.
+2. **Camera roll cancels.** The horizon may run diagonally across the
+   photograph and the answer does not change. That is the same property that
+   makes a sextant a differential instrument — it measures an angle between two
+   things, not either thing's position.
+3. **`Hs` is a true sextant-equivalent altitude.** It then goes through the
+   same `corrections()` chain as a sight taken with a real sextant — index
+   error, dip, refraction, parallax, semi-diameter — unchanged. Nothing about
+   the camera path bypasses the working you can check by hand.
+
+Two or more horizon points may be marked. With exactly two the cross product
+*is* the answer; with three or more the plane is fitted by least squares, and
+the normal is the smallest eigenvector of the scatter matrix, found by inverse
+iteration. That solver is written out in a few lines rather than pulled from a
+library, because the page has to work with the antenna down.
+
+### 13.2 The plate scale, and the one EXIF field that can ruin a sight
+
+To turn pixels into angles the program needs the focal length in pixels. It
+takes the **35 mm-equivalent** focal length from the photograph's EXIF, and
+scales it by the frame's long side, because the 35 mm frame is 36 x 24 mm and
+the equivalent length refers to the long dimension.
+
+**Digital zoom is the trap.** A digitally zoomed frame is a crop that has been
+upscaled, and whether the recorded 35 mm-equivalent reflects that is not
+guaranteed by anything. A wrong plate scale does not look wrong: it produces a
+confident sight that is simply in the wrong place. So the reader is warned on
+screen when the photograph declares digital zoom, and the rule at sea is
+simple:
+
+> **Do not zoom.** Take the photograph at the lens's own focal length and crop
+> afterwards if you must — the program works off the whole frame's geometry,
+> not off how large the body looks.
+
+### 13.3 Calibration, and why one star pair is not enough
+
+Lens distortion is the dominant error in a camera sight, and it is not a small
+one.
+
+1. **Unmodelled barrel distortion at `k1 = -0.05` costs up to 44 arcminutes of
+   altitude. That is forty-four miles.** A phone lens is not a telescope
+   objective; it is corrected for pictures, not for angles.
+2. **A single pair of stars cannot detect it.** At one separation and one
+   distance from the frame's centre, "a longer focal length" and "more barrel
+   distortion" produce exactly the same measured angle. The two are degenerate,
+   so a one-pair calibration can report a confident number that is wrong in
+   both parameters at once.
+3. **Breaking that degeneracy needs pairs at different radii,** which means a
+   *field* of stars rather than a pair. The program asks for at least three and
+   says four is better.
+
+What calibration does **not** need is the useful part, and it is worth
+understanding because it makes the procedure far easier than it sounds:
+
+4. **No time, and no position.** The angle between two stars is a property of
+   the sky, not of where or when you stand. You can calibrate in harbour, on a
+   mooring, from a garden.
+5. **Precession does not matter.** It moves every star, but as a rigid rotation
+   of the whole celestial sphere, which leaves the angles *between* stars
+   alone. J2000 catalogue positions therefore give the true separations
+   directly. Proper motion changes them by milliarcseconds a year and is
+   ignored.
+6. **Refraction does matter,** because it genuinely distorts the sky,
+   compressing it near the horizon. So calibrate **high up**, where refraction
+   is small and nearly uniform across the frame.
+
+### 13.4 Where the calibration refuses, and why that is the point
+
+A confident wrong calibration is worse than no calibration at all, because
+every sight taken afterwards inherits it silently. So the solver is built to
+refuse rather than to reassure.
+
+| Check | The rule | Why |
+|---|---|---|
+| Stars marked | At least three; four better | Fewer cannot separate focal length from distortion |
+| Fit residual | **Rejected above 3 arcminutes** RMS | Past a few arcminutes the solve did not converge, or a star is misidentified, or the picture is not what it is claimed to be |
+| Spread of radii | Warns if the stars all sit at a similar distance from the centre | Then focal length and distortion still cannot be told apart, and a confident answer would be a lie |
+| Physical bounds | Focal length within 40 % of the EXIF value; `k1` within 0.5 | Without them the search wandered to `k1 = +1.4` and a focal length 28 % wrong, and reported it with no sign of distress |
+| Starting points | Five, best kept | The cost surface is not convex; one start alone found a garbage minimum at strong barrel |
+
+When it refuses, it says so in those terms: the residual it got, the limit, and
+the two things most likely to be wrong — a misidentified star, or a cropped or
+zoomed frame. When it accepts but the geometry was poor, it tells you to
+include a star near a corner and one near the middle.
+
+**If you have no calibration at all,** the program says so and goes on,
+because an uncalibrated sight is still useful for practice and for a rough
+check. It is not a position to navigate by.
+
+### 13.5 Why you tap and then let the program refine
+
+This is the part that looks like a nicety and is not.
+
+1. **One pixel is 1.18 arcminutes on a full-resolution phone frame. That is
+   1.2 nautical miles.**
+2. **A fingertip covers about 40 pixels.** So an interface where you simply
+   drag a line onto the horizon cannot place it better than tens of miles, no
+   matter how careful you are.
+3. **A purely automatic edge-finder is no answer either,** because haze, a
+   cloud bank or a ship's wake will fool it, and then you have no way to say
+   so.
+
+So the division of labour is deliberate: **you say roughly where, the image
+says exactly where, and you can always override and nudge.** Every refinement
+reports how far it moved your tap and how confident it is, so it is never
+silent about what it did. If a refinement jumps a long way, look at the
+picture again — it has probably found a wake or a cloud edge rather than the
+horizon.
+
+Half a pixel is 0.6 of a mile, which is why the program is strict about one
+convention that would otherwise look like pedantry: an integer coordinate is
+the **centre** of a pixel, so the first pixel's centre is (0, 0). Overlay
+positions are held in image pixels and never in screen pixels, so zooming the
+view or rotating the device cannot move a sight you have already marked.
+
+### 13.6 Taking the sight, step by step
+
+The screen is a numbered sequence, and only the controls each step needs are
+shown.
+
+| Step | What you do |
+|---|---|
+| **1. Photograph** | Take a photograph of the sun or the moon with the horizon in the same frame, or choose one already taken |
+| **2. Horizon** | Tap the horizon, then **Find the edge** |
+| **3. Body** | Tap the body, then **Find the edge** |
+| **4. Sight** | Give the body, the UTC time, and an assumed latitude and longitude |
+| **5. Plot** | Keep the sight; a second body gives a fix |
+
+The viewer has one frame with two modes — **Whole picture** and **Close up
+x4** — rather than two viewers, so the picture never scrolls away from the
+controls that belong with it.
+
+Two cautions the screen gives you, and both are real:
+
+1. **A second body must be at least 40 degrees away in azimuth.** Closer than
+   that and the two lines of position cross at a shallow angle, so a small
+   error in either becomes a large error in the fix.
+2. **Parallel lines are not a fix.** The program says so rather than drawing an
+   intersection you would believe. One line of position still tells you
+   something: you are somewhere along it.
+
+### 13.7 What a camera sight is good for
+
+**It is not a replacement for a sextant,** and nothing in this section should
+be read as claiming otherwise. What it is:
+
+1. **A practice instrument that costs nothing to carry.** You can take sights
+   from a beach, a mooring or a garden, and see the whole working.
+2. **A cross-check.** An independent measurement with entirely different
+   errors from your sextant's is worth having when a fix looks wrong.
+3. **A backup that is already in your pocket** if a sextant is dropped, and
+   better than a position estimated from nothing.
+
+Calibrate it, do not zoom, and treat an uncalibrated sight as an exercise
+rather than a position.
 
 ## Appendix — a worked example
 

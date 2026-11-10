@@ -1,5 +1,67 @@
 # Changelog
 
+## The camera sight is documented, including the errors large enough to matter
+
+**What.** `manual.md` gains **section 13, The camera sight** — the browser
+build's measurement of an altitude from a photograph — and `quickref.md` gains
+a deck-side summary of it. Both rebuilt: the manual is 19 pages, the card 6.
+
+**Why.** The feature had no documentation at all. Nothing in the manual
+mentioned it, and it is the most consequential thing in `celnav`: an instrument
+whose errors are measured in tens of miles if it is used without calibration.
+Documentation is part of the product, and to someone meeting the tool for the
+first time it is most of it.
+
+**What the section says, all of it taken from the program rather than
+described from the outside.**
+
+1. **The measurement.** The horizon is a plane through the camera centre, so
+   its normal `n` and the body's ray `b` give `Hs = asin(b . n)`. Exact
+   anywhere in the frame, and camera roll cancels — which is the property that
+   makes a sextant a differential instrument. The tempting `atan(y/f)` is right
+   only on the frame's centre line. `Hs` then goes through the same
+   corrections chain as a real sight, so the working is still checkable by
+   hand.
+2. **Calibration is not optional, and one star pair cannot do it.** Barrel
+   distortion at `k1 = -0.05` costs up to **44 arcminutes — forty-four miles**
+   — and at a single radius "longer lens" and "more barrel" are the same
+   measurement. A field of stars at different radii is what breaks the
+   degeneracy.
+3. **Calibration needs no time and no position,** because the angle between
+   two stars is a property of the sky and precession is a rigid rotation.
+   Refraction is the exception, so it says to calibrate high up.
+4. **Where it refuses,** in a table: three stars minimum, a residual above
+   3 arcminutes rejected, a warning when every star sits at a similar radius,
+   and physical bounds that exist because the search once reached `k1 = +1.4`
+   and a 28 % focal-length error without distress.
+5. **Why there is a tap-then-refine step.** One pixel is **1.18 arcminutes,
+   1.2 miles**, and a fingertip covers about forty. Dragging alone cannot beat
+   tens of miles; an automatic edge-finder alone cannot be corrected when haze
+   or a wake fools it.
+6. **Digital zoom gets its own warning,** because a zoomed frame is a crop
+   upscaled and a wrong plate scale produces a confident sight in the wrong
+   place.
+7. **The five steps as the screen labels them** — Photograph, Horizon, Body,
+   Sight, Plot — and the two cautions it already gives: a second body at least
+   40 degrees away in azimuth, and parallel lines are not a fix.
+
+**What it impacts.**
+
+1. **The section says plainly that it describes the browser build,** and
+   section 1 now points to it. Sections 2 to 12 document the shell program,
+   which has no camera. That split is worth a decision of its own: the manual
+   is still shaped around the shell tool while the browser build is what gets
+   used.
+2. **A code comment is now one step behind the page.** `camui.js` describes
+   four numbered steps; `index.html` has five, the fifth being Plot. The
+   documentation follows the page.
+3. **The card is 6 pages and that is deliberate.** Larry's instruction: do not
+   trim to a page limit, document what is actually there. The release
+   checklist's "one page" line needs changing at its owner, not working around
+   here.
+4. **Verified by counting, not by trusting the build.** The footer must appear
+   on as many pages as the document has: 19 of 19, and 6 of 6.
+
 ## The documents now take their version from the program, not from a typist
 
 **What.** `docs/manual-src/mkpdf.sh` rebuilt: it takes a tool name, reads that

@@ -98,3 +98,32 @@ Time       2026-08-29 07:30:00 UT   (or 073000 in the menu, today's date assumed
 - Three bodies about **120° apart** in azimuth give the tightest fix.
 - The **star horizon** is usable between civil and nautical twilight — a window of roughly twenty minutes.
 - A sight of the Sun at any altitude gives a line; two of them, an hour or more apart, give a running fix.
+
+## The camera sight (browser build)
+
+An altitude from a photograph, the device's camera standing in for the sextant.
+Manual section 13 has the whole of it; this is what to remember on deck.
+
+| Step | |
+|---|---|
+| **1 Photograph** | sun or moon **with the horizon in the same frame** |
+| **2 Horizon** | tap the horizon, then *Find the edge* |
+| **3 Body** | tap the body, then *Find the edge* |
+| **4 Sight** | body, UTC time, assumed latitude and longitude |
+| **5 Plot** | keep the sight; a second body gives a fix |
+
+- **Do not zoom.** A digitally zoomed frame is a crop upscaled, the plate scale
+  may be wrong, and a wrong plate scale gives a confident sight in the wrong
+  place. Shoot at the lens's own focal length and crop afterwards.
+- **Calibrate first, from a star field** — three stars at least, four better,
+  at **different distances from the frame's centre**, shot **high up**. No time
+  and no position are needed; refraction near the horizon is what spoils it.
+- **Uncalibrated is an exercise, not a position.** Barrel distortion at
+  `k1 = -0.05` costs up to **44 arcminutes — forty-four miles.**
+- **A residual over 3 arcminutes is refused.** Usually a misidentified star, or
+  a cropped or zoomed frame.
+- **Tap roughly, then let it find the edge.** One pixel is **1.18 arcminutes,
+  about 1.2 miles**; a fingertip covers about forty of them. If a refinement
+  jumps a long way it has found a wake or a cloud edge, not the horizon.
+- **Second body at least 40° away in azimuth.** Parallel lines are not a fix —
+  one line still tells you that you are somewhere along it.
