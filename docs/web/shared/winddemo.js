@@ -107,8 +107,20 @@ function windDemo(host) {
   var css = function (n) {
     return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#6fb3d9';
   };
+  /*  THE WARNING COLOUR HAS TWO NAMES IN THIS SUITE.  celnav and the
+      launcher call it --warn; weather, tides, drill and deck-log call it
+      --bad.  Asking for one name only meant this figure drew its warning
+      in the css() fallback - a blue - in EVERY mode since it was written,
+      which the day palette made visible: a pale blue on white reads as
+      ordinary ink, not as a caution.  Ask for both names and take
+      whichever the host stylesheet actually defines.  */
+  var warnTok = function () {
+    var cs = getComputedStyle(document.documentElement);
+    return cs.getPropertyValue('--warn').trim() ||
+           cs.getPropertyValue('--bad').trim() || '#e23a2c';
+  };
   var dim = css('--dim'), line = css('--line'), acc = css('--accent'),
-      text = css('--text'), warn = css('--warn');
+      text = css('--text'), warn = warnTok();
 
   var gIso = e('g'), gTan = e('g'), gArr = e('g'), gLbl = e('g');
 

@@ -152,6 +152,13 @@ function setMode(m) {
       || '#07090b');   /* the browser chrome follows the palette, so a third mode
                           needs no third branch here */
   try { localStorage.setItem(MODE_KEY, m); } catch (e) {}
+  /*  Anything already painted was painted in the old palette.  A canvas or
+      an SVG built with colours read at draw time does not follow the
+      stylesheet, so it has to be told.  An event rather than a call list:
+      the drawing lives in other files, and the course pages embed these
+      tools too.  */
+  try { window.dispatchEvent(new CustomEvent('visualmodechange', { detail: m })); }
+  catch (e) { /* very old browser: the palette still changed */ }
 }
 var TITLES = { empty: 'drill', home: 'drill', section: '', drill: '',
                diag: 'Where am I weak?', doc: 'The document', about: 'About' };

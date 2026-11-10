@@ -176,6 +176,13 @@
     void L;
   }
 
+  /*  The overlay is a canvas: it keeps whatever palette it was painted in
+      until something paints it again.  Only repaint when there is a
+      photograph loaded, or draw() has nothing to work from.  */
+  window.addEventListener('visualmodechange', function () {
+    if (img) draw();
+  });
+
   function draw() {
     if (!img || step < 2) return;
     if (view === 'zoom') { drawZoom(); return; }
@@ -709,6 +716,13 @@
         || '#060101');   /* the browser chrome follows the palette, so a third mode
                             needs no third branch here */
     try { localStorage.setItem(MODE_KEY, m); } catch (e) {}
+    /*  Anything already painted was painted in the old palette.  A canvas or
+        an SVG built with colours read at draw time does not follow the
+        stylesheet, so it has to be told.  An event rather than a call list:
+        the drawing lives in other files, and the course pages embed these
+        tools too.  */
+    try { window.dispatchEvent(new CustomEvent('visualmodechange', { detail: m })); }
+    catch (e) { /* very old browser: the palette still changed */ }
   }
 
   /*  night is the default: a tool opened on deck must not start bright.  */

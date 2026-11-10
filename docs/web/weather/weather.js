@@ -30,6 +30,23 @@ function el(tag, cls, text) {
 function lsGet(k, d) { try { var v = localStorage.getItem('weather-' + k); return v === null ? d : v; } catch (e) { return d; } }
 function lsSet(k, v) { try { localStorage.setItem('weather-' + k, v); } catch (e) {} }
 
+
+/*  REPAINTING WHEN THE DISPLAY MODE CHANGES.
+
+    The lesson figures are SVG built with colours read from the stylesheet
+    at draw time, so they keep the palette they were drawn in.  Whatever
+    draws one says how to draw it again; on a mode change anything still in
+    the document is repainted and anything detached is dropped.  */
+var WXREPAINT = [];
+function wxRepaints(host, fn) {
+  WXREPAINT.push({ host: host, fn: fn });
+  fn(host);
+}
+window.addEventListener('visualmodechange', function () {
+  WXREPAINT = WXREPAINT.filter(function (r) { return document.body.contains(r.host); });
+  WXREPAINT.forEach(function (r) { r.host.textContent = ''; r.fn(r.host); });
+});
+
 /*  The display modes, as a list rather than a branch.  Adding a fourth
     palette - a high-contrast day, say - is one entry here and one block in
     the stylesheet, and touches no logic.  */
@@ -98,6 +115,13 @@ function setMode(m) {
       || '#07090b');   /* the browser chrome follows the palette, so a third mode
                           needs no third branch here */
   try { localStorage.setItem(MODE_KEY, m); } catch (e) {}
+  /*  Anything already painted was painted in the old palette.  A canvas or
+      an SVG built with colours read at draw time does not follow the
+      stylesheet, so it has to be told.  An event rather than a call list:
+      the drawing lives in other files, and the course pages embed these
+      tools too.  */
+  try { window.dispatchEvent(new CustomEvent('visualmodechange', { detail: m })); }
+  catch (e) { /* very old browser: the palette still changed */ }
 }
 
 var TITLES = { home: 'weather', what: 'What the log says', fcast: 'Your forecast',
@@ -495,8 +519,16 @@ function drawLines(box, lines) {
           guessing from position. An unknown kind draws nothing rather
           than the wrong thing, and tests/weather-reflow-check.js counts
           panels against markers, so a kind nobody renders fails there.  */
-      if (b.kind === 'wind') { windDemo(box); return; }
-      gunDemo(box);
+      /*  Both demos build an SVG with colours read at draw time, and both
+          APPEND rather than clear - so a repaint must empty the box first
+          or it would stack a second drawing on the first.  Which is why
+          each figure gets a box of its OWN rather than being registered
+          against the lesson container: `box` here is #les-text or
+          #les-more, and clearing that on a mode change would take the
+          lesson's prose with it and leave the reader a bare drawing.  */
+      var fig = el('div', 'figbox');
+      box.appendChild(fig);
+      wxRepaints(fig, b.kind === 'wind' ? windDemo : gunDemo);
       return;
     }
     //  the first printed line of a section is its heading
@@ -839,8 +871,20 @@ function gunDemo(host) {
   };
 
   /*  the parts that never move, drawn once  */
+  /*  THE WARNING COLOUR HAS TWO NAMES IN THIS SUITE.  celnav and the
+      launcher call it --warn; weather, tides, drill and deck-log call it
+      --bad.  Asking for one name only meant this figure drew its warning
+      in the css() fallback - a blue - in EVERY mode since it was written,
+      which the day palette made visible: a pale blue on white reads as
+      ordinary ink, not as a caution.  Ask for both names and take
+      whichever the host stylesheet actually defines.  */
+  var warnTok = function () {
+    var cs = getComputedStyle(document.documentElement);
+    return cs.getPropertyValue('--warn').trim() ||
+           cs.getPropertyValue('--bad').trim() || '#e23a2c';
+  };
   var dim = css('--dim'), line = css('--line'), acc = css('--accent'),
-      text = css('--text'), warn = css('--warn');
+      text = css('--text'), warn = warnTok();
   var gArc = e('g'), gAim = e('g'), gTrack = e('g'), gMark = e('g'), gLbl = e('g');
 
   /*  the circle the gun can be trained through, and the compass rose on it.

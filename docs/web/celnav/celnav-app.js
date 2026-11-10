@@ -24,6 +24,27 @@
     them as SVG. Until then each one is a NAMED gap, so a lesson with a
     hole in it says so rather than quietly reading as though nothing is
     missing.  */
+
+/*  REPAINTING WHEN THE DISPLAY MODE CHANGES.
+
+    A canvas, and an SVG whose colours were read from the stylesheet at
+    draw time, do not follow the stylesheet afterwards.  Switch to day
+    with a plot on screen and the plot stays dark on a white page.
+
+    Rather than have setMode know about every drawing in the app, whatever
+    draws something says how to draw it again.  On a mode change, anything
+    still in the document is repainted and anything detached is dropped,
+    so the list cannot grow without bound.  */
+var REPAINT = [];
+function repaints(host, fn) {
+  REPAINT.push({ host: host, fn: fn });
+  fn();
+}
+window.addEventListener('visualmodechange', function () {
+  REPAINT = REPAINT.filter(function (r) { return document.body.contains(r.host); });
+  REPAINT.forEach(function (r) { r.fn(); });
+});
+
 'use strict';
 
 (function () {
@@ -508,12 +529,14 @@ function sightFix() {
   /*  draw(svgNS, host, sol, opts) -- the solution, not the position: I
       guessed the signature first and it took the engine as its first
       argument, which is camui's call to solve(), not to draw().  */
-  window.CELPLOT.draw(SVGNS, $('s-sheet'), sol, {
-    /*  the sheet takes its colours from the page, so it follows the night
-        palette rather than being drawn in whatever it was built with  */
-    css: function (n) {
-      return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#6fb3d9';
-    }
+  /*  the sheet takes its colours from the page, and is registered so a
+      change of mode repaints it rather than leaving it in the old palette */
+  repaints($('s-sheet'), function () {
+    window.CELPLOT.draw(SVGNS, $('s-sheet'), sol, {
+      css: function (n) {
+        return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#6fb3d9';
+      }
+    });
   });
 }
 
