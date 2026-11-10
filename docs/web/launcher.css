@@ -7,6 +7,7 @@
    adaptation takes twenty minutes to build and a second to lose.
    ===================================================================== */
 :root {
+  color-scheme: dark;   /* the browser's own controls - see the note below */
   --ground:  #07090b;
   --panel:   #10151a;
   --panel-2: #161c23;
@@ -20,6 +21,7 @@
 }
 /*  DAY.  Same palette as the tools it launches: one suite, one look. */
 :root[data-mode="day"] {
+  color-scheme: light;   /* the browser's own controls - see the note below */
   --ground:  #ffffff;
   --panel:   #f2f4f6;
   --panel-2: #e7eaee;
@@ -30,6 +32,7 @@
   --warn:    #b3271b;
 }
 :root[data-mode="night"] {
+  color-scheme: dark;   /* the browser's own controls - see the note below */
   --ground:  #060101;
   --panel:   #0e0303;
   --panel-2: #140505;
@@ -129,7 +132,7 @@ main { max-width: 760px; margin: 0 auto; padding: 0 16px 32px; }
 .modes .mb.holding::after { transform: scaleX(1); transition: transform 0.5s linear; }
 @media (prefers-reduced-motion: reduce) {
   .modes .mb.holding::after { transition: none; transform: scaleX(1); }
-
+}
 
 .lede { color: var(--dim); margin: 20px 0; }
 
@@ -169,3 +172,50 @@ main { max-width: 760px; margin: 0 auto; padding: 0 16px 32px; }
 .foot strong { color: var(--text); }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ---------------------------------------------------------------------
+   HIGH CONTRAST MODE, AND WHAT WE DELIBERATELY DO NOT DO ABOUT IT.
+
+   Windows High Contrast (forced-colors: active) replaces our palette with
+   the reader's own system colours. Every mode - day, dark and night -
+   becomes whatever their theme says. There is a way to refuse that,
+   forced-color-adjust: none, and this file does NOT use it.
+
+   The reason is that it is their setting and they chose it. Somebody who
+   needs high contrast to read at all is not helped by a boat app deciding
+   it knows better. A reader who needs night vision AND high contrast
+   should pick a dark high-contrast theme; that is a choice only they can
+   make, and the documentation says so rather than this stylesheet making
+   it for them.
+
+   Nothing meaningful is lost when the colours go, because the suite does
+   not put meaning in colour alone. colregs settled that early: in night
+   mode every lamp is already red and the letters W R G Y carry the
+   pattern, exactly as they do on paper. Forced colours flatten the hue
+   and the letter still says which lamp it is.
+
+   What DOES need help is anything whose state was shown by a background
+   colour, because that is the one thing forced colours take away. The
+   mode buttons are the case here: pressed is otherwise just a different
+   fill. Highlight and HighlightText are the system's own pair for exactly
+   this, so a pressed button reads as pressed in whatever theme is on.
+   --------------------------------------------------------------------- */
+@media (forced-colors: active) {
+  .modes .mb {
+    border: 1px solid ButtonBorder;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+  .modes .mb[aria-pressed="true"] {
+    background: Highlight;
+    color: HighlightText;
+    border-color: Highlight;
+  }
+  /*  the half-second hold, which was a translucent wash of currentColor:
+      a wash does not survive forced colours, so it becomes the system
+      highlight filling the button instead.  */
+  .modes .mb.holding::after {
+    background: Highlight;
+    opacity: 1;
+  }
+}

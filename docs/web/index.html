@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-mode="dark">
+<html lang="en" data-mode="night">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -11,6 +11,42 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <link rel="apple-touch-icon" href="icon.svg">
+<script>
+/*  THE MODE IS SET BEFORE THE FIRST PAINT, WHICH IS THE WHOLE REASON THIS
+    SCRIPT IS HERE and not with the others at the foot of the body.
+
+    The palette comes from data-mode on this element. Set it late and the
+    browser paints whatever the attribute said when the document was parsed,
+    then repaints when the script arrives. Held back as a slow first visit
+    would hold it, that was measured at 173ms of the wrong palette at 150ms
+    of latency and 622ms at 600ms - on a cached load the script wins and
+    nothing shows, on a bad link it does not.
+
+    It never hurt anyone only because the shipped value was dark, and dark
+    and night are both near-black. Shipped the other way it would have been
+    half a second of white in a reader's night vision, which is the thing
+    this whole feature exists to prevent. That is too close to luck.
+
+    FOUR THINGS KEEP IT WORKING, and each of them is silent when broken:
+      - synchronous: no defer, no async. Either gives the flash back.
+      - inline: an external file is a network round trip, which is exactly
+        the delay being avoided.
+      - in <head>, above the first stylesheet, so the attribute is already
+        right when the palette is read.
+      - wrapped in try/catch: on a file:// origin and in a private window
+        localStorage can throw on ACCESS, not return null, and an uncaught
+        throw here would stop the page loading at all.
+
+    An unknown or missing value falls back to night rather than passing
+    through, so a stale or mistyped value cannot produce an unstyled page. */
+try {
+  var m = localStorage.getItem('visual-mode');
+  document.documentElement.setAttribute('data-mode',
+    ['day', 'dark', 'night'].indexOf(m) >= 0 ? m : 'night');
+} catch (e) {
+  document.documentElement.setAttribute('data-mode', 'night');
+}
+</script>
 <link rel="stylesheet" href="launcher.css">
 </head>
 <body>

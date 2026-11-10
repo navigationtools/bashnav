@@ -41,6 +41,36 @@ The mode is remembered for all of the tools together, and for the course
 pages that embed them. Set night in one and you are in night in the next.
 It is remembered in the browser, so it survives closing the app.
 
+### It is right before the page draws
+
+The mode is set in the first instructions the page runs, before any of it is
+painted. This matters on a first visit over a poor connection: set it later
+and the page would appear in one palette and then jump to another, which at
+night is the difference between keeping your night vision and losing twenty
+minutes of it. If nothing has been stored yet, or whatever was stored cannot
+be read, the page opens in **night**.
+
+### The controls follow the palette too
+
+Sliders, scroll bars and the other controls the browser draws are told which
+world they are in, so they are drawn in the mode you chose rather than the
+browser's own light default. Without that, a night screen can carry a bright
+white slider across the middle of it.
+
+### If you use High Contrast Mode
+
+On Windows, High Contrast replaces every colour on the page with the ones your
+system theme specifies. That applies here too: the tools do not override it,
+because it is your setting and you chose it.
+
+Nothing is lost by it. Where a colour carries meaning — the navigation lamps
+in colregs — the letter beside it says the same thing, so a lamp is still
+identifiable when the hue has gone.
+
+**One thing to know if you need both.** High Contrast wins over night mode. If
+you need night vision on deck *and* high contrast to read, choose a dark
+high-contrast theme in Windows; the tools will follow it.
+
 ### What the display can and cannot do in sunlight
 
 Worth knowing before you blame the app on a bright day.

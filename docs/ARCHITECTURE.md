@@ -192,6 +192,38 @@ profile otherwise gets white text on white.
 
 ---
 
+## The browser build's display mode, and the two orderings that matter
+
+The palette is chosen by `data-mode` on the root element and defined by
+`:root`, `:root[data-mode="day"]` and `:root[data-mode="night"]` in each app's
+own stylesheet. The stored key is `visual-mode`, unprefixed, shared across the
+whole suite and the course; everything else each app stores is prefixed.
+
+**The mode is set from a script in `<head>`, not with the others at the foot
+of the body, and that placement is load-bearing.** The attribute has to be
+right before the first paint. Set from the end of the body it is correct only
+once the scripts have arrived: held back as a slow first visit holds them,
+that was measured at 173ms of the wrong palette at 150ms of latency and 622ms
+at 600ms. For a long time it did no harm only because the shipped attribute
+was `dark`, and dark and night are both near-black; had it shipped `day`, a
+reader opening a tool at night would have had half a second of white. The
+script must stay synchronous, inline and above the first stylesheet — `defer`,
+an external file or a move to the body each give the flash back, and none of
+them breaks anything visible while doing it.
+
+**Two things are left to the browser on purpose.** `color-scheme` tells it
+which built-in controls to draw, which is what keeps a white slider track off
+a night screen and covers controls nobody has added yet. And `forced-colors`
+(Windows High Contrast) is **respected, not overridden** — `forced-color-adjust:
+none` is deliberately not used anywhere. It is the reader's setting. Nothing
+meaningful is lost, because the suite never leaves meaning in colour alone:
+colregs already draws every lamp red in night mode and lets the letters W R G Y
+carry the pattern, exactly as the paper reference does. The one thing forced
+colours do take away is state shown by a background fill, so the mode buttons
+use the system's own `Highlight`/`HighlightText` pair there.
+
+---
+
 ## The tide data pipeline
 
     neaps/tide-database  ──►  src/tides/gen/make_stations.py  ──►  stations.dat

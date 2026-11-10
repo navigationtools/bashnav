@@ -13,6 +13,7 @@
    ===================================================================== */
 
 :root {
+  color-scheme: dark;   /* the browser's own controls - see the note below */
   --term-bg: #000;        /* a terminal is black: representational, not themed.
                              Stays black in day mode too. */
   --term-fg: #d8dee4;     /* the base text on it; night mode overrides it red,
@@ -48,6 +49,7 @@
     and because across every plausible choice of white the contrast changes
     by under 4%, which is below what an eye can see.  */
 :root[data-mode="day"] {
+  color-scheme: light;   /* the browser's own controls - see the note below */
   --ground:  #ffffff;
   --panel:   #f2f4f6;
   --panel-2: #e7eaee;
@@ -68,6 +70,7 @@
   --moon:    #65778c;
 }
 :root[data-mode="night"] {
+  color-scheme: dark;   /* the browser's own controls - see the note below */
   --ground:  #060101;
   --panel:   #0e0303;
   --panel-2: #140505;
@@ -419,3 +422,93 @@ svg.wfig .lab.acc { fill: var(--now); font-weight: 700; }
 .wkey .kharm::before, .wkey .ktide::before { background: var(--low); }
 .wkey .kwater::before { background: var(--accent); }
 .wkey .know::before { background: var(--now); }
+
+/* ---------------------------------------------------------------------
+   THE CONTROLS THE BROWSER DRAWS FOR US.
+
+   accent-color tints the filled half of a range control and its thumb; the
+   UNFILLED track is the browser's own, and the browser draws it light
+   unless the page says which world it is in. In night mode that is a white
+   bar, full width, in the middle of a page whose whole purpose is not to
+   have one.
+
+   Two declarations, because they do different jobs:
+
+   color-scheme, up in each palette block, tells the browser which built-ins
+   to draw - the range track, scroll bars, spinners, the focus ring. It is
+   the floor: it covers the controls nobody has thought about yet, including
+   any added later.
+
+   The rules below then take the slider away from the browser entirely
+   (appearance: none) and draw it from the palette, so the groove and the
+   thumb are OUR colours rather than the browser's idea of dark. colregs has
+   done this since it was written; this is that rule, generalised. Its width
+   is deliberately NOT carried over - that was colregs' own layout, not part
+   of the fix.
+   --------------------------------------------------------------------- */
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  height: 36px; background: transparent; vertical-align: middle;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px; background: var(--line); border-radius: 2px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 30px; height: 30px; margin-top: -13px; border-radius: 50%;
+  background: var(--accent); border: 3px solid var(--ground);
+}
+input[type="range"]::-moz-range-track {
+  height: 4px; background: var(--line); border-radius: 2px;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); border: 3px solid var(--ground);
+}
+
+/* ---------------------------------------------------------------------
+   HIGH CONTRAST MODE, AND WHAT WE DELIBERATELY DO NOT DO ABOUT IT.
+
+   Windows High Contrast (forced-colors: active) replaces our palette with
+   the reader's own system colours. Every mode - day, dark and night -
+   becomes whatever their theme says. There is a way to refuse that,
+   forced-color-adjust: none, and this file does NOT use it.
+
+   The reason is that it is their setting and they chose it. Somebody who
+   needs high contrast to read at all is not helped by a boat app deciding
+   it knows better. A reader who needs night vision AND high contrast
+   should pick a dark high-contrast theme; that is a choice only they can
+   make, and the documentation says so rather than this stylesheet making
+   it for them.
+
+   Nothing meaningful is lost when the colours go, because the suite does
+   not put meaning in colour alone. colregs settled that early: in night
+   mode every lamp is already red and the letters W R G Y carry the
+   pattern, exactly as they do on paper. Forced colours flatten the hue
+   and the letter still says which lamp it is.
+
+   What DOES need help is anything whose state was shown by a background
+   colour, because that is the one thing forced colours take away. The
+   mode buttons are the case here: pressed is otherwise just a different
+   fill. Highlight and HighlightText are the system's own pair for exactly
+   this, so a pressed button reads as pressed in whatever theme is on.
+   --------------------------------------------------------------------- */
+@media (forced-colors: active) {
+  .modes .mb {
+    border: 1px solid ButtonBorder;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+  .modes .mb[aria-pressed="true"] {
+    background: Highlight;
+    color: HighlightText;
+    border-color: Highlight;
+  }
+  /*  the half-second hold, which was a translucent wash of currentColor:
+      a wash does not survive forced colours, so it becomes the system
+      highlight filling the button instead.  */
+  .modes .mb.holding::after {
+    background: Highlight;
+    opacity: 1;
+  }
+}

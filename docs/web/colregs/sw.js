@@ -1,7 +1,7 @@
 // Service worker: the whole point is that this works with no network at sea.
 // Cache-first, because none of these files change while you are offshore and
 // a network lookup you cannot satisfy is just latency you did not need.
-const CACHE = 'colregs-v17'
+const CACHE = 'colregs-v18'
 const FAMILY = 'colregs-';
 const FILES = [
   './', './index.html', './colregs.css', './colregs.js',
