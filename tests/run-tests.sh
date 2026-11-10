@@ -1302,6 +1302,29 @@ WXLOG
     say "  --    the grid check needs node, skipped"
   fi
 
+  #  THE ROUTER'S VECTOR STEP, which everything above it inherits.
+  #
+  #  An isochrone router draws a plausible track from almost any
+  #  arithmetic, so it is built from the bottom and each layer is
+  #  checked while it is still small enough to check on paper. This is
+  #  the bottom: the boat's vector plus the water's, and the position
+  #  after one step.
+  #
+  #  The middle of it is an INVARIANT over a few thousand generated
+  #  cases -- the reported track must BE the sum of the two vectors --
+  #  which needs no oracle and catches sign errors, unit mixups and a
+  #  stale current lookup without anyone knowing the right answer.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/route-vector.js 2>&1); then
+      ok "the vector step adds up, by hand and over 20,736 generated cases $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
+    else
+      bad "the router's vector step is wrong"
+      echo "$r" | head -10
+    fi
+  else
+    say "  --    the vector check needs node, skipped"
+  fi
+
   if command -v node >/dev/null 2>&1; then
     if r=$(node tests/contacts-figs-check.js 2>&1); then
       ok "$(echo "$r" | sed -n 's/^  ok  *//p')"

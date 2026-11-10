@@ -1,5 +1,50 @@
 # Changelog
 
+## The router's vector step, and a boat held by the tide that was given a course
+
+**What.** `docs/web/route/route.js` — `vec()` (the boat's vector through the
+water plus the water's over the ground), `advance()` (the position after one
+step), and `consistent()` (the invariant both must satisfy).
+`docs/web/tests/route-vector.js` checks all three: by hand, over 20,736
+generated cases, and for determinism.
+
+**Why this first.** An isochrone router draws a plausible-looking track from
+almost any arithmetic, which makes it one of the hardest kinds of program to
+tell is wrong. So it is built from the bottom, each layer verified while it is
+still small enough to check on paper: the vector step, then the polar lookup,
+then one leg at one time step, then isochrones — which by then is bookkeeping
+over parts that are already known good.
+
+**Everything above inherits the sign conventions set here**, so they are
+stated once in the file: bearings true and clockwise from north, speeds in
+knots, and **set is the direction the current flows towards** — wind is named
+for where it comes from and current for where it goes to, and in a router the
+two live three lines apart.
+
+**What it impacts.**
+
+1. **A boat held exactly by the stream now has no course, and the first
+   version gave it one.** Five knots on 090 against five knots setting 270 is
+   a real situation, not a contrived one. The east components cancel exactly,
+   but `cos(90°)` is 6.1e-17 rather than zero, so a residue of about 6e-16
+   knots remained — and `atan2` resolved it into a confident course of 180 for
+   a boat that was not moving. The test is now a tolerance rather than
+   `=== 0`, and anything below a billionth of a knot is not a speed.
+2. **The invariant is the part that will keep earning.** Over every heading at
+   5°, every set at 15° and a range of speeds, the reported track must *be*
+   the sum of the two vectors. It needs no oracle, and it catches sign errors,
+   unit mixups and a stale current lookup without anyone knowing what the
+   right answer was. It is exported, so the router will run it over every row
+   of every route.
+3. **And the check itself is checked**: a deliberately wrong course and a
+   deliberately wrong speed must both be caught, or the invariant is
+   decoration.
+4. **The departure is taken at the middle latitude of the step**, not the
+   start. At 50° over ten minutes that is nothing; at 70° over an hour it is
+   not, and it costs one line.
+5. **At the pole it refuses to invent a longitude** rather than dividing by a
+   cosine near zero and returning a position several thousand degrees east.
+
 ## GRID 1: the format the router reads, written before the router
 
 **What.** `docs/web/route/GRID.md` and `docs/web/route/grid.js` — a plain-text
