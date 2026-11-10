@@ -1,8 +1,11 @@
 #!/bin/sh
 # Rebuild a tool's manual and quick reference PDFs.
 #
-# Usage:  ./mkpdf.sh            rebuild every tool listed in DOCS below
-#         ./mkpdf.sh celnav     rebuild one tool
+# Usage:  sh mkpdf.sh            rebuild every tool listed in DOCS below
+#         sh mkpdf.sh celnav     rebuild one tool
+#
+# Run it with "sh", as this folder's README says for capture.sh too.  Neither
+# script carries the executable bit, so neither can lose it in a file copy.
 #
 # Every page carries the tool's version and the build date, so a printed copy
 # shows whether it is current.  Neither is typed in: the version is read from

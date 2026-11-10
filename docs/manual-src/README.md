@@ -13,7 +13,7 @@ turns into `docs/celnav-manual.pdf` and `docs/celnav-quickref.pdf`.
 | `build_figs2.py` | figures 5–8: the training menu, the syllabus, the navigational triangle, a marked drill |
 | `capture.sh` | rebuilds the two fixtures that track the app |
 | `extract_panel.py` | recovers a fixture from a figure's own SVG |
-| `mkpdf.sh` | rebuilds the two PDFs from the markdown |
+| `mkpdf.sh` | rebuilds a tool's two PDFs from the markdown, filling in its version, size and checksum from the built program |
 
 ## Where the fixtures come from, and why that matters
 
@@ -46,12 +46,23 @@ the two apart. It can also check the fixtures against the figures:
     sh capture.sh                   # the two app-tracking fixtures
     python3 build_figs.py           # figures 1-4
     python3 build_figs2.py          # figures 5-8
-    sh mkpdf.sh                     # the two PDFs
+    sh mkpdf.sh                     # every tool in the script's DOCS list
+    sh mkpdf.sh celnav              # just this one
 
 Two things are needed that are not always installed. **cairosvg** renders
 the PNG that the PDFs embed; without it `figgen` still writes the SVG and
 says which PNGs it skipped, so the figures can be regenerated and compared
-anywhere. **wkhtmltopdf** is needed by `mkpdf.sh`.
+anywhere. `mkpdf.sh` needs **one** HTML-to-PDF engine and picks whichever is
+present, in this order:
+
+| engine | why that order |
+|---|---|
+| `weasyprint` | preferred: it honours `@page`, so the footer really does land on every page |
+| `wkhtmltopdf` | good page breaks, but many builds **cannot do footers** -- an unpatched-Qt build ignores `--footer-*` with only a warning, and `position: fixed` does not repeat either, so the document comes out undated while the run still looks successful |
+| `pandoc` + `xelatex` | no HTML engine at all; a LaTeX footer instead |
+
+If none is present the script says which to install and stops, rather than
+building a document with no version on it.
 
 Two environment variables exist for working without overwriting anything:
 
@@ -79,3 +90,21 @@ the wrong line **while still rendering perfectly**:
 A callout's words can go stale too, and nothing checks prose. When module
 C was added, two labels still said "twenty lessons" and "Four modules,
 five lessons each". If you change what the figures show, read the labels.
+
+## The placeholders, and why they are not typed
+
+`manual.md` carries `{{VERSION}}`, `{{SIZE_KB}}` and `{{CKSUM}}`, and
+`mkpdf.sh` fills them from `bin/<tool>` at build time. It **refuses to build**
+if that program is missing, so a document can never describe a guess.
+
+The reason is a measured one. The manual once printed, for a reader to check
+their own copy against:
+
+| | |
+|---|---|
+| what the manual said | `4175943417 142889 celnav`, "about 140 kB" |
+| what the program was | `1147339436 263990 celnav`, 257 kB |
+
+A navigator following those lines would have concluded a sound copy was
+corrupt. A hand-typed number is what went stale, so the fix was to stop
+typing them rather than to correct them.
