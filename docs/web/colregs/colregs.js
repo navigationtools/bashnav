@@ -447,10 +447,10 @@ function glyph(kind, cx, y, scale, s, c, bg) {
 function drawShapes(sh) {
   var W = 600, H = 360, seaY = 300, cx = W / 2;
   var night = document.documentElement.getAttribute('data-mode') === 'night';
-  var sky   = night ? '#000000' : '#c3ced8';
-  var ink   = night ? cssvar('--lamp-r') : '#0d1117';
-  var sea   = night ? cssvar('--sea')    : '#73838f';
-  var hull  = night ? cssvar('--hull')   : '#2b343c';
+  var sky   = night ? cssvar('--stage-bg') : cssvar('--shape-sky');
+  var ink   = night ? cssvar('--lamp-r')   : cssvar('--shape-ink');
+  var sea   = night ? cssvar('--sea')      : cssvar('--shape-sea');
+  var hull  = night ? cssvar('--hull')     : cssvar('--shape-hull');
 
   var stage = $('shape-stage');
   stage.textContent = '';
@@ -1559,7 +1559,10 @@ function setMode(m) {
   document.documentElement.setAttribute('data-mode', m);
   $('mode').textContent = m === 'night' ? 'DARK' : 'NIGHT';
   var meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', m === 'night' ? '#060101' : '#07090b');
+  if (meta) meta.setAttribute('content',
+      getComputedStyle(document.documentElement).getPropertyValue('--ground').trim()
+      || '#07090b');   /* the browser chrome follows the palette, so a third mode
+                          needs no third branch here */
   remember('mode', m);
   /* anything already drawn was drawn in the old palette */
   if (!$('v-lights').hidden) drawLights(D.vessels[lightIdx], lightBrg);

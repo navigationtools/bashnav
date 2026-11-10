@@ -69,7 +69,10 @@ function setMode(m) {
   document.documentElement.setAttribute('data-mode', m);
   $('mode').textContent = m === 'night' ? 'DARK' : 'NIGHT';
   var meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', m === 'night' ? '#060101' : '#07090b');
+  if (meta) meta.setAttribute('content',
+      getComputedStyle(document.documentElement).getPropertyValue('--ground').trim()
+      || '#07090b');   /* the browser chrome follows the palette, so a third mode
+                          needs no third branch here */
   lsSet('mode', m);
   if (PRED) drawCurve();
 }

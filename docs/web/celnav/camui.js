@@ -16,6 +16,8 @@
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
+  const cssvar = n => getComputedStyle(document.documentElement)
+                        .getPropertyValue(n).trim();
 
   /* A visible build stamp.  Debugging this remotely without one meant
      guessing which version was on the device, and the guess was wrong:
@@ -208,7 +210,9 @@
     const cyI = pick() === 'h' ? H.y : B.y;
     const sx = cxI - srcW / 2, sy = cyI - srcH / 2;
     g.imageSmoothingEnabled = false;
-    g.fillStyle = '#10151a'; g.fillRect(0, 0, cv.width, cv.height);
+    /* the backdrop behind the crop is the app's panel, so it follows the mode.
+       It was fixed at the dark value and stayed grey when the rest went red. */
+    g.fillStyle = cssvar('--panel') || '#10151a'; g.fillRect(0, 0, cv.width, cv.height);
     g.drawImage(img, sx, sy, srcW, srcH, 0, 0, cv.width, cv.height);
     const T = p => [(p[0] - sx) * ZOOM, (p[1] - sy) * ZOOM];
     if (pick() === 'h') {
@@ -690,7 +694,10 @@
     document.documentElement.setAttribute('data-mode', m);
     $('mode').textContent = m === 'night' ? 'DARK' : 'NIGHT';
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', m === 'night' ? '#060101' : '#07090b');
+    if (meta) meta.setAttribute('content',
+        getComputedStyle(document.documentElement).getPropertyValue('--ground').trim()
+        || '#07090b');   /* the browser chrome follows the palette, so a third mode
+                            needs no third branch here */
     try { localStorage.setItem('bashnav-mode', m); } catch (e) {}
   }
   let saved = 'dark';

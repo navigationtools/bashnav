@@ -12,6 +12,11 @@
    ===================================================================== */
 
 :root {
+  --shape-sky:  #c3ced8;  /* day shapes hang against a daylight sky, in every
+                             mode: black shapes on a night sky would be backwards */
+  --shape-ink:  #0d1117;
+  --shape-sea:  #73838f;
+  --shape-hull: #2b343c;
   --stage-bg: #000;       /* lights are seen against a night sky: representational,
                              not themed, and stays black in day mode too */
   --ground:  #07090b;
