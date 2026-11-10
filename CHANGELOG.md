@@ -1,5 +1,51 @@
 # Changelog
 
+## The documents now take their version from the program, not from a typist
+
+**What.** `docs/manual-src/mkpdf.sh` rebuilt: it takes a tool name, reads that
+tool's version from `src/<tool>/10-head.sh`, fills the document's placeholders
+from the built program, and puts the version and build date in a footer on
+every page. `README.md` gains a **Release documents** section listing what each
+tool owes, under `spec/contracts/release_checklist.md`.
+
+**Why.** The manual said **Version 1.1** while `celnav` was **1.6**, and it
+printed two numbers for the reader to check their copy against:
+
+| | |
+|---|---|
+| the manual said | `4175943417 142889 celnav`, "about 140 kB" |
+| the program is | `1147339436 263990 celnav`, 257 kB |
+
+A navigator following those lines would conclude a sound copy was corrupt.
+Bumping the version by hand was not the fix, because a hand-typed number is
+what went stale. `manual.md` now carries `{{VERSION}}`, `{{SIZE_KB}}` and
+`{{CKSUM}}`, and the generator fills them from `bin/<tool>` — and refuses to
+build at all if that program is missing, rather than describing a guess.
+
+**What it impacts.**
+
+1. **Two engine faults found by checking the output instead of the exit code.**
+   1. `wkhtmltopdf` built against unpatched Qt **ignores every `--footer-*`
+      switch**, warns, and exits 0. The document comes out undated and the run
+      looks successful.
+   2. A `position: fixed` footer does not repeat either: it landed on 1 page
+      of 11.
+   3. So `weasyprint` is now preferred, and the check is a count — the footer
+      must appear on as many pages as the document has. 16 of 16, and 5 of 5.
+2. **The engine is chosen at run time** from weasyprint, wkhtmltopdf, then
+   pandoc with xelatex, and if none is present the script says which to install
+   and stops. This matters because the generator could not run on the Mac that
+   owns this repository at all: none of the three was installed there, so
+   "generated from the source" was true only on another machine.
+3. **Adding a tool's manual is one line** in `DOCS`, not a forked script.
+4. **The PDFs are smaller** — 3.26 MB to 1.54 MB for the manual — because the
+   new engine compresses the figures better. Same figures, same text.
+
+**Still owed, and written down rather than quietly left.** `colregs`, `tides`,
+`deck-log`, `weather` and the launcher have no manual or card. Larry's rule of
+9 November: touching a tool triggers writing its manual, so they come with the
+next work that goes into them rather than as a backlog.
+
 ## The polar, and the three things it refuses to guess
 
 **What.** `docs/web/route/polar.js` — reads a boat's polar in the

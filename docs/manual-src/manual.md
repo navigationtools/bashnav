@@ -1,7 +1,7 @@
 # CELNAV
 ## Celestial navigation in POSIX shell, for the iPad mini
 
-**Version 1.1** — self-contained, offline, no almanac to buy and nothing that expires.
+**Version {{VERSION}}** — self-contained, offline, no almanac to buy and nothing that expires.
 With a training mode that teaches the subject from first principles.
 
 ---
@@ -117,14 +117,14 @@ it on a path.
 
 ### Verifying the file arrived intact
 
-**(read-only)** The script is about 140 kB. A truncated transfer will fail the self test
+**(read-only)** The script is about {{SIZE_KB}} kB. A truncated transfer will fail the self test
 rather than give you quiet nonsense, but you can also check the file directly:
 
 ```
 cksum celnav
 ```
 
-Expected for version 1.1: `4175943417 142889 celnav`.
+Expected for version {{VERSION}}: `{{CKSUM}}`.
 
 ---
 

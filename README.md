@@ -479,6 +479,59 @@ either — the suite regenerates both and compares.
 
 ---
 
+## Release documents
+
+Every release of a tool in this repository brings its documentation, rebuilt
+for that version, under `spec/contracts/release_checklist.md`. This section is
+the list that contract asks each project to keep, so nothing is forgotten and
+anyone can check it.
+
+**Each release brings, for the tool released:**
+
+| | |
+|---|---|
+| The manual | PDF, A4, made to be printed and read away from the screen |
+| The quick reference | one page, PDF, for the chart table |
+| The web page | the tool's page in the site's documentation section |
+| Annotated figures | real screen output with callouts, where the screen is not self-explanatory |
+| The change log entry | what changed, why, and what it affects |
+
+**Version and date appear on every page,** so a printed copy shows whether it
+is current. `docs/manual-src/mkpdf.sh` puts them there; they are not typed in.
+
+**Generated from the source, never retyped.** The figures are drawn from
+committed screen fixtures in `docs/manual-src/cap/`, and the two that track the
+app are rebuilt from the built program by `capture.sh`.
+
+### Where each tool stands
+
+| Tool | Version | Manual | Quick reference | Web page |
+|---|---|---|---|---|
+| `celnav` | 1.6 | `docs/celnav-manual.pdf` | `docs/celnav-quickref.pdf` | owed |
+| `colregs` | 1.15 | owed | owed | owed |
+| `tides` | 1.2 | owed | owed | owed |
+| `deck-log` | 1.1 | owed | owed | owed |
+| `weather` | 1.0 | owed | owed | owed |
+| `bashnav` (launcher) | 1.0 | owed | owed | owed |
+| `drill` | web only | owed, with the **pack-format reference** | owed | owed |
+| `route` | being built | owed at its first release | owed | owed |
+
+**"Owed" is a commitment, not a gap to be tidied later.** The rule, set by
+Larry on 9 November 2026: **touching a tool triggers writing its manual.** The
+next piece of work that goes into `colregs`, `tides`, `deck-log`, `weather` or
+the launcher brings that tool's manual and card with it. They are not a
+documentation backlog to be worked through separately, because a backlog is
+what let `celnav`'s manual sit at a version the program had left behind.
+
+### Not applicable here
+
+**The store-upload table** (the contract's section 2) applies to a session that
+submits to a store. Nothing in this repository is submitted to one: the shell
+tools are a git release and the browser builds are served from
+`bashnav.navigationtools.org`. If that changes, the table comes with it.
+
+---
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Corrections to the COLREGs content and
