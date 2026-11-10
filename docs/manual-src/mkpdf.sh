@@ -32,7 +32,8 @@ cd "$(dirname "$0")"
 SRC=../../src
 
 # tool:manual:quickref  -- one line per tool.  Adding a tool is one line here.
-DOCS='celnav:manual.md:quickref.md'
+DOCS='celnav:manual.md:quickref.md
+tides:tides-manual.md:tides-quickref.md'
 
 DATE=$(date '+%-d %B %Y' 2>/dev/null || date '+%d %B %Y')
 

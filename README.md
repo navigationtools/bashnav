@@ -509,12 +509,20 @@ app are rebuilt from the built program by `capture.sh`.
 |---|---|---|---|---|
 | `celnav` | 1.6 | `docs/celnav-manual.pdf` | `docs/celnav-quickref.pdf` | owed |
 | `colregs` | 1.15 | owed | owed | owed |
-| `tides` | 1.2 | owed | owed | owed |
+| `tides` | 1.2 | `docs/tides-manual.pdf` | `docs/tides-quickref.pdf` | owed |
 | `deck-log` | 1.1 | owed | owed | owed |
 | `weather` | 1.0 | owed | owed | owed |
 | `bashnav` (launcher) | 1.0 | owed | owed | owed |
 | `drill` | web only | owed, with the **pack-format reference** | owed | owed |
 | `route` | being built | owed at its first release | owed | owed |
+
+**Figures are owed separately, and for one reason.** Under the standing rule
+that documentation figures come from the output of the browser build, new
+figures wait on a decision about a day mode for those apps: every screen in the
+suite is near-black, and a near-black figure does not print. `tides`' manual
+says so in its own closing note rather than quietly going without. celnav's
+existing eight panels are the older monospace figures and stand for this
+version.
 
 **"Owed" is a commitment, not a gap to be tidied later.** The rule, set by
 Larry on 9 November 2026: **touching a tool triggers writing its manual.** The
