@@ -303,7 +303,7 @@ main {
   background: var(--panel); color: var(--text);
   border: 1px solid var(--line); border-radius: var(--radius, 10px);
 }
-.ridx .done { color: var(--ok, #2fd45f); font-family: ui-monospace, Menlo, monospace; }
+.ridx .done { color: var(--good); font-family: ui-monospace, Menlo, monospace; }
 .ridx .todo { color: var(--dim); font-family: ui-monospace, Menlo, monospace; }
 #syl-index h3 {
   margin: 18px 0 8px; font-size: 12px; font-weight: 700; letter-spacing: .08em;
@@ -362,8 +362,8 @@ main {
 .opts .ltr { font-family: ui-monospace, Menlo, monospace; color: var(--dim); }
 .opts .opt[data-state] .ltr { color: inherit; }
 .opts .otext { flex: 1; }
-.opts .opt[data-state="right"] { border-color: var(--ok, #2fd45f); color: var(--ok, #2fd45f); }
-.opts .opt[data-state="wrong"] { border-color: var(--bad, #ff4438); color: var(--bad, #ff4438); }
+.opts .opt[data-state="right"] { border-color: var(--good); color: var(--good); }
+.opts .opt[data-state="wrong"] { border-color: var(--warn); color: var(--warn); }
 .answer { margin-top: 14px; }
 .answer h3 { margin: 0 0 6px; font-size: 15px; color: var(--accent); }
 
