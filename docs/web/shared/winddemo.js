@@ -12,9 +12,12 @@
    front page cannot drift from the thing in the app. A second copy would
    have been quicker today and wrong by the third edit.
 
-   WHAT IT NEEDS FROM ITS HOST. Five custom properties on :root --
-   --accent, --dim, --line, --text and --warn -- which it reads at draw
-   time, so it takes whatever palette the page it is on uses. And the
+   WHAT IT NEEDS FROM ITS HOST. Four custom properties on :root --
+   --accent, --dim, --text, and the warning colour, which is --warn in
+   celnav and the launcher and --bad everywhere else; it asks for both and
+   takes whichever the host defines. All read at draw time, so the figure
+   takes whatever palette the page it is on uses, and redraws itself on
+   visualmodechange when that palette moves. And the
    stylesheet beside this file, shared/demo.css, which carries every class
    the panel sets. Nothing else: no framework, no helper from weather.js,
    and its own el() below rather than the app's, so a page can load this
@@ -119,14 +122,31 @@ function windDemo(host) {
     return cs.getPropertyValue('--warn').trim() ||
            cs.getPropertyValue('--bad').trim() || '#e23a2c';
   };
-  var dim = css('--dim'), line = css('--line'), acc = css('--accent'),
+  var dim = css('--dim'), acc = css('--accent'),
       text = css('--text'), warn = warnTok();
 
   var gIso = e('g'), gTan = e('g'), gArr = e('g'), gLbl = e('g');
 
-  /*  three isobars for context, the middle one the arrows stand on  */
+  /*  Three isobars for context, the middle one the arrows stand on - which
+      makes it the SUBJECT of the drawing, and it is drawn strongest.
+
+      All three take --dim, and the hierarchy is carried by width, dash and
+      opacity alone.  --line is a hairline border colour: against its own
+      ground it measures 1.39:1 in dark, 1.66:1 in day and 1.24:1 in night,
+      so the middle isobar used to be the FAINTEST mark in a figure that is
+      about it.  --dim is secondary text and reaches 6.55 / 6.40 / 2.24 on
+      the same grounds, which is why it is the one to emphasise with.
+
+      Not simply swapped: the outer two also carry opacity 0.6, and at that
+      opacity --line falls to 1.18:1 and 1.34:1 - the context would have
+      disappeared to buy the subject back.  Using one token for all three
+      lifts the subject and leaves the context exactly as legible as it was.
+
+      Night's numbers are lower throughout and that is the point, not a
+      fault: the palette is dim on purpose and the bright mark in this
+      figure is the wind arrow, in --accent.  */
   [R - 38, R, R + 38].forEach(function (rr, i) {
-    e('circle', { cx: cx, cy: cy, r: rr, fill: 'none', stroke: i === 1 ? line : dim,
+    e('circle', { cx: cx, cy: cy, r: rr, fill: 'none', stroke: dim,
                   'stroke-width': i === 1 ? 1.2 : 0.8,
                   'stroke-dasharray': i === 1 ? '' : '2 4',
                   opacity: i === 1 ? 1 : 0.6 }, gIso);
