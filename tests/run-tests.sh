@@ -1325,6 +1325,25 @@ WXLOG
     say "  --    the vector check needs node, skipped"
   fi
 
+  #  THE POLAR, AND WHAT IT REFUSES TO GUESS.
+  #
+  #  The refusals matter more than the arithmetic. A polar that invents
+  #  a speed closer to the wind than its table goes sends a router
+  #  beating to windward in a straight line, and the route arrives
+  #  hours early on paper and is wrong in a way that looks like skill.
+  #  Outside the angles the answer is "no data", which is not zero, and
+  #  above the strongest wind it clamps and says that it did.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/polar.js 2>&1); then
+      ok "the polar interpolates, and refuses to guess outside its table $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
+    else
+      bad "the polar reads or interpolates wrongly"
+      echo "$r" | head -10
+    fi
+  else
+    say "  --    the polar check needs node, skipped"
+  fi
+
   if command -v node >/dev/null 2>&1; then
     if r=$(node tests/contacts-figs-check.js 2>&1); then
       ok "$(echo "$r" | sed -n 's/^  ok  *//p')"

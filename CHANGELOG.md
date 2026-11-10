@@ -1,5 +1,45 @@
 # Changelog
 
+## The polar, and the three things it refuses to guess
+
+**What.** `docs/web/route/polar.js` — reads a boat's polar in the
+Expedition-style table the course uses, and interpolates bilinearly between
+its points. `docs/web/tests/polar.js`, 38 checks.
+
+**Why the refusals are the design.** A polar that invents a speed closer to
+the wind than its table goes will send a router beating to windward in a
+straight line. The route then arrives hours early on paper and is wrong in a
+way that looks like skill, which is the worst kind of wrong a routing program
+can be.
+
+1. **Outside the angles, the answer is `null` — no data — and not zero.** The
+   two are different instructions to a router: zero means "you cannot go that
+   way", `null` means "this table does not say". Upwind and downwind work
+   belongs to the optimum VMG angles, which the generator writes into the file
+   as comments and which this reads when they are there.
+2. **Above the strongest wind in the table it clamps, and says it clamped.** A
+   polar extrapolated into a gale is a boat doing fifteen knots under full
+   main in forty knots of wind. The flag travels with the answer so a route
+   can report that it was carrying a number from a different wind.
+3. **Below the lightest wind it runs to zero at zero wind**, which is the one
+   extrapolation that is physically honest.
+
+**What it impacts.**
+
+1. **The optimum angles are read from comment lines**, and their absence is
+   not an error. They are comments in the course's file on purpose — a reader
+   that does not know about them still reads the table — so they are optional
+   here too.
+2. **Bilinear, not splined.** The error between gridded points is far smaller
+   than the error in the wind field the router is given, and a spline through
+   a coarse table invents inflections nobody measured.
+3. **The polar is symmetric about the wind**, so −90°, 90° and 270° are one
+   question.
+4. **Checked against the course's real generic-70 table as well as the toy
+   one in the suite**: grid points come back exactly, and the table's own beat
+   angles (38–44°) sit *closer to the wind than its first row at 52°* — which
+   is precisely why the reader must not interpolate down there.
+
 ## The router's vector step, and a boat held by the tide that was given a course
 
 **What.** `docs/web/route/route.js` — `vec()` (the boat's vector through the
