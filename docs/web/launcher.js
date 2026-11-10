@@ -27,12 +27,73 @@ var TOOLS = [
 
 function $(id) { return document.getElementById(id); }
 
+/*  The display modes, as a list rather than a branch.  Adding a fourth
+    palette - a high-contrast day, say - is one entry here and one block in
+    the stylesheet, and touches no logic.  */
+var MODES = ['day', 'dark', 'night'];
+var MODE_KEY = 'visual-mode';   /* one name for the whole suite, so a mode set
+                                   in one tool is the mode in the next, and in
+                                   the course pages that embed them */
+
+/*  night is the default: a tool opened on deck must not start bright.  */
+function savedMode() {
+  var s = null;
+  try { s = localStorage.getItem(MODE_KEY); } catch (e) {}
+  return MODES.indexOf(s) >= 0 ? s : 'night';
+}
+
+/*  Only night -> day is guarded.  Going darker is never harmful; going
+    bright when dark-adapted costs about twenty minutes, so that one change
+    takes a deliberate half second and can be released to cancel.  */
+function wireModes() {
+  var btns = document.querySelectorAll('#modes .mb');
+  var HOLD_MS = 500, holdT = null, holdB = null;
+  function guarded(m) {
+    return m === 'day' &&
+           document.documentElement.getAttribute('data-mode') === 'night';
+  }
+  function cancelHold() {
+    if (holdT) clearTimeout(holdT);
+    holdT = null;
+    if (holdB) holdB.classList.remove('holding');
+    holdB = null;
+  }
+  for (var i = 0; i < btns.length; i++) {
+    (function (btn) {
+      var m = btn.getAttribute('data-mode');
+      btn.addEventListener('pointerdown', function (e) {
+        if (!guarded(m)) return;
+        e.preventDefault();
+        holdB = btn; btn.classList.add('holding');
+        holdT = setTimeout(function () { cancelHold(); setMode(m); }, HOLD_MS);
+      });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) {
+        btn.addEventListener(ev, cancelHold);
+      });
+      btn.addEventListener('click', function (e) {
+        if (guarded(m)) { e.preventDefault(); return; }   /* the hold does it */
+        setMode(m);
+      });
+      /*  A keyboard activation is already deliberate, so it is not held. */
+      btn.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMode(m); }
+      });
+    })(btns[i]);
+  }
+}
+
 function setMode(m) {
+  if (MODES.indexOf(m) < 0) m = 'night';
   document.documentElement.setAttribute('data-mode', m);
-  $('mode').textContent = m === 'night' ? 'DARK' : 'NIGHT';
+  var mbs = document.querySelectorAll('#modes .mb');
+  for (var mi = 0; mi < mbs.length; mi++)
+    mbs[mi].setAttribute('aria-pressed',
+      String(mbs[mi].getAttribute('data-mode') === m));
   var meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', m === 'night' ? '#060101' : '#07090b');
-  try { localStorage.setItem('bashnav-mode', m); } catch (e) { /* private mode */ }
+  if (meta) meta.setAttribute('content',
+      getComputedStyle(document.documentElement).getPropertyValue('--ground').trim()
+      || '#060101');
+  try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* private mode */ }
 }
 
 function tiles() {
@@ -61,12 +122,8 @@ function tiles() {
 }
 
 window.addEventListener('DOMContentLoaded', function () {
-  var saved = 'dark';
-  try { saved = localStorage.getItem('bashnav-mode') || 'dark'; } catch (e) {}
-  setMode(saved === 'night' ? 'night' : 'dark');
-  $('mode').addEventListener('click', function () {
-    setMode(document.documentElement.getAttribute('data-mode') === 'night' ? 'dark' : 'night');
-  });
+  setMode(savedMode());
+  wireModes();
 
   tiles();
 

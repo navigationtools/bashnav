@@ -330,3 +330,25 @@ single change inside the apps.
 - **No weather.** A prediction is the astronomical tide and nothing else. A
   deep low can raise the sea half a metre above it.
 - **No GPS, no AIS, no charts.** These are cross-checking and training tools.
+
+## The colour modes are named differently in the shell and the browser, on purpose
+
+The shell has `day`, `night` and `plain`. The browser has `day`, `dark` and
+`night`. **`day` means a different thing in each**: in the shell it is a black
+ground with white text; in the browser it is a white ground with black text —
+which is what the shell calls `day` and the browser calls `dark`.
+
+The cause is the medium. A terminal's background belongs to the terminal, so
+the shell can only choose which escape sequences to emit; it cannot paint the
+screen white. An ANSI background colour paints only where text is drawn, so a
+sight working or a plot would be a patchy white box on whatever ground the
+user's terminal has. A browser page owns every pixel and has no such limit.
+
+**It looks like an oversight and it is a decision** (10 November 2026). The
+rename was scoped — 14 places in `src/`, one in `docs/`, no golden file pinning
+the words — and declined: it would rewrite every saved `cmode=` in every
+user's configuration, break a command people have in their fingers, and spend
+the effort on the build that is no longer the one being developed.
+
+If you are reading this because you were about to standardise them: don't.
+Section 8a of the celnav manual explains the difference to users.

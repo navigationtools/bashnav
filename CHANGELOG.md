@@ -1,5 +1,82 @@
 # Changelog
 
+## A day mode, and a mode control you cannot trip over
+
+**What.** All seven browser pages — the launcher and the six tools — gain a
+**day** palette, and the two-state toggle becomes **three labelled buttons**:
+DAY, DARK, NIGHT, with the current one shown selected. **night is now the
+default.**
+
+**Why.** Documentation figures have to come from the browser build, and every
+screen in the suite was near-black, so no figure would print. The second
+reason is better: the suite has always thought about dark adaptation and had
+nothing at all for bright sun on a white deck.
+
+**The safety design, which is the point of the control.**
+
+1. **night is the default.** A tool opened on deck in the dark must not start
+   bright. A bright panel costs a dark-adapted eye about twenty minutes.
+2. **Three buttons, not a cycle.** A cycle can land you on DAY from NIGHT with
+   one stray press, and it can only tell you what the *next* press does, never
+   where you are.
+3. **night to day takes a deliberate half-second hold**, filling in the
+   current mode's colour, releasing early cancels, and nothing bright appears
+   until it completes. That is the only guarded transition: going darker is
+   never harmful.
+4. **Selected is never a filled bright patch** — in night mode that would be a
+   small lamp in the corner of a dark-adapted screen.
+5. A browser `confirm()` was considered for the guard and rejected: it renders
+   white on iOS, so the guard against a white flash would have been one.
+
+**The palette was measured, not chosen.** The dark accents are unusable on
+white — the blue scores 2.3:1 and the green 2.0:1. Darkened, every one clears
+4.6:1, and the worst contrast anywhere on a page is 5.8:1.
+
+**Two findings worth keeping.**
+
+1. **Recessive tokens invert.** `--none`, `--carry`, `--locked`, `--unseen`
+   and `--persist` mean *less important*. On a dark ground that is darker; on
+   a white one it is **lighter**. Left to a contrast rule they came out at
+   9.9:1 — "not studied yet" rendered as strongly as body text. Their ordering
+   is preserved, inverted, all still above 4.6:1.
+2. **Sunlight beats every palette.** Glare lands on the ink and the paper
+   alike, so contrast collapses together: about 10:1 indoors, 6:1 overcast,
+   3.5:1 bright, 2.3:1 in full sun — and pure black on pure white measures the
+   same 2.3:1 there. The manual says so, and says what does work: screen
+   brightness, shade, then day mode. A different shade of white changes the
+   contrast by under 4%, which is below what an eye can see.
+
+**What it impacts.**
+
+1. **One storage name, `visual-mode`,** replacing five (`bashnav-mode`,
+   `colregs.mode`, `tides-mode`, `decklog-mode`, `weather-mode`,
+   `drill-mode`). A mode set in one tool is the mode in the next, and in the
+   course pages that embed them. Anyone who had set a mode gets the default
+   once.
+2. **The modes are a list, not a branch.** A fourth palette — a high-contrast
+   day, say — is one array entry and one stylesheet block, touching no logic.
+3. **Two surfaces stay black in every mode, day included:** the terminal
+   blocks and colregs' lights stage. A terminal is black and navigation lights
+   are seen against a night sky.
+4. **The button styling is `.modes .mb`, not `.mb`.** Four apps style their
+   header with `.bar button`, which is more specific and would otherwise win
+   on background, padding and radius.
+5. **Documented once, not six times.** `docs/manual-src/common-display-modes.md`
+   is included by each manual through a new `{{INCLUDE:}}` in the generator; a
+   named file that does not exist is a loud failure.
+6. **The shell keeps its own names** — `day|night|plain`, where its `day` is
+   this build's `dark`. Deliberate, and recorded in `docs/ARCHITECTURE.md`
+   with the reasoning, because it looks like an oversight.
+
+**Verified by driving all seven pages**: night on a first visit, exactly one
+button selected, DARK and DAY immediate where they should be, a quick tap on
+DAY from night doing nothing, a hold released at 200 ms cancelling, a 650 ms
+hold reaching day, the choice stored and surviving a reload, and the browser
+chrome following the palette. Two faults were caught that way and by nothing
+else: five orphaned click handlers left behind on a button that no longer
+exists — every file still parsed — and a stylesheet left with an unclosed
+`@media` block.
+
 ## The camera sight is documented, including the errors large enough to matter
 
 **What.** `manual.md` gains **section 13, The camera sight** — the browser

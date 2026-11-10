@@ -80,7 +80,29 @@ subst() {
   ck=$(cksum "$b" | awk -v n="$1" '{print $1, $2, n}')
   kb=$(( $(wc -c < "$b") / 1024 ))
   sed -e "s/{{VERSION}}/$2/g" -e "s|{{CKSUM}}|$ck|g" \
-      -e "s/{{SIZE_KB}}/$kb/g" -e "s/{{DATE}}/$DATE/g" "$3"
+      -e "s/{{SIZE_KB}}/$kb/g" -e "s/{{DATE}}/$DATE/g" "$3" \
+  | include
+}
+
+# include  --  expand {{INCLUDE:<file>}} lines from stdin.
+#
+# Some things are true of every tool and should be written once: the display
+# modes, for instance, are the same in all of them, and six copies of that
+# section would be six chances to drift.  A manual names the shared file and
+# the generator drops it in.  Missing file = loud failure, never a silent gap.
+include() {
+  while IFS= read -r line; do
+    case "$line" in
+      *'{{INCLUDE:'*)
+        inc=${line#*\{\{INCLUDE:}; inc=${inc%%\}\}*}
+        if [ ! -f "$inc" ]; then
+          echo "mkpdf: $inc is named by a manual but does not exist" >&2
+          exit 1
+        fi
+        cat "$inc" ;;
+      *) printf '%s\n' "$line" ;;
+    esac
+  done
 }
 
 mk() {   # mk <input.md> <output.pdf> <title> <footer> <tool> <version>

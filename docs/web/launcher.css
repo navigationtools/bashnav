@@ -18,6 +18,17 @@
   --radius:  10px;
   --tap:     56px;
 }
+/*  DAY.  Same palette as the tools it launches: one suite, one look. */
+:root[data-mode="day"] {
+  --ground:  #ffffff;
+  --panel:   #f2f4f6;
+  --panel-2: #e7eaee;
+  --line:    #c2cad3;
+  --text:    #0d1117;
+  --dim:     #55606d;
+  --accent:  #15607f;
+  --warn:    #b3271b;
+}
 :root[data-mode="night"] {
   --ground:  #060101;
   --panel:   #0e0303;
@@ -79,6 +90,46 @@ main { max-width: 760px; margin: 0 auto; padding: 0 16px 32px; }
   font: 600 13px/1 ui-monospace, Menlo, monospace; letter-spacing: 0.08em;
   cursor: pointer;
 }
+
+.modes { display: flex; gap: 0; flex: 0 0 auto; }
+/*  The display mode: three labelled buttons, not a cycle.
+
+    A cycle can land you on DAY from NIGHT with one stray press, and a
+    bright panel costs a dark-adapted eye about twenty minutes - the same
+    reason colregs keeps its night sky black.  Three buttons make every
+    change deliberate, show which mode you are in rather than only what
+    the next press would do, and match the shell tool's day|night|plain.
+
+    Selected is never a filled bright patch: in night mode that would be a
+    small lamp in the corner of an otherwise dark-adapted screen.
+
+    The selector is `.modes .mb`, not `.mb`.  Four of these apps style their
+    header with `.bar button`, which is MORE specific than a lone class and
+    would otherwise win on background, padding and radius.  */
+.modes { display: flex; gap: 0; flex: 0 0 auto; }
+.modes .mb {
+  min-height: 40px; padding: 0 10px; background: transparent; color: var(--dim);
+  border: 1px solid var(--line); border-right-width: 0; border-radius: 0;
+  cursor: pointer; position: relative; overflow: hidden;
+  font: 600 12px/1 ui-monospace, Menlo, monospace; letter-spacing: 0.06em;
+}
+.modes .mb:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+.modes .mb:last-child  { border-radius: 0 var(--radius) var(--radius) 0; border-right-width: 1px; }
+.modes .mb[aria-pressed="true"] {
+  background: var(--panel-2); border-color: var(--accent); color: var(--accent);
+  font-weight: 700;
+}
+.modes .mb:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.modes .mb::after {
+  content: ""; position: absolute; inset: 0; transform: scaleX(0);
+  transform-origin: left; background: currentColor; opacity: 0.22;
+  pointer-events: none;
+}
+.modes .mb.holding::after { transform: scaleX(1); transition: transform 0.5s linear; }
+@media (prefers-reduced-motion: reduce) {
+  .modes .mb.holding::after { transition: none; transform: scaleX(1); }
+
 
 .lede { color: var(--dim); margin: 20px 0; }
 

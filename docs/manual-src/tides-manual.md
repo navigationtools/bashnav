@@ -306,6 +306,10 @@ A few other limits worth carrying in your head:
 
 ---
 
+{{INCLUDE:common-display-modes.md}}
+
+---
+
 ## 10. Cautions
 
 **This is a training and cross-checking aid, not a substitute for judgement.**

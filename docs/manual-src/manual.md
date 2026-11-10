@@ -446,6 +446,35 @@ Three modes, set from the menu with `c`, or with `celnav day`, `celnav night`,
 
 ---
 
+## 8a. The browser build's display, which is not the same three modes
+
+Sections 2 to 12 describe the shell program. The browser build has three
+display modes of its own, and **the word "day" means something different in
+each**, which is worth knowing before you read on:
+
+| | the shell, section 8 | the browser |
+|---|---|---|
+| `day` | black ground, white text | **white ground, black text** |
+| `dark` | — | black ground, light text (the shell's `day`) |
+| `night` | black ground, red text | the same |
+| `plain` | no escape sequences at all | — |
+
+The reason they differ is the medium. In a terminal the background belongs to
+the terminal, so the shell can only choose which escape sequences to emit — it
+cannot paint the screen white. A browser page owns every pixel, so it can.
+
+**This difference is deliberate and is not going to be tidied away.** Renaming
+the shell's `day` to `dark` would match the browser, but it would rewrite every
+saved configuration, break a command that is in people's fingers, and spend the
+effort on the build that is no longer the one being developed. The browser is
+where the work is; the shell keeps the names it has always had.
+
+What follows applies to the browser build.
+
+{{INCLUDE:common-display-modes.md}}
+
+---
+
 ## 9. Accuracy — what was actually measured
 
 The almanac was checked against an independent high-precision ephemeris over 1990–2076,

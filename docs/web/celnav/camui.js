@@ -690,21 +690,66 @@
   });
 
   /* ---- boot ------------------------------------------------------------- */
+  /*  The display modes, as a list rather than a branch.  Adding a fourth
+      palette - a high-contrast day, say - is one entry here and one block
+      in the stylesheet, and touches no logic.  */
+  const MODES = ['day', 'dark', 'night'];
+  const MODE_KEY = 'visual-mode';   /* one name for the whole suite, so a
+                                       mode set in one tool is the mode in
+                                       the next, and in the course */
+
   function setMode(m) {
+    if (MODES.indexOf(m) < 0) m = 'night';
     document.documentElement.setAttribute('data-mode', m);
-    $('mode').textContent = m === 'night' ? 'DARK' : 'NIGHT';
+    document.querySelectorAll('#modes .mb').forEach(b =>
+      b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content',
         getComputedStyle(document.documentElement).getPropertyValue('--ground').trim()
-        || '#07090b');   /* the browser chrome follows the palette, so a third mode
+        || '#060101');   /* the browser chrome follows the palette, so a third mode
                             needs no third branch here */
-    try { localStorage.setItem('bashnav-mode', m); } catch (e) {}
+    try { localStorage.setItem(MODE_KEY, m); } catch (e) {}
   }
-  let saved = 'dark';
-  try { saved = localStorage.getItem('bashnav-mode') || 'dark'; } catch (e) {}
-  setMode(saved === 'night' ? 'night' : 'dark');
-  $('mode').addEventListener('click', () =>
-    setMode(document.documentElement.getAttribute('data-mode') === 'night' ? 'dark' : 'night'));
+
+  /*  night is the default: a tool opened on deck must not start bright.  */
+  let saved = null;
+  try { saved = localStorage.getItem(MODE_KEY); } catch (e) {}
+  setMode(MODES.indexOf(saved) >= 0 ? saved : 'night');
+
+  /*  Only night -> day is guarded.  Going darker is never harmful; going
+      bright when dark-adapted costs about twenty minutes, so that one
+      change takes a deliberate half second and can be released to cancel. */
+  const HOLD_MS = 500;
+  let holdT = null, holdB = null;
+  function guarded(m) {
+    return m === 'day' &&
+           document.documentElement.getAttribute('data-mode') === 'night';
+  }
+  function cancelHold() {
+    if (holdT) clearTimeout(holdT);
+    holdT = null;
+    if (holdB) holdB.classList.remove('holding');
+    holdB = null;
+  }
+  document.querySelectorAll('#modes .mb').forEach(btn => {
+    const m = btn.dataset.mode;
+    btn.addEventListener('pointerdown', e => {
+      if (!guarded(m)) return;
+      e.preventDefault();
+      holdB = btn; btn.classList.add('holding');
+      holdT = setTimeout(() => { cancelHold(); setMode(m); }, HOLD_MS);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev =>
+      btn.addEventListener(ev, cancelHold));
+    btn.addEventListener('click', e => {
+      if (guarded(m)) { e.preventDefault(); return; }  /* the hold does it */
+      setMode(m);
+    });
+    /*  A keyboard activation is already deliberate, so it is not held. */
+    btn.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMode(m); }
+    });
+  });
 
   const sel = $('body');
   ['Sun','Moon','Venus','Mars','Jupiter','Saturn'].concat(CN.stars.SNAME)

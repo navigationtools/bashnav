@@ -18,7 +18,11 @@
 <header class="bar">
   <button class="back" id="back" hidden aria-label="Back">&#8249;</button>
   <h1 id="title">COLREGS</h1>
-  <button class="mode" id="mode" aria-label="Night mode">NIGHT</button>
+  <div class="modes" id="modes" role="group" aria-label="Display mode">
+    <button class="mb" data-mode="day"   aria-pressed="false">DAY</button>
+    <button class="mb" data-mode="dark"  aria-pressed="false">DARK</button>
+    <button class="mb" data-mode="night" aria-pressed="false">NIGHT</button>
+  </div>
 </header>
 
 <main id="main">
