@@ -1,6 +1,6 @@
 // celnav's own cache, scoped to this folder so it and the other tools
 // update independently.
-const CACHE = 'celnav-v22'
+const CACHE = 'celnav-v23'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'celnav-';

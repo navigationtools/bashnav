@@ -4,7 +4,7 @@
 // The LOG is not in here and must never be: it lives in IndexedDB, which
 // is the boat's record, and a cache is something the browser may throw
 // away. This worker caches the app, nothing else.
-const CACHE = 'deck-log-v5'
+const CACHE = 'deck-log-v6'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'deck-log-';

@@ -10,7 +10,7 @@
 //  a new deploy never reaches it -- the browser only reinstalls the
 //  worker when THIS file's bytes differ.  The version here must match
 //  BUILD in drill.js, and the test harness checks that it does.
-const CACHE = 'drill-v23'
+const CACHE = 'drill-v24'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'drill-';

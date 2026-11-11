@@ -7,7 +7,7 @@
 //  installed copy serves what it already has until THIS file's bytes
 //  differ. The page no longer names this string -- it finds the cache by
 //  prefix -- so bumping it here is all that is needed.
-const CACHE = 'weather-v15'
+const CACHE = 'weather-v16'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'weather-';

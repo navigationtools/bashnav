@@ -7,7 +7,7 @@
 // opposite of what a worker is for on a boat.  It is cached on first
 // successful fetch instead, and the About screen has a button that
 // fetches it with a progress bar.
-const CACHE = 'tides-v6'
+const CACHE = 'tides-v7'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'tides-';
@@ -15,6 +15,22 @@ const FILES = ['./', './index.html', './tides.css', './tides.js',
                './engine.js', './tables.js', './work.js', './stations.idx',
                './manifest.webmanifest', './icon.svg'];
 const BIG = './stations.dat';
+//  WHERE A USER'S OWN SAVED FILE LIVES, AND WHY IT IS NOT IN CACHE.
+//
+//  stations.dat is not shipped with the app: the reader fetches it
+//  deliberately, 2.9 MB behind a progress bar, so that tides works with
+//  the antenna down. It therefore belongs to THEM, not to this build.
+//
+//  It used to be written into the versioned cache, which activate below
+//  deletes as soon as a new build arrives. So every update threw the
+//  reader's own download away, and nothing put it back: it is not in
+//  FILES, so it returns only on a successful network fetch. You update at
+//  the dock and the tool is quietly online-only by the time you are out
+//  of range - which is the promise this worker exists to keep.
+//
+//  An unversioned cache fixes it. The name carries no build number, so
+//  there is no number to move, and activate is told to leave it alone.
+const DATA = FAMILY + 'data';
 
 //  EVERY FILE IS FETCHED PAST THE HTTP CACHE, and that is the whole point
 //  of this block rather than a plain addAll(FILES).
@@ -55,9 +71,27 @@ self.addEventListener('activate', e => {
     //  because install runs once per worker version, so from then on
     //  that tool is silently online-only.  On a boat with no signal
     //  that is the whole promise broken.
-    .then(ks => Promise.all(ks
-          .filter(k => k.indexOf(FAMILY) === 0 && k !== CACHE)
-          .map(k => caches.delete(k))))
+    .then(ks => {
+      const old = ks.filter(k => k.indexOf(FAMILY) === 0 &&
+                                 k !== CACHE && k !== DATA);
+      //  RESCUE BEFORE SWEEP.  Protecting the file from here on would
+      //  leave everyone who already has it in a versioned cache about to
+      //  lose it on this very update. So the big file is carried out of
+      //  the old cache into DATA first, and only then is the old cache
+      //  deleted. One update of grace is all anybody gets, so it is taken.
+      return caches.open(DATA).then(data => data.match(BIG).then(have => {
+        if (have || !old.length) return null;
+        return old.reduce(function (chain, k) {
+          return chain.then(function (found) {
+            return found ? found
+              : caches.open(k).then(c => c.match(BIG)).catch(() => null);
+          });
+        }, Promise.resolve(null))
+        .then(r => r ? data.put(BIG, r) : null)
+        .catch(() => null);
+      }))
+      .then(() => Promise.all(old.map(k => caches.delete(k))));
+    })
     .then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', e => {
@@ -78,7 +112,8 @@ self.addEventListener('fetch', e => {
           // caching mistake.
           if (r.status === 200) {
             const copy = r.clone();
-            caches.open(CACHE).then(c => c.put(url.pathname, copy)).catch(() => {});
+            //  into DATA, which survives the next build
+            caches.open(DATA).then(c => c.put(url.pathname, copy)).catch(() => {});
           }
           return r;
         });

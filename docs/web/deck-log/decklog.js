@@ -22,7 +22,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '4 \u2014 9 Nov 2026';
+var BUILD = '6 \u2014 11 Nov 2026';
 
 var REG = { eq: [], pt: [], eqById: {}, ptById: {} };
 var RECS = [];                 // every parsed record, oldest first
@@ -814,7 +814,16 @@ function doImport(file) {
 /* ---- about --------------------------------------------------------- */
 function drawAbout() {
   if (!('caches' in window)) { $('off-state').textContent = 'This browser will not cache for offline use.'; return; }
-  caches.open('deck-log-v1').then(function (c) { return c.match('./'); }).then(function (hit) {
+  /*  ASK CACHE STORAGE, NOT A NAME WRITTEN BY HAND.  This named
+      'deck-log-v1', which the worker deleted as an old member of its own
+      family the first time the app updated - so from deck-log-v2 onwards
+      the panel read an empty cache and told the reader "not cached yet"
+      while the app was sitting fully cached beside it. On the tool that
+      holds the boat's records, that is the readout you check before going
+      out of range, and it was saying no when the answer was yes.
+      caches.match() searches every cache on the origin, so there is no
+      version in this file to go stale. */
+  caches.match('./').then(function (hit) {
     return STORE.persistState().then(function (p) {
       $('off-state').textContent =
         (hit ? 'The app is cached and runs with no network. ' : 'Not cached yet \u2014 open this page once with a connection. ') +

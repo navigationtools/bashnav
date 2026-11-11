@@ -23,14 +23,17 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '5 \u2014 7 Nov 2026';
-/*  The worker's cache, derived from BUILD so there is no second number to
-    drift: run-tests.sh already holds BUILD to sw.js's CACHE.  The offline
-    panel once named 'tides-v1' by hand, which the worker evicts as an old
-    member of its own family the first time it updates -- so "Save for
-    offline" wrote into a cache that the next update deleted, and the
-    panel read its state from that same doomed cache. */
-var CACHE_NAME = 'tides-v' + BUILD.split(' ')[0];
+var BUILD = '7 \u2014 11 Nov 2026';
+
+/*  THE READER'S OWN DOWNLOAD DOES NOT LIVE IN THE BUILD'S CACHE.
+    stations.dat is fetched deliberately, 2.9 MB behind a progress bar, so
+    that this works with the antenna down. Kept in the versioned cache it
+    was deleted by the next update and nothing put it back, because it is
+    not in the worker's install list. It goes in an unversioned cache that
+    the worker is told to leave alone - see DATA in sw.js, which also
+    carries the file out of an old cache on the way past, so a reader who
+    already saved it keeps it. No build number here, so none to drift. */
+var DATA_NAME = 'tides-data';
 
 var IDX_URL = 'stations.idx';
 var DAT_URL = 'stations.dat';
@@ -942,10 +945,17 @@ function lpad(s, n) { while (s.length < n) s = ' ' + s; return s; }
 function offlineState() {
   var n = $('off-state');
   if (!('caches' in window)) { n.textContent = 'This browser will not cache for offline use.'; return; }
-  caches.open(CACHE_NAME).then(function (c) {
-    return Promise.all([c.match(IDX_URL), c.match(DAT_URL), c.match('./')]);
-  }).then(function (r) {
-    var shell = !!r[2], idx = !!r[0], dat = !!r[1];
+  /*  ASK CACHE STORAGE, NOT A NAME WE WORKED OUT OURSELVES.
+      caches.match() searches every cache on the origin, so it finds the
+      shell wherever the worker actually put it and the reader's own file
+      in the unversioned one, without this page having to know either
+      name. Naming the build's cache here meant the panel went wrong the
+      moment the page's idea of the version and the worker's differed -
+      which is exactly the window an update opens. "Is it cached" is a
+      question about what is in the cache, so it is asked that way. */
+  Promise.all([caches.match('./'), caches.match(IDX_URL), caches.match(DAT_URL)])
+  .then(function (r) {
+    var shell = !!r[0], idx = !!r[1], dat = !!r[2];
     if (shell && idx && dat) {
       n.textContent = 'Everything is cached. This works with the antenna down, ' +
         'including all 8,334 stations.';
@@ -983,7 +993,7 @@ function saveOffline() {
       });
     })();
   }).then(function (resp) {
-    return caches.open(CACHE_NAME).then(function (c) {
+    return caches.open(DATA_NAME).then(function (c) {
       return c.put(DAT_URL, resp);
     });
   }).then(function () {
