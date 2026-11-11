@@ -7,7 +7,7 @@
 //  installed copy serves what it already has until THIS file's bytes
 //  differ. The page no longer names this string -- it finds the cache by
 //  prefix -- so bumping it here is all that is needed.
-const CACHE = 'weather-v16'
+const CACHE = 'weather-v17'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'weather-';
@@ -21,7 +21,8 @@ const FILES = ['./', './index.html', './weather.css', './weather.js',
                '../shared/demo.css', '../shared/winddemo.js',
                './log.js', './store.js', './wx.js', './score.js',
                './chart.js', './lessons.js',
-               './manifest.webmanifest', './icon.svg'];
+               './manifest.webmanifest', './icon.svg',
+               '../shared/build.js'];
 //  EVERY FILE IS FETCHED PAST THE HTTP CACHE, and that is the whole point
 //  of this block rather than a plain addAll(FILES).
 //
@@ -70,4 +71,17 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(caches.match(e.request).then(hit => hit ||
     fetch(e.request).catch(() => caches.match('./'))));
+});
+
+/*  WHICH BUILD IS SERVING THIS PAGE.  The page no longer keeps a second
+    copy of the version to display; it asks whichever worker is actually
+    controlling it, and that is this one. Answering with CACHE makes the
+    label true even mid-update, when a newer cache exists but this worker
+    is still the one in charge. See docs/web/shared/build.js.  */
+self.addEventListener('message', e => {
+  if (!e.data || e.data.q !== 'build') return;
+  const v = CACHE.indexOf(FAMILY) === 0
+    ? CACHE.slice(FAMILY.length).replace(/^v/, '')
+    : CACHE;
+  if (e.ports && e.ports[0]) e.ports[0].postMessage({ cache: CACHE, version: v });
 });

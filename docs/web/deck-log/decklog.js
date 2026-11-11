@@ -22,7 +22,10 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '6 \u2014 11 Nov 2026';
+/*  The build number is not written here. It is asked of the worker that
+    is serving this page - see docs/web/shared/build.js for why. The date
+    below is paired with nothing, so it can only be stale, never in
+    disagreement with another value. */
 
 var REG = { eq: [], pt: [], eqById: {}, ptById: {} };
 var RECS = [];                 // every parsed record, oldest first
@@ -854,7 +857,7 @@ window.addEventListener('DOMContentLoaded', function () {
   setMode(savedMode());
   wireModes();
   $('back').addEventListener('click', function () { go('home'); drawHome(); });
-  $('ver').textContent = 'build ' + BUILD;
+  buildShow('ver', '11 Nov 2026');
 
   Array.prototype.forEach.call(document.querySelectorAll('[data-go]'), function (b) {
     b.addEventListener('click', function () { go(b.getAttribute('data-go')); });

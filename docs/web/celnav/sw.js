@@ -1,6 +1,6 @@
 // celnav's own cache, scoped to this folder so it and the other tools
 // update independently.
-const CACHE = 'celnav-v23'
+const CACHE = 'celnav-v24'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'celnav-';
@@ -11,7 +11,8 @@ const FAMILY = 'celnav-';
 const FILES = ['./', './celnav.css', './camui.js', './engine.js', './engine2.js',
                './camsight.js', './refine.js', './exif.js', './tables.js',
                './calib.js', './plot.js', './lessons.js', './celnav-app.js',
-               './manifest.webmanifest', './icon.svg'];
+               './manifest.webmanifest', './icon.svg',
+               '../shared/build.js'];
 //  EVERY FILE IS FETCHED PAST THE HTTP CACHE, and that is the whole point
 //  of this block rather than a plain addAll(FILES).
 //
@@ -60,4 +61,17 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(caches.match(e.request).then(hit => hit ||
     fetch(e.request).catch(() => caches.match('./'))));
+});
+
+/*  WHICH BUILD IS SERVING THIS PAGE.  The page no longer keeps a second
+    copy of the version to display; it asks whichever worker is actually
+    controlling it, and that is this one. Answering with CACHE makes the
+    label true even mid-update, when a newer cache exists but this worker
+    is still the one in charge. See docs/web/shared/build.js.  */
+self.addEventListener('message', e => {
+  if (!e.data || e.data.q !== 'build') return;
+  const v = CACHE.indexOf(FAMILY) === 0
+    ? CACHE.slice(FAMILY.length).replace(/^v/, '')
+    : CACHE;
+  if (e.ports && e.ports[0]) e.ports[0].postMessage({ cache: CACHE, version: v });
 });

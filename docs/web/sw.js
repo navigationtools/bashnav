@@ -1,6 +1,6 @@
 // The launcher's own cache.  Each tool caches itself under its own
 // scope, so a tool updating does not invalidate this and vice versa.
-const CACHE = 'bashnav-launcher-v4'
+const CACHE = 'bashnav-launcher-v5'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'bashnav-launcher-';
@@ -56,4 +56,17 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(caches.match(e.request).then(hit => hit ||
     fetch(e.request).catch(() => caches.match('./'))));
+});
+
+/*  WHICH BUILD IS SERVING THIS PAGE.  The page no longer keeps a second
+    copy of the version to display; it asks whichever worker is actually
+    controlling it, and that is this one. Answering with CACHE makes the
+    label true even mid-update, when a newer cache exists but this worker
+    is still the one in charge. See docs/web/shared/build.js.  */
+self.addEventListener('message', e => {
+  if (!e.data || e.data.q !== 'build') return;
+  const v = CACHE.indexOf(FAMILY) === 0
+    ? CACHE.slice(FAMILY.length).replace(/^v/, '')
+    : CACHE;
+  if (e.ports && e.ports[0]) e.ports[0].postMessage({ cache: CACHE, version: v });
 });

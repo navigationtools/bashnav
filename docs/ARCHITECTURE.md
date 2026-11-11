@@ -222,6 +222,52 @@ carry the pattern, exactly as the paper reference does. The one thing forced
 colours do take away is state shown by a background fill, so the mode buttons
 use the system's own `Highlight`/`HighlightText` pair there.
 
+## The build label, and the one place a version lives
+
+Each app's worker is cache-first, so an installed copy keeps serving what it
+already has until its `CACHE` name changes. The label on the page is how a
+reader tells which build is in front of them, and for a long time it was a
+second constant kept in step with `CACHE` by hand and checked by the suite.
+That is a guard rail, and a guard rail holds until somebody moves one and not
+the other: six apps once displayed the previous build while serving the new
+cache, and a version line that lies is worse than one that is merely old.
+
+**So the number is written once.** `docs/web/shared/build.js` asks the worker
+that is *controlling* the page, and the worker answers with its own `CACHE`.
+The worker that replies is by definition the one serving the files, so the
+answer is true at every instant — including during an update, when the new
+worker claims the page without a reload and the label follows it live. With
+no worker in charge the page says "not installed — served from the network",
+which is both honest and the useful thing to know.
+
+**drill is the deliberate exception, and it shows where the rule stops.**
+drill fetches its own `drill.js` from the network and reads the `BUILD`
+literal out of the *file text* to notice that a newer build exists and heal
+itself. For that the number must be readable without running the code, so
+drill keeps its literal and the suite keeps holding it to the cache. The
+general rule is: **derive what must agree; where a duplicate has to be
+readable on its own, keep it and check it.** `GRID.md` is the same shape for
+the same reason — units are written into every grid file so a reader can
+refuse a wrong one without running the writer's code.
+
+Only one thing beside a build is still written by hand: the date. It is
+paired with nothing, so it can go stale but it can never disagree.
+
+## What is checked, and when
+
+| | |
+|---|---|
+| `tests/gate.sh` | About a second. No awk, no browser. Stylesheet braces and comments balance, every script parses, every build label agrees with its cache. Commit scripts run it first and stage nothing if it fails. |
+| `docs/web/tests/display-mode.js` | Drives all seven apps in a real browser: the three buttons, night as the default, the held press, persistence, the palette at the first paint, `color-scheme`, forced colours, and weather's two lesson figures. Says `DISPLAY-MODE SKIP` where no browser can be launched. |
+| `tests/run-tests.sh` | The suite, which now runs both of the above as well, so the quick checks cannot quietly rot into ones that always pass. |
+
+Every check in both was proved against the fault it exists for — the fault
+re-introduced, the check seen to fail — rather than merely observed passing.
+One of them did not survive that: a forced-colours check compared two
+computed declarations and passed either way, because without the rules the
+buttons still differ on paper (opaque background against transparent) while
+looking identical to a reader. It compares the text colour now.
+
 ---
 
 ## The tide data pipeline

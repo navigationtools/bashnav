@@ -11,16 +11,13 @@
 (function () {
 'use strict';
 
-/*  THE BUILD, MATCHED TO THE SERVICE WORKER'S CACHE.  The worker is
-    cache-first, so an installed copy keeps serving the files it already
-    has: shipping a change without moving the cache ships nothing to
-    anyone who has opened the page before, and to them it looks like the
-    change did not work. Larry shift-reloaded this app several times
-    against a cache that was never going to give it up -- CACHE had sat
-    at colregs-v1 since the app was written. tests/run-tests.sh now
-    refuses a build and a cache that disagree, which is the same check
-    the drill app got for the same reason.  */
-var BUILD = 19;
+/*  THE BUILD, ASKED OF THE WORKER THAT IS SERVING THIS PAGE.
+    This app is the reason the suite checks builds at all: CACHE sat at
+    colregs-v1 since the app was written, and shift-reloading against a
+    cache-first worker that was never going to give it up looked exactly
+    like a change that had not worked. The number used to be kept here as
+    well and matched by hand; now there is only one, in sw.js, and the
+    footer asks for it. See docs/web/shared/build.js. */
 
 var D = window.COLREGS_DATA;
 var $ = function (id) { return document.getElementById(id); };
@@ -1639,6 +1636,7 @@ function setMode(m) {
 document.addEventListener('DOMContentLoaded', function () {
   setMode(savedMode());
   wireModes();
+  buildShow('ver', '11 Nov 2026');
   RSTYLE = recall('rstyle', 'rn');
   $('back').addEventListener('click', function () {
     if (!$('lesson').hidden) { rulesIndex(); return; }

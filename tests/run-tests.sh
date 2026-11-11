@@ -1333,6 +1333,45 @@ WXLOG
   #  hours early on paper and is wrong in a way that looks like skill.
   #  Outside the angles the answer is "no data", which is not zero, and
   #  above the strongest wind it clamps and says that it did.
+  #  THE GATE, run here too.  It is meant to be run before a commit, in
+  #  about a second; running it inside the full suite as well means it
+  #  cannot quietly rot into something that always passes.
+  if g=$(sh tests/gate.sh 2>&1); then
+    ok "the pre-commit gate passes (braces, syntax, build labels)"
+  else
+    bad "the pre-commit gate fails"
+    printf '%s\n' "$g" | head -10
+  fi
+
+  #  THE DISPLAY MODE, DRIVEN IN A REAL BROWSER.
+  #
+  #  Every check in it is a fault that shipped, and not one of them could
+  #  have been found by reading: in each case the file parses, the page
+  #  loads and nothing throws. A stylesheet whose @media block lost its
+  #  closing brace left the launcher unstyled for everyone without
+  #  reduce-motion. A mode set at the foot of the body painted the wrong
+  #  palette for the length of a slow first visit. Two lesson figures
+  #  registered against their lesson's container would have deleted its
+  #  prose on a repaint.
+  #
+  #  It needs a browser, which not every machine running this suite has,
+  #  so it says SKIP rather than failing: a suite that fails for want of
+  #  a browser is a suite people learn to ignore.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/display-mode.js 2>&1); then
+      case "$r" in
+        *"DISPLAY-MODE SKIP"*)
+          say "  --    driving the display mode needs a browser, skipped" ;;
+        *) ok "the display mode behaves in a browser $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')" ;;
+      esac
+    else
+      bad "the display mode does not behave as it should"
+      echo "$r" | head -12
+    fi
+  else
+    say "  --    the display-mode check needs node, skipped"
+  fi
+
   if command -v node >/dev/null 2>&1; then
     if r=$(node docs/web/tests/polar.js 2>&1); then
       ok "the polar interpolates, and refuses to guess outside its table $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
@@ -1388,20 +1427,40 @@ WXLOG
   #     seeing the old one. So it runs over EVERY app now. A check written
   #     for one tool, when the fault class belongs to all of them, is a
   #     check that will be needed again somewhere it is not.
+  #  TWO FORMS ARE ACCEPTED NOW, because the right answer differs per app.
+  #
+  #  DERIVED is the default: the page calls buildShow() and asks whichever
+  #  worker is CONTROLLING it, which answers with its own CACHE. There is
+  #  then only one number in the app and nothing to compare - the label
+  #  cannot disagree with the cache because it IS the cache. Four apps
+  #  display a build and derive it this way.
+  #
+  #  LITERAL survives where the number has to be readable without running
+  #  the code. drill fetches its own drill.js from the network and reads
+  #  the BUILD literal out of the file TEXT to notice that a newer build
+  #  exists and heal itself; derive it and that goes quiet. So drill keeps
+  #  the literal and it is still held to the cache here.
+  #
+  #  An app that neither shows a build nor derives one is the third case,
+  #  and it is also fine: colregs went that way for a while. What is NOT
+  #  fine is a literal that disagrees, which is what this started as.
   bc=0
   for swf in docs/web/*/sw.js; do
     ad=$(dirname "$swf"); an=$(basename "$ad")
     ac=$(sed -n "s/.*CACHE = '$an-v\([0-9][0-9]*\)'.*/\1/p" "$swf" | head -1)
-    af=$(grep -l 'BUILD *=' "$ad"/*.js 2>/dev/null | head -1)
     if [ -z "$ac" ]; then bad "$an: no $an-v<n> cache version in sw.js"; bc=1; continue; fi
-    if [ -z "$af" ]; then bad "$an: no BUILD constant to compare with $an-v$ac"; bc=1; continue; fi
+    if grep -l 'buildShow(' "$ad"/*.js 2>/dev/null | grep -qv '/sw\.js$'; then
+      continue
+    fi
+    af=$(grep -l 'BUILD *=' "$ad"/*.js 2>/dev/null | grep -v '/sw\.js$' | head -1)
+    [ -n "$af" ] || continue
     ab=$(sed -n "s/.*BUILD *= *'*\([0-9][0-9]*\).*/\1/p" "$af" | head -1)
     if [ -z "$ab" ] || [ "$ab" != "$ac" ]; then
       bad "$an build '$ab' and cache '$an-v$ac' disagree -- an installed copy would keep the old app"
       bc=1
     fi
   done
-  [ "$bc" = 0 ] && ok "every web app's displayed build matches its cache version (6 apps)"
+  [ "$bc" = 0 ] && ok "every build label agrees with its cache, derived or stated"
 
   #  and the version agreeing with the BUILD label is not enough: the
   #  label can be bumped while a served file is left out of the bump, or

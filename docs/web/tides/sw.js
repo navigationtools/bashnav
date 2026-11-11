@@ -7,13 +7,14 @@
 // opposite of what a worker is for on a boat.  It is cached on first
 // successful fetch instead, and the About screen has a button that
 // fetches it with a progress bar.
-const CACHE = 'tides-v7'
+const CACHE = 'tides-v8'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'tides-';
 const FILES = ['./', './index.html', './tides.css', './tides.js',
                './engine.js', './tables.js', './work.js', './stations.idx',
-               './manifest.webmanifest', './icon.svg'];
+               './manifest.webmanifest', './icon.svg',
+               '../shared/build.js'];
 const BIG = './stations.dat';
 //  WHERE A USER'S OWN SAVED FILE LIVES, AND WHY IT IS NOT IN CACHE.
 //
@@ -124,4 +125,17 @@ self.addEventListener('fetch', e => {
 
   e.respondWith(caches.match(e.request).then(hit => hit ||
     fetch(e.request).catch(() => caches.match('./'))));
+});
+
+/*  WHICH BUILD IS SERVING THIS PAGE.  The page no longer keeps a second
+    copy of the version to display; it asks whichever worker is actually
+    controlling it, and that is this one. Answering with CACHE makes the
+    label true even mid-update, when a newer cache exists but this worker
+    is still the one in charge. See docs/web/shared/build.js.  */
+self.addEventListener('message', e => {
+  if (!e.data || e.data.q !== 'build') return;
+  const v = CACHE.indexOf(FAMILY) === 0
+    ? CACHE.slice(FAMILY.length).replace(/^v/, '')
+    : CACHE;
+  if (e.ports && e.ports[0]) e.ports[0].postMessage({ cache: CACHE, version: v });
 });

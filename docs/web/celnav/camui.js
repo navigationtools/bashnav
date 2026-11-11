@@ -22,7 +22,10 @@
   /* A visible build stamp.  Debugging this remotely without one meant
      guessing which version was on the device, and the guess was wrong:
      the service worker below had been serving a cached build. */
-  const BUILD = '23 \u2014 11 Nov 2026';
+/*  The build number is not written here. It is asked of the worker that
+    is serving this page - see docs/web/shared/build.js for why. The date
+    below is paired with nothing, so it can only be stale, never in
+    disagreement with another value. */
   const R2D = 180 / Math.PI;
 
   const CN = extendCelnav(makeCelnav(window.CELNAV_TABLES));
@@ -771,7 +774,7 @@
   $('utc').value = new Date().toISOString().slice(0, 19).replace('T', ' ');
   window.addEventListener('resize', draw);
   goStep(1);
-  const bs = $('build'); if (bs) bs.textContent = 'build ' + BUILD;
+  buildShow('build', '11 Nov 2026');
 
   /* OFFLINE CACHING, AND WHY IT IS SWITCHED OFF IN SOME BUILDS.
      The service worker is cache-first, which is right at sea and wrong

@@ -1,13 +1,14 @@
 // Service worker: the whole point is that this works with no network at sea.
 // Cache-first, because none of these files change while you are offshore and
 // a network lookup you cannot satisfy is just latency you did not need.
-const CACHE = 'colregs-v19'
+const CACHE = 'colregs-v20'
 const FAMILY = 'colregs-';
 const FILES = [
   './', './index.html', './colregs.css', './colregs.js',
   './data.js', './contacts.js', './contacts-lessons.js', './contacts-figs.js', './contacts-card.js', './contacts-ex.js',
   './manifest.webmanifest', './icon.svg'
-];
+,
+               '../shared/build.js'];
 //  EVERY FILE IS FETCHED PAST THE HTTP CACHE, and that is the whole point
 //  of this block rather than a plain addAll(FILES).
 //
@@ -61,4 +62,17 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     caches.match(e.request).then(hit => hit || fetch(e.request).catch(() => caches.match('./index.html')))
   );
+});
+
+/*  WHICH BUILD IS SERVING THIS PAGE.  The page no longer keeps a second
+    copy of the version to display; it asks whichever worker is actually
+    controlling it, and that is this one. Answering with CACHE makes the
+    label true even mid-update, when a newer cache exists but this worker
+    is still the one in charge. See docs/web/shared/build.js.  */
+self.addEventListener('message', e => {
+  if (!e.data || e.data.q !== 'build') return;
+  const v = CACHE.indexOf(FAMILY) === 0
+    ? CACHE.slice(FAMILY.length).replace(/^v/, '')
+    : CACHE;
+  if (e.ports && e.ports[0]) e.ports[0].postMessage({ cache: CACHE, version: v });
 });

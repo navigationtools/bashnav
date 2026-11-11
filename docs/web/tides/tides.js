@@ -23,7 +23,10 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '7 \u2014 11 Nov 2026';
+/*  The build number is not written here. It is asked of the worker that
+    is serving this page - see docs/web/shared/build.js for why. The date
+    below is paired with nothing, so it can only be stale, never in
+    disagreement with another value. */
 
 /*  THE READER'S OWN DOWNLOAD DOES NOT LIVE IN THE BUILD'S CACHE.
     stations.dat is fetched deliberately, 2.9 MB behind a progress bar, so
@@ -1221,7 +1224,7 @@ window.addEventListener('DOMContentLoaded', function () {
   $('b-near').addEventListener('click', doNear);
   $('b-gps').addEventListener('click', doGps);
   $('b-offline').addEventListener('click', saveOffline);
-  $('ver').textContent = 'build ' + BUILD;
+  buildShow('ver', '11 Nov 2026');
   drawWorkMenus();
   $('w-go').addEventListener('click', workFromForm);
   $('w-ex').addEventListener('click', function () {
