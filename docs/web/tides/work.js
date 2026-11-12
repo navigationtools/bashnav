@@ -12,6 +12,8 @@
    The URL parameters are a CONTRACT with the coastal navigation course,
    which deep-links here:  ?work=<name>&key=value...&lesson=<id>.  The
    authoritative list is docs/web/tides/WORK.md.  Do not rename one.
+   Lesson names follow Larry's decision of 11 November 2026 (l1-3,
+   l3-2025-4); lessonHref() below is the only place that reads them.
 
    Formatting goes through fx(), which rounds an exact tie the way C's
    printf does (to even) rather than the way toFixed() does (up).  A range
@@ -21,9 +23,9 @@
 'use strict';
 
 /*  The Practical Navigator course, its coastal section.  ONE constant,
-    used for every back link to a lesson: ?lesson=a6-2 leads to
-    COURSE_BASE + 'a6.html#a6-2'.  Same origin as tides since the course
-    moved to bashnav.navigationtools.org/practical-navigator/.
+    used for every back link to a lesson: ?lesson=l3-2025-4 leads to
+    COURSE_BASE + 'l3-2025.html#l3-2025-4'.  Same origin as tides since
+    the course moved to bashnav.navigationtools.org/practical-navigator/.
     Documented in WORK.md; change it here and nowhere else. */
 var COURSE_BASE = 'https://bashnav.navigationtools.org/practical-navigator/coastal/';
 
@@ -795,12 +797,42 @@ var WORK = (function () {
     setdrift: 'start=50.10,-1.50 co=090 stw=6 hours=3 fix=50.05,-1.20'
   };
 
-  /*  ?lesson=a6-2 -> COURSE_BASE + 'a6.html#a6-2'.  Checked strictly
-      BEFORE a link is built, so nothing from the URL reaches an href
-      unless it is exactly a chapter and a subject number. */
+  /*  A LESSON NAME, AND THE PAGE IT IS ON.  Larry's decision of
+      11 November 2026, relayed by practical-navigator: a lesson is named
+      by its level, its race year where it has one, and its number.
+
+          l1-3        Level 1, lesson 3.  Level 1 is shared by both race
+                      years, so it carries no year.
+          l3-2025-4   Level 3, 2025, lesson 4.  Levels 2 to 5 run one
+                      track per race year, so the year is part of the name.
+
+      ?lesson=l3-2025-4 -> COURSE_BASE + 'l3-2025.html#l3-2025-4'
+      ?lesson=l1-3      -> COURSE_BASE + 'l1.html#l1-3'
+
+      THE PAGE IS DERIVED FROM THE NAME, not held as a second rule: it is
+      the name with its trailing lesson number removed, which is exactly
+      the track - a level, or a level and its year.  There is no table of
+      pages to drift out of step with the names (README rule 8).
+
+      The check runs BEFORE a link is built, so nothing from the URL
+      reaches an href unless it is exactly a lesson name.  It is stricter
+      than the pattern practical-navigator proposed, in three ways, each
+      so that a lesson has exactly ONE name - which is their own reason
+      for putting the year in the name at all:
+
+        1. a year is REFUSED for Level 1 (l1-2025-3) and REQUIRED for
+           Levels 2 to 5 (l3-4), so one lesson cannot have two names;
+        2. the lesson number carries no leading zero (l1-03) and is not
+           zero (l1-0), for the same reason;
+        3. the year is four digits beginning 20 (l3-25-4 is refused).
+
+      Refused with it: every old-style name (a6-2, c9-14), so a stale link
+      in a page that was not updated fails visibly instead of pointing at
+      a lesson that no longer exists under that name. */
+  var LESSON = /^(l1-[1-9][0-9]*|l[2-5]-20[0-9]{2}-[1-9][0-9]*)$/;
   function lessonHref(lesson) {
-    if (typeof lesson !== 'string' || !/^[a-c][0-9]-[0-9]+$/.test(lesson)) return null;
-    return COURSE_BASE + lesson.split('-')[0] + '.html#' + lesson;
+    if (typeof lesson !== 'string' || !LESSON.test(lesson)) return null;
+    return COURSE_BASE + lesson.replace(/-[1-9][0-9]*$/, '') + '.html#' + lesson;
   }
   /*  The URL's parameters, in order, values trimmed: a '+' in a query
       string is a SPACE, so tdhw2=+5 arrives as ' 5' -- WORK.md says to

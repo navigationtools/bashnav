@@ -1018,7 +1018,7 @@ function saveOffline() {
    held to `tides work` character for character.  This part is only the
    form, the URL and the drawing:
 
-       URL ?work=cts&track=045&...&lesson=a6-2
+       URL ?work=cts&track=045&...&lesson=l3-2025-4
          |
          v
        WORK.fromQuery()  ->  [[key, value], ...]   in the URL's order

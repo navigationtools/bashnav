@@ -1,5 +1,40 @@
 # Changelog
 
+## Lesson names: the course's links have a shape, and tides enforces it
+
+**What.** `?lesson=` on the tides work calculators now takes the lesson names
+Larry settled on 11 November 2026 - `l1-3` for Level 1, which both race years
+share, and `l3-2025-4` for Levels 2 to 5, which run one track per year. The
+old `a6-2` form is refused. The page the link goes to is **derived** from the
+name by removing its lesson number, so `l3-2025-4` leads to
+`l3-2025.html#l3-2025-4`.
+
+**Why.** The course needs a name it can put in a link before it can build its
+lesson pages (its items P4, P5 and P6 and the draft page's final address), and
+the old form had no room for the race year: 2027, and later the Fastnet and
+Clipper material, would have needed invented letters. A name now says which
+race it belongs to when read on its own.
+
+**Why the page is derived rather than looked up.** A table of names to pages
+is a second copy of the same fact and drifts the first time a page is renamed.
+Removing the trailing number leaves the track - a level, or a level and its
+year - which is the page. This is README rule 8: derive one from the other
+where you can.
+
+**Stricter than proposed, on purpose.** practical-navigator proposed
+`^l[1-5](-20[0-9]{2})?-[0-9]+$`. tides refuses a year on Level 1
+(`l1-2025-3`), requires one on Levels 2 to 5 (`l3-4`), and refuses a leading
+zero or a zero lesson (`l1-03`, `l1-0`). Each would otherwise give one lesson
+two names, which is the very thing putting the year in the name was for.
+
+**What it impacts.** Only the back link. No calculator, working line or figure
+reads `lesson`, so a course page still carrying an old name loses its "Back to
+the lesson" button and nothing else. The contract is in
+`docs/web/tides/WORK.md`; 27 names are held against it in
+`docs/web/tests/tides-work.js`, five built and twenty-two refused. tides'
+cache moves to `tides-v9`, because `work.js` and `tides.js` are served files
+and a cache-first worker serves the old ones until the cache name changes.
+
 ## A day mode, and a mode control you cannot trip over
 
 **What.** All seven browser pages — the launcher and the six tools — gain a

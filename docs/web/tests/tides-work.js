@@ -80,7 +80,7 @@ CASES.push(
   { name: 'setdrift', args: 'start=41.30,-71.90 co=0 stw=5 hours=2 fix=41.30,-71.90' },
   { name: 'stream', args: 'spr=1 nps=2 range=3 sprange=4 nprange=2' },
   { name: 'secondary', args: 'lw=23:50 lwh=0.5 mlwn=2.1 mlws=0.8 dlwn=0.2 dlws=0.1 tlw1=0300 tdlw1=-25 tlw2=0900 tdlw2=15' },
-  { name: 'cts', args: 'track=045 stw=6 streams=135:1.5 lesson=a6-2 work=cts' }
+  { name: 'cts', args: 'track=045 stw=6 streams=135:1.5 lesson=l1-6 work=cts' }
 );
 
 function awkRun(c) {
@@ -180,10 +180,33 @@ console.log('  ' + figs + ' figures read back against their geometry');
 
 // ---- the lesson link -------------------------------------------------
 var L = WORK.lessonHref;
+//  Lesson names: Larry's decision of 11 November 2026. l1-3 for Level 1,
+//  which both race years share; l3-2025-4 for Levels 2 to 5, one track per
+//  year. The page is the name without its lesson number, so there is no
+//  table of pages to keep in step. Each refusal below is here because
+//  accepting it would give one lesson two names, or put something from
+//  the URL into an href.
 var want = [
-  ['a6-2', M.COURSE_BASE + 'a6.html#a6-2'], ['c9-14', M.COURSE_BASE + 'c9.html#c9-14'],
-  ['d1-1', null], ['a6', null], ['A6-2', null], ['a6-2x', null], ['a6-', null], ['a10-2', null],
-  ['a6-2"><script>', null], ['javascript:alert(1)', null], ['', null], [undefined, null]
+  //  built
+  ['l1-3', M.COURSE_BASE + 'l1.html#l1-3'],
+  ['l1-12', M.COURSE_BASE + 'l1.html#l1-12'],
+  ['l2-2025-1', M.COURSE_BASE + 'l2-2025.html#l2-2025-1'],
+  ['l3-2025-4', M.COURSE_BASE + 'l3-2025.html#l3-2025-4'],
+  ['l5-2027-10', M.COURSE_BASE + 'l5-2027.html#l5-2027-10'],
+  //  the old names, now gone: a stale link must fail visibly
+  ['a6-2', null], ['c9-14', null],
+  //  one lesson, one name
+  ['l1-2025-3', null],   // Level 1 is shared by both years: no year in its name
+  ['l3-4', null],        // Levels 2 to 5 run per year: the year is not optional
+  ['l1-03', null],       // a leading zero would be a second name for l1-3
+  ['l1-0', null],        // there is no lesson zero
+  //  not a lesson name at all
+  ['l6-1', null], ['l0-1', null], ['l3a-4', null], ['l3-25-4', null],
+  ['L3-2025-4', null], ['l3-2025', null], ['l3-2025-', null], ['l1-', null],
+  ['l1', null], ['l1-3x', null], ['l1 -3', null],
+  //  nothing from the URL reaches an href
+  ['l1-3"><script>', null], ['javascript:alert(1)', null],
+  ['l1-3#../../etc', null], ['', null], [undefined, null]
 ];
 var lb = 0;
 want.forEach(function (w) { if (L(w[0]) !== w[1]) { lb++; console.log('  FAIL lesson=' + w[0] + ' gave ' + L(w[0])); } });

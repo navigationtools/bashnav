@@ -184,13 +184,13 @@ const CASES = [
     return r.stdout.replace(/^\n/, '').replace(/\n+$/, '');
   }
   const WCASES = [
-    ['cts', 'track=045 stw=6 streams=135:1.5,150:2.0 leeway=5 wind=port var=-2 dev=1 dist=12', 'a6-2'],
+    ['cts', 'track=045 stw=6 streams=135:1.5,150:2.0 leeway=5 wind=port var=-2 dev=1 dist=12', 'l3-2025-4'],
     ['setdrift', 'start=50.10,-1.50 co=090 stw=6 hours=3 fix=50.05,-1.20', ''],
-    ['stream', 'spr=2.6 nps=1.4 range=4.1 sprange=5.9 nprange=3.1', 'b2-11'],
+    ['stream', 'spr=2.6 nps=1.4 range=4.1 sprange=5.9 nprange=3.1', 'l2-2025-11'],
     ['secondary', 'hw=05:36 hwh=6.4 mhws=6.8 mhwn=5.3 dhws=-0.4 dhwn=-0.3 thw1=0000 tdhw1=-10 thw2=0600 tdhw2=5', ''],
     ['twelfths', 'hw=23:10 hwh=4.0 lw=05:20 lwh=1.0 t=01:00', ''],
-    ['twelfths', 'station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00', 'a5-3'],
-    ['atlas', 'station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00', 'a7-1']
+    ['twelfths', 'station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00', 'l1-5'],
+    ['atlas', 'station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00', 'l3-2025-1']
   ];
   for (const [name, args, lesson] of WCASES) {
     const q = 'work=' + name + '&' + args.split(' ').map(kv => {
@@ -215,7 +215,11 @@ const CASES = [
       };
     });
     const want = awkWork(name, args);
-    const wantLesson = lesson ? 'https://bashnav.navigationtools.org/practical-navigator/coastal/' + lesson.split('-')[0] + '.html#' + lesson : null;
+    //  The page is the lesson name without its trailing lesson number:
+    //  l1-5 -> l1.html, l3-2025-1 -> l3-2025.html (WORK.md). Spelled out
+    //  here rather than calling work.js, so this stays a check and not a
+    //  restatement of the code it is checking.
+    const wantLesson = lesson ? 'https://bashnav.navigationtools.org/practical-navigator/coastal/' + lesson.replace(/-[1-9][0-9]*$/, '') + '.html#' + lesson : null;
     const okText = got.state === 'worked' && got.text === want;
     const okFig = (name === 'secondary' || name === 'atlas') ? got.svg === 0 : got.svg === 1;
     const okL = got.lesson === wantLesson;
@@ -237,8 +241,8 @@ const CASES = [
   //  A lesson value that is not a lesson builds no link at all; bad input
   //  is a plain refusal on the screen, not an exception.
   for (const [q, what] of [
-    ['work=cts&track=abc&stw=5&streams=1:1&lesson=a6-2%22%3E%3Cb%3E', 'a bad track and a lesson that is not one'],
-    ['work=bogus&lesson=a6-2', 'a calculator that does not exist'],
+    ['work=cts&track=abc&stw=5&streams=1:1&lesson=l3-2025-4%22%3E%3Cb%3E', 'a bad track and a lesson that is not one'],
+    ['work=bogus&lesson=l3-2025-4', 'a calculator that does not exist'],
     ['work=atlas&station=nope%2Fx&date=2026-11-07&t=10:00', 'a station that does not exist'],
     ['work=secondary&hw=05:36&hwh=6.4&mhws=6.8&mhwn=5.3&dhws=-0.4&dhwn=-0.3&thw1=0000&tdhw1=-10&thw2=0600&tdhw2=+5',
      'WORKS: a + that a URL turns into a space is trimmed away']]) {
@@ -249,19 +253,19 @@ const CASES = [
       msg: document.getElementById('w-out').textContent,
       lesson: document.getElementById('w-lesson').hidden ? null : document.getElementById('w-lesson-a').getAttribute('href')
     }));
-    const lessonOk = /lesson=a6-2$/.test(q) ? r.lesson === 'https://bashnav.navigationtools.org/practical-navigator/coastal/a6.html#a6-2' : r.lesson === null;
+    const lessonOk = /lesson=l3-2025-4$/.test(q) ? r.lesson === 'https://bashnav.navigationtools.org/practical-navigator/coastal/l3-2025.html#l3-2025-4' : r.lesson === null;
     const ok = r.state === (/^WORKS/.test(what) ? 'worked' : 'refused') && lessonOk;
     console.log((ok ? '  ok   ' : '  FAIL ') + (/^WORKS/.test(what) ? '' : 'refused plainly: ') + what + '  ("' + r.msg.split('.')[0].slice(0, 60) + '")');
     if (!ok) { bad++; console.log('    state ' + r.state + ', lesson ' + r.lesson); }
   }
   //  The form writes itself back into the URL, and the calculators fit a phone
-  await page.goto(BASE + '?work=cts&track=045&stw=6&streams=135:1.5&lesson=a6-2', { waitUntil: 'networkidle' });
+  await page.goto(BASE + '?work=cts&track=045&stw=6&streams=135:1.5&lesson=l3-2025-4', { waitUntil: 'networkidle' });
   await page.waitForFunction(() => document.getElementById('w-out').getAttribute('data-state'));
   await page.fill('#wf-stw', '7');
   await page.click('#w-go');
   await page.waitForTimeout(150);
   const u = await page.evaluate(() => location.search);
-  const uok = /work=cts/.test(u) && /stw=7/.test(u) && /lesson=a6-2/.test(u);
+  const uok = /work=cts/.test(u) && /stw=7/.test(u) && /lesson=l3-2025-4/.test(u);
   console.log((uok ? '  ok   ' : '  FAIL ') + 'the form writes the URL back: ' + u.slice(0, 70));
   if (!uok) bad++;
   for (const w of [390, 320]) {

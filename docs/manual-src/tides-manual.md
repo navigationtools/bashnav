@@ -212,7 +212,7 @@ the working says so.
 
 In the browser, a URL opens any calculator directly:
 
-    ?work=cts&track=045&stw=6&streams=135:1.5,150:2.0&lesson=a6-2
+    ?work=cts&track=045&stw=6&streams=135:1.5,150:2.0&lesson=l3-2025-4
 
 The coastal navigation course deep-links into these from its lessons, so **the
 parameter names are a contract**: a name is never renamed or given a new

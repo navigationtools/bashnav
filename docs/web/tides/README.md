@@ -42,7 +42,7 @@ rate between neaps and springs, which page of the tidal stream atlas you are
 on, the course to steer, and set and drift from a DR and a fix. They are on
 the day screen and the station picker, and a URL opens one directly:
 
-    ?work=cts&track=045&stw=6&streams=135:1.5,150:2.0&lesson=a6-2
+    ?work=cts&track=045&stw=6&streams=135:1.5,150:2.0&lesson=l3-2025-4
 
 The coastal navigation course links into them that way, so **the parameter
 names are a contract**, written down in [`WORK.md`](WORK.md) with every unit

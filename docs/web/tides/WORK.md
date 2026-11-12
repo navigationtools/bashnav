@@ -17,9 +17,9 @@ Both builds print the same working, line for line, and
 ## How it fits together
 
 ```
-  course lesson a6-2                    bashnav.navigationtools.org/web/tides/
+  course lesson l3-2025-4               bashnav.navigationtools.org/web/tides/
   +----------------------+   link       +-------------------------------------+
-  | "work this example"  | -----------> | ?work=cts&track=045&...&lesson=a6-2 |
+  | "work this example"  | -----------> | ?work=cts&...&lesson=l3-2025-4      |
   +----------------------+              +------------------+------------------+
             ^                                              |
             |                                              v
@@ -36,9 +36,9 @@ Both builds print the same working, line for line, and
             |                           as the       from the      a value is
             |                           shell)       numbers)      wrong
             |                                              |
-            |        lesson=a6-2 checked against           |
-            +------- ^[a-c][0-9]-[0-9]+$, then  <----------+
-                     COURSE_BASE + "a6.html#a6-2"
+            |     lesson=l3-2025-4 checked against         |
+            +------- the lesson-name pattern, then <--------+
+                     COURSE_BASE + "l3-2025.html#l3-2025-4"
                      "Back to the lesson"
 ```
 
@@ -83,11 +83,27 @@ partial answer from bad input.
 
 ### `lesson` and `COURSE_BASE`
 
-When the URL carries `lesson=<chapter>-<subject>`, every result screen shows
-**Back to the lesson**, linking to
+When the URL carries `lesson=<name>`, every result screen shows **Back to the
+lesson**, linking to
 
-    COURSE_BASE + <chapter> + ".html#" + <lesson>
-    lesson=a6-2   ->   https://bashnav.navigationtools.org/practical-navigator/coastal/a6.html#a6-2
+    COURSE_BASE + <the name without its lesson number> + ".html#" + <name>
+    lesson=l1-3        ->   .../practical-navigator/coastal/l1.html#l1-3
+    lesson=l3-2025-4   ->   .../practical-navigator/coastal/l3-2025.html#l3-2025-4
+
+**A lesson's name** is Larry's decision of 11 November 2026, relayed by
+practical-navigator: the level, the race year where the level has one, and the
+lesson number.
+
+| | Shape | Example |
+|---|---|---|
+| Level 1, shared by both race years | `l<level>-<n>` | `l1-3` |
+| Levels 2 to 5, one track per race year | `l<level>-<year>-<n>` | `l3-2025-4` |
+
+**The page is derived from the name,** by removing the trailing lesson number.
+What is left is the track - a level, or a level and its year - and that is the
+page the lesson sits on. The alternative was a table mapping names to pages,
+which is a second copy of the same fact and drifts the first time a page is
+renamed (README rule 8: derive rather than keep two copies).
 
 `COURSE_BASE` is defined **once**, at the top of `docs/web/tides/work.js`.
 It points at the course's coastal section on this same origin, where The
@@ -97,10 +113,33 @@ before it was applied:
 
     var COURSE_BASE = 'https://bashnav.navigationtools.org/practical-navigator/coastal/';
 
-The value is checked against `^[a-c][0-9]-[0-9]+$` **before** any link is
-built. Anything else — `a6`, `A6-2`, `d1-1`, a value with quotes or markup in
-it — builds no link at all and the calculator works as normal. The shell tool
-ignores `lesson`.
+**What is accepted,** checked **before** any link is built, so nothing from
+the URL reaches an href unless it is exactly a lesson name:
+
+    ^(l1-[1-9][0-9]*|l[2-5]-20[0-9]{2}-[1-9][0-9]*)$
+
+This is stricter than the pattern practical-navigator proposed
+(`^l[1-5](-20[0-9]{2})?-[0-9]+$`), in three ways, each of them so that a
+lesson has exactly **one** name - which is their own reason for putting the
+year in the name at all:
+
+1. **A year is refused for Level 1** (`l1-2025-3`) and **required for Levels 2
+   to 5** (`l3-4` is refused), so one lesson cannot be reached by two names.
+2. **The lesson number carries no leading zero** (`l1-03`) and is not zero
+   (`l1-0`), for the same reason.
+3. **The year is four digits beginning `20`** (`l3-25-4` is refused).
+
+Refused with them: every old-style name (`a6-2`, `c9-14`), so a stale link in
+a page that was not updated fails visibly rather than pointing at a lesson
+that no longer exists under that name. Anything else - `l6-1`, `L3-2025-4`, a
+value with quotes or markup in it - builds no link at all and the calculator
+works as normal. The shell tool ignores `lesson`.
+
+**What this change impacts.** Only the back link. No calculator, no working
+line and no figure reads `lesson`, so a course page that still carries an old
+name loses its "Back to the lesson" button and nothing else; the arithmetic on
+the page is unaffected. `docs/web/tests/tides-work.js` holds 27 names against
+this rule, five built and twenty-two refused.
 
 ---
 
