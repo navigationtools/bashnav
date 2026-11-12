@@ -20,7 +20,15 @@ strong { color: #14293b; }
 ol, ul { margin: 6pt 0 6pt 0; padding-left: 20pt; }
 li { margin: 3pt 0; }
 figure { margin: 12pt 0 14pt 0; page-break-inside: avoid; }
-figure img { width: 100%; display: block; }
+/*  A FIGURE HAS TO FIT ON A PAGE.  width:100% alone scales a screenshot to
+    the column width and leaves whatever height that gives it.  A tall one
+    is then taller than the paper: it is pushed to a page of its own, still
+    does not fit, and prints over the footer, while the page it was pushed
+    off comes out nearly empty.  Capping the height as well scales it down
+    to fit, keeping its shape, because an image is a replaced element and
+    honours both limits at once. */
+figure img { width: auto; max-width: 100%; max-height: 20cm;
+             display: block; margin: 0 auto; }
 figcaption { font-size: 8.6pt; color: #4b5760; margin-top: 4pt; line-height: 1.35; }
 figcaption strong { color: #1f5673; }
 img { max-width: 100%; }

@@ -1,5 +1,33 @@
 # Changelog
 
+## A figure has to fit on a page
+
+**What.** `docs/manual-src/style.css` caps a figure's height as well as its
+width, and the eight screenshots that were taller than a page are cropped to
+the part their caption is about. Every manual is rebuilt.
+
+**The fault, found by Larry in the printed deck-log manual.** `figure img`
+set `width: 100%` and nothing else, so a tall screenshot was scaled to the
+column width and kept whatever height that gave it. A figure taller than the
+paper was then pushed to a page of its own, did not fit that either, and
+printed over the footer - while the page it was pushed off came out nearly
+empty. Three of deck-log's fourteen pages were half blank and one figure was
+cut off mid-record.
+
+**Why the cap works.** An image is a replaced element: given both a
+`max-width` and a `max-height` it scales to satisfy both and keeps its shape.
+Cropping as well keeps the figure legible, because a 1,500-pixel screenshot
+squeezed into 20 cm of page is not readable whatever else is true of it.
+
+**One figure was simply wrong,** and that is worth saying plainly: the
+launcher page was captured from a copy of the site that did not include
+`launcher.js`, so the six tiles - the whole subject of the picture - were
+never drawn. It is recaptured, and the tiles are in it.
+
+**What it impacts.** Every manual's layout, nothing else; no tool's code is
+touched. deck-log drops from 14 pages to 11 and tides from 20 to 13, because
+the half-empty pages are gone.
+
 ## Every tool has a manual now
 
 **What.** deck-log, weather, drill and the launcher each gain a manual and a
