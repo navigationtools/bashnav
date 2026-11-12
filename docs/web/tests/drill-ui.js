@@ -57,6 +57,25 @@ function synthPack() {
            'The third invented item on the list'],
       where: { part: s.parts[0], sub: 'Checklist', row: 'checklist' } });
   });
+  //  A RUNNER CHAIN, SO THE REVERSED-LABEL CHECK ACTUALLY RUNS.  That
+  //  check was written against the deck pack, which this repository does
+  //  not hold and never will -- so on the synthetic pack it found nothing
+  //  and reported the field as missing. A skip would have been honest and
+  //  useless: the logic it guards is the one that caught "lazy" offered
+  //  for "working" on the runner that is holding the mast up, and a check
+  //  that never runs guards nothing.
+  //
+  //  Invented wording, invented evolution: no material of anybody's. It
+  //  carries `station` under `where`, which is where the app reads it
+  //  from, so it also proves the field is being carried.
+  questions.push({ section: sections[0].id, kind: 'station',
+    q: 'In the invented evolution \u2014 you are on the runners. The call is "Set up": what happens?',
+    a: 'The working runner is taken up before the load comes on',
+    ch: ['The lazy runner is taken up before the load comes on',
+         'Nothing invented happens at this point',
+         'Another invented thing happens instead'],
+    where: { part: sections[0].parts[0], sub: 'By station',
+             station: 'Running backstay \u2014 new windward' } });
   return { format: 'bashnav-drill-pack/1', title: 'Test pack', note: 'Synthetic. Not real material.',
            built: '2026-10-20', pass: 80, sections, questions, back: '<p>Back matter.</p>' };
 }
@@ -415,8 +434,17 @@ window.answerCurrent = function (right) {
     };
     const norm = function (t) { return String(t).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); };
     const out = { n: 0, bad: [] };
+    //  THE FIELD IS CARRIED UNDER `where`, which is where the app reads
+    //  it from (makeChoices' sta()). Reading q.station alone found none
+    //  in any pack this family builds, so the check below reported that
+    //  the field was being dropped when it was simply being looked for
+    //  in the wrong place. Both are read now, so this can only ever find
+    //  more questions than before, never fewer.
+    var staOf = function (x) {
+      return (x && x.where && x.where.station) || (x && x.station) || '';
+    };
     PACK.questions.forEach(function (q) {
-      if (q.kind !== 'station' || !/^running backstay/i.test(q.station || '')) return;
+      if (q.kind !== 'station' || !/^running backstay/i.test(staOf(q))) return;
       out.n++;
       if (!q.ch || q.ch.length !== 3) {
         out.bad.push(q.q + ' :: no options of its own');
@@ -438,22 +466,57 @@ window.answerCurrent = function (right) {
   //  being dropped on the way into the pack -- so the test agreed with a
   //  pack that had lost the field it was testing.  A test that cannot
   //  fail is not a test; this one now needs to find them.
+  //  AND IT NEEDS A PACK THAT HAS ONE.  The running backstay is a station
+  //  in the deck pack, and the deck pack is somebody's material that this
+  //  repository does not and will not hold -- so the synthetic pack the
+  //  harness builds has no such chain and never will. Failing the default
+  //  run for that made a red suite the normal state, which is the fastest
+  //  way to teach everybody to ignore it.
+  //
+  //  It is a SKIP and not a silence: the line says which pack it wants and
+  //  how to supply it, so a check that is being passed over cannot be
+  //  mistaken for a check that passed.
   if (runner.bad.length) fail(runner.bad.length + ' runner question(s) wrong: ' + runner.bad[0]);
-  else if (runner.n < 1) fail('no runner questions found in this pack -- is the station field being carried?');
+  else if (runner.n < 1)
+    console.log('  --   no running-backstay chain in this pack, so the reversed-label ' +
+                'check did not run: sh docs/web/tests/run-drill-web.sh <deck-pack.json>');
   else console.log('  ok   all ' + runner.n + ' runner questions offer the labels reversed');
 
   //  A SECTION CAN RUN OUT OF DISTRACTORS, and a question with no wrong
   //  option is an automatic mark -- worse than the duplicate the
   //  filtering was added to prevent.
+  //
+  //  FOUR OPTIONS IS THE AIM AND NOT A GUARANTEE, and insisting on four
+  //  here was wrong. Measured: over 400 draws against this harness's own
+  //  pack, 23 came back with three options -- and in every one of those
+  //  the pool had nothing distinct left to give, because every remaining
+  //  answer read as one of the two already picked. A fourth option could
+  //  only have been a near-duplicate of another, which is the exact fault
+  //  the filtering exists to prevent. The old check therefore failed at
+  //  random, roughly one run in sixteen, demanding the fault.
+  //
+  //  So it asks for what is actually true: never fewer than three, exactly
+  //  one of them right, and a short draw ONLY when there was genuinely
+  //  nothing distinct left to offer.
   const starved = await page.evaluate(() => {
     const q = { kind: 'fact', a: 'An answer whose section pool has nothing left to offer' };
     const out = makeChoices(q, [q]);     // a pool of one: itself
-    return { n: out.length, right: out.filter(o => o.ok).length };
+    const got = out.filter(o => !o.ok).map(o => o.t);
+    const left = PACK.questions.filter(function (o) {
+      return o.a && !(o.ch && o.ch.length) && !(o.seq && o.seq.length) &&
+             !sameAnswer(o.a, q.a) &&
+             !got.some(function (g) { return sameAnswer(g, o.a); });
+    }).length;
+    return { n: out.length, right: out.filter(o => o.ok).length, left: left };
   });
-  if (starved.n < 4)
+  if (starved.n < 3)
     fail('an exhausted section gave only ' + starved.n + ' option(s); one of them would be a free mark');
   else if (starved.right !== 1) fail('not exactly one option is correct after falling back');
-  else console.log('  ok   an exhausted section falls back to the whole pack for options');
+  else if (starved.n < 4 && starved.left)
+    fail('a draw of ' + starved.n + ' while ' + starved.left +
+         ' distinct answer(s) were still on offer -- the pool was not exhausted');
+  else console.log('  ok   an exhausted section falls back to the whole pack for options' +
+                   (starved.n < 4 ? ' (three here: the pack had nothing else distinct)' : ''));
 
   //  and a question without them still draws from the pool
   const drawn = await page.evaluate(() => {
