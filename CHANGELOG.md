@@ -1,5 +1,46 @@
 # Changelog
 
+## Every tool has a manual now
+
+**What.** deck-log, weather, drill and the launcher each gain a manual and a
+quick-reference card, built by `sh docs/manual-src/mkpdf.sh <tool>` like the
+others, with eleven more figures from the browser builds in day mode. With
+celnav, tides and colregs already done, that is the whole suite.
+
+**Why it is worth the pages.** Documentation is part of the product, and for a
+new reader most of it. These are printed and read away from the computer, which
+is also why every page carries the tool's version and the build date.
+
+**drill's manual carries the content-pack format,** which is what
+navigationtools asked for on behalf of practical-navigator, shipshape and
+clipper-drill: every field, which are required, what makes a question graded
+rather than a recall prompt, how sections unlock, and every reason a pack is
+refused - taken from the validator itself rather than described from memory.
+
+**Three changes to `mkpdf.sh`, each for a tool that is not shaped like the
+others:**
+
+1. It looks for a version in `src/<tool>/10-head.sh`, in
+   `src/<tool-without-hyphens>/` (deck-log's source is `src/decklog`), in
+   `src/launcher/<tool>.sh`, and finally in a browser-only tool's own build
+   number.
+2. A document may only claim a checksum it was given: a tool with a program
+   still refuses to build without one, and a browser-only tool whose document
+   asks for none builds without it.
+3. The new rows. Adding a tool is still one line.
+
+**And the tides manual has its figures at last.** It has been ending with a
+note explaining that its figures were waiting on a day mode for the browser
+apps, because the screens were near-black and would not print. Day mode went
+in, so the note was describing a state of affairs that no longer existed.
+Five figures now: a day at a reference station, the station picker, the rule
+of twelfths worked out, the course-to-steer triangle, and the About screen
+saying what is actually cached. The note is gone.
+
+**What it impacts.** Documents only - no tool's code is touched. `tests/gate.sh`
+check 4 now governs seven documents instead of three, and fails if a source
+committed after a PDF has changed.
+
 ## colregs has a manual, and its reference lists count themselves
 
 **What.** `docs/colregs-manual.pdf` and `docs/colregs-quickref.pdf`: the

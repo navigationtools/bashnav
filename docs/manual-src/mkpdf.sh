@@ -34,7 +34,11 @@ SRC=../../src
 # tool:manual:quickref  -- one line per tool.  Adding a tool is one line here.
 DOCS='celnav:manual.md:quickref.md
 tides:tides-manual.md:tides-quickref.md
-colregs:colregs-manual.md:colregs-quickref.md'
+colregs:colregs-manual.md:colregs-quickref.md
+deck-log:decklog-manual.md:decklog-quickref.md
+weather:weather-manual.md:weather-quickref.md
+bashnav:bashnav-manual.md:bashnav-quickref.md
+drill:drill-manual.md:drill-quickref.md'
 
 DATE=$(date '+%-d %B %Y' 2>/dev/null || date '+%d %B %Y')
 
@@ -57,29 +61,54 @@ if [ -z "$engine" ]; then
   exit 1
 fi
 
-# version_of <tool>  -- read from the source the program itself uses
+# version_of <tool>  -- read from the source the program itself uses.
+#
+# Three places, because the tools are not all shaped alike and a document
+# that states a version it was not given is worse than no document:
+#   1. src/<tool>/10-head.sh            -- most of them
+#   2. src/<tool-without-hyphens>/...   -- deck-log's source is src/decklog
+#   3. src/launcher/<tool>.sh           -- the launcher is one file
+#   4. docs/web/<tool>/<tool>.js        -- a browser-only tool has a BUILD
+#      number instead of a version, and that is what its page shows
 version_of() {
-  u=$(printf '%s' "$1" | tr 'a-z-' 'A-Z_')
-  v=$(sed -n "s/^${u}_VERSION=\\([^ ;\"]*\\).*/\\1/p" "$SRC/$1/10-head.sh" 2>/dev/null | head -1)
-  [ -n "$v" ] || v=$(sed -n "s/^${u}_VERSION=\\([^ ;\"]*\\).*/\\1/p" "$SRC/launcher/$1.sh" 2>/dev/null | head -1)
-  if [ -z "$v" ]; then
-    echo "mkpdf: no ${u}_VERSION found for $1 -- refusing to build an unversioned document" >&2
-    exit 1
+  t=$1
+  n=$(printf '%s' "$t" | tr -d '-')
+  for u in $(printf '%s' "$t" | tr 'a-z-' 'A-Z_') $(printf '%s' "$n" | tr 'a-z' 'A-Z'); do
+    for f in "$SRC/$t/10-head.sh" "$SRC/$n/10-head.sh" "$SRC/launcher/$t.sh"; do
+      [ -f "$f" ] || continue
+      v=$(sed -n "s/^${u}_VERSION=\\([^ ;\"]*\\).*/\\1/p" "$f" 2>/dev/null | head -1)
+      [ -n "$v" ] && { printf '%s' "$v"; return 0; }
+    done
+  done
+  w=../../docs/web/$t/$t.js
+  if [ -f "$w" ]; then
+    v=$(sed -n "s/.*BUILD *= *'*\\([0-9][0-9]*\\).*/\\1/p" "$w" | head -1)
+    [ -n "$v" ] && { printf '%s' "$v"; return 0; }
   fi
-  printf '%s' "$v"
+  echo "mkpdf: no version found for $t -- refusing to build an unversioned document" >&2
+  exit 1
 }
 
 # subst <tool> <version> <input.md>  -- fill the document's placeholders from
 # the program itself, so no version, size or checksum is ever typed by hand.
 subst() {
   b=../../bin/$1
+  #  A DOCUMENT MAY ONLY CLAIM A CHECKSUM IT WAS GIVEN. A tool with a
+  #  program refuses to build without it, as before. A browser-only tool
+  #  has no program to checksum, and its document does not ask for one --
+  #  so it builds, and the placeholders simply never appear.
   if [ ! -f "$b" ]; then
-    echo "mkpdf: $b is missing. Run ./build.sh first, so the document's" >&2
-    echo "       checksum and size describe a real build and not a guess." >&2
-    exit 1
-  fi
+    if grep -q '{{CKSUM}}\|{{SIZE_KB}}' "$3"; then
+      echo "mkpdf: $b is missing, and $3 states a checksum and size." >&2
+      echo "       Run ./build.sh first, so they describe a real build" >&2
+      echo "       and not a guess." >&2
+      exit 1
+    fi
+    ck=''; kb=''
+  else
   ck=$(cksum "$b" | awk -v n="$1" '{print $1, $2, n}')
   kb=$(( $(wc -c < "$b") / 1024 ))
+  fi
   sed -e "s/{{VERSION}}/$2/g" -e "s|{{CKSUM}}|$ck|g" \
       -e "s/{{SIZE_KB}}/$kb/g" -e "s/{{DATE}}/$DATE/g" "$3" \
   | include
