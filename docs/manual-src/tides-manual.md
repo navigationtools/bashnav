@@ -57,6 +57,9 @@ says SECONDARY and names the reference.
 
 ### Finding one
 
+![**Figure 2** - the station picker. The reason a position is not enough is at
+the top of it, where it is read rather than looked up.](fig/tides-pick.png)
+
 Nobody guesses a station's exact name: the database calls a place
 `NEW LONDON  State Pier`. So type part of it and pick from the list. Every word
 has to appear somewhere in the name, state or country, in any order and
@@ -77,6 +80,11 @@ printed table. GMT for the UK, all year.
 ---
 
 ## 3. The two questions a boat asks
+
+![**Figure 1** - a day at a reference station: the turns, the curve, and the
+heights above chart datum. The banner says REFERENCE, so these are computed
+from constants measured here rather than offset from somewhere
+else.](fig/tides-day.png)
 
 ### Is there enough water?
 
@@ -140,6 +148,11 @@ answers side by side, twelfths, cosine and the harmonic height itself.
 HW before LW is a **falling** tide. The pair of turns used is the one less than
 twelve hours apart, so a tide crossing midnight works.
 
+![**Figure 3** - the rule of twelfths worked out, with the cosine height beside
+it and the difference between the two stated. The working is the deliverable:
+a reader who has watched it once can do it on paper with the tide table
+alone.](fig/tides-twelfths.png)
+
     tides work twelfths lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 t=08:30
 
 ### 5.2 `secondary` — a secondary port from its standard port
@@ -195,6 +208,12 @@ once**, as taught — not solved hour by hour.
    **"cannot make good this track"**, with the working that shows why.
 
     tides work cts track=045 stw=6 streams=135:1.5,150:2.0 leeway=5 wind=port
+
+![**Figure 4** - that example worked: the streams summed, the triangle solved
+once, leeway applied into the wind, then variation and deviation. The drawing
+is the same triangle, with the ground track, the water track and the stream
+each carrying their own number of arrows so they are told apart with no colour
+at all.](fig/tides-work.png)
 
 ### 5.6 `setdrift` — set and drift from a DR and a fix
 
@@ -261,6 +280,10 @@ bad input.**
 
 ## 8. Offline, and how the station data is shipped
 
+![**Figure 5** - the About screen, which says what is actually in the cache
+rather than what should be. On a first visit it says so plainly: not installed,
+served from the network.](fig/tides-about.png)
+
 The station file is 2.9 MB, which is not something to download before the app
 will draw anything. So an index of every station — name, region, country,
 position, and the **byte offset and length** of its line — loads at startup, and
@@ -317,11 +340,3 @@ A few other limits worth carrying in your head:
 Where this program and the published tide tables for the port differ, **the
 published tables are right and this is wrong.** The same goes for the almanac,
 the tidal stream atlas and the chart.
-
----
-
-*Figures for this manual are not yet included. Under the standing rule that
-documentation figures come from the output of the browser build, they are
-waiting on a decision about a day mode for the browser apps — the current
-screens are near-black and do not print. The text above is complete without
-them; the figures are owed, not dropped.*
