@@ -1,5 +1,28 @@
 # Changelog
 
+## colregs has a manual, and its reference lists count themselves
+
+**What.** `docs/colregs-manual.pdf` and `docs/colregs-quickref.pdf`: the
+sections, the drill, contact management, the spoken bearing styles and the
+cautions, with eight figures taken from the browser build in day mode. The
+manual is the first of the five that were waiting on a day mode to print.
+
+**Why now.** Every screen in the suite was near-black until day mode went in,
+so a figure would have printed as a black rectangle. That is what the tides
+manual's closing note was waiting for, and it is no longer true.
+
+**A fault the figures found.** The lights view's reference list was headed
+"All twenty, as a list" and rendered twenty-eight. The data is generated from
+the shell engine and grows when that engine does; the words in `index.html`
+could not follow it. All three lists now label themselves from the data they
+are about to render, so the count cannot be wrong again - the same rule that
+took the build labels out of the pages.
+
+**What it impacts.** The summary text of the three reference lists, nothing
+else; no drill, no drawing and no data. colregs' cache moves to
+`colregs-v21`, because `colregs.js` and `index.html` are served files and the
+worker is cache-first.
+
 ## Lesson names: the course's links have a shape, and tides enforces it
 
 **What.** `?lesson=` on the tides work calculators now takes the lesson names

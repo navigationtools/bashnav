@@ -41,8 +41,11 @@ Three things a terminal could not do:
 
 `data.js` was produced by appending a dumper to the awk engine's own table
 initialisers and printing what they built — `ves_init()`, `shp_init()`,
-`enc_init()`, `snd_init()`, and the fifteen `les()` lessons. Twenty-two vessels,
-ten shapes, twenty-eight encounters, fifteen signals, fifteen lessons.
+`enc_init()`, `snd_init()`, and the fifteen `les()` lessons. Twenty-eight
+vessels, ten shapes, twenty-eight encounters, fifteen signals, fifteen
+lessons. The page no longer writes those counts down: each reference list
+labels itself from the data it is about to render, because the data grows
+when the shell engine does and prose cannot follow it.
 
 **Do not hand-edit it.** Regenerate it, so the web build and the shell build
 cannot drift. The dumper is in `work/` alongside this.

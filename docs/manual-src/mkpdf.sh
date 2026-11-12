@@ -33,7 +33,8 @@ SRC=../../src
 
 # tool:manual:quickref  -- one line per tool.  Adding a tool is one line here.
 DOCS='celnav:manual.md:quickref.md
-tides:tides-manual.md:tides-quickref.md'
+tides:tides-manual.md:tides-quickref.md
+colregs:colregs-manual.md:colregs-quickref.md'
 
 DATE=$(date '+%-d %B %Y' 2>/dev/null || date '+%d %B %Y')
 

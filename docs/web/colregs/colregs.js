@@ -1674,7 +1674,31 @@ document.addEventListener('DOMContentLoaded', function () {
   $('enc-next').addEventListener('click', encNext);
   $('enc-lights-btn').addEventListener('click', encLights);
 
-  /* reference lists */
+  /* reference lists.
+
+     THE COUNT IN THE SUMMARY IS DERIVED FROM THE LIST, not written in the
+     page. It said "All twenty" while the list rendered twenty-eight: the
+     data is generated from the shell engine and grows when that engine
+     does, and the words in index.html could not follow it. Two values that
+     must agree, so one is derived from the other (README rule 8). */
+  function countWord(n) {
+    var ones = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven',
+                'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen',
+                'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen',
+                'nineteen'];
+    var tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty',
+                'seventy', 'eighty', 'ninety'];
+    if (n < 20) return ones[n];
+    if (n > 99) return String(n);
+    var t = tens[Math.floor(n / 10)], u = n % 10;
+    return u ? t + '-' + ones[u] : t;
+  }
+  function labelList(box, n) {
+    var d = box.closest ? box.closest('details') : null;
+    var sum = d && d.querySelector('summary');
+    if (sum) sum.textContent = 'All ' + countWord(n) + ', as a list';
+  }
+
   var ll = $('light-list');
   D.vessels.forEach(function (v) {
     var d = document.createElement('div'); d.className = 'row';
@@ -1682,6 +1706,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var s = document.createElement('span'); s.textContent = v.rule + '. ' + v.note;
     d.appendChild(b); d.appendChild(s); ll.appendChild(d);
   });
+  labelList(ll, D.vessels.length);
   var sl = $('shape-list');
   D.shapes.forEach(function (v) {
     var d = document.createElement('div'); d.className = 'row';
@@ -1689,6 +1714,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var s = document.createElement('span'); s.textContent = v.rule + '. ' + v.note;
     d.appendChild(b); d.appendChild(s); sl.appendChild(d);
   });
+  labelList(sl, D.shapes.length);
   var dl = $('sound-list');
   D.sounds.forEach(function (v) {
     var d = document.createElement('div'); d.className = 'row';
@@ -1697,6 +1723,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var s = document.createElement('span'); s.textContent = v.rule + '. ' + v.when;
     d.appendChild(p); d.appendChild(b); d.appendChild(s); dl.appendChild(d);
   });
+  labelList(dl, D.sounds.length);
 
   go('home');
 
