@@ -26,6 +26,11 @@
 #       run-tests.sh checks this too; it is here as well because the point
 #       is to catch it BEFORE the commit, not on the next full run.
 #
+#    4. A BUILT MANUAL OLDER THAN ITS MARKDOWN. The PDF is what a reader
+#       prints and reads away from the computer, and it is the one file in
+#       the repository that no test reads. The shared display-modes
+#       section changed and two manuals shipped for two days without it.
+#
 #  Read-only. Exits 0 if everything passes, 1 otherwise, and prints only
 #  what is wrong plus a one-line verdict.
 #
@@ -82,6 +87,53 @@ for swf in docs/web/*/sw.js; do
   [ "$ab" = "$ac" ] || \
     note "build:   $an says build '$ab' but serves from '$an-v$ac' ($af)"
 done
+
+# ---- 4. a built manual older than the markdown it is built from ------
+#  Every manual is written once as markdown and shipped as a PDF, and the
+#  PDF is what a reader prints and takes away from the computer. Edit the
+#  markdown and forget `sh docs/manual-src/mkpdf.sh <tool>` and the two
+#  disagree with nothing to show it: both files are committed, neither is
+#  malformed, and no test reads a PDF.
+#
+#  This is the fault it exists for. common-display-modes.md - the display
+#  modes section, shared by the manuals that have one - was changed in
+#  31feeca, and neither docs/tides-manual.pdf nor docs/celnav-manual.pdf
+#  was rebuilt. Both shipped for two days without a section their own
+#  source carried; the celnav one was missing a paragraph explaining why
+#  the shell says 'day' where the browser says 'dark', which is exactly
+#  the kind of thing a reader goes to the manual for.
+#
+#  The list of documents is READ OUT OF mkpdf.sh, not written again here:
+#  adding a tool is one line there and this check follows it (rule 8).
+if git rev-parse --git-dir >/dev/null 2>&1 && [ -f docs/manual-src/mkpdf.sh ]; then
+  for row in $(sed -n "/^DOCS='/,/'$/p" docs/manual-src/mkpdf.sh \
+               | sed -e "s/^DOCS='//" -e "s/'$//" -e '/^$/d'); do
+    tool=$(printf '%s' "$row" | cut -d: -f1)
+    i=2
+    for kind in manual quickref; do
+      md=docs/manual-src/$(printf '%s' "$row" | cut -d: -f$i); i=$((i + 1))
+      pdf=docs/$tool-$kind.pdf
+      [ -f "$md" ] && [ -f "$pdf" ] || continue
+      #  the sources: the markdown, and every file it includes by name
+      src="$md"
+      for inc in $(sed -n 's/.*{{INCLUDE:\([^}]*\)}}.*/\1/p' "$md"); do
+        [ -f "docs/manual-src/$inc" ] && src="$src docs/manual-src/$inc"
+      done
+      #  A PDF modified in the working tree is a rebuild in progress:
+      #  there is nothing to compare, and failing here would mean a red
+      #  gate for every correct rebuild until it was committed.
+      git diff --quiet -- "$pdf" 2>/dev/null || continue
+      at=$(git log -1 --format=%H -- "$pdf" 2>/dev/null)
+      [ -n "$at" ] || continue
+      ch=$(git diff --name-only "$at" -- $src 2>/dev/null || true)
+      if [ -n "$ch" ]; then
+        note "manual:  $pdf was built in $(git log -1 --format=%h "$at") and these"
+        printf '%s\n' "$ch" | sed 's|^|           source files changed after it: |'
+        echo "           rebuild it:  sh docs/manual-src/mkpdf.sh $tool"
+      fi
+    done
+  done
+fi
 
 if [ "$bad" = 0 ]; then
   echo "gate: passed"
