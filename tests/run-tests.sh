@@ -1302,6 +1302,27 @@ WXLOG
     say "  --    the grid check needs node, skipped"
   fi
 
+  #  THE COURSE, THE WATER AND THE RUN -- the three files the router
+  #  reads besides the grids.
+  #
+  #  Same discipline as the grid, for the same reason: a bad course does
+  #  not become an error, it becomes a ROUTE. A mark whose side nobody
+  #  wrote down is rounded whichever way is quicker, and the track looks
+  #  entirely convincing while being unsailable as a race. So the side
+  #  is required even when it is "either", a line must say which way it
+  #  is crossed, and every file must end with "end" because the realistic
+  #  failure of a text file is a copy that stopped.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/course.js 2>&1); then
+      ok "the course, areas and run formats accept and refuse as they should $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
+    else
+      bad "a course, areas or run file that should load does not, or one that should not does"
+      echo "$r" | head -10
+    fi
+  else
+    say "  --    the course-format check needs node, skipped"
+  fi
+
   #  THE ROUTER'S VECTOR STEP, which everything above it inherits.
   #
   #  An isochrone router draws a plausible track from almost any
