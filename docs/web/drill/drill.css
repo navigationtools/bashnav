@@ -215,12 +215,17 @@ main { padding: 12px; max-width: 760px; margin: 0 auto; }
   padding: 12px;
   margin-bottom: 12px;
 }
-.panel > h2 {
+/*  ONE EYEBROW, TWO LEVELS.  A panel with two things in it needs a second
+    heading, and the two must look alike -- so they are set together and
+    only the spacing differs, rather than one copying the other's six
+    declarations and drifting from them later. */
+.panel > h2, .panel > h3 {
   margin: 0 0 10px;
   font-size: 12px; font-weight: 700;
   letter-spacing: .09em; text-transform: uppercase;
   color: var(--dim);
 }
+.panel > h3 { margin-top: 18px; }
 
 /* ---- the status banner --------------------------------------------- */
 .status { display: flex; align-items: flex-start; gap: 10px; }

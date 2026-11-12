@@ -8,6 +8,7 @@ is read here in the browser, and it never leaves the device it is on.
     index.html     the sections, the reference, the drill, the diagnostic
     drill.js       the app
     drill.css      two modes, dark and night
+    sample.drillpack.json   a small pack about the tool itself
     ../tests/      the verification
 
 ## Why it is built this way
@@ -25,6 +26,24 @@ It needs a real web address. Saved progress, offline use and a
 home-screen icon all depend on the page having an origin, and a file
 opened straight out of a Files app has none of them — on iOS it will not
 run at all. That was measured on the device, not assumed.
+
+## The sample pack
+
+`sample.drillpack.json` is served beside the app, and **Try the sample
+pack** on the empty screen loads it. Four sections, twenty-five
+questions and a pass mark, all about this tool — enough to see the
+sections open in order, a graded test marked, an ordering question and
+the diagnostic, without anybody having written a pack first.
+
+It is fetched and then handed to the same `validate()` and the same
+store as a pack picked off the device: one way in, whatever the source.
+A demonstration path of its own would be a second thing to get wrong,
+and would stop proving that the format works. The worker precaches it,
+so the button works with the antenna down like the rest of the machine.
+
+Loading your own pack replaces it, and it replaces whatever was held
+before — so it is worth a word of warning before handing the tool to
+somebody mid-study.
 
 ## Three rules it keeps
 

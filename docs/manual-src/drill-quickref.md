@@ -19,6 +19,10 @@ passed. The pass mark is the pack's own, **80 per cent** if it does not say.
 One JSON file, `*.drillpack.json`. Loaded from the page, validated whole, kept
 in this browser. Loading one **replaces** the one held.
 
+**Try the sample pack** on the empty screen loads a small pack about the tool
+itself — four sections, twenty-five questions — through the same validation
+and the same storage as one of your own. It works offline too.
+
 ```json
 { "format": "bashnav-drill-pack/1", "title": "...", "built": "2026-11-12",
   "pass": 80,

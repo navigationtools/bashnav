@@ -1,0 +1,381 @@
+{
+ "format": "bashnav-drill-pack/1",
+ "title": "drill, explaining itself",
+ "note": "The sample pack. Everything in it is about the tool you are holding.",
+ "built": "2026-11-12",
+ "pass": 80,
+ "sections": [
+  {
+   "id": "d1",
+   "title": "What this tool is",
+   "html": "<p>drill is a <strong>study machine with no material in it</strong>. It holds no questions and no reference text of its own: you load a <strong>content pack</strong> from your own device, it is read by this page, and it stays on the device it was loaded on.</p><p>Nothing is uploaded. There is no server to send it to.</p><p>That is the design rather than a limitation. Material somebody else owns can be studied without ever being published: the machine is published, the material is yours. It also makes the permission conversation a short one - you can show somebody the machine running, empty, and say “your material drops in as a pack”.</p><p>This pack is the exception that proves it. Everything in it is about the tool you are holding, which is the one subject where a wrong answer cannot mislead anybody about the sea.</p>"
+  },
+  {
+   "id": "d2",
+   "title": "The pack",
+   "html": "<p>A pack is one JSON file named <code>*.drillpack.json</code>. It is read by the page, <strong>validated whole</strong>, and kept in this browser's own database. Loading a pack replaces the one held.</p><p>Required: <code>format</code>, which must begin <code>bashnav-drill-pack/</code>; a non-empty <code>sections</code>; a non-empty <code>questions</code>.</p><p>Optional: <code>title</code>, <code>note</code>, <code>built</code>, <code>pass</code> and <code>back</code>. <strong>Set <code>built</code></strong>: without it a rebuilt pack is indistinguishable from the one it replaced, and a question you were sure you had fixed comes round again.</p><p>A section needs an <code>id</code>, unique in the pack, and a <code>title</code>. Its <code>html</code> is the reference text, and the reference is the part that is always open.</p><p>A pack is rejected <strong>whole</strong>: loading half of one would give a drill with silent holes in it.</p>"
+  },
+  {
+   "id": "d3",
+   "title": "Questions",
+   "html": "<p>A question names its <code>section</code> and carries its prompt in <code>q</code>.</p><p><strong>The presence of <code>a</code> is what makes a question graded.</strong> With an answer, it can be marked. Without one it is a <em>recall prompt</em>: you are asked, you think, and you check yourself against the reference. Recall prompts are asked first in a practice run, because they are the harder kind.</p><p><code>ch</code> holds wrong options to offer beside the answer. None may equal the answer and none may repeat - a wrong option that equals the answer is a question with two right answers, and the mark it gives is a lie either way.</p><p><code>seq</code> and <code>extra</code> make an ordering question: three or more steps in their right order, and at least one step that does not belong. No step may appear in both.</p><p><code>where</code> is the citation shown under the question - <code>part</code>, <code>sub</code>, <code>row</code> - so an answer can be traced back to the material. <code>kind: \"hand\"</code> marks a question written by hand, and it is labelled as such when asked.</p>"
+  },
+  {
+   "id": "d4",
+   "title": "Sections, progress and the reference",
+   "html": "<p>The first section is open from the start. <strong>Each later one opens when the one before it is passed</strong>, at the pack's own <code>pass</code> mark, or 80 per cent if the pack does not say.</p><p><strong>The reference is never locked</strong>, including for sections you have not reached. Being locked out of a procedure you are carrying this for is the one failure that would matter.</p><p><strong>Studied means worked, not opened.</strong> Reading the reference does not count as studying a section; a recall prompt marked or a test taken does.</p><p>Progress is kept per section id, in this browser, on this device. A rebuilt pack that keeps its ids keeps your progress.</p>"
+  }
+ ],
+ "questions": [
+  {
+   "section": "d1",
+   "kind": "hand",
+   "q": "Where does a pack you load go?",
+   "a": "Nowhere. It is read by this page and kept on this device.",
+   "ch": [
+    "To the server that published drill, so it can be shared",
+    "Into the tool's own published files",
+    "To whoever wrote the pack, as a usage report"
+   ],
+   "where": {
+    "part": "What this tool is",
+    "sub": "Nothing is uploaded"
+   }
+  },
+  {
+   "section": "d1",
+   "q": "Why does the tool ship with no material in it?",
+   "where": {
+    "part": "What this tool is"
+   }
+  },
+  {
+   "section": "d1",
+   "kind": "hand",
+   "q": "What is published, and what is not?",
+   "a": "The machine is published. The material is yours and stays yours.",
+   "ch": [
+    "Both are published together",
+    "Neither: the tool is private to the person who built it",
+    "The material is published and the machine is licensed"
+   ],
+   "where": {
+    "part": "What this tool is"
+   }
+  },
+  {
+   "section": "d2",
+   "kind": "hand",
+   "q": "Which three fields must a pack have?",
+   "a": "format, sections and questions.",
+   "ch": [
+    "title, sections and questions",
+    "format, title and built",
+    "format, sections and pass"
+   ],
+   "where": {
+    "part": "The pack",
+    "sub": "Required"
+   }
+  },
+  {
+   "section": "d2",
+   "q": "What does the format string have to begin with, and why does the tool check it at all?",
+   "where": {
+    "part": "The pack"
+   }
+  },
+  {
+   "section": "d2",
+   "kind": "hand",
+   "q": "What happens when a pack fails validation half way through?",
+   "a": "Nothing loads. A pack is rejected whole.",
+   "ch": [
+    "The sections that passed are loaded and the rest are skipped",
+    "It loads, and the bad questions are hidden",
+    "It loads in a read-only mode"
+   ],
+   "where": {
+    "part": "The pack",
+    "sub": "Rejected whole"
+   }
+  },
+  {
+   "section": "d2",
+   "kind": "hand",
+   "q": "Why is 'built' worth setting even though it is optional?",
+   "a": "Without it a rebuilt pack looks exactly like the one it replaced.",
+   "ch": [
+    "It is what unlocks the first section",
+    "The tool refuses a pack older than thirty days",
+    "It sets the pass mark"
+   ],
+   "where": {
+    "part": "The pack",
+    "sub": "Optional"
+   }
+  },
+  {
+   "section": "d3",
+   "kind": "hand",
+   "q": "What makes a question graded rather than a recall prompt?",
+   "a": "It has an answer in 'a'.",
+   "ch": [
+    "It has wrong options in 'ch'",
+    "It is marked kind: graded",
+    "It belongs to a section that has been passed"
+   ],
+   "where": {
+    "part": "Questions",
+    "sub": "Graded or recall"
+   }
+  },
+  {
+   "section": "d3",
+   "kind": "hand",
+   "q": "Which of these is refused?",
+   "a": "A wrong option that is the same text as the answer.",
+   "ch": [
+    "A question with no wrong options at all",
+    "A question whose answer is longer than its prompt",
+    "Two questions in the same section with the same prompt"
+   ],
+   "where": {
+    "part": "Questions",
+    "sub": "ch"
+   }
+  },
+  {
+   "section": "d3",
+   "q": "Say in your own words what 'where' is for, and what is lost without it.",
+   "where": {
+    "part": "Questions",
+    "sub": "where"
+   }
+  },
+  {
+   "section": "d3",
+   "kind": "hand",
+   "q": "An ordering question needs what, besides the steps in their right order?",
+   "a": "At least one step that does not belong, in 'extra'.",
+   "ch": [
+    "A time limit",
+    "An answer in 'a' as well",
+    "At least five steps"
+   ],
+   "where": {
+    "part": "Questions",
+    "sub": "seq and extra"
+   }
+  },
+  {
+   "section": "d4",
+   "kind": "hand",
+   "q": "When does the second section open?",
+   "a": "When the first is passed.",
+   "ch": [
+    "As soon as the pack is loaded",
+    "When the first has been read",
+    "When every question in the first has been seen once"
+   ],
+   "where": {
+    "part": "Sections",
+    "sub": "Unlocking"
+   }
+  },
+  {
+   "section": "d4",
+   "kind": "hand",
+   "q": "A pack says nothing about a pass mark. What is it?",
+   "a": "80 per cent.",
+   "ch": [
+    "50 per cent",
+    "100 per cent",
+    "There is none: every section is open"
+   ],
+   "where": {
+    "part": "Sections",
+    "sub": "pass"
+   }
+  },
+  {
+   "section": "d4",
+   "kind": "hand",
+   "q": "Which part of a locked section can you still read?",
+   "a": "The reference. It is never locked.",
+   "ch": [
+    "None of it",
+    "The questions, but not their answers",
+    "The first question only"
+   ],
+   "where": {
+    "part": "Sections",
+    "sub": "The reference"
+   }
+  },
+  {
+   "section": "d4",
+   "q": "You read a section's reference carefully and took no test. Has that section been studied?",
+   "where": {
+    "part": "Sections",
+    "sub": "Studied"
+   }
+  },
+  {
+   "section": "d4",
+   "kind": "hand",
+   "q": "Put the steps of loading a pack in order.",
+   "seq": [
+    "The file is read by the page",
+    "The pack is validated whole",
+    "It is kept in this browser's database",
+    "The sections appear, the first one open"
+   ],
+   "extra": [
+    "The pack is uploaded for checking",
+    "The previous pack is merged into it"
+   ],
+   "where": {
+    "part": "The pack",
+    "sub": "Loading"
+   },
+   "a": "The file is read by the page then The pack is validated whole then It is kept in this browser's database then The sections appear, the first one open."
+  },
+  {
+   "section": "d1",
+   "kind": "hand",
+   "q": "What does loading a pack do to the one already in the tool?",
+   "a": "It replaces it.",
+   "ch": [
+    "It is added beside it",
+    "It is merged into it",
+    "It is refused until the first is cleared"
+   ],
+   "where": {
+    "part": "What this tool is",
+    "sub": "Loading"
+   }
+  },
+  {
+   "section": "d1",
+   "kind": "hand",
+   "q": "Why is this pack the exception to 'no material of its own'?",
+   "a": "Everything in it is about the tool you are holding, so a wrong answer cannot mislead anybody about the sea.",
+   "ch": [
+    "It was written by the person who built the tool",
+    "It is small enough not to count",
+    "It is loaded from the page rather than from a file"
+   ],
+   "where": {
+    "part": "What this tool is",
+    "sub": "The sample"
+   }
+  },
+  {
+   "section": "d2",
+   "kind": "hand",
+   "q": "Where does a pack live once it is loaded?",
+   "a": "In this browser's own database, on this device.",
+   "ch": [
+    "In the tool's published files",
+    "In the file you loaded it from, which is read each time",
+    "In the pack author's hands, who can update it remotely"
+   ],
+   "where": {
+    "part": "The pack",
+    "sub": "Where it is kept"
+   }
+  },
+  {
+   "section": "d2",
+   "kind": "hand",
+   "q": "A section has an id, a title and what else, optionally?",
+   "a": "html, which is its reference text.",
+   "ch": [
+    "questions, listed inside the section",
+    "pass, its own mark",
+    "parts, which name its subsections"
+   ],
+   "where": {
+    "part": "The pack",
+    "sub": "A section"
+   }
+  },
+  {
+   "section": "d3",
+   "kind": "hand",
+   "q": "A question has seq and extra but no a. What is it?",
+   "a": "A recall prompt. Without an answer it is never graded, whatever else it carries.",
+   "ch": [
+    "An ordering question in the test",
+    "Invalid, and the pack is refused",
+    "A graded question marked on the order alone"
+   ],
+   "where": {
+    "part": "Questions",
+    "sub": "Graded or recall"
+   }
+  },
+  {
+   "section": "d3",
+   "kind": "hand",
+   "q": "What is kind: \"hand\" for?",
+   "a": "It marks a question written by hand, and the question says so when it is asked.",
+   "ch": [
+    "It makes the question appear first",
+    "It excludes the question from the test",
+    "It tells the tool to accept a typed answer"
+   ],
+   "where": {
+    "part": "Questions",
+    "sub": "kind"
+   }
+  },
+  {
+   "section": "d4",
+   "kind": "hand",
+   "q": "You rebuild a pack and keep the section ids. What happens to your progress?",
+   "a": "It is kept: progress is held per section id.",
+   "ch": [
+    "It is cleared, because the pack is replaced",
+    "It is kept only for sections whose questions did not change",
+    "It is merged, and the better of the two scores is kept"
+   ],
+   "where": {
+    "part": "Sections",
+    "sub": "Progress"
+   }
+  },
+  {
+   "section": "d4",
+   "kind": "hand",
+   "q": "Where is your progress held?",
+   "a": "In this browser, on this device. Clearing site data clears it.",
+   "ch": [
+    "In the pack file, which is written back",
+    "With the pack's author",
+    "In the tool's published files"
+   ],
+   "where": {
+    "part": "Sections",
+    "sub": "Progress"
+   }
+  },
+  {
+   "section": "d1",
+   "kind": "hand",
+   "q": "The tool is published. What about the material?",
+   "a": "It stays yours, on your device.",
+   "ch": [
+    "It is published with the tool",
+    "It is kept by whoever wrote the pack",
+    "It is published only if the pack says so"
+   ],
+   "where": {
+    "part": "What this tool is",
+    "sub": "What is published"
+   }
+  }
+ ],
+ "back": "<p>That is the whole of the machine. What goes in it is yours.</p>"
+}

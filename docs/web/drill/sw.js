@@ -10,12 +10,18 @@
 //  a new deploy never reaches it -- the browser only reinstalls the
 //  worker when THIS file's bytes differ.  The version here must match
 //  BUILD in drill.js, and the test harness checks that it does.
-const CACHE = 'drill-v25'
+const CACHE = 'drill-v26'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'drill-';
+//  sample.drillpack.json IS NOT AN EXCEPTION TO THE RULE ABOVE.  The
+//  user's own pack lives in IndexedDB and is never cached. This one is
+//  part of the published machine -- a file served beside the app, like
+//  the stylesheet -- and it is cached for the same reason: the button
+//  that loads it has to work with the antenna down.
 const FILES = ['./', './index.html', './drill.css', './drill.js',
                './manifest.webmanifest', './icon.svg',
+               './sample.drillpack.json',
                '../shared/build.js'];
 //  EVERY FILE IS FETCHED PAST THE HTTP CACHE, and that is the whole point
 //  of this block rather than a plain addAll(FILES).

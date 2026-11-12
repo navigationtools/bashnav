@@ -26,8 +26,22 @@ That is not a limitation, it is the design:
 3. **Nothing is uploaded, ever.** The file is read by the page. There is no
    server to send it to.
 
-![**Figure 1** — what a new copy looks like: the machine, and nowhere for
-material to have come from.](fig/drill-empty.png)
+![**Figure 1** — what a new copy looks like: the machine, empty, and one
+pack of its own to show what a loaded one does.](fig/drill-empty.png)
+
+### The sample pack
+
+A new copy is not quite bare. **Try the sample pack** loads a small pack
+about this tool itself — four sections, twenty-five questions and a pass
+mark — so the sections opening in order, a graded test being marked, an
+ordering question and the diagnostic can all be seen working before
+anybody has written a pack.
+
+It is fetched from beside the app and then goes through the same
+validation and the same storage as a pack from your own device. That is
+deliberate: a demonstration path of its own would be a second thing to
+get wrong, and it would stop proving that the format works. Loading your
+own pack replaces it.
 
 ---
 

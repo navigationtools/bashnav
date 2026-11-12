@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '25 \u2014 11 Nov 2026';
+var BUILD = '26 \u2014 12 Nov 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -231,27 +231,54 @@ function validate(p) {
   return '';
 }
 
-function loadPack(file) {
-  var note = $('load-note');
-  note.textContent = 'Reading ' + file.name + '\u2026';
-  return file.text().then(function (t) {
-    var p;
-    try { p = JSON.parse(t); }
-    catch (e) { throw new Error('that file is not valid JSON: ' + e.message); }
-    var bad = validate(p);
-    if (bad) throw new Error(bad);
-    return kvPut('pack', p).then(function () {
-      PACK = p;
-      rememberPack();
-      return kvGet('progress');
-    }).then(function (pr) {
-      PROG = pr || {};
-      go('home');
-    });
-  }).catch(function (e) {
-    note.textContent = 'Not loaded: ' + e.message;
-    note.className = 'warn';
+//  ONE WAY IN, WHATEVER THE SOURCE.  A pack picked from the device and the
+//  published sample pack both arrive here as text, and both go through the
+//  same JSON.parse, the same validate() and the same store. A second route
+//  in would be a second route to get wrong, and the sample's whole purpose
+//  is to show what loading a real pack does.
+function installPack(text, what) {
+  var p;
+  try { p = JSON.parse(text); }
+  catch (e) { throw new Error(what + ' is not valid JSON: ' + e.message); }
+  var bad = validate(p);
+  if (bad) throw new Error(bad);
+  return kvPut('pack', p).then(function () {
+    PACK = p;
+    rememberPack();
+    return kvGet('progress');
+  }).then(function (pr) {
+    PROG = pr || {};
+    go('home');
   });
+}
+
+function notLoaded(e) {
+  $('load-note').textContent = 'Not loaded: ' + e.message;
+  $('load-note').className = 'warn';
+}
+
+function loadPack(file) {
+  $('load-note').textContent = 'Reading ' + file.name + '…';
+  $('load-note').className = 'note';
+  return file.text().then(function (t) {
+    return installPack(t, 'that file');
+  }).catch(notLoaded);
+}
+
+//  THE SAMPLE IS A PACK LIKE ANY OTHER, served beside the app rather than
+//  built into this file: it is fetched, validated and stored by the code
+//  above, so if it ever stopped loading the pack format would be at fault
+//  and not some separate demonstration path. The worker precaches it, so
+//  it loads with the antenna down like the rest of the machine.
+function loadSample() {
+  $('load-note').textContent = 'Reading the sample pack…';
+  $('load-note').className = 'note';
+  return fetch('./sample.drillpack.json').then(function (r) {
+    if (!r.ok) throw new Error('the sample pack could not be read (' + r.status + ')');
+    return r.text();
+  }).then(function (t) {
+    return installPack(t, 'the sample pack');
+  }).catch(notLoaded);
 }
 
 /* ---- progress ------------------------------------------------------ */
@@ -1443,6 +1470,10 @@ window.addEventListener('DOMContentLoaded', function () {
     //  attempt makes the next selection always a change.
     e.target.value = '';
     if (f) loadPack(f);
+  });
+  if ($('b-sample')) $('b-sample').addEventListener('click', function () {
+    $('b-sample').disabled = true;
+    loadSample().then(function () { $('b-sample').disabled = false; });
   });
   //  Two buttons, one behaviour: the one on the home screen beside the
   //  pack's name, and the one on the About screen.

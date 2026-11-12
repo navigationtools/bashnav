@@ -1,5 +1,33 @@
 # Changelog
 
+## A sample pack, so the empty machine can be seen working
+
+**What.** drill ships `sample.drillpack.json` beside the app and a **Try the
+sample pack** button on the empty screen. Four sections, twenty-five
+questions and a pass mark, all about the tool itself. Build 26.
+
+**Why.** The tool's first screen was an argument and a file picker. Anybody
+without a pack already written saw a machine with nothing in it and no way to
+find out what loading one does - which is the wrong first impression of a
+tool whose whole claim is that the material is yours and the machine is
+published. Now there is something to press.
+
+**One way in.** The sample is fetched and then handed to the same
+`validate()` and the same store as a pack picked off the device; the loader
+was split into `installPack(text)` with the picker and the sample both
+calling it. A demonstration path of its own would be a second route to get
+wrong, and it would stop proving that the pack format works.
+
+**Offline too.** `sample.drillpack.json` is in the worker's precache, so the
+button works with the antenna down. That is not an exception to the rule that
+the pack is never cached: the user's pack lives in IndexedDB and is never
+cached, and this one is a published file of the app, like the stylesheet.
+
+**Verified** by driving the real app: the button loads the pack, all four
+sections pass at 100 per cent and unlock in order, the ordering question
+marks correctly, and with the network switched off after one visit the button
+still loads it.
+
 ## A figure has to fit on a page
 
 **What.** `docs/manual-src/style.css` caps a figure's height as well as its
