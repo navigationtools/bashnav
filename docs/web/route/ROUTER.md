@@ -144,6 +144,77 @@ before trusting the rest:
 | `clampedMinutes` | how long the wind was above the strongest in the polar |
 | `optimumMinutes` | how long she was on the polar's beat or run rows rather than its table |
 
+## The passage log
+
+`docs/web/route/passage.js`. The router answers with one row for every step -
+144 of them for the 2025 race - which is right for a chart and too much for a
+person. The passage log folds those rows into the lines a navigator would have
+written in the deck log, and beside each line sets down **what had changed**
+since the line before.
+
+```
+ rows     10:00 port 280 | 10:10 port 280 | 10:20 port 281 | ...
+            \__________ the same tack, on the same leg _________/
+                                   |
+ boards   13:00  port, heading 280, for 2h20, 22.8 nm
+                                   |
+            three or more boards of twenty minutes or less
+                                   |
+ lines    10:00  short-tacking, 10 boards in 1h40
+```
+
+**It states facts and never gives a reason** (Larry, 13 November 2026). The
+search keeps the earliest arrival out of every heading tried from every place.
+It holds no reasons, so a "because" in the log would be invented. The log says
+that the wind veered 16 degrees between 22:40 and midnight, and that at
+midnight she tacked to starboard. Whether the one led to the other is for the
+reader, and the lesson, to say. One of the log's own checks reads every word
+the others produced and fails on a reason-word.
+
+**An entry is made at a time, as in a deck log.** It is laid out down the
+page, and no line is wider than 80 columns, so it prints and reads on a small
+tablet without wrapping where the screen chooses:
+
+```
+13:00  tacked to port, heading 280   2h20  22.8 nm                     (1)
+         wind 242 at 20 kt (21 over the water)                         (2)
+         stream fair 0.3 kt   9.5 kt through the water, 9.8 made good  (3)
+         since 11:40: wind freshened 4 kt                              (4)
+
+ (1) what she did, and how long and how far the board was
+ (2) the wind as the line begins
+ (3) the board as a whole: the stream along her track, and her speeds
+ (4) what had changed since the line before
+```
+
+**Every change is the difference of two printed numbers.** Each reading is
+rounded first and subtracted second, so a reader with the log in front of them
+can check "backed 8" by subtraction: 248 at 10:00, 240 at 11:40.
+
+| the log says | when |
+|---|---|
+| wind veered / backed N degrees | its direction has moved 5 degrees or more, clockwise or anticlockwise |
+| wind freshened / eased N kt | its speed has changed by 3 knots or more |
+| stream data begins / no stream data from here | the atlas starts, or stops, having data where she is |
+| stream has turned, now setting ... | where the stream goes has swung through more than a right angle, and both readings are 0.3 knots or more: near slack water a direction is noise |
+| stream fair / foul / slack on this line, ... on the last | the stream along her track is different from the last line's; under a quarter of a knot is slack |
+| tacked / gybed | which end of the wind her bow passed through |
+| bore away / hardened up N degrees | the same tack on a new heading, 5 degrees or more further from the wind or nearer it |
+| short-tacking, N boards | three or more boards together, each of twenty minutes or less |
+
+Fair and foul are about her as much as about the water: a tack can make a
+stream foul that has not changed at all. So that line says what it was and
+what it is, and not that the stream did it.
+
+The numbers in that table are choices, not physics. They are in one place in
+the file, they come back with every log so a page can say what they were, and
+a caller can set them.
+
+**What a page gets.** `PASSAGE.log(rows)` returns the lines as data: each has
+its kind, its time, its readings, its changes, and the first and last row it
+covers, so a page can light the piece of track a line is about.
+`PASSAGE.text()` prints them as above.
+
 ## The first run: the 2025 Myth of Malham
 
 Sailed on the course's own files — the GFS wind of 00Z on race day, the Shom
@@ -174,6 +245,81 @@ and Start Point finishes within the same minute, a difference smaller than the
 search itself can resolve. On that day, in that wind, the inside passage at
 the Bill was not worth having.
 
+### The same race, as the passage log has it
+
+Every line below is the log's own output from that run, nothing added.
+
+```
+-- 24 May 2025, times UTC --
+10:00  START  Myth of Malham 2025, IRC One
+10:00  short-tacking, 10 boards   1h40  15.4 nm
+         wind 248 at 16 kt (16 over the water)
+         no stream data   9.2 kt through the water, 9.2 made good
+11:40  starboard, heading 205   1h20  13.6 nm
+         wind 240 at 16 kt (17 over the water)
+         stream fair 0.9 kt   9.4 kt through the water, 10.2 made good
+         since 10:00: wind backed 8 degrees; stream data begins
+13:00  tacked to port, heading 280   2h20  22.8 nm
+         wind 242 at 20 kt (21 over the water)
+         stream fair 0.3 kt   9.5 kt through the water, 9.8 made good
+         since 11:40: wind freshened 4 kt
+15:20  short-tacking, 3 boards   0h40  5.9 nm
+         wind 239 at 19 kt (18 over the water)
+         stream foul 0.7 kt   9.7 kt through the water, 8.9 made good
+         since 13:00: stream has turned, now setting 028 at 0.7 kt;
+           stream foul on this line, fair on the last
+16:00  port, heading 271   3h40  32.1 nm
+         wind 237 at 20 kt (19 over the water)
+         stream foul 0.9 kt   9.7 kt through the water, 8.8 made good
+19:40  tacked to starboard, heading 194   1h40  16.2 nm
+         wind 231 at 19 kt (19 over the water)
+         stream slack   9.5 kt through the water, 9.7 made good
+         since 16:00: wind backed 6 degrees;
+           stream slack on this line, foul on the last
+21:20  tacked to port, heading 276   0h50  8.8 nm
+         wind 235 at 22 kt (23 over the water)
+         stream fair 0.9 kt   9.7 kt through the water, 10.5 made good
+         since 19:40: wind freshened 3 kt;
+           stream has turned, now setting 236 at 0.9 kt;
+           stream fair on this line, slack on the last
+22:10  short-tacking, 3 boards   0h30  5.6 nm
+         wind 238 at 22 kt (24 over the water)
+         stream fair 1.6 kt   9.6 kt through the water, 11.1 made good
+22:40  port, heading 290   1h20  14.6 nm
+         wind 241 at 23 kt (25 over the water)
+         stream fair 1.2 kt   9.7 kt through the water, 10.9 made good
+```
+
+And through the night to the finish:
+
+```
+-- 25 May 2025, times UTC --
+00:00  tacked to starboard, heading 220   0h30  4.8 nm
+         wind 257 at 22 kt (23 over the water)
+         stream slack   9.6 kt through the water, 9.5 made good
+         since 22:40: wind veered 16 degrees;
+           stream slack on this line, fair on the last
+00:30  short-tacking, 3 boards   0h30  4.9 nm
+         wind 259 at 23 kt (23 over the water)
+         stream slack   9.8 kt through the water, 9.8 made good
+01:00  starboard, heading 208   0h15  2.5 nm
+         wind 262 at 22 kt (22 over the water)
+         stream slack   10.7 kt through the water, 10.4 made good
+01:15  ROUNDED Eddystone Lt House  15h15 from the start
+01:15  bore away 92 degrees, still starboard, heading 110   2h15  32.3 nm
+         wind 261 at 23 kt (22 over the water)
+         stream fair 0.8 kt   13.5 kt through the water, 14.3 made good
+         since 01:00: stream fair on this line, slack on the last
+03:30  gybed to port, heading 057   6h12  83.6 nm
+         wind 262 at 22 kt (21 over the water)
+         stream fair 1.2 kt   12.3 kt through the water, 13.5 made good
+09:42  FINISH  23h42 from the start
+```
+
+The first line is ten boards in an hour and forty minutes. No crew tacks that
+often; the router does because a tack costs it nothing, which is the first
+item in the list below.
+
 ## What it does not do yet, and what it assumes
 
 1. **A tack costs nothing.** She short-tacks the Solent every ten minutes
@@ -192,6 +338,7 @@ the Bill was not worth having.
     node docs/web/tests/polar.js            the polar
     node docs/web/tests/route-step.js       one step, against hand-worked answers
     node docs/web/tests/router.js           whole routes small enough to sail in your head
+    node docs/web/tests/passage.js          the passage log, on rows written by hand
 
 Each course in `router.js` is laid on the equator, in a wind and a stream that
 do not change, so that the fastest passage is one triangle and can be worked
@@ -200,3 +347,10 @@ the distance over the best speed made good. Eight faults were put into the
 router one at a time — marks rounded the wrong way, no berth, clearances
 ignored, an area left open, the finish crossed either way, finishing without
 rounding, `avoid` dropped, unnamed layers left live — and each is caught.
+
+The passage log is checked on rows written by hand, in round numbers: six
+ten-minute rows at nine knots are an hour and nine miles, and 242 less 233 is
+nine degrees backed. Twenty-four faults were put into it one at a time —
+veered and backed swapped, fair and foul the wrong way round, a shift taken
+before the numbers are rounded, the board that rounds the mark folded away
+with the short tacks, a reason written into a line — and each is caught.

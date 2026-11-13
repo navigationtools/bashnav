@@ -1435,6 +1435,22 @@ WXLOG
     say "  --    the router check needs node, skipped"
   fi
 
+  #  THE PASSAGE LOG.  The router's rows folded into the lines a
+  #  navigator would have written, with what had changed beside each.
+  #  Rows written by hand, in round numbers; and one check that reads
+  #  every word the log made and fails on a reason, because the router
+  #  holds none and the log must not invent one (Larry, 13 Nov 2026).
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/passage.js 2>&1); then
+      ok "the passage log folds the rows, states what changed and gives no reasons $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
+    else
+      bad "the passage log misreads the rows, or says why"
+      echo "$r" | head -10
+    fi
+  else
+    say "  --    the passage-log check needs node, skipped"
+  fi
+
   if command -v node >/dev/null 2>&1; then
     if r=$(node tests/contacts-figs-check.js 2>&1); then
       ok "$(echo "$r" | sed -n 's/^  ok  *//p')"

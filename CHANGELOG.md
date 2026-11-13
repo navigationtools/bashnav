@@ -1,5 +1,47 @@
 # Changelog
 
+## The router's passage log: what she did, what she had, what had changed
+
+**What.** `docs/web/route/passage.js` (board item B2). The router answers with
+one row for every step - 144 for the 2025 race. This folds them into the lines
+a navigator would have written in the deck log: one line for each board, runs
+of short tacks as a single line, and the start, each rounding and the finish.
+Beside each line it sets down what had changed since the line before.
+`ROUTER.md` has a new section on it, with pictures, and the 2025 race as the
+log has it.
+
+**Why.** A lesson cannot be read off 144 rows, and a chart shows where she
+went without saying what she had when she turned. The log is the part a lesson
+reads.
+
+**It states facts and never gives a reason** - Larry's decision of 13 November
+2026. The search keeps the earliest arrival out of every heading tried from
+every place and holds no reasons, so a "because" would be invented. The log
+says the wind veered 16 degrees and that she then tacked; the lesson draws the
+line between them, or does not.
+
+**How an entry reads.** The wind is the wind when the line begins, as in a
+deck log; distance, time, speeds and whether the stream was fair are for the
+board as a whole. Every change is the difference of two printed numbers, each
+rounded before it is subtracted, so a reader can check it by subtraction. What
+counts as a change - 5 degrees, 3 knots, a stream swung through more than a
+right angle - is a choice and not physics: the numbers sit in one place in the
+file, come back with every log, and can be set. No line of the printed log is
+wider than 80 columns.
+
+**Checked.** `docs/web/tests/passage.js`, 84 checks, on rows written by hand
+in round numbers. One reads every word the others made and fails on a
+reason-word. Twenty-four faults were put in one at a time and each is caught;
+one of them - a board after short-tacking measured against the board before
+it - got past every check at first, and a check was added for it. The fixture
+itself was wrong once: it called a boat heading 105 in a wind from 259 "port",
+and the log printed a bear-away that was really a gybe. The fixture now
+refuses a tack that its own heading and wind deny.
+
+**What it affects.** No page loads it yet, so nothing a user sees has changed.
+`router.js` is not touched: the log reads its rows and needs nothing else. The
+test suite gains one check.
+
 ## The router sails a whole race
 
 **What.** `docs/web/route/router.js`: the isochrone search, the last of the
