@@ -92,7 +92,13 @@ done
 #  anyone install to reduce a sight, so if it is absent the stage is
 #  SKIPPED and said to be skipped - not silently passed.  Stage 1 is the
 #  one that proves the navigation.
-if node -e 'require("playwright")' >/dev/null 2>&1; then
+#  PLAYWRIGHT INSTALLED IS NOT THE SAME AS A BROWSER INSTALLED.  Asking
+#  only whether the module loads passed on a machine where `npm i` had
+#  put the package there but `npx playwright install` had never been run,
+#  and the stage then died with a stack trace instead of saying it was
+#  skipped. The browser binary itself is what these stages need, so that
+#  is what is checked.
+if node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.executablePath())' >/dev/null 2>&1; then
   echo
   echo "2. the page, against the awk tool's own working"
   python3 docs/web/tests/serve.py "$PORT" "$ROOT/docs/web" >/dev/null 2>&1 &
@@ -292,7 +298,7 @@ MK
   echo "CELNAV WEB: all stages passed"
 else
   echo
-  echo "2. SKIPPED -- the browser stage needs playwright:  npm i -D playwright"
+  echo "2. SKIPPED -- the browser stage needs playwright:  npm i -D playwright && npx playwright install chromium"
   echo
   echo "CELNAV WEB: the engine passed; the page was not checked"
 fi

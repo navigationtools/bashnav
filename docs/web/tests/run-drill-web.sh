@@ -38,9 +38,15 @@ if [ "$B" != "$C" ]; then
 fi
 echo "  ok   drill.js build $B and sw.js cache drill-v$C agree"
 
-if ! node -e 'require("playwright")' >/dev/null 2>&1; then
+#  PLAYWRIGHT INSTALLED IS NOT THE SAME AS A BROWSER INSTALLED.  Asking
+#  only whether the module loads passed on a machine where `npm i` had
+#  put the package there but `npx playwright install` had never been run,
+#  and the stage then died with a stack trace instead of saying it was
+#  skipped. The browser binary itself is what these stages need, so that
+#  is what is checked.
+if ! node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.executablePath())' >/dev/null 2>&1; then
   echo "SKIPPED -- the rest of the drill suite is a browser test and needs playwright:"
-  echo "          npm i -D playwright"
+  echo "          npm i -D playwright && npx playwright install chromium"
   exit 0
 fi
 

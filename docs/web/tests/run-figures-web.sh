@@ -17,8 +17,14 @@ set -e
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 cd "$ROOT"
 
-if ! node -e 'require("playwright")' >/dev/null 2>&1; then
-  echo "SKIPPED -- the figure capture needs playwright:  npm i -D playwright"
+#  PLAYWRIGHT INSTALLED IS NOT THE SAME AS A BROWSER INSTALLED.  Asking
+#  only whether the module loads passed on a machine where `npm i` had
+#  put the package there but `npx playwright install` had never been run,
+#  and the stage then died with a stack trace instead of saying it was
+#  skipped. The browser binary itself is what these stages need, so that
+#  is what is checked.
+if ! node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.executablePath())' >/dev/null 2>&1; then
+  echo "SKIPPED -- the figure capture needs playwright:  npm i -D playwright && npx playwright install chromium"
   exit 0
 fi
 if ! git rev-parse --git-dir >/dev/null 2>&1; then

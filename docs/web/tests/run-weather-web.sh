@@ -71,7 +71,13 @@ echo
 echo "5. the lessons, against \`weather learn\`"
 node docs/web/tests/weather-les.js
 
-if node -e 'require("playwright")' >/dev/null 2>&1; then
+#  PLAYWRIGHT INSTALLED IS NOT THE SAME AS A BROWSER INSTALLED.  Asking
+#  only whether the module loads passed on a machine where `npm i` had
+#  put the package there but `npx playwright install` had never been run,
+#  and the stage then died with a stack trace instead of saying it was
+#  skipped. The browser binary itself is what these stages need, so that
+#  is what is checked.
+if node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.executablePath())' >/dev/null 2>&1; then
   echo
   echo "6. the page, end to end"
   python3 docs/web/tests/serve.py 8090 "$ROOT/docs/web" >/dev/null 2>&1 &
@@ -105,7 +111,7 @@ if node -e 'require("playwright")' >/dev/null 2>&1; then
   echo "WEATHER WEB: all stages passed"
 else
   echo
-  echo "6. SKIPPED -- the page stage needs playwright:  npm i -D playwright"
+  echo "6. SKIPPED -- the page stage needs playwright:  npm i -D playwright && npx playwright install chromium"
   echo
   echo "WEATHER WEB: the reasoning, score, chart, times and lessons passed;"
   echo "             the page was not driven"
