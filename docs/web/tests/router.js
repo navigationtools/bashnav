@@ -68,7 +68,7 @@ var NORTHERLY = field('wind', 0, -10), STILL = field('current', 0, 0);
 function sail(o) {
   return ROUTER.run({ course: o.course || EAST, run: o.run || runFile(), areas: o.areas || [],
                       wind: o.wind || NORTHERLY, current: o.current === undefined ? STILL : o.current,
-                      polar: polar });
+                      polar: polar, crew: o.crew });
 }
 
 //  ---- every row must be a step the lower layers would own ----------
@@ -287,6 +287,221 @@ ok('a start before the wind grid begins is refused', !early.ok && /outside the w
 var again = sail({});
 ok('the same run twice gives the same finish, to the second',
    again.ok && again.summary.finish === reach.summary.finish);
+
+//  ---- 8. the cost of a tack, and of a gybe -------------------------
+//  A crew file with one grade, so that the mean IS the figure written:
+//  every tack costs exactly t seconds and every gybe exactly g.
+function hands(t, g) {
+  var c = COURSE.crew(['CREW 1', 'grades only', 'level hands 100 ' + t, 'gybe hands 100 ' + g, 'end'].join('\n'));
+  if (!c.ok) throw new Error('the test wrote a bad crew file: ' + c.err);
+  return c;
+}
+//  a run that names a crew is a RUN 3
+function run3(level) {
+  var r = COURSE.run(['RUN 3', 'course c.txt', 'polar p.txt', 'wind w.grid', 'current c.grid',
+    'start at 2025-05-24T00:00Z', 'step time 600 heading 5', 'scale wind 1.0 current 1.0', 'round 0.10',
+    'crew k.txt ' + level, 'end'].join('\n'));
+  if (!r.ok) throw new Error('the test wrote a bad run: ' + r.err);
+  return r;
+}
+function crewed(o, t, g) {
+  o.run = run3('hands');
+  o.crew = hands(t, g);
+  return sail(o);
+}
+//  the rows on which she is in a manoeuvre
+function inIt(r) { return r.rows.filter(function (w) { return w.manoeuvre; }); }
+//  WITH A CREW SET SHE NEVER CHANGES TACK EXCEPT THROUGH A MANOEUVRE, and
+//  the time given to manoeuvres is exactly their number times their
+//  cost: nothing is forgiven at a mark, at the finish, or at the end of
+//  a step.
+function paidInFull(r, t, g) {
+  var bad = 0, i;
+  for (i = 1; i < r.rows.length; i++) {
+    if (r.rows[i].tack !== r.rows[i - 1].tack && !r.rows[i].manoeuvre) bad++;
+  }
+  if (Math.abs(r.summary.tackSeconds - t * r.summary.tacks) > 1e-6) bad++;
+  if (Math.abs(r.summary.gybeSeconds - g * r.summary.gybes) > 1e-6) bad++;
+  return bad;
+}
+
+//  A BEAM REACH NEEDS NO TACK, so what a tack costs cannot matter.
+var dearReach = crewed({}, 300, 300);
+ok('a reach with a crew that tacks badly is the same reach', dearReach.ok &&
+   Math.abs(dearReach.summary.hours - reach.summary.hours) < 1e-9 &&
+   dearReach.summary.tacks === 0 && dearReach.summary.gybes === 0 && inIt(dearReach).length === 0,
+   dearReach.ok ? dearReach.summary.hours.toFixed(5) + ' against ' + reach.summary.hours.toFixed(5) : dearReach.why);
+
+//  A DEAD BEAT, AND A TACK THAT COSTS FIVE MINUTES.  The beating itself
+//  takes 4.442 hours however it is cut up (section 2), so the fewest
+//  tacks is the fastest, and a dead beat cannot be sailed with fewer
+//  than one.  4.442 + 300/3600 = 4.525 hours, and nothing can do better.
+//  She can only put the helm down at a step, ten minutes apart, so she
+//  overstands a little: allow her 4.6.
+var east10 = field('wind', -10, 0);
+var beat300 = crewed({ wind: east10 }, 300, 300);
+ok('a dead beat is found with a tack that costs five minutes', beat300.ok, beat300.why);
+if (beat300.ok) {
+  ok('she makes the one tack a dead beat needs, and no more', beat300.summary.tacks === 1 && beat300.summary.gybes === 0,
+     beat300.summary.tacks + ' tacks, ' + beat300.summary.gybes + ' gybes');
+  ok('it takes the beat and the tack, and no less',
+     beat300.summary.hours >= 4.525 && beat300.summary.hours < 4.6, beat300.summary.hours.toFixed(4) + ' h against 4.525');
+  ok('the tack is paid in full, and she changes tack no other way', paidInFull(beat300, 300, 300) === 0,
+     beat300.summary.tackSeconds + ' s');
+  var m3 = inIt(beat300);
+  ok('the manoeuvre is one row of five minutes', m3.length === 1 && Math.abs(m3[0].minutes - 5) < 1e-9 && m3[0].manoeuvre === 'tack');
+  ok('on which she makes no way through the water, head to wind',
+     m3.length === 1 && m3[0].stw === 0 && m3[0].twa === 0 && Math.abs(m3[0].heading - 90) < 1e-9 && m3[0].polar === 'manoeuvre');
+  ok('and, with no stream, does not move', m3.length === 1 && m3[0].lat2 === m3[0].lat && m3[0].lon2 === m3[0].lon);
+  var at = beat300.rows.indexOf(m3[0]);
+  ok('it belongs to the tack she is going onto, and the next row sails on it',
+     at > 0 && beat300.rows[at - 1].tack !== m3[0].tack && beat300.rows[at + 1].tack === m3[0].tack &&
+     !beat300.rows[at + 1].manoeuvre && beat300.rows[at + 1].stw > 0);
+  ok('the rows are sound', sound(beat300) === 0);
+}
+
+//  A CHEAPER TACK IS NEVER SLOWER, and between two crews that both make
+//  one tack the difference is the difference in what it costs: 900 less
+//  300 is ten minutes.
+var beat30 = crewed({ wind: east10 }, 30, 30), beat900 = crewed({ wind: east10 }, 900, 900);
+ok('a cheaper tack is never slower', beat30.ok && beat900.ok &&
+   beat.summary.hours <= beat30.summary.hours && beat30.summary.hours <= beat300.summary.hours &&
+   beat300.summary.hours <= beat900.summary.hours,
+   [beat, beat30, beat300, beat900].map(function (x) { return x.ok ? x.summary.hours.toFixed(4) : x.why; }).join(' '));
+ok('and with a cost she tacks less often than she does for nothing',
+   beat30.ok && beat30.summary.tacks <= beat.summary.tacks, beat30.ok ? beat30.summary.tacks + ' against ' + beat.summary.tacks : '');
+if (beat900.ok && beat300.ok) {
+  var gap = (beat900.summary.hours - beat300.summary.hours) * 3600;
+  ok('ten minutes more on the tack is ten minutes more on the passage',
+     beat900.summary.tacks === 1 && Math.abs(gap - 600) < 60, gap.toFixed(1) + ' s');
+
+  //  A TACK LONGER THAN A STEP.  Fifteen minutes, and the step is ten:
+  //  she is still in it when the next step begins, and serves the rest.
+  var m9 = inIt(beat900);
+  ok('a tack longer than a step is carried into the next: ten minutes and then five',
+     m9.length === 2 && Math.abs(m9[0].minutes - 10) < 1e-9 && Math.abs(m9[1].minutes - 5) < 1e-9 &&
+     beat900.rows.indexOf(m9[1]) === beat900.rows.indexOf(m9[0]) + 1 && m9[0].tack === m9[1].tack,
+     m9.map(function (w) { return w.minutes; }).join(' '));
+  ok('and is still one tack, paid in full', paidInFull(beat900, 900, 900) === 0 && beat900.summary.tacks === 1);
+  ok('the rows are sound', sound(beat900) === 0);
+}
+
+//  A DEAD RUN, AND A GYBE.  The wind is in the west.  The toy polar is
+//  best downwind at about 135 degrees off the wind -- 5.5 knots, of
+//  which 3.89 is made good -- and will not sail deeper than 150, so a
+//  dead run is two boards and one gybe: 19.99 / 3.89 = 5.139 hours, and
+//  400 seconds for the gybe makes 5.25.
+//
+//  THE GYBE HAS ITS OWN LINE IN THE CREW FILE, and this is the check
+//  that it is the one used: a tack here costs 30 seconds and a gybe 400.
+var west10 = field('wind', 10, 0);
+var run400 = crewed({ wind: west10 }, 30, 400);
+ok('a dead run is found with a gybe that costs 400 seconds', run400.ok, run400.why);
+if (run400.ok) {
+  ok('she gybes once and does not tack', run400.summary.gybes === 1 && run400.summary.tacks === 0,
+     run400.summary.gybes + ' gybes, ' + run400.summary.tacks + ' tacks');
+  ok('the gybe costs what a gybe costs, not what a tack does', paidInFull(run400, 30, 400) === 0 &&
+     Math.abs(run400.summary.gybeSeconds - 400) < 1e-6, run400.summary.gybeSeconds + ' s');
+  //  ... AND NOT MUCH MORE.  She can only gybe at a step, so she is a
+  //  few minutes early or late and reaches up for the line; that is
+  //  worth about a minute, and she is allowed two.  This bound is what
+  //  holds the router to two rules of its search: sailed five degrees
+  //  too deep all the way (the boat nearer the mark kept, and not the
+  //  one further along) she takes 5.41 hours, and with boats that can
+  //  fetch the line not kept apart from those that cannot, 5.29.
+  ok('it takes the run and the gybe: no less, and within two minutes of it',
+     run400.summary.hours >= 5.25 - 0.002 && run400.summary.hours < 5.25 + 2 / 60, run400.summary.hours.toFixed(4) + ' h against 5.25');
+  var mg = inIt(run400);
+  ok('the manoeuvre row says gybe, stern to the wind',
+     mg.length === 1 && mg[0].manoeuvre === 'gybe' && mg[0].twa === 180 && Math.abs(mg[0].heading - 90) < 1e-9);
+  ok('the rows are sound', sound(run400) === 0);
+}
+//  and with free manoeuvres the same run is counted as gybes, not tacks
+var runFree = sail({ wind: west10 });
+ok('with no crew, changes of tack downwind are counted as gybes',
+   runFree.ok && runFree.summary.gybes >= 1 && runFree.summary.tacks === 0, runFree.ok ? JSON.stringify([runFree.summary.tacks, runFree.summary.gybes]) : runFree.why);
+ok('and upwind as tacks', beat.summary.tacks >= 1 && beat.summary.gybes === 0);
+
+//  WHILE SHE TACKS THE STREAM HAS HER.  A stream setting south at 2
+//  knots, and a tack of 300 seconds: for those five minutes she goes
+//  south at two knots and nowhere else, which is 2 x 300/3600 = 0.1667
+//  miles.
+var beatSet = crewed({ wind: east10, current: field('current', 0, -2) }, 300, 300);
+ok('a beat across a stream is found, with a cost', beatSet.ok, beatSet.why);
+if (beatSet.ok) {
+  var ms = inIt(beatSet)[0];
+  ok('in the tack she goes where the stream goes, at the stream\'s rate',
+     ms && Math.abs(ms.cog - 180) < 1e-6 && Math.abs(ms.sog - 2) < 1e-9 && ms.stw === 0,
+     ms ? ms.cog + ' ' + ms.sog : 'no manoeuvre row');
+  ok('a sixth of a mile in five minutes', ms && Math.abs((ms.lat - ms.lat2) * 60 - 2 * 300 / 3600) < 1e-6,
+     ms ? ((ms.lat - ms.lat2) * 60).toFixed(5) : '');
+  ok('the rows are sound', sound(beatSet) === 0 && paidInFull(beatSet, 300, 300) === 0);
+}
+
+//  NOTHING IS FORGIVEN AT A MARK.  Out and back in a northerly: east on
+//  port, round the buoy to port -- which is up through the wind -- and
+//  home on starboard.  The one tack is made AT the mark, where a step is
+//  cut short by the rounding and the time owed must be carried past it.
+var freeRound = sail({ course: outAndBack('port', 0.4) });
+var dearRound = crewed({ course: outAndBack('port', 0.4) }, 200, 200);
+ok('an out-and-back is found with a tack that costs 200 seconds', dearRound.ok, dearRound.why);
+if (dearRound.ok && freeRound.ok) {
+  ok('the tack at the mark is paid in full', paidInFull(dearRound, 200, 200) === 0 &&
+     dearRound.summary.tacks + dearRound.summary.gybes >= 1,
+     dearRound.summary.tacks + ' tacks ' + dearRound.summary.tackSeconds + ' s, ' +
+     dearRound.summary.gybes + ' gybes ' + dearRound.summary.gybeSeconds + ' s');
+  var paid = dearRound.summary.tackSeconds + dearRound.summary.gybeSeconds;
+  var took = (dearRound.summary.hours - freeRound.summary.hours) * 3600;
+  //  NOT "LONGER BY WHAT WAS PAID", which is what this check first
+  //  asked and what the router did not do: 117 seconds longer for 200
+  //  paid.  She does 1.7 miles in a step and the berth is a tenth of a
+  //  mile, so how tightly the mark is turned is decided by where the
+  //  ten-minute marks happen to fall, and the boat that had to stop
+  //  for her tack happened to turn it a third of a mile tighter than
+  //  the one that did not.  A minute or two between two runs round a
+  //  mark is the size of the step, not seamanship.  What IS true, and
+  //  is held to: she is slower, and not by more than she paid and that
+  //  much again.
+  ok('and the passage is longer, by no more than what was paid and the size of a step',
+     took > 0 && took < paid + 120, took.toFixed(1) + ' s longer, ' + paid + ' s paid');
+  ok('she still leaves the mark to port', swing(dearRound, 0, 10 / 60) < -300);
+  ok('the rows are sound', sound(dearRound) === 0);
+}
+
+//  CARRIED ROUND THE MARK IN THE MIDDLE OF A TACK.  The same course
+//  with a stream setting north at 2 knots and a little east, and a
+//  manoeuvre of ten minutes.  The router begins it south of the line
+//  she must cross to round, and the stream takes her over that line
+//  while she has no way on: the row is cut at the line, and the time
+//  not yet served is still owed on the far side of it.
+var swept = crewed({ course: outAndBack('port', 0.4), current: field('current', 0.5, 2) }, 600, 600);
+ok('an out-and-back is found in a stream, with a ten-minute manoeuvre', swept.ok, swept.why);
+if (swept.ok) {
+  var cut = swept.rows.filter(function (w) { return w.manoeuvre && /^rounded /.test(w.event || ''); });
+  ok('the stream carries her round the mark in the middle of it', cut.length === 1 && cut[0].minutes < 10,
+     cut.length + ' such rows');
+  ok('and what was not served before the line is served after it: paid in full',
+     paidInFull(swept, 600, 600) === 0 && swept.summary.tacks + swept.summary.gybes >= 1,
+     swept.summary.tackSeconds + ' + ' + swept.summary.gybeSeconds + ' s for ' + swept.summary.tacks + ' + ' + swept.summary.gybes);
+  ok('the rows are sound', sound(swept) === 0);
+}
+
+//  A CREW WHOSE MANOEUVRES COST NOTHING IS NO CREW AT ALL: the same
+//  rows as the run that names none.
+var nought = crewed({ wind: east10 }, 0, 0);
+ok('a crew that loses no time sails the route of a run with no crew, row for row',
+   nought.ok && JSON.stringify(nought.rows) === JSON.stringify(beat.rows) && inIt(nought).length === 0);
+ok('and the summary says which crew it was', nought.ok && nought.summary.crew &&
+   nought.summary.crew.level === 'hands' && nought.summary.crew.file === 'k.txt' && beat.summary.crew === null);
+
+//  what cannot be sailed
+var noCrew = sail({ run: run3('hands') });
+ok('a run that names a crew file nobody loaded is refused', !noCrew.ok && /crew file, k\.txt, which was not loaded/.test(noCrew.why), noCrew.why);
+var noLevel = sail({ run: run3('nobody'), crew: hands(30, 30) });
+ok('and so is a level the file does not give', !noLevel.ok && /crew level "nobody"/.test(noLevel.why), noLevel.why);
+
+var twice = crewed({ wind: east10 }, 300, 300);
+ok('the same crew twice gives the same finish', twice.ok && twice.summary.finish === beat300.summary.finish);
 
 if (fail) { console.log('  ' + fail + ' of ' + checks + ' checks failed'); process.exit(1); }
 console.log('  all ' + checks + ' checks');

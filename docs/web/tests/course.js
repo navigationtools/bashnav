@@ -1,4 +1,5 @@
-//  COURSE 1, AREAS 1, RUN 1 and RUN 2: what they accept and what they refuse.
+//  COURSE 1, AREAS 1, RUN 1 to RUN 3 and CREW 1: what they accept and what
+//  they refuse.
 //
 //  THE REFUSALS ARE THE POINT, and they are the same point GRID 1's
 //  tests make. A bad course does not become an error, it becomes a
@@ -211,8 +212,8 @@ refuses('a RUN 2 gate still written the RUN 1 way',
         RUN2.replace('within 2.0', 'off 2.0'), C.run, 'avoid');
 refuses('an avoid in a RUN 1 file', RUN.replace('round 0.10',
         'round 0.10\navoid X 50.0 -2.0 off 1.0'), C.run, 'RUN 2 line');
-refuses('a first line that is neither version', RUN.replace('RUN 1', 'RUN 3'), C.run,
-        '"RUN 1" or "RUN 2"');
+refuses('a first line that is none of the versions', RUN.replace('RUN 1', 'RUN 4'), C.run,
+        '"RUN 1", "RUN 2" or "RUN 3"');
 
 //  The grids a run named, against the grids that were loaded. A filename
 //  is not evidence: the kind is in each grid's own header, so swapping
@@ -283,6 +284,98 @@ refuses('a first line that is neither version', RUN.replace('RUN 1', 'RUN 3'), C
      Math.abs(q.lat - 50) < 1e-9 &&
      Math.abs(q.lon - (-1 + (1 / 60) / Math.cos(50 * Math.PI / 180))) < 1e-9,
      JSON.stringify(q));
+})();
+
+//  ---- CREW 1: how well she is tacked and gybed ---------------------
+//  Round numbers, so the means can be done in the head:
+//    able   tacks  90% at 30 s and 10% at 300 s:  27 + 30  =  57 s
+//           gybes  80% at 60 s and 20% at 600 s:  48 + 120 = 168 s
+//    green  tacks  50% at 60 s and 50% at 600 s:  30 + 300 = 330 s
+//           gybes  50% at 120 s and 50% at 900 s: 60 + 450 = 510 s
+(function () {
+  var CREW = [
+    'CREW 1',
+    '#  an invented crew, for the reader',
+    'grades   clean   blown',
+    'level able    90 30    10 300',
+    'gybe  able    80 60    20 600',
+    'level green   50 60    50 600',
+    'gybe  green   50 120   50 900',
+    'end'
+  ].join('\n') + '\n';
+  function not(what, text, fragment) {
+    var r = C.crew(text);
+    ok(what, !r.ok && String(r.err).indexOf(fragment) >= 0, r.ok ? 'it was accepted' : r.err);
+  }
+  var c = C.crew(CREW);
+  ok('a crew file reads', c.ok, c.err);
+  if (!c.ok) return;
+  ok('the grades are read, best first', c.grades.join(' ') === 'clean blown');
+  ok('and the levels, in the order written', c.levels.map(function (l) { return l.name; }).join(' ') === 'able green');
+  var able = c.level('able'), green = c.level('green');
+  ok('a level is found by name, and one that is not there is not', able && green && c.level('crack') === null);
+  ok('the shares and the times are kept apart', able.tack.share.join(' ') === '90 10' && able.tack.lost.join(' ') === '30 300');
+  ok('the mean cost of a tack is the shares times the times: 27 + 30 = 57 s', Math.abs(able.tack.mean - 57) < 1e-9, String(able.tack.mean));
+  ok('a gybe has its own line and its own mean: 48 + 120 = 168 s', Math.abs(able.gybe.mean - 168) < 1e-9, String(able.gybe.mean));
+  ok('each level has its own', Math.abs(green.tack.mean - 330) < 1e-9 && Math.abs(green.gybe.mean - 510) < 1e-9);
+  ok('CRLF reads the same', C.crew(CREW.replace(/\n/g, '\r\n')).ok);
+  ok('shares may be fractions, so long as they add to 100',
+     C.crew(CREW.replace('90 30    10 300', '99.5 30    0.5 300')).ok);
+
+  not('shares that do not add to 100 are refused, and the sum is said',
+      CREW.replace('90 30', '80 30'), 'add up to 90, not 100');
+  not('and so are a gybe line\'s', CREW.replace('80 60', '85 60'), 'add up to 105, not 100');
+  ok('the refusal says which line', C.crew(CREW.replace('90 30', '80 30')).line === 4);
+  not('a level with no gybe line is refused: no gybe is costed by a rule the file does not state',
+      CREW.replace('gybe  green   50 120   50 900\n', ''), 'the level "green" has no gybe line');
+  not('a gybe line for a level that is not there', CREW.replace('gybe  green', 'gybe  grene'), 'no level "grene" above it');
+  not('a level given twice', CREW.replace('level green', 'level able'), 'the level "able" is given twice');
+  not('its gybes given twice', CREW.replace('gybe  green', 'gybe  able'), 'the gybes of "able" are given twice');
+  not('too few numbers for the grades', CREW.replace('90 30    10 300', '90 30    10'), '4 numbers, and this line has 3');
+  not('a share over 100', CREW.replace('90 30    10 300', '190 30    10 300'), 'not a share between 0 and 100');
+  not('a time that is not a number', CREW.replace('10 300', '10 slow'), 'not a time lost, in seconds');
+  not('a negative time', CREW.replace('10 300', '10 -300'), 'not a time lost, in seconds');
+  not('a level before the grades', CREW.replace('grades   clean   blown\n', '').replace('end', 'grades clean blown\nend'),
+      'the grades line must come before the first level');
+  not('a grade named twice', CREW.replace('grades   clean   blown', 'grades   clean   clean'), 'named twice');
+  not('no levels at all', 'CREW 1\ngrades clean blown\nend\n', 'at least one level');
+  not('a file cut short', CREW.replace('end\n', ''), 'does not end with "end"');
+  not('a line it does not know', CREW.replace('end', 'reef green 50 50\nend'), 'unknown line "reef"');
+  not('a later version', CREW.replace('CREW 1', 'CREW 2'), 'this reader knows CREW 1');
+  not('a file that is not a crew file', 'RUN 2\nend\n', 'the first line must be "CREW 1"');
+
+  //  the run's line, and the check that spans the two files
+  function runWith(lines, ver) {
+    return C.run([ver || 'RUN 3', 'course c.txt', 'polar p.txt', 'wind w.grid', 'current s.grid', 'start at 2025-05-24T00:00Z',
+                  'step time 600 heading 5', 'round 0.10'].concat(lines).concat(['end']).join('\n'));
+  }
+  var rn = runWith(['crew crew_x.txt able']);
+  ok('a run names its crew file and a level', rn.ok && rn.crew.file === 'crew_x.txt' && rn.crew.level === 'able', rn.err);
+  ok('a run that names none has none, and is still a run', runWith([]).ok && runWith([]).crew === null &&
+     runWith([]).version === 3);
+  //  RUN 3 IS RUN 2 AND THIS ONE LINE. A RUN 2 file with a crew in it is
+  //  refused, so that no reader can take the file for a RUN 2, skip the
+  //  line, and sail her with free tacks.
+  var two2 = runWith(['crew crew_x.txt able'], 'RUN 2');
+  ok('crew in a RUN 2 file is refused, and the refusal says which version it belongs to',
+     !two2.ok && two2.err === 'crew is a RUN 3 line; this file says RUN 2', two2.err);
+  ok('a RUN 2 file without one still reads, as RUN 2', runWith([], 'RUN 2').ok && runWith([], 'RUN 2').version === 2);
+  ok('everything RUN 2 requires, RUN 3 requires',
+     !C.run('RUN 3\ncourse c.txt\npolar p.txt\nstart at 2025-05-24T00:00Z\nstep time 600 heading 5\nround 0.10\nend\n').ok);
+  ok('crew wants a file and a level', !runWith(['crew crew_x.txt']).ok && /crew <file> <level>/.test(runWith(['crew crew_x.txt']).err));
+  ok('a run has one crew', !runWith(['crew a.txt able', 'crew b.txt green']).ok);
+  var old = C.run(['RUN 1', 'course c.txt', 'polar p.txt', 'start at 2025-05-24T00:00Z', 'step time 600 heading 5',
+                   'round 0.10', 'crew k.txt able', 'end'].join('\n'));
+  ok('nor is it a RUN 1 line', !old.ok && old.err === 'crew is a RUN 3 line; this file says RUN 1', old.err);
+
+  ok('a run with no crew needs no crew file', C.checkCrew(runWith([]), null).ok);
+  ok('a run whose level is in the file passes', C.checkCrew(rn, c).ok);
+  var k1 = C.checkCrew(rn, null), k2 = C.checkCrew(runWith(['crew crew_x.txt crack']), c),
+      k3 = C.checkCrew(rn, C.crew('nonsense'));
+  ok('a crew file that was not loaded is said', !k1.ok && /crew_x\.txt, which was not loaded/.test(k1.err), k1.err);
+  ok('a level the file does not give is said, with the ones it does',
+     !k2.ok && /crew level "crack", which crew_x\.txt does not give; it has able, green/.test(k2.err), k2.err);
+  ok('a crew file that did not read is said, in its reader\'s words', !k3.ok && /crew_x\.txt did not load: /.test(k3.err), k3.err);
 })();
 
 if (fail) { console.log('  ' + fail + ' of ' + checks + ' checks failed'); process.exit(1); }

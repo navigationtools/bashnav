@@ -55,6 +55,21 @@ var ROUTER = (function () {
 
   function no(why) { return { ok: false, why: why }; }
 
+  //  From one bearing round to another by the shorter way; clockwise is
+  //  positive.
+  function swing(a, b) { var d = R.norm360(b - a); return d > 180 ? d - 360 : d; }
+
+  //  TACK OR GYBE is which end of the wind her bow passes through. She
+  //  turns from the old heading to the new by the shorter way; if the
+  //  direction the wind comes from lies inside that turn she tacked,
+  //  and if it does not she gybed. A half turn has no shorter way, and
+  //  is a tack if she ends up closer to the wind than abeam.
+  function throughWind(h0, h1, twd, twaAfter) {
+    var t = swing(h0, h1), w = swing(h0, twd);
+    if (Math.abs(Math.abs(t) - 180) < 1e-9) return twaAfter < 90;
+    return (w > 0) === (t > 0) && Math.abs(w) < Math.abs(t);
+  }
+
   function msOf(t) {
     return Date.UTC(+t.substr(0, 4), +t.substr(5, 2) - 1, +t.substr(8, 2),
                     +t.substr(11, 2), +t.substr(14, 2));
@@ -313,12 +328,60 @@ var ROUTER = (function () {
     var nleg = g.gates.length + 1;
     var stats = { expanded: 0, tried: 0, stopped: {}, kept: 0, startPoints: 0, startDropped: 0 };
 
+    //  THE COST OF A TACK, AND OF A GYBE.  A run may name a crew, and a
+    //  crew has a cost for each: the time lost, averaged over how well
+    //  that crew's manoeuvres come off (COURSE.md, CREW 1).  A run that
+    //  names none is sailed as it always was, with manoeuvres that cost
+    //  nothing, and `cost` stays null so that not one line below
+    //  behaves differently for it.
+    //
+    //  HOW THE COST IS SPENT.  When she goes onto the other tack she
+    //  first makes no way through the water for as long as the
+    //  manoeuvre costs -- the stream has her -- and then sails.  If
+    //  that is longer than what is left of the step she is still in it
+    //  when the next step begins, and serves the rest there.  Nothing
+    //  is forgiven at a mark or at the finish: the time is all spent
+    //  before she sails again.
+    //
+    //  SHE DOES NOT KNOW WHICH TACK WILL BE THE BLOWN ONE, and neither
+    //  does the router: every tack costs the crew's average (Larry, 13
+    //  November 2026).  A route that knew would put its bad tacks where
+    //  they hurt least, which no crew can do.
+    var cost = { tack: 0, gybe: 0 };
+    if (rn.crew) {
+      var cw = env.crew;
+      if (!cw || !cw.ok) return no('the run names a crew file, ' + rn.crew.file + ', which was not loaded');
+      var lv = cw.level(rn.crew.level);
+      if (!lv) return no('the run asks for crew level "' + rn.crew.level + '", which ' + rn.crew.file + ' does not give');
+      cost = { tack: lv.tack.mean, gybe: lv.gybe.mean };
+    }
+
     //  where each leg begins and where it is bound, for "nearer" and
     //  for the limit of the search
     var from = [g.start.mid], to = [];
     g.gates.forEach(function (gt) { to.push({ x: gt.aimx, y: gt.aimy }); from.push({ x: gt.aimx, y: gt.aimy }); });
     to.push(g.finish.mid);
     function left(leg, x, y) { return Math.hypot(to[leg].x - x, to[leg].y - y); }
+    //  how far along the leg she has got: her place measured down the
+    //  straight line from where the leg began to where it is bound
+    function made(leg, x, y) {
+      var ux = to[leg].x - from[leg].x, uy = to[leg].y - from[leg].y, d = Math.hypot(ux, uy) || 1;
+      return ((x - from[leg].x) * ux + (y - from[leg].y) * uy) / d;
+    }
+    //  OF TWO BOATS IN THE SAME SQUARE AT THE SAME TIME, WHICH IS KEPT.
+    //  With free tacks: the one nearer where she is bound.  With a cost:
+    //  the one that has made more ground along the leg.  The difference
+    //  is the boat that sails wide for speed.  Five degrees further off
+    //  the wind she is a tenth of a mile outside the other after one
+    //  step, in the same square, further from the mark in a straight
+    //  line -- and ahead.  When she can come back for nothing, keeping
+    //  the inside boat loses nothing.  When coming back is a gybe that
+    //  costs minutes, it sails the whole run five degrees too deep:
+    //  the first version of this did, and took nine minutes longer over
+    //  twenty miles than the one gybe it made accounts for.
+    function ahead(leg, x, y, ox, oy) {
+      return made(leg, x, y) > made(leg, ox, oy);
+    }
     function inReach(leg, x, y) {
       var D = Math.hypot(to[leg].x - from[leg].x, to[leg].y - from[leg].y);
       return Math.hypot(x - from[leg].x, y - from[leg].y) + left(leg, x, y) <= reach * D + 4;
@@ -341,7 +404,8 @@ var ROUTER = (function () {
       var sx = g.X(off.lon), sy = g.Y(off.lat);
       stats.startPoints++;
       if (g.water.tooNear(sx, sy)) { stats.startDropped++; continue; }
-      frontier.push({ lat: off.lat, lon: off.lon, x: sx, y: sy, ms: g.t0, leg: 0, parent: null, row: null, along: f });
+      frontier.push({ lat: off.lat, lon: off.lon, x: sx, y: sy, ms: g.t0, leg: 0, parent: null, row: null, along: f,
+                        tack: null, heading: null, owed: 0, via: null });
     }
     if (!frontier.length) return no('every place on the start line is nearer the shore than the run allows');
 
@@ -364,6 +428,15 @@ var ROUTER = (function () {
         if (!cnd.ok) { stats.stopped.wind = (stats.stopped.wind || 0) + 1; continue; }
         stats.expanded++;
 
+        //  STILL IN THE MANOEUVRE: there is time owed, and until it is
+        //  served she goes nowhere but where the stream takes her.
+        if (node.owed > 0) {
+          consider(node, R.driftFrom(cnd, Math.min(node.owed / 60, minutes), { manoeuvre: node.via, tack: node.tack }),
+                   Tn, next, queue, { tack: node.tack, heading: node.heading, via: node.via, owed: node.owed });
+          continue;
+        }
+        var begun = {};
+
         //  THE HEADINGS TRIED: the fan the run asks for; the best
         //  angle to beat and to run on each tack, which a five-degree
         //  fan would otherwise straddle; and, when the mark or the
@@ -379,6 +452,38 @@ var ROUTER = (function () {
         var prevH = null, prevD = null;
 
         for (k = 0; k < heads.length; k++) {
+          if (node.tack) {
+            //  Which tack this heading is on, and which end of the wind
+            //  lies between it and the heading she has: both can be
+            //  told from the angles alone, before the polar is asked.
+            var off = R.norm360(heads[k] - cnd.twd + 180) - 180;
+            var onTack = off >= 0 ? 'port' : 'starboard';
+            var kind = throughWind(node.heading, heads[k], cnd.twd, Math.abs(off)) ? 'tack' : 'gybe';
+            if (node.via) {
+              //  She has just come out of a manoeuvre.  The board she
+              //  sails first is one that manoeuvre leads to: on the new
+              //  tack, and the far side of the end of the wind she
+              //  turned through.  (node.heading is still the heading
+              //  she had before it.)
+              if (onTack !== node.tack || kind !== node.via) {
+                if (k < 360 / dh) prevH = null;
+                continue;
+              }
+            } else if (onTack !== node.tack && cost[kind] > 0) {
+              //  Onto the other tack: not without the manoeuvre.  It is
+              //  begun once for a tack and once for a gybe, however
+              //  many headings lie beyond each, because until it is
+              //  over she has no heading to choose -- and only if there
+              //  is a heading beyond it that the polar can sail.
+              if (!begun[kind] && P.sail(polar, Math.abs(off), cnd.tws)) {
+                begun[kind] = true;
+                consider(node, R.driftFrom(cnd, Math.min(cost[kind] / 60, minutes), { manoeuvre: kind, tack: onTack }),
+                         Tn, next, queue, { tack: onTack, heading: node.heading, via: kind, owed: cost[kind] });
+              }
+              if (k < 360 / dh) prevH = null;
+              continue;
+            }
+          }
           var row = R.sailFrom(cnd, polar, heads[k], minutes);
           stats.tried++;
           if (!row.ok) { if (k < 360 / dh) { prevH = null; } continue; }
@@ -407,7 +512,10 @@ var ROUTER = (function () {
       T = Tn;
     }
 
-    function consider(node, row, Tn, next, queue) {
+    //  st is given for a manoeuvre row only: the tack she is going onto,
+    //  the heading she had before it, which manoeuvre it is, and the
+    //  time owed as the row begins.
+    function consider(node, row, Tn, next, queue, st) {
       var ax = node.x, ay = node.y, bx = g.X(row.lon2), by = g.Y(row.lat2);
       var leg = node.leg, f = 1, ev = null, t;
       if (leg < g.gates.length) {
@@ -450,25 +558,74 @@ var ROUTER = (function () {
       var nl = ev === 'round' ? leg + 1 : leg;
       if (!ev && !inReach(leg, bx, by)) { stats.stopped.reach = (stats.stopped.reach || 0) + 1; return; }
 
+      //  What she is doing as this row ends: sailing on a tack, or part
+      //  way through a manoeuvre with some of its time still to serve.
+      //  (A manoeuvre row cut short at a line has served only the part
+      //  of it she was given, and the rest is still owed.)
+      var owed = 0, via = null, tk = row.tack, hd = row.heading;
+      if (st) {
+        owed = st.owed - row.minutes * 60;
+        if (owed < 1e-6) owed = 0;
+        via = st.via; tk = st.tack; hd = st.heading;
+      }
       var nn = { lat: lat2, lon: lon2, x: bx, y: by, ms: ms, leg: nl, parent: node, row: row,
-                 ev: ev === 'round' ? g.gates[leg].name : null };
-      var key = cellKey(bx, by), was = seen[nl][key];
+                 ev: ev === 'round' ? g.gates[leg].name : null,
+                 tack: tk, heading: hd, owed: owed, via: via };
+
+      //  "FIRST" COUNTS WHAT SHE STILL OWES: a boat here now with two
+      //  minutes of a tack to serve is no earlier than one here in two
+      //  minutes' time with none.  And once a tack costs something,
+      //  being here on port and being here on starboard are different
+      //  places to be, so each is kept; with no crew set the key is the
+      //  square alone, as it was.
+      //
+      //  AND SO ARE "CAN FETCH IT" AND "CANNOT".  Two boats in the same
+      //  half-mile square on the same tack are not in the same place
+      //  if one of them can lay the mark from there and the other is a
+      //  few lengths to leeward of the line that does.  When a tack was
+      //  free that did not matter.  When it costs, keeping only the
+      //  earlier of the two throws away the boat that judged her
+      //  layline and keeps the one that must tack twice more -- and the
+      //  first version of this did exactly that, sailing a dead beat
+      //  with one tack and a 37-minute overstand.  So a boat that can
+      //  sail straight at where she is bound, on the tack she is on, is
+      //  kept apart from one that cannot.  (The rule for which of two
+      //  boats in a square is kept, above, has since come to guard the
+      //  beat as well.  This one is still worth a minute or two on a
+      //  run, and tests/router.js holds the run to it.)
+      var eff = ms + owed * 1000;
+      var tg = to[nl], brg = R.norm360(Math.atan2(tg.x - bx, tg.y - by) / RAD);
+      var offT = R.norm360(brg - row.twd + 180) - 180;
+      var key = cellKey(bx, by) + ':' + tk + (via ? ':' + via : '') +
+                (((offT >= 0 ? 'port' : 'starboard') === tk && P.sail(polar, Math.abs(offT), row.tws)) ? ':f' : ':n');
+      var was = seen[nl][key];
       if (ev === 'round') {
         if (legOver[leg] < 0) legOver[leg] = iter;
-        if (was && was.ms <= ms + 500) return;
-        seen[nl][key] = { ms: ms, slot: -1 };
+        if (was && was.ms <= eff + 500) return;
+        seen[nl][key] = { ms: eff, slot: -1, iter: iter };
         queue.push(nn);
         stats.kept++;
         return;
       }
+      //  a manoeuvre that is over before the step is: she sails the rest
+      if (st && ms < Tn - 1) { queue.push(nn); stats.kept++; return; }
       if (was) {
-        //  reached in an earlier step: she was here first
-        if (was.ms < ms - 500 || was.slot < 0) return;
-        //  reached in this same step: keep the one nearer where she is bound
-        if (left(nl, bx, by) < left(nl, next[was.slot].x, next[was.slot].y)) next[was.slot] = nn;
-        return;
+        //  reached earlier: she was here first
+        if (was.ms < eff - 500 || was.slot < 0) return;
+        if (was.iter === iter) {
+          //  reached in this same step: keep the one that owes less,
+          //  and of two that owe the same the one nearer where she is
+          //  bound
+          if (eff < was.ms - 500 ||
+              (Math.abs(eff - was.ms) <= 500 && ahead(nl, bx, by, next[was.slot].x, next[was.slot].y))) {
+            next[was.slot] = nn; was.ms = eff;
+          }
+          return;
+        }
+        //  reached in an earlier step by a boat that, counting what it
+        //  owed, was no sooner than this one: this one takes the square
       }
-      seen[nl][key] = { ms: ms, slot: next.length };
+      seen[nl][key] = { ms: eff, slot: next.length, iter: iter };
       next.push(nn);
       stats.kept++;
     }
@@ -494,19 +651,31 @@ var ROUTER = (function () {
 
     //  what the track adds up to
     var sum = { start: utc(g.t0), finish: utc(best.ms), hours: (best.ms - g.t0) / 3600000,
-                ground: 0, water: 0, tacks: 0, noStreamMinutes: 0, clampedMinutes: 0,
+                ground: 0, water: 0, tacks: 0, gybes: 0, tackSeconds: 0, gybeSeconds: 0,
+                noStreamMinutes: 0, clampedMinutes: 0,
                 optimumMinutes: 0, rounded: [], startAlong: stats.along, pin: g.pin || null };
     for (i = 0; i < rows.length; i++) {
       var rr = rows[i];
       sum.ground += rr.sog * rr.minutes / 60;
       sum.water += rr.stw * rr.minutes / 60;
-      if (i && rows[i - 1].tack !== rr.tack) sum.tacks++;
+      if (i && rows[i - 1].tack !== rr.tack) {
+        //  A tack and a gybe are counted apart.  With a crew set the
+        //  manoeuvre row says which it is; without one it is worked
+        //  out from the two headings, the same way.
+        var kd = rr.manoeuvre || (throughWind(rows[i - 1].heading, rr.heading, rr.twd, rr.twa) ? 'tack' : 'gybe');
+        if (kd === 'tack') sum.tacks++; else sum.gybes++;
+      }
+      if (rr.manoeuvre === 'tack') sum.tackSeconds += rr.minutes * 60;
+      if (rr.manoeuvre === 'gybe') sum.gybeSeconds += rr.minutes * 60;
       if (rr.noStream) sum.noStreamMinutes += rr.minutes;
       if (rr.clamped) sum.clampedMinutes += rr.minutes;
-      if (rr.polar !== 'table') sum.optimumMinutes += rr.minutes;
+      if (rr.polar !== 'table' && rr.polar !== 'manoeuvre') sum.optimumMinutes += rr.minutes;
       if (rr.event && rr.event !== 'finish') sum.rounded.push({ mark: rr.event.replace(/^rounded /, ''),
                                                                at: utc(rr.ms + rr.minutes * 60000) });
     }
+    //  what the run asked a manoeuvre to cost, so that a report need
+    //  not open the crew file to say it
+    sum.crew = rn.crew ? { file: rn.crew.file, level: rn.crew.level, tack: cost.tack, gybe: cost.gybe } : null;
     return { ok: true, rows: rows, summary: sum, stats: stats, gates: g.gates };
   }
 

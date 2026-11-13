@@ -333,6 +333,37 @@ var ROUTE = (function () {
     };
   }
 
+  //  A STRETCH OF TIME ON WHICH SHE MAKES NO WAY THROUGH THE WATER: what
+  //  a tack or a gybe costs. The cost is stated as time lost - how far
+  //  behind she is afterwards, in seconds, against a boat that carried
+  //  straight on - and it is spent here, at the start of the new board:
+  //  for that long her speed through the water is nothing, and the
+  //  stream has her. So a tack made in a fair stream costs less ground
+  //  than the same tack in a foul one, which is true of real tacks too.
+  //
+  //  The row is an ordinary row and passes consistent(): heading, a
+  //  speed of zero, and whatever the stream does. Its heading is where
+  //  the bow is in the middle of the manoeuvre - head to wind in a
+  //  tack, stern to wind in a gybe - and its tack is the one she is
+  //  going onto, so that a log begins the new board where the helm went
+  //  down.
+  function driftFrom(c, minutes, how) {
+    var gybe = how.manoeuvre === 'gybe';
+    var hd = norm360(gybe ? c.twd + 180 : c.twd);
+    var v = vec(hd, 0, c.set === null ? 0 : c.set, c.drift);
+    var to = advance(c.lat, c.lon, v.cog, v.sog, minutes);
+    return {
+      ok: true,
+      lat: c.lat, lon: c.lon, ms: c.ms, minutes: minutes, heading: hd,
+      gwd: c.gwd, gws: c.gws, twd: c.twd, tws: c.tws,
+      twa: gybe ? 180 : 0, tack: how.tack,
+      stw: 0, polar: 'manoeuvre', clamped: false, manoeuvre: gybe ? 'gybe' : 'tack',
+      set: c.set, drift: c.drift, noStream: c.noStream,
+      cog: v.cog, sog: v.sog, n: v.n, e: v.e,
+      lat2: to.lat, lon2: to.lon
+    };
+  }
+
   function step(o) {
     var c = conditions(o);
     if (!c.ok) return c;
@@ -343,7 +374,7 @@ var ROUTE = (function () {
     vec: vec, advance: advance, consistent: consistent,
     norm360: norm360, comp: comp, from: from,
     sample: sample, windOf: windOf, streamOf: streamOf, step: step,
-    conditions: conditions, sailFrom: sailFrom
+    conditions: conditions, sailFrom: sailFrom, driftFrom: driftFrom
   };
 })();
 

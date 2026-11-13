@@ -188,6 +188,69 @@ ok('a refusal reports its reason and nothing else', SAIL.report(r) === r.err && 
      /Before trusting it:\n  2h00 sailed where the stream grid has no data, as still water\n/.test(tt), tt);
 })();
 
+//  ---- 6. a run that names a crew ------------------------------------
+//  The crew file of the course test: an able crew's tack costs 57 s on
+//  average and its gybe 168; a green crew's, 330 and 510. The wind is
+//  in the east, so the twenty miles are a dead beat and she must tack.
+(function () {
+  var CREW = ['CREW 1', 'grades   clean   blown',
+              'level able    90 30    10 300', 'gybe  able    80 60    20 600',
+              'level green   50 60    50 600', 'gybe  green   50 120   50 900', 'end'].join('\n') + '\n';
+  function crewed(level, change) {
+    return folder(function (f) {
+      f['k.txt'] = CREW;
+      f['run.txt'] = runText(['crew k.txt ' + level]).replace('RUN 2', 'RUN 3');
+      f['w.grid'] = field('wind', -10, 0);
+      if (change) change(f);
+    });
+  }
+  var c = SAIL.sail(crewed('able'), 'run.txt');
+  ok('a run that names a crew is sailed with it', c.ok, c.err);
+  if (!c.ok) return;
+  var sm = c.route.summary;
+  ok('the crew\'s tack costs what the file works out to: 57 s', sm.crew && Math.abs(sm.crew.tack - 57) < 1e-9 &&
+     Math.abs(sm.crew.gybe - 168) < 1e-9 && sm.crew.level === 'able' && sm.crew.file === 'k.txt', JSON.stringify(sm.crew));
+  ok('she tacks, and pays for each', sm.tacks >= 1 && Math.abs(sm.tackSeconds - 57 * sm.tacks) < 1e-6, sm.tacks + ' ' + sm.tackSeconds);
+  (function () {
+    var rd = crewed('able');
+    var direct = ROUTER.run({ course: COURSE.course(rd('c.txt')), run: COURSE.run(rd('run.txt')), areas: [],
+                              wind: GRID.parse(rd('w.grid')), current: GRID.parse(rd('s.grid')),
+                              polar: POLAR.parse(rd('p.txt')), crew: COURSE.crew(rd('k.txt')) });
+    ok('the route is still the router\'s own, row for row, crew and all',
+       direct.ok && JSON.stringify(direct.rows) === JSON.stringify(c.route.rows));
+  })();
+  var g = SAIL.sail(crewed('green'), 'run.txt');
+  ok('a green crew takes longer over the same beat than an able one',
+     g.ok && g.route.summary.hours > sm.hours, g.ok ? g.route.summary.hours.toFixed(4) + ' against ' + sm.hours.toFixed(4) : g.err);
+
+  var rep = SAIL.report(c);
+  ok('the report names the crew and its file', /\n  crew      able, from k\.txt\n/.test(rep), rep);
+  ok('says what a tack cost on average and what the tacks came to',
+     new RegExp('\\n  tacks?\\s+' + sm.tacks + ', at 57 s each on average: .* given to tacking\\n').test(rep), rep);
+  ok('and how this crew\'s tacks and gybes come off',
+     /\n            of this crew's tacks: 90% clean, 10% blown\n/.test(rep) &&
+     /\n            of this crew's gybes: 80% clean, 20% blown\n/.test(rep), rep);
+  ok('its first lines say every tack costs the average, and not that tacks are free',
+     /Every\ntack costs the crew's average; no one tack is the bad one/.test(rep) && !/costs the\nrouter nothing/.test(rep),
+     rep.split('\n').slice(0, 3).join(' / '));
+  ok('a run with no crew still says its tacks cost nothing, and counts tacks and gybes apart',
+     /\n  tacks     0, and 0 gybes, each costing nothing: the run names no crew\n/.test(t) && /costs the\nrouter nothing/.test(t), t);
+  var wideC = rep.split('\n').filter(function (x) { return x.length > 80; });
+  ok('no line of a crew\'s report is wider than 80 columns', wideC.length === 0, wideC[0]);
+  ok('the passage log in it states what a tack cost', /\n         the tack cost 57 s\n/.test(rep), rep);
+
+  //  the refusals
+  var r1 = SAIL.sail(crewed('able', function (f) { delete f['k.txt']; }), 'run.txt');
+  ok('a missing crew file is named, and what it was wanted as', !r1.ok && r1.stage === 'crew' &&
+     r1.err === 'the run names a crew file, k.txt, which is not in the folder', r1.err);
+  var r2 = SAIL.sail(crewed('able', function (f) { f['k.txt'] = f['k.txt'].replace('90 30', '80 30'); }), 'run.txt');
+  ok('a crew file that will not read is refused in its reader\'s words, with its name',
+     !r2.ok && r2.stage === 'crew' && r2.err === 'k.txt: the shares on this line add up to 90, not 100', r2.err);
+  var r3 = SAIL.sail(crewed('crack'), 'run.txt');
+  ok('a level the file does not give is refused before anything is sailed, naming the ones it has',
+     !r3.ok && r3.stage === 'check' && /crew level "crack", which k\.txt does not give; it has able, green/.test(r3.err), r3.err);
+})();
+
 //  ---- 4. the same twice, and hands off -----------------------------
 ok('the same folder twice gives the same report', SAIL.report(SAIL.sail(folder(), 'run.txt')) === t);
 

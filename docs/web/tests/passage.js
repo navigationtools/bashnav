@@ -34,16 +34,17 @@ var T0 = Date.UTC(2025, 4, 24, 10, 0, 0);
 //  a 165-degree bear-away that was really a gybe. A fixture that can
 //  lie teaches the checks to pass on nonsense, so this one cannot.
 function maker() {
-  var rows = [];
+  var rows = [], clock = T0;
   function add(tack, heading, o) {
     o = o || {};
     var gwd = o.gwd === undefined ? 240 : o.gwd;
     var twa = ((heading - gwd + 180) % 360 + 360) % 360 - 180;
-    if (Math.abs(twa) === 180 || twa === 0 || (twa > 0 ? 'port' : 'starboard') !== tack) {
+    if (!o.manoeuvre &&
+        (Math.abs(twa) === 180 || twa === 0 || (twa > 0 ? 'port' : 'starboard') !== tack)) {
       throw new Error('fixture: heading ' + heading + ' in a wind from ' + gwd + ' is not ' + tack + ' tack');
     }
     var w = {
-      ms: T0 + rows.length * 600000, minutes: o.minutes || 10,
+      ms: clock, minutes: o.minutes || 10,
       heading: heading, tack: tack, leg: o.leg || 0,
       gwd: gwd, gws: o.gws === undefined ? 20 : o.gws,
       twd: gwd, tws: o.tws === undefined ? (o.gws === undefined ? 20 : o.gws) : o.tws,
@@ -54,8 +55,20 @@ function maker() {
     };
     if (o.noStream) { w.set = null; w.drift = null; }
     if (o.event) w.event = o.event;
+    if (o.manoeuvre) { w.manoeuvre = o.manoeuvre; w.twa = o.manoeuvre === 'gybe' ? 180 : 0; w.polar = 'manoeuvre'; }
+    clock += w.minutes * 60000;
     rows.push(w);
   }
+  //  A manoeuvre row, as the router writes one: so many seconds with no
+  //  way on, head to wind in a tack and stern to it in a gybe, on the
+  //  tack she is going onto. No stream in these fixtures, so she does
+  //  not move.
+  add.man = function (kind, tack, seconds, o) {
+    o = o || {};
+    var gwd = o.gwd === undefined ? 240 : o.gwd;
+    add(tack, (gwd + (kind === 'gybe' ? 180 : 0)) % 360,
+        { gwd: gwd, minutes: seconds / 60, stw: 0, sog: 0, manoeuvre: kind });
+  };
   add.many = function (n, tack, heading, o) { for (var i = 0; i < n; i++) add(tack, heading, o); };
   add.rows = rows;
   return add;
@@ -346,6 +359,74 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   l = two({ set: 270, drift: 1 }, { set: 270, drift: 1 });
   ok('a tack can change fair to slack with the water unchanged',
      words(l) === 'state:stream slack on this line, fair on the last', words(l));
+})();
+
+//  ---- 8b. when a tack costs something -------------------------------
+//  The router then puts the manoeuvre itself in the rows: a row marked
+//  `manoeuvre`, head to wind (or stern to it, in a gybe), on which she
+//  makes no way, belonging to the tack she is going onto.
+(function () {
+  //  Half an hour on port at 285, a tack of 60 seconds, half an hour on
+  //  starboard at 195. The wind is 240 throughout.
+  var a = maker(); a.many(3, 'port', 285); a.man('tack', 'starboard', 60); a.many(3, 'starboard', 195);
+  var r = PASSAGE.log(a.rows);
+  ok('a tack in the rows begins the new board', r.ok && kinds(r) === 'start board board', kinds(r));
+  var b = r.lines[2];
+  ok('the board begins where the helm went down', b.ms === T0 + 30 * 60000 && b.first === 3);
+  ok('it is called a tack', b.did === 'tacked' && b.turn === 90, b.did + ' ' + b.turn);
+  //  With the manoeuvre row in the mean - a minute pointing at 240 among
+  //  thirty at 195 - the heading comes out 196 and the angle off the
+  //  wind 44. She SAILED 195, 45 off.
+  ok('the heading is the heading she sailed, not dragged round by the tack', b.heading === 195, String(b.heading));
+  ok('and so is the angle off the wind', b.offWind === 45, String(b.offWind));
+  //  31 minutes, of which 30 at nine knots: 4.5 miles, and 9 x 30/31 =
+  //  8.7 knots for the board as a whole.
+  ok('the board is 31 minutes and 4.5 miles: the tack adds time and no distance', b.minutes === 31 && b.nm === 4.5, b.minutes + ' ' + b.nm);
+  ok('and its speeds are for the whole of it, tack included: 8.7 knots', b.stw === 8.7 && b.sog === 8.7, b.stw + ' ' + b.sog);
+  ok('the log says what the tack cost', b.cost && b.cost.tacks === 1 && b.cost.tackSeconds === 60 &&
+     b.cost.gybes === 0 && b.cost.gybeSeconds === 0, JSON.stringify(b.cost));
+  ok('a board with no manoeuvre in it has no cost to state', r.lines[1].cost === null);
+  var t = keep(r);
+  ok('and the text states it as a fact', /10:30  tacked to starboard, heading 195   0h31  4\.5 nm\n/.test(t) &&
+     /made good\n         the tack cost 60 s$/.test(t), t);
+
+  //  A gybe: starboard at 090 with the wind on the quarter, 95 seconds,
+  //  port at 030.
+  a = maker(); a.many(3, 'starboard', 90); a.man('gybe', 'port', 95); a.many(3, 'port', 30);
+  r = PASSAGE.log(a.rows); b = r.lines[2];
+  ok('a gybe in the rows is called a gybe', b.did === 'gybed' && b.turn === 60 && b.heading === 30, b.did + ' ' + b.turn + ' ' + b.heading);
+  ok('and costed apart from a tack', b.cost.gybes === 1 && b.cost.gybeSeconds === 95 && b.cost.tacks === 0);
+  ok('a minute and a half is written as minutes', /\n         the gybe cost 1 min 35 s$/.test(keep(r)), PASSAGE.text(r));
+
+  //  THE ROUTER'S WORD IS TAKEN FOR WHICH IT WAS. 285 to 195 in a wind
+  //  from 240 is through the wind, and the log would call it a tack if
+  //  it worked it out for itself; the row says gybe.
+  a = maker(); a.many(3, 'port', 285); a.man('gybe', 'starboard', 60); a.many(3, 'starboard', 195);
+  ok('the log takes the row\'s word for which manoeuvre it was', PASSAGE.log(a.rows).lines[2].did === 'gybed');
+
+  //  A tack longer than a step is two rows, ten minutes and then five,
+  //  and still one tack.
+  a = maker(); a.many(3, 'port', 285); a.man('tack', 'starboard', 600); a.man('tack', 'starboard', 300);
+  a.many(3, 'starboard', 195);
+  r = PASSAGE.log(a.rows); b = r.lines[2];
+  ok('a tack carried over two rows is one tack', b.cost.tacks === 1 && b.cost.tackSeconds === 900 && b.did === 'tacked', JSON.stringify(b.cost));
+  ok('fifteen minutes is written so', /\n         the tack cost 15 min 00 s$/.test(keep(r)), PASSAGE.text(r));
+
+  //  Short-tacking: three boards of ten minutes, the second and third
+  //  each begun with a tack of 30 seconds.
+  a = maker(); a('port', 285);
+  a.man('tack', 'starboard', 30); a('starboard', 195);
+  a.man('tack', 'port', 30); a('port', 285);
+  r = PASSAGE.log(a.rows);
+  ok('short tacks fold as before, tacks and all', kinds(r) === 'start short' && r.lines[1].boards === 3, kinds(r));
+  ok('and the line says what its tacks came to', r.lines[1].cost.tacks === 2 && r.lines[1].cost.tackSeconds === 60 &&
+     /\n         2 tacks cost 60 s/.test(keep(r)), JSON.stringify(r.lines[1].cost));
+
+  //  A run with no crew has no such rows, and nothing is said of cost.
+  a = maker(); a.many(3, 'port', 285); a.many(3, 'starboard', 195);
+  r = PASSAGE.log(a.rows);
+  ok('a log of free tacks says nothing of what they cost',
+     r.lines.every(function (l) { return !l.cost; }) && !/cost/.test(PASSAGE.text(r)));
 })();
 
 //  ---- 9. it says what, and never why ------------------------------

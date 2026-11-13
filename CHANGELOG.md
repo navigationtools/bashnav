@@ -1,5 +1,84 @@
 # Changelog
 
+## A tack costs something, and a crew decides how much
+
+**What.** A run may now name a crew, and the router charges for every tack
+and every gybe. Four things changed together:
+
+1. **A new file, CREW 1** (`COURSE.md`). For each level of crew, and for each
+   grade a manoeuvre can come off in - clean, fair, slow, blown - the share of
+   her tacks that come off that way and the time each loses. A second line
+   gives the same for her gybes. `docs/web/route/crew_starting_v1.txt` has
+   four levels to copy and change: green, ordinary, able, crack.
+2. **RUN 3**, which is RUN 2 and one more line: `crew <file> <level>`.
+3. **The router** (`router.js`) spends the cost: going onto the other tack she
+   first makes no way through the water for as long as it costs, and the
+   stream has her; then she sails.
+4. **The passage log and the report** say what each tack cost and what the
+   tacks came to.
+
+**Why.** With tacks that cost nothing the router tacked every ten minutes
+where no crew would, and the number of tacks in a report meant nothing. It was
+the one missing piece not in doubt when the router went to the course as a
+beta.
+
+**The design is Larry's, 13 November 2026**, decided one question at a time:
+a tack has a quality, four grades with "blown" at the bottom; a crew is a mix
+of them, and its level sets both the mix and the times; anyone may write their
+own levels in their own file; a gybe has "its own line for sure, and a blown
+gybe is expensive"; and the router plans on the crew's **average** - it does
+not know which tack will be the blown one, and neither does the crew.
+
+**The figures in the starting file are estimates, not measurements.** The able
+crew's tack line is the one Larry gave. The rest step sensibly from it and are
+there to be changed.
+
+**Why RUN 3 and not a line added to RUN 2.** It was first written as an
+optional RUN 2 line. The format's own rule caught that: a reader that did not
+know the line would sail the run with free tacks and report it as this run.
+A RUN 2 file with a `crew` line is refused; every RUN 2 file without one
+reads as it did.
+
+**Three things about the search that the cost exposed**, each found by a
+check worked by hand that failed:
+
+1. A boat here on port and a boat here on starboard are different places.
+2. So are a boat that can fetch the mark from here and one that cannot. Before
+   this, a twenty-mile dead beat was sailed with one tack and a 37-minute
+   overstand.
+3. Of two boats that reach a square together, the one further along the leg
+   is kept, not the one nearer the mark. Before this, a twenty-mile run was
+   sailed five degrees too deep all the way.
+
+**What it affects - and this changes a figure already published.** The three
+rules are used for every run, with a crew or without, so that a run with free
+tacks is the limit of the crews and not a different search. The 2025 race with
+free tacks, first sailed in 23.70 hours, is now sailed in 23.62: about five
+minutes better, in the same weather with the same boat. The track changed
+with it - it now passes Portland Bill at 0.88 miles, not 0.21. `ROUTER.md` is
+rewritten where it quoted the old run, and has a new part on what the search
+can and cannot resolve: a minute or two between two runs is not a finding. A
+run takes about eight seconds where it took three.
+
+**The 2025 race by four crews**, same boat, same weather: crack 4 minutes
+behind free tacks, able 15, ordinary 34, green 57. The green crew gives 35 of
+its 57 to the manoeuvres; the rest is the price of tacking less.
+
+**Checked.** Every expected answer is worked in the comment beside its check.
+A dead beat with a five-minute tack is the beat and five minutes, with one
+tack. A dead run is the run and its one gybe, at the gybe's own cost. Two
+crews that each make one tack differ by the difference in what it costs. A
+tack longer than a step is carried into the next; a tack in a stream goes
+where the stream goes; one cut short at a mark is still paid in full. A run
+with no crew has no manoeuvre rows and its log reads as it did. 33 faults were
+put in one at a time across the five files and each is caught; two got past
+every check at first and a check was added for each. One check of mine asked
+for more than a ten-minute step can give, and says so now.
+
+**Not done.** No one tack is the bad one: the story of one race in which one
+particular tack went wrong is a different question and a later piece of work.
+The cost does not depend on the wind or the sea. Gates are still refused.
+
 ## A run can be sailed from its name, and the router goes to the course as a beta
 
 **What.** `docs/web/route/sail.js`: one command that takes a folder and the

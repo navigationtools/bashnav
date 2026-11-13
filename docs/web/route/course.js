@@ -1,5 +1,5 @@
 // =====================================================================
-//  COURSE 1, AREAS 1, RUN 2 -- the three files the router reads
+//  COURSE 1, AREAS 1, RUN 3, CREW 1 -- the files the router reads
 //  besides the grids.  RUN 1 is still read, and still means what it
 //  meant: see the RUN section below for what RUN 2 adds and why it
 //  could not be an addition to RUN 1.
@@ -273,7 +273,8 @@ var COURSE = (function () {
     return a;
   }
 
-  // ---- RUN 1 and RUN 2 ----------------------------------------------
+  // ---- RUN 1, RUN 2 and RUN 3 ----------------------------------------
+  //  (RUN 3 is RUN 2 with one more line, `crew`: see where it is read.)
   //
   //  RUN 2 ADDS THE WEATHER TO THE EXPERIMENT. A run is one experiment --
   //  this boat, this start, this water -- and until now the wind and the
@@ -306,12 +307,13 @@ var COURSE = (function () {
       version: 0, course: null, areas: [], polar: null, start: null,
       step: null, scale: { wind: 1, current: 1 },
       layers: [], clear: {}, round: null, gates: [],
-      wind: null, current: null
+      wind: null, current: null, crew: null
     };
     if (!L.length) return bad(0, 'the file is empty');
     if (L[0].s === 'RUN 1') r.version = 1;
     else if (L[0].s === 'RUN 2') r.version = 2;
-    else return bad(L[0].n, 'the first line must be "RUN 1" or "RUN 2"');
+    else if (L[0].s === 'RUN 3') r.version = 3;
+    else return bad(L[0].n, 'the first line must be "RUN 1", "RUN 2" or "RUN 3"');
 
     var ended = false;
     for (i = 1; i < L.length; i++) {
@@ -326,6 +328,26 @@ var COURSE = (function () {
         if (r.version < 2) return bad(ln, k + ' is a RUN 2 line; this file says RUN 1');
         if (w.length !== 2) return bad(ln, k + ' takes one grid filename');
         r[k] = w[1]; continue;
+      }
+
+      //  THE CREW IS A RUN 3 LINE, AND RUN 3 IS RUN 2 PLUS THIS LINE.
+      //  The first draft made it an optional line of RUN 2, on the
+      //  argument that it adds a cost and changes what no other line
+      //  means. That is the argument the format itself rejects (see
+      //  "Changing them" in COURSE.md, and `wind` above): a reader that
+      //  did not know the line would sail the run with tacks that cost
+      //  nothing and report the result as this run - a convincing
+      //  route for the wrong crew. A new version makes that impossible,
+      //  because a reader that does not know RUN 3 refuses the file.
+      //
+      //  The line is still optional. A RUN 3 without it, and every
+      //  RUN 2, is sailed with manoeuvres that cost nothing, and the
+      //  report says so.
+      if (k === 'crew') {
+        if (r.version < 3) return bad(ln, 'crew is a RUN 3 line; this file says RUN ' + r.version);
+        if (w.length !== 3) return bad(ln, 'crew is "crew <file> <level>"');
+        if (r.crew) return bad(ln, 'a run has one crew');
+        r.crew = { file: w[1], level: w[2] }; continue;
       }
 
       if (k === 'avoid') {
@@ -502,9 +524,130 @@ var COURSE = (function () {
     return { ok: true };
   }
 
+  // ---------------------------------------------------------------
+  //  CREW 1: how well she is tacked and gybed.
+  //
+  //      CREW 1
+  //      grades   clean     fair      slow      blown
+  //      level green      10 30     40 75     35 180    15 420
+  //      gybe  green       5 60     35 120    40 300    20 900
+  //      level able       53 15     36 45      9 120     2 300
+  //      gybe  able       45 30     40 60     12 180     3 600
+  //      end
+  //
+  //  A manoeuvre comes off in one of several GRADES, named on the
+  //  `grades` line, best first. For each crew LEVEL a `level` line
+  //  gives, grade by grade, a pair of numbers: the share of her tacks
+  //  that come off that way, in per cent, and the time each one loses,
+  //  in seconds. A `gybe` line gives the same for her gybes.
+  //
+  //  THE SHARES ARE SHARES AND NOT COUNTS, because how many times she
+  //  tacks is the router's answer and not something the file can know:
+  //  a crew that tacks badly is sailed with fewer tacks. Each line's
+  //  shares must add to 100.
+  //
+  //  EVERY LEVEL HAS ITS GYBE LINE (Larry, 13 November 2026: "its own
+  //  line for sure, and a blown gybe is expensive"). A level without
+  //  one is refused, so that no gybe is ever costed by a rule the file
+  //  does not state.
+  //
+  //  WHAT THE ROUTER USES is the MEAN: the shares times the times. It
+  //  plans on what a tack costs this crew on average, as a navigator
+  //  would, and does not know which tack will be the blown one.
+  // ---------------------------------------------------------------
+  function parseCrew(text) {
+    var L = lines(text), i, c = { version: 0, grades: null, levels: [] }, by = {}, ended = false;
+    if (!L.length) return bad(0, 'the file is empty');
+    if (L[0].s !== 'CREW 1') {
+      return bad(L[0].n, /^CREW\s/.test(L[0].s) ? 'this reader knows CREW 1; the file says ' + L[0].s
+                                                : 'the first line must be "CREW 1"');
+    }
+    c.version = 1;
+
+    function pairs(w, ln, what) {
+      var n = c.grades.length, share = [], lost = [], sum = 0, j, a, b, mean = 0;
+      if (w.length !== 2 + 2 * n) {
+        return bad(ln, what + ' needs a share and a time for each of the ' + n + ' grades: ' +
+                       (2 * n) + ' numbers, and this line has ' + (w.length - 2));
+      }
+      for (j = 0; j < n; j++) {
+        a = num(w[2 + 2 * j]); b = num(w[3 + 2 * j]);
+        if (a === null || a < 0 || a > 100) return bad(ln, '"' + w[2 + 2 * j] + '" is not a share between 0 and 100');
+        if (b === null || b < 0) return bad(ln, '"' + w[3 + 2 * j] + '" is not a time lost, in seconds');
+        share.push(a); lost.push(b); sum += a; mean += a * b / 100;
+      }
+      if (Math.abs(sum - 100) > 0.01) {
+        return bad(ln, 'the shares on this line add up to ' + (Math.round(sum * 100) / 100) + ', not 100');
+      }
+      return { ok: true, share: share, lost: lost, mean: mean };
+    }
+
+    for (i = 1; i < L.length; i++) {
+      var ln = L[i].n, w = L[i].w, k = w[0], p, seenG = {}, j;
+      if (ended) return bad(ln, 'nothing may follow "end"');
+
+      if (k === 'grades') {
+        if (c.grades) return bad(ln, 'the grades are named once');
+        if (w.length < 2) return bad(ln, 'grades needs at least one name');
+        for (j = 1; j < w.length; j++) {
+          if (num(w[j]) !== null) return bad(ln, 'a grade is a name, and "' + w[j] + '" is a number');
+          if (seenG[w[j]]) return bad(ln, 'the grade "' + w[j] + '" is named twice');
+          seenG[w[j]] = 1;
+        }
+        c.grades = w.slice(1); continue;
+      }
+
+      if (k === 'level' || k === 'gybe') {
+        if (!c.grades) return bad(ln, 'the grades line must come before the first level');
+        if (w.length < 2 || num(w[1]) !== null) return bad(ln, k + ' is "' + k + ' <name> <share> <seconds> ..."');
+        if (k === 'level') {
+          if (by[w[1]]) return bad(ln, 'the level "' + w[1] + '" is given twice');
+          p = pairs(w, ln, 'a level'); if (!p.ok) return p;
+          by[w[1]] = { name: w[1], tack: { share: p.share, lost: p.lost, mean: p.mean }, gybe: null };
+          c.levels.push(by[w[1]]);
+        } else {
+          if (!by[w[1]]) return bad(ln, 'a gybe line follows its level, and there is no level "' + w[1] + '" above it');
+          if (by[w[1]].gybe) return bad(ln, 'the gybes of "' + w[1] + '" are given twice');
+          p = pairs(w, ln, 'a gybe line'); if (!p.ok) return p;
+          by[w[1]].gybe = { share: p.share, lost: p.lost, mean: p.mean };
+        }
+        continue;
+      }
+
+      if (k === 'end') { ended = true; continue; }
+      return bad(ln, 'unknown line "' + k + '" in a CREW 1 file');
+    }
+
+    if (!ended) return bad(L[L.length - 1].n, 'the file does not end with "end" -- it may have been cut short');
+    if (!c.grades) return bad(0, 'a crew file must name its grades');
+    if (!c.levels.length) return bad(0, 'a crew file must give at least one level');
+    for (i = 0; i < c.levels.length; i++) {
+      if (!c.levels[i].gybe) {
+        return bad(0, 'the level "' + c.levels[i].name + '" has no gybe line: every level says what its gybes cost');
+      }
+    }
+    c.level = function (n) { return by.hasOwnProperty(n) ? by[n] : null; };
+    c.ok = true;
+    return c;
+  }
+
+  //  The run against its crew file: the level it asks for is one the
+  //  file gives. A run with no crew line needs no crew file.
+  function checkCrew(run, crew, file) {
+    if (!run || !run.crew) return { ok: true };
+    var name = file || run.crew.file;
+    if (!crew) return { ok: false, err: 'the run names a crew file, ' + name + ', which was not loaded' };
+    if (!crew.ok) return { ok: false, err: name + ' did not load: ' + crew.err };
+    if (!crew.level(run.crew.level)) {
+      return { ok: false, err: 'the run asks for crew level "' + run.crew.level + '", which ' + name +
+               ' does not give; it has ' + crew.levels.map(function (l) { return l.name; }).join(', ') };
+    }
+    return { ok: true };
+  }
+
   return {
-    course: parseCourse, areas: parseAreas, run: parseRun,
-    check: check, checkGrids: checkGrids, along: along
+    course: parseCourse, areas: parseAreas, run: parseRun, crew: parseCrew,
+    check: check, checkGrids: checkGrids, checkCrew: checkCrew, along: along
   };
 })();
 

@@ -47,6 +47,14 @@
 //                        worth comparing, so it cannot be said to turn
 //      turn        90    the set must swing more than this to have turned
 //
+//  WHEN A TACK COSTS SOMETHING the router's rows include the manoeuvre
+//  itself: a row, marked `manoeuvre`, on which she makes no way through
+//  the water. It belongs to the board she is going onto, so a board
+//  begins where the helm went down. The log says what it cost, as a
+//  fact like any other - "the tack cost 41 s" - and leaves the row out
+//  of the board's heading, which is the heading she SAILED. A run with
+//  no crew has no such rows, and its log reads as it always did.
+//
 //  Conventions are route.js's: bearings degrees true, wind named for
 //  where it comes FROM, set for where the stream goes TO, twa positive
 //  on port tack.
@@ -151,8 +159,22 @@ var PASSAGE = (function () {
       state = Math.abs(mean) < th.slack ? 'slack' : (mean > 0 ? 'fair' : 'foul');
     }
 
+    //  WHAT THE MANOEUVRES ON THIS LINE COST. A manoeuvre is counted
+    //  where it begins; one that outlasts a step is two rows and still
+    //  one tack.
+    var cost = { tacks: 0, gybes: 0, tackSeconds: 0, gybeSeconds: 0 }, any = false, q;
+    for (q = first; q <= last; q++) {
+      var mv = rows[q].manoeuvre;
+      if (!mv) continue;
+      any = true;
+      if (q === 0 || !rows[q - 1].manoeuvre) cost[mv === 'gybe' ? 'gybes' : 'tacks']++;
+      cost[mv === 'gybe' ? 'gybeSeconds' : 'tackSeconds'] += rows[q].minutes * 60;
+    }
+    cost.tackSeconds = Math.round(cost.tackSeconds);
+    cost.gybeSeconds = Math.round(cost.gybeSeconds);
+
     return {
-      ms: a.ms, first: first, last: last,
+      ms: a.ms, first: first, last: last, cost: any ? cost : null,
       minutes: Math.round(minutes),
       nm: r1(nm),
       //  the readings, as they were when the line begins
@@ -175,8 +197,12 @@ var PASSAGE = (function () {
   //  and if it does not she gybed. The wind used is the wind over the
   //  water, because that is the wind she is sailing in.
   // ---------------------------------------------------------------
-  function manoeuvre(before, after, th) {
+  function manoeuvre(before, after, th, said) {
     var t = swing(before.heading, after.heading);
+    //  the router's own word for it, when the manoeuvre is in the rows
+    if (said && before.tack !== after.tack) {
+      return { did: said === 'gybe' ? 'gybed' : 'tacked', turn: Math.round(Math.abs(t)) };
+    }
     if (before.tack !== after.tack) {
       var wd = (after.twd === null || after.twd === undefined) ? after.gwd : after.twd;
       var toWind = swing(before.heading, wd), through;
@@ -296,11 +322,21 @@ var PASSAGE = (function () {
         line = measure(rows, b.first, b.last, th);
         line.kind = 'board';
         line.tack = b.tack;
-        line.heading = deg(meanBearing(part, function (w) { return w.heading; }));
-        line.offWind = Math.round(total(part, function (w) {
+        //  the heading and the angle off the wind are of the rows she
+        //  SAILED: a manoeuvre row points head to wind and would drag
+        //  both towards it
+        var sailed = part.filter(function (w) { return !w.manoeuvre; });
+        if (!sailed.length) sailed = part;
+        line.heading = deg(meanBearing(sailed, function (w) { return w.heading; }));
+        line.offWind = Math.round(total(sailed, function (w) {
           return Math.abs(w.twa === undefined || w.twa === null ? 0 : w.twa) * w.minutes;
-        }) / total(part, function (w) { return w.minutes; }));
-        var m = prevBoard ? manoeuvre(rows[prevBoard.last], rows[b.first], th) : null;
+        }) / total(sailed, function (w) { return w.minutes; }));
+        var m = null;
+        if (prevBoard) {
+          var pl = prevBoard.last;
+          while (pl > prevBoard.first && rows[pl].manoeuvre) pl--;
+          m = manoeuvre(rows[pl], sailed[0], th, rows[b.first].manoeuvre);
+        }
         line.did = m ? m.did : null;
         line.turn = m ? m.turn : null;
         line.ends = b.event || null;
@@ -356,6 +392,17 @@ var PASSAGE = (function () {
     return c.word;
   }
 
+  function secs(s) {
+    s = Math.round(s);
+    return s < 90 ? s + ' s' : Math.floor(s / 60) + ' min ' + two(s % 60) + ' s';
+  }
+  function sayCost(c) {
+    var out = [];
+    if (c.tacks) out.push((c.tacks === 1 ? 'the tack' : c.tacks + ' tacks') + ' cost ' + secs(c.tackSeconds));
+    if (c.gybes) out.push((c.gybes === 1 ? 'the gybe' : c.gybes + ' gybes') + ' cost ' + secs(c.gybeSeconds));
+    return out.join('; ');
+  }
+
   function sayStream(s) {
     if (s.state === 'none') return 'no stream data';
     if (s.state === 'slack') return 'stream slack';
@@ -366,14 +413,15 @@ var PASSAGE = (function () {
   //  and reads on a small tablet held upright, without wrapping where
   //  the screen chooses. An entry is therefore laid out down the page:
   //
-  //      13:00  tacked to port, heading 280   2h20  22.8 nm
+  //      13:10  tacked to port, heading 282   2h20  23.3 nm
   //               wind 242 at 20 kt (21 over the water)
-  //               stream fair 0.3 kt   9.5 kt through the water, 9.8 made good
+  //               stream fair 0.3 kt   9.6 kt through the water, 10.0 made good
   //               since 11:40: wind freshened 4 kt
   //
   //  the first line is what she did and the board's length; the second
   //  the wind as the line begins; the third the board as a whole; the
-  //  fourth what had changed since the line before.
+  //  fourth what had changed since the line before. When a tack costs
+  //  something, what it cost is said on a line of its own before that.
   //
   //  and a long list of changes is broken between two of them, never
   //  inside one.
@@ -424,6 +472,7 @@ var PASSAGE = (function () {
       if (l.stream.state !== 'none' && l.stream.noDataMinutes) {
         out.push(PAD + 'no stream data for ' + span(l.stream.noDataMinutes) + ' of this line');
       }
+      if (l.cost) out.push(PAD + sayCost(l.cost));
       if (l.changes.length) sinceLines(l).forEach(function (x) { out.push(x); });
     });
     return out.join('\n');

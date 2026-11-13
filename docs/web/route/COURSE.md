@@ -1,13 +1,14 @@
-# COURSE 1, AREAS 1, RUN 2 — the three files the router reads besides the grids
+# COURSE 1, AREAS 1, RUN 3, CREW 1 — the files the router reads besides the grids
 
-The course, the water it may not cross, and the settings for one run.
+The course, the water it may not cross, the settings for one run, and how
+well she is tacked.
 `docs/web/route/course.js` is the reference: **what it refuses, these formats
 do not allow**, and where this document and that file differ, the file is
 right.
 
-## Why three files and not one
+## Why four files and not one
 
-They have three different lifetimes, and a file's lifetime is the honest
+They have four different lifetimes, and a file's lifetime is the honest
 reason to split it.
 
 | | what it is | how often it changes |
@@ -15,6 +16,7 @@ reason to split it.
 | **course** | the race, as the sailing instructions give it | once, and then never |
 | **areas** | the water: coastline, traffic schemes, exclusion zones | when the world or the source data changes |
 | **run** | this experiment: which boat, which start, what to scale | every run |
+| **crew** | the people: how well a crew's tacks and gybes come off | when the crew changes, or a lesson asks what a better one is worth |
 
 Put the run settings inside the course and one course file stops serving
 every boat and every start, which is the thing Larry's class-start decision
@@ -210,9 +212,9 @@ which is correct: you may touch its edge, you may not be inside it.
 
 ---
 
-# RUN 2
+# RUN 3
 
-    RUN 2
+    RUN 3
     course  example_race_2025.txt
     areas   areas_example_2025.txt
     polar   polar_70ft_v1.txt
@@ -226,11 +228,13 @@ which is correct: you may touch its edge, you may not be inside it.
     round   0.10
     gate    Example Head 50.57868 -2.05644 within 2.0
     avoid   Example Race 50.51000 -2.44000 off 3.0
+    crew    crew_example_v1.txt able
     end
 
-**RUN 1 is still read** — `course.js` reads both, and a RUN 1 file keeps
-RUN 1's meaning exactly. What follows describes RUN 2; the two differences
-from RUN 1 are the grids and the gate, and each has its own section below.
+**RUN 1 and RUN 2 are still read** — `course.js` reads all three, and a file
+keeps the meaning of the version it says it is. What follows describes RUN 3.
+It differs from RUN 2 by one line, `crew`, and from RUN 1 also by the grids
+and the gate; each has its own section below.
 
 | Line | Form | Notes |
 |---|---|---|
@@ -247,6 +251,7 @@ from RUN 1 are the grids and the gate, and each has its own section below.
 | `round` | distance in nm | **The berth:** she rounds each mark at least this far off, and passes no nearer at any time. |
 | `gate` | name lat lon `within` nm | Optional, repeatable. Pass **within** that distance of the point. |
 | `avoid` | name lat lon `off` nm | Optional, repeatable. Stay **at least** that distance off it. |
+| `crew` | a CREW filename, a level | **RUN 3.** Optional. How well she is tacked and gybed. Without it a manoeuvre costs nothing. |
 | `end` | — | Last line. |
 
 ## `round` is a berth, and how a mark is known to be rounded
@@ -354,6 +359,141 @@ grids.
 
 ---
 
+## RUN 3 adds the crew, and only the crew
+
+    crew    crew_example_v1.txt able
+
+One line: a CREW file, and which of its levels sails this run. Everything else
+in RUN 3 is RUN 2.
+
+**Why one line is a new version.** The rule is in "Changing them" below: a
+line that a reader must understand to be correct is a new version. A reader
+that did not know `crew` would sail the run with tacks that cost nothing and
+report the result as this run — a convincing route for the wrong crew, which
+is the same fault `wind` was made a RUN 2 line to prevent. So a RUN 2 file
+with a `crew` line is refused, in these words:
+
+    crew is a RUN 3 line; this file says RUN 2
+
+**The line is optional.** A RUN 3 without it, and every RUN 2, is sailed with
+manoeuvres that cost nothing, and the report says so on its first lines.
+
+**A run names the level, not the numbers.** The numbers live in the crew
+file, where a second run can use them and a learner can read them. To ask a
+different question, add a level to the crew file and name that.
+
+---
+
+# CREW 1
+
+    CREW 1
+    grades   clean     fair      slow      blown
+    level green      10 30     40 75     35 180    15 420
+    gybe  green       5 60     35 120    40 300    20 900
+    level able       53 15     36 45      9 120     2 300
+    gybe  able       45 30     40 60     12 180     3 600
+    end
+
+How well a crew's tacks and gybes come off. `docs/web/route/crew_starting_v1.txt`
+is a complete file with four levels, to copy and change.
+
+| Line | Form | Notes |
+|---|---|---|
+| `CREW 1` | — | Must be the first line. |
+| `grades` | names | The grades a manoeuvre can come off in, **best first**. Once, before any level. |
+| `level` | name, then a pair for each grade | The pair is **the share of her tacks, in per cent**, and **the time each loses, in seconds**. |
+| `gybe` | the level's name, then a pair for each grade | The same, for her gybes. Follows its `level`. **Every level has one.** |
+| `end` | — | Last line. |
+
+A level's name is one word; `able-no-blown` is one word.
+
+## A tack has a grade, and a crew has a mix of them
+
+Larry's design, 13 November 2026. A tack is not one thing: it comes off
+clean, or fair, or slow, or it is blown, and each loses a different amount of
+time. What training changes is both how often each happens and how long each
+takes. So a crew is a line of pairs:
+
+```
+ level able     53 15     36 45      9 120     2 300
+                 |  |      |  |      |   |     |   |
+                 |  15 s   |  45 s   |  2 min  |  5 min     the time each loses
+                53%       36%        9%        2%           how often it happens
+               clean     fair      slow      blown
+```
+
+**The time lost is how far behind she is afterwards,** in seconds, against a
+boat that carried straight on at full speed. One number for each grade, and a
+learner can picture it.
+
+## Shares, not counts
+
+"Of 55 tacks, 29 were clean, 20 fair, 5 slow and 1 blown" is how a crew
+remembers a race. The file cannot be written that way, because **how many
+times she tacks is the router's answer and not an input**: a crew that tacks
+badly is sailed with fewer tacks, and that is part of the lesson. So the file
+gives shares — 53, 36, 9 and 2 in a hundred — and each line's shares must add
+to 100.
+
+## What the router does with a line: the average
+
+    0.53 x 15  +  0.36 x 45  +  0.09 x 120  +  0.02 x 300   =   41 seconds
+
+Every tack of an able crew is sailed at 41 seconds. **The router does not know
+which tack will be the blown one** (Larry, 13 November 2026), and neither does
+the crew. A router that did know would put its bad tacks where they hurt
+least, which nobody can do.
+
+So a run with a crew answers "what is this crew's tacking worth over this
+race", and it gives the same answer every time it is run. It does not tell the
+story of one race in which one particular tack went wrong. That is a
+different question and a later piece of work.
+
+## Every level has its gybe line
+
+Larry, 13 November 2026: "its own line for sure, and a blown gybe is
+expensive." A level with no `gybe` line is refused, so that no gybe is ever
+costed by a rule the file does not state.
+
+## The four levels in the starting file
+
+The names are the old ratings, plus "crack": Larry's choice, because they
+already mean how good a seaman.
+
+| level | a tack costs, on average | a gybe costs, on average |
+|---|---|---|
+| green | 2 min 39 s | 5 min 45 s |
+| ordinary | 1 min 21 s | 2 min 52 s |
+| able | 41 s | 1 min 17 s |
+| crack | 17 s | 32 s |
+
+**These figures are estimates, not measurements.** The able crew's tack line
+is the one Larry gave. Every other number was chosen so that the rows step
+sensibly, and each is there to be changed by someone who has timed it.
+
+## To ask a question, add a line
+
+What is never blowing a tack worth to an able crew?
+
+    level able-no-blown   55 15   36 45    9 120    0 300
+    gybe  able-no-blown   47 30   41 60   12 180    0 600
+
+and the run names it: `crew crew_example_v1.txt able-no-blown`. There is one
+way to set a crew, which is a level in a file. Nothing is built into the
+router that a file could disagree with.
+
+## What CREW 1 does not do
+
+1. **No one tack is the bad one.** See "the average" above.
+2. **The cost does not depend on the weather.** A tack in thirty knots and a
+   steep sea costs what it costs in ten knots and flat water.
+3. **No sail changes, no reefs.** Only tacks and gybes.
+4. **A crew does not tire.** The fortieth tack costs what the first did.
+
+---
+
+# All four files
+
 ## What the format cannot see, and why `source` is required
 
 A position is checked for range: a latitude of 150 is impossible and is
@@ -367,7 +507,7 @@ The defence against a wrong figure is not the reader; it is that the file
 looks like the sailing instructions and can be read against them. The reader
 catches what is impossible. A person catches what is merely untrue.
 
-## What all three refuse
+## What all four refuse
 
 The same discipline as GRID 1, for the same reason: a bad input to a router
 does not become an error, it becomes a *route*.
@@ -380,6 +520,9 @@ does not become an error, it becomes a *route*.
    line number.
 4. **A `clear` for a layer not in `layers`** is refused: it means somebody
    expected a margin on water the run is not looking at.
+5. **A crew line whose shares do not add to 100, a level with no gybe line,
+   a run that asks for a level its crew file does not give** — all refused,
+   the last naming the levels the file does have.
 
 The reader never throws. A bad file is a result with a sentence and a line, in
 the same shape `GRID.parse` returns, because a reader that throws inside a
@@ -399,13 +542,19 @@ router loses the route rather than reporting the file.
 A new optional line on an existing version is not a version change if a reader
 that does not know it still reads a correct course — `gate` in RUN 1 was of
 that kind. Anything that changes the meaning of a line that already exists, or
-that a reader must understand to be correct, is **COURSE 2**, **AREAS 2** or
-**RUN 2**, and `course.js` keeps reading version 1.
+that a reader must understand to be correct, is the next version — **COURSE 2**,
+**AREAS 2**, the next **RUN** — and `course.js` keeps reading the ones before.
 
 **RUN 2 is the first use of that rule.** The grids had to be understood to
 read the file correctly, and the gate's `off` changed meaning, so neither
 could be an addition to RUN 1. RUN 1 files are still read, and still mean what
 they meant.
+
+**RUN 3 is the second.** `crew` adds nothing to what any other line means,
+and a run may leave it out; but a reader that skipped it would sail the wrong
+crew, so it could not be an addition to RUN 2. The first draft of it was one,
+and this rule is what caught that. RUN 2 files are still read, and still mean
+what they meant.
 
 ## Where this is likely to be wrong
 

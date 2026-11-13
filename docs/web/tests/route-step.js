@@ -185,5 +185,34 @@ var W10 = uniform('wind', 10, 0);
      ns.ok && ns.noStream === true && near(ns.sog, 10) && near(ns.drift, 0), JSON.stringify(ns.noStream));
 })();
 
+//  ---- a stretch with no way on: what a tack costs -------------------
+//  Westerly 10 over the ground and a stream setting east at 2: the
+//  water feels 8 knots, still from the west. For five minutes she makes
+//  no way through the water, so she goes where the stream goes: east at
+//  2 knots, which is 2 x 5/60 = 0.1667 miles.
+(function () {
+  var c = ROUTE.conditions({ lat: 50.5, lon: -1.5, ms: T0 + HOUR, wind: W10, current: uniform('current', 2, 0) });
+  ok('the conditions are read', c.ok && near(c.twd, 270, 1e-9) && near(c.tws, 8, 1e-9), JSON.stringify(c));
+  var t = ROUTE.driftFrom(c, 5, { manoeuvre: 'tack', tack: 'port' });
+  ok('in a tack she makes no way through the water', t.ok && t.stw === 0 && t.polar === 'manoeuvre' && t.manoeuvre === 'tack');
+  ok('her bow is head to wind, and the row is on the tack she is going onto',
+     near(t.heading, 270, 1e-9) && t.twa === 0 && t.tack === 'port', t.heading + ' ' + t.twa + ' ' + t.tack);
+  ok('she goes where the stream goes, at its rate', near(t.cog, 90, 1e-9) && near(t.sog, 2, 1e-9), t.cog + ' ' + t.sog);
+  //  (a minute of longitude at 50.5 north is cos 50.5 of a mile)
+  var east = (t.lon2 - t.lon) * 60 * Math.cos(50.5 * Math.PI / 180);
+  ok('a sixth of a mile east in five minutes', near(east, 2 * 5 / 60, 1e-9) && near(t.lat2, t.lat, 1e-12), String(east));
+  ok('the row is one the vector step owns', ROUTE.consistent(t, t.heading, 0, t.set, t.drift) === true);
+  ok('it lasts what it was given and begins where the conditions were read',
+     t.minutes === 5 && t.ms === c.ms && t.lat === c.lat && t.lon === c.lon);
+  ok('both winds are carried, as on any row', near(t.gws, 10, 1e-9) && near(t.tws, 8, 1e-9));
+
+  var g = ROUTE.driftFrom(c, 5, { manoeuvre: 'gybe', tack: 'starboard' });
+  ok('in a gybe her stern is to the wind', near(g.heading, 90, 1e-9) && g.twa === 180 && g.manoeuvre === 'gybe' && g.tack === 'starboard');
+
+  var still = ROUTE.conditions({ lat: 50.5, lon: -1.5, ms: T0 + HOUR, wind: W10, current: uniform('current', 0, 0) });
+  var s = ROUTE.driftFrom(still, 5, { manoeuvre: 'tack', tack: 'port' });
+  ok('with no stream she does not move, and has no track', s.lat2 === s.lat && s.lon2 === s.lon && s.cog === null && s.sog === 0);
+})();
+
 if (fail) { console.log('  ' + fail + ' of ' + checks + ' checks failed'); process.exit(1); }
 console.log('  all ' + checks + ' checks');

@@ -1,0 +1,59 @@
+CREW 1
+#  A starting crew file for the router: four levels of crew, and for each
+#  how well its tacks and its gybes come off.
+#
+#  bashnav, 13 November 2026.  The shape of this table, the four grades
+#  with "blown" at the bottom, and the names of the levels are Larry's
+#  decisions of that day.  THE FIGURES ARE ESTIMATES, NOT MEASUREMENTS:
+#  the "able" tack row is the one Larry gave; every other number was
+#  chosen so that the rows step sensibly, and is there to be changed.
+#  Copy this file beside your run files and change it there.
+#
+#  HOW TO READ A LINE.  After the level's name come pairs of numbers, one
+#  pair for each grade named on the `grades` line, best grade first:
+#
+#      the share of her manoeuvres that come off that way, in per cent
+#      the time each one loses, in seconds
+#
+#  "level able  53 15  36 45  9 120  2 300" says: of an able crew's tacks,
+#  53 in a hundred are clean and lose 15 seconds, 36 are fair and lose 45,
+#  9 are slow and lose two minutes, and 2 are blown and lose five.
+#
+#  The shares on a line add up to 100.  They are shares and not counts,
+#  because how many times she tacks is the router's answer, not an input.
+#
+#  WHAT THE ROUTER USES IS THE AVERAGE.  For the able crew:
+#      0.53 x 15 + 0.36 x 45 + 0.09 x 120 + 0.02 x 300  =  41 seconds a tack
+#  Every tack is sailed at that.  The router does not know which tack
+#  will be the blown one, and neither does the crew.
+#
+#  A `gybe` line gives the same for the level's gybes.  Every level has
+#  one: a blown gybe is expensive, and no gybe is costed by a rule this
+#  file does not state.
+#
+#  TO ASK A QUESTION, ADD A LINE.  What is never blowing a tack worth?
+#      level able-no-blown   55 15   36 45    9 120    0 300
+#      gybe  able-no-blown   47 30   41 60   12 180    0 600
+#  and name that level in the run:   crew crew_starting_v1.txt able-no-blown
+#
+#  The format is CREW 1, described in COURSE.md.
+
+grades   clean     fair      slow      blown
+
+#  green: new to the boat.  A tack averages 2 min 39 s, a gybe 5 min 45 s.
+level green      10 30     40 75     35 180    15 420
+gybe  green       5 60     35 120    40 300    20 900
+
+#  ordinary: has sailed her, not yet drilled.  1 min 21 s and 2 min 52 s.
+level ordinary   30 20     45 60     20 150     5 360
+gybe  ordinary   20 45     45 90     27 240     8 720
+
+#  able: knows the boat and each other.  41 s and 1 min 17 s.
+level able       53 15     36 45      9 120     2 300
+gybe  able       45 30     40 60     12 180     3 600
+
+#  crack: drilled until it is dull.  17 s and 32 s.
+level crack      80 10     17 30      2  90     1 240
+gybe  crack      75 20     21 40      3 120     1 480
+
+end
