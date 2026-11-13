@@ -30,15 +30,25 @@ are separated by spaces or tabs. `\r\n` reads the same as `\n`. Positions are
 decimal degrees, latitude then longitude, north and east positive.
 
     COURSE 1
-    name Myth of Malham 2025
-    source RORC sailing instructions, 2025
+    name Example race 2025
+    source Invented for this document. Not a real course.
     start line 50.76167 -1.29750 bearing 190 length 0.20 cross south
-    start class IRC Zero 2025-05-24T10:10Z
-    start class IRC One  2025-05-24T10:00Z
-    mark Eddystone        50.18083 -4.25833 port
-    mark North Head Buoy  50.70833 -1.47500 starboard
+    start class Class Zero 2025-05-24T10:10Z
+    start class Class One  2025-05-24T10:00Z
+    mark Outer Rock       50.18083 -4.25833 port
+    mark Return Buoy      50.70833 -1.47500 starboard
     finish line 50.70833 -1.47500 bearing 000 length 0.10 cross north
     end
+
+**The figures above are invented, and the file says so on its `source` line.**
+An example named after a real race is taken for that race: PILOT checked these
+positions against the 2025 sailing instructions and found the finish 4.4 nm
+from where it belongs, which is exactly the fault `source` exists to prevent -
+both numbers are legal and no reader can tell. A document cannot carry a
+course that can be checked against its instructions, because the document is
+not the file; so this one carries a course that nobody can mistake for data.
+**The real 2025 course is the course repository's own file**, where every
+figure sits beside the sailing-instruction text it came from.
 
 ## The header and the body
 
@@ -72,7 +82,7 @@ see and a navigator can.
 
 **Why the router needs it at all.** An isochrone router expands a frontier of
 reachable positions and takes the fastest. Given only the order, the fastest
-way past North Head Buoy may be the wrong side of it, and the result is a
+way past the Return Buoy may be the wrong side of it, and the result is a
 perfectly convincing track that would be scored as not having sailed the
 course. The side is not a check applied afterwards; it constrains the search.
 
@@ -109,8 +119,8 @@ to finish before you have started.
 
 ## Every class start is listed; the run picks one
 
-    start class IRC Zero 2025-05-24T10:10Z
-    start class IRC One  2025-05-24T10:00Z
+    start class Class Zero 2025-05-24T10:10Z
+    start class Class One  2025-05-24T10:00Z
 
 **Larry's decision, 10 November:** the router runs the class start as a
 scenario. So the course names every start in SI 8.1 and fixes none of them,
@@ -141,19 +151,24 @@ own authority.
 # AREAS 1
 
     AREAS 1
-    source EMODnet coastline at MHW, clipped and simplified to 25 m
-    layer coast-emodnet-mhw
+    source Invented for this document; a real file names its own source
+    layer coast-example-mhw
     line
       50.60000 -1.95000
       50.60200 -1.94100
       …
     end line
-    layer tss-casquets
+    layer tss-example
     area
       49.72000 -2.50000
       …
     end area
     end
+
+**Invented here too, and for the same reason as the course above.** A real
+areas file's `source` line says which coastline at which datum, clipped and
+simplified how - which is what makes it checkable against the data it came
+from, and what an example in a document can never be.
 
 ## Two shapes, because two things are being said
 
@@ -198,16 +213,16 @@ which is correct: you may touch its edge, you may not be inside it.
 # RUN 1
 
     RUN 1
-    course course_2025_v2.txt
-    areas  areas_solent_2025.txt
+    course example_race_2025.txt
+    areas  areas_example_2025.txt
     polar  polar_70ft_v1.txt
-    start  class IRC One
+    start  class Class One
     step   time 600 heading 5
     scale  wind 1.0 current 1.0
-    layers coast-emodnet-mhw tss-casquets sowley-boom
-    clear  coast-emodnet-mhw 0.10  tss-casquets 0  sowley-boom 0
+    layers coast-example-mhw tss-example boom-example
+    clear  coast-example-mhw 0.10  tss-example 0  boom-example 0
     round  0.10
-    gate   St Albans Head 50.57800 -2.05200 off 2.0
+    gate   Example Head 50.57800 -2.05200 off 2.0
     end
 
 | Line | Form | Notes |

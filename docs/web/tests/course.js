@@ -33,13 +33,13 @@ function refuses(what, text, parse, fragment) {
 // ---------------------------------------------------------------- COURSE
 var GOOD = [
   'COURSE 1',
-  'name Myth of Malham 2025',
-  'source RORC sailing instructions, 2025',
+  'name Example race 2025',
+  'source Invented for this test. Not a real course.',
   'start line 50.76167 -1.29750 bearing 190 length 0.20 cross south',
-  'start class IRC Zero 2025-05-24T10:10Z',
-  'start class IRC One 2025-05-24T10:00Z',
-  'mark Eddystone 50.18083 -4.25833 port',
-  'mark North Head Buoy 50.70833 -1.47500 starboard',
+  'start class Class Zero 2025-05-24T10:10Z',
+  'start class Class One 2025-05-24T10:00Z',
+  'mark Outer Rock 50.18083 -4.25833 port',
+  'mark Return Buoy 50.70833 -1.47500 starboard',
   'finish line 50.70833 -1.47500 bearing 000 length 0.10 cross north',
   'end'
 ].join('\n');
@@ -49,13 +49,13 @@ var GOOD = [
   ok('a good course loads', c.ok, c.err);
   if (!c.ok) return;
   ok('its marks keep the order of the lines',
-     c.marks.length === 2 && c.marks[0].name === 'Eddystone' &&
-     c.marks[1].name === 'North Head Buoy');
-  ok('a name with spaces survives', c.marks[1].name === 'North Head Buoy');
+     c.marks.length === 2 && c.marks[0].name === 'Outer Rock' &&
+     c.marks[1].name === 'Return Buoy');
+  ok('a name with spaces survives', c.marks[1].name === 'Return Buoy');
   ok('the side is carried', c.marks[0].side === 'port' && c.marks[1].side === 'starboard');
   ok('both class starts are listed', c.classes.length === 2);
-  ok('a class is found by name', c.classOf('IRC One').at === '2025-05-24T10:00Z');
-  ok('an unknown class is not', c.classOf('IRC Two') === null);
+  ok('a class is found by name', c.classOf('Class One').at === '2025-05-24T10:00Z');
+  ok('an unknown class is not', c.classOf('Class Two') === null);
   //  the start line is one end, a bearing and a length; the far end is
   //  computed, and 0.20 nm due 190 is about 0.0033 degrees of latitude
   ok('a bearing-and-length line gets a far end',
@@ -67,8 +67,8 @@ var GOOD = [
 refuses('a file that is not COURSE 1', 'COURSE 2\nend', C.course, 'must be "COURSE 1"');
 refuses('a course with no source', GOOD.replace(/^source.*$/m, ''), C.course, 'where its figures came from');
 refuses('a course cut short before end', GOOD.replace(/\nend$/, ''), C.course, 'cut short');
-refuses('a mark with no side', GOOD.replace('mark Eddystone 50.18083 -4.25833 port',
-        'mark Eddystone 50.18083 -4.25833'), C.course, 'port, starboard or either');
+refuses('a mark with no side', GOOD.replace('mark Outer Rock 50.18083 -4.25833 port',
+        'mark Outer Rock 50.18083 -4.25833'), C.course, 'port, starboard or either');
 refuses('a mark whose side is a guess', GOOD.replace('port', 'left'), C.course,
         'port, starboard or either');
 refuses('a line with no crossing sense', GOOD.replace(' cross south', ''), C.course,
@@ -90,8 +90,8 @@ refuses('a latitude that cannot exist',
 refuses('a class start with no time', GOOD.replace(' 2025-05-24T10:10Z', ''), C.course,
         'is not a time');
 refuses('the same class twice',
-        GOOD.replace('start class IRC One 2025-05-24T10:00Z',
-                     'start class IRC Zero 2025-05-24T10:00Z'), C.course, 'already listed');
+        GOOD.replace('start class Class One 2025-05-24T10:00Z',
+                     'start class Class Zero 2025-05-24T10:00Z'), C.course, 'already listed');
 refuses('a line nothing reads', GOOD.replace('\nend', '\ntide springs\nend'), C.course,
         'unknown line "tide"');
 refuses('anything after end', GOOD + '\nmark Extra 50 -1 port', C.course, 'nothing may follow');
@@ -140,10 +140,10 @@ refuses('a layer name with a space', AREAS.replace('layer tss-casquets', 'layer 
 // ------------------------------------------------------------------- RUN
 var RUN = [
   'RUN 1',
-  'course course_2025_v2.txt',
-  'areas areas_solent_2025.txt',
+  'course example_race_2025.txt',
+  'areas areas_example_2025.txt',
   'polar polar_70ft_v1.txt',
-  'start class IRC One',
+  'start class Class One',
   'step time 600 heading 5',
   'scale wind 1.0 current 1.0',
   'layers coast-emodnet-mhw tss-casquets',
@@ -158,7 +158,7 @@ var RUN = [
   ok('a good run loads', r.ok, r.err);
   if (!r.ok) return;
   ok('the boat is named in the run, not the course', r.polar === 'polar_70ft_v1.txt');
-  ok('the start is chosen by class', r.start.by === 'class' && r.start.name === 'IRC One');
+  ok('the start is chosen by class', r.start.by === 'class' && r.start.name === 'Class One');
   ok('a teaching gate is a run property', r.gates.length === 1 && r.gates[0].off === 2);
   ok('a gate name with spaces survives', r.gates[0].name === 'St Albans Head');
   ok('clearance is per layer', r.clear['coast-emodnet-mhw'] === 0.1 && r.clear['tss-casquets'] === 0);
@@ -182,7 +182,7 @@ refuses('a run cut short before end', RUN.replace(/\nend$/, ''), C.run, 'cut sho
   var c = C.course(GOOD), a = C.areas(AREAS), r = C.run(RUN);
   ok('a run naming a class the course lists passes', C.check(r, c, [a]).ok);
 
-  var r2 = C.run(RUN.replace('start class IRC One', 'start class IRC Two'));
+  var r2 = C.run(RUN.replace('start class Class One', 'start class Class Two'));
   var v = C.check(r2, c, [a]);
   ok('a run naming a class the course does not list is caught',
      !v.ok && v.err.indexOf('does not list') >= 0, v.err);
