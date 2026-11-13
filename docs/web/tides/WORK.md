@@ -49,6 +49,31 @@ against an independent Python working of each method — and the browser is a
 port of it. Holding the port to the awk's exact lines catches every rounding,
 every sign and every message in one comparison.
 
+## What a lesson may call, and what it may not
+
+`work.js` is a shared engine as well as the tides page's own file: a lesson in
+the course is served from this origin, loads it directly, and runs a worked
+example inline. Board item B10 made the promise explicit, and the file states
+it as four lists at the top:
+
+| list | what it is |
+|---|---|
+| `WORK_SHARED` | `NAMES`, `SPEC`, `run`, `figure` — the surface a lesson may call. Changing one of the four travels with a note to the course's inbox |
+| `WORK_HOST` | everything else exposed: the tides page's and the tests'. It may change without warning |
+| `WORK_PURE_CALLS` | `sind`, `cosd`, `asind` — the only tide-engine calls the pure calculators make |
+| `WORK_PURE_WORK` | `twelfths` (typed times), `secondary`, `stream`, `cts`, `setdrift` — the five that stay inside that boundary |
+
+**What the boundary buys a lesson:** those five can be worked without the
+2.9 MB of station data, which would otherwise have to be downloaded before a
+student could see twelfths done. `atlas`, and `twelfths` with `station=`,
+need the real engine and stay links into the full app.
+
+**It is checked by running, not by reading.** `docs/web/tests/work-engine.js`
+runs every pure case against a tide engine that answers those three calls and
+records any other property asked for — a grep for `T.` would pass a call made
+through a helper and fail on a mention in a comment — and it proves it is
+watching by showing that `atlas` does reach past them.
+
 ## Common rules
 
 | | |

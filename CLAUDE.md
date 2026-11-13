@@ -144,6 +144,38 @@ it for stability and less complexity, and that is what it bought.
 containers even on one origin, so the course still cannot read deck-log's or
 tides' data. Same origin solves code sharing, not data sharing.
 
+## `docs/web/tides/work.js` is a shared engine, not only tides' file
+
+*Board item B10, 13 November 2026.* A lesson in the Practical Navigator course
+loads this file itself and runs a worked example inline. Two things are
+promised to it, and both are stated in the file as lists and held by
+`docs/web/tests/work-engine.js`:
+
+1. **`WORK_SHARED` is the surface the course may call** — `NAMES`, `SPEC`,
+   `run`, `figure`. **Changing one of those four is a change to somebody
+   else's build:** it travels with a note to the course's inbox in the same
+   queue run, never on its own.
+2. **`WORK_PURE_CALLS` is the tide-engine boundary** — `sind`, `cosd`,
+   `asind`. The five calculators in `WORK_PURE_WORK` reach the engine through
+   those three and nothing else, so a lesson can work an example without the
+   2.9 MB of station data. `atlas`, and `twelfths` with `station=`, are
+   outside that boundary on purpose and stay links into the full app.
+
+**Everything else the file exposes is `WORK_HOST`** and belongs to the tides
+page and the tests; it may change freely.
+
+**The check runs the calculators against an engine that answers those three
+calls and records any other property asked for,** rather than grepping for
+`T.`: a grep passes a call made through a helper and fails on a mention in a
+comment. It also proves it is watching, by showing that a station-backed
+calculator does reach past them.
+
+    node docs/web/tests/work-engine.js
+
+A member added to `WORK` that is on neither list fails the check, which is the
+point: it would otherwise be reachable by the course with nobody having
+decided that it should be.
+
 ## The five rules that break things silently
 
 1. **POSIX awk only.** No gawk extensions. Test under `mawk` *and* `gawk` —

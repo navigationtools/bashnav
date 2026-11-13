@@ -17,6 +17,9 @@
 #                     read back against its geometry, and the lesson
 #                     link.  Needs only node, so it runs before the
 #                     browser stages and is never skipped
+#   2b the promise    work.js is a shared engine: the members the course
+#                     may call, and the three engine calls the pure
+#                     calculators are allowed, both checked by running
 #   3  the page       what the page SHOWS, against the awk tool's own
 #                     output.  A module diff cannot catch a wiring fault,
 #                     and the one that mattered -- predicting the UT day
@@ -62,11 +65,26 @@ echo
 echo "2. the work calculators, against the awk"
 node docs/web/tests/tides-work.js "$AWK"
 
+echo
+echo "2b. work.js as a shared engine: the surface and the engine boundary"
+#  The course embeds a copy of work.js to run worked examples inside a
+#  lesson. This holds the two things it was promised -- the members it may
+#  call, and that the five pure calculators need three trig functions and
+#  nothing else -- by running them against an engine that answers only
+#  those three. Needs only node, like stage 2.
+node docs/web/tests/work-engine.js
+
 #  Stages 3 and 4 drive a headless Chromium.  Playwright is not something
 #  to make anyone install to check a tide table, so if it is absent they
 #  are SKIPPED and said to be skipped -- not silently passed, and not
 #  treated as a failure.  Stage 1 is the one that proves the physics.
-if node -e 'require("playwright")' >/dev/null 2>&1; then
+#  PLAYWRIGHT INSTALLED IS NOT THE SAME AS A BROWSER INSTALLED.  Asking
+#  only whether the module loads passed on a machine where `npm i` had
+#  put the package there but `npx playwright install` had never been run,
+#  and the stage then died with a stack trace instead of saying it was
+#  skipped. The browser binary itself is what these stages need, so that
+#  is what is checked.
+if node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.executablePath())' >/dev/null 2>&1; then
   echo
   echo "3. the page and the work view, against the awk tool's own output"
   python3 docs/web/tests/serve.py 8088 "$ROOT/docs/web" >/dev/null 2>&1 &
@@ -82,7 +100,7 @@ if node -e 'require("playwright")' >/dev/null 2>&1; then
   echo "TIDES WEB: all stages passed"
 else
   echo
-  echo "3, 4. SKIPPED -- the browser stages need playwright:  npm i -D playwright"
+  echo "3, 4. SKIPPED -- the browser stages need playwright:  npm i -D playwright && npx playwright install chromium"
   echo
   echo "TIDES WEB: the engine passed; the page and the moon were not checked"
 fi

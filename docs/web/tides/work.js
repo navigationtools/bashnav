@@ -29,6 +29,38 @@
     Documented in WORK.md; change it here and nowhere else. */
 var COURSE_BASE = 'https://bashnav.navigationtools.org/practical-navigator/coastal/';
 
+/* =====================================================================
+   THIS FILE IS A SHARED ENGINE, and the four lists below are what that
+   means.  The Practical Navigator course is served from this origin, so
+   a lesson LOADS THIS FILE ITSELF -- no copy, no drift check -- and runs
+   a worked example inline, offline, without leaving the page.
+   A second consumer makes a file harder to change freely; what makes
+   that bearable is saying exactly what is promised and having a check
+   that holds it.  docs/web/tests/work-engine.js is that check, and it
+   reads these lists rather than keeping a copy of them.
+
+   WORK_SHARED      what the course may call.  Changing any of these four
+                    is a change to somebody else's build: it travels with
+                    a note to the course's inbox, as CLAUDE.md requires.
+   WORK_HOST        everything else the file exposes.  It belongs to the
+                    tides page and to the tests, and it may change
+                    without warning.
+   WORK_PURE_CALLS  the tide-engine boundary: the only engine calls the
+   WORK_PURE_WORK   calculators named in WORK_PURE_WORK are allowed to
+                    make.  Three trig functions, so a lesson can run
+                    those five WITHOUT the 2.9 MB of station data -- the
+                    thing that would otherwise have to be downloaded to
+                    work an example about twelfths.  twelfths is in that
+                    list only when it is given typed times; with station=
+                    it needs the real engine, and so does atlas.  Those
+                    two stay links into the full app.
+   ===================================================================== */
+var WORK_SHARED     = ['NAMES', 'SPEC', 'run', 'figure'];
+var WORK_HOST       = ['EXAMPLES', 'lessonHref', 'fromQuery', 'stationId',
+                       'useTide', 'fx', 'sprintf'];
+var WORK_PURE_CALLS = ['sind', 'cosd', 'asind'];
+var WORK_PURE_WORK  = ['twelfths', 'secondary', 'stream', 'cts', 'setdrift'];
+
 var WORK = (function () {
   var T = (typeof TIDE !== 'undefined') ? TIDE : null;
   function useTide(t) { T = t; }
@@ -999,4 +1031,11 @@ var WORK = (function () {
   };
 })();
 
-if (typeof module !== 'undefined') module.exports = { WORK: WORK, COURSE_BASE: COURSE_BASE };
+/*  Node, for the tests and for the course's build check.  The four lists
+    are file-scope data rather than members of WORK, so the promise can be
+    read by a checker without widening the surface a page can reach. */
+if (typeof module !== 'undefined') module.exports = {
+  WORK: WORK, COURSE_BASE: COURSE_BASE,
+  SHARED: WORK_SHARED, HOST: WORK_HOST,
+  PURE_CALLS: WORK_PURE_CALLS, PURE_WORK: WORK_PURE_WORK
+};
