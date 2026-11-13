@@ -168,7 +168,7 @@ var RUN = [
 
 refuses('a run with no boat', RUN.replace(/^polar.*$/m, ''), C.run, 'must name a polar');
 refuses('a run that chooses no start', RUN.replace(/^start.*$/m, ''), C.run, 'must choose a start');
-refuses('a run with no rounding distance', RUN.replace(/^round.*$/m, ''), C.run, 'how close counts');
+refuses('a run with no rounding distance', RUN.replace(/^round.*$/m, ''), C.run, 'how far off she rounds');
 refuses('a heading step of a whole quadrant', RUN.replace('heading 5', 'heading 120'), C.run,
         'at most 90 degrees');
 refuses('a clearance on water the run is not looking at',

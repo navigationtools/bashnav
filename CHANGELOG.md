@@ -1,5 +1,107 @@
 # Changelog
 
+## The router sails a whole race
+
+**What.** `docs/web/route/router.js`: the isochrone search, the last of the
+four layers the router is built in (board item B2). Given a course, the water,
+a run, the two grids and a polar, it returns the earliest finish and the track
+that makes it, one row per step. `docs/web/route/ROUTER.md` describes how it
+works, with pictures.
+
+**How it searches.** From every place the boat could be, every heading is
+tried for one time step: the fan the run asks for, the best beat and run angle
+on each tack, and - when a mark or the finish is within a step - the heading
+that lays it exactly. The water is cut into half-mile squares and of all the
+ways into a square only the earliest is kept. The one assumption in that is
+stated in the file: being somewhere sooner is never worse than being there
+later.
+
+**How a mark is rounded, and what `round` means.** The racing rule is a
+string, drawn taut along the track. The router lays a line out from the mark
+through the middle of the turn, and the mark is rounded when she crosses it
+going the right way round. **`round` is a berth** - Larry's decision of 13
+November 2026: she crosses that line at least that far out and passes no
+nearer at any time. `COURSE.md` had said "how close counts as having rounded",
+under which the fastest route shaves the mark at no distance at all; at the
+Eddystone that is over a reef the coastline data does not hold. Boats in the
+real race do go inside what a prudent berth would be. The router does not, and
+the documents say so without advising it.
+
+**A mark that is the end of the finish line is rounded by finishing,** and a
+course whose mark and finish line disagree about the hand is refused.
+
+**What it will not sail yet,** each refused with its reason rather than
+ignored: a `gate ... within`, and a mark that may be left on either hand.
+
+**Checked.** `docs/web/tests/router.js`, 42 checks, on courses small enough to
+sail in the head: twenty miles on a beam reach at ten knots is two hours, a
+dead beat is the distance over the best speed made good. Eight faults were put
+in one at a time and each is caught. One of the hand-worked answers was itself
+wrong - it forgot that a start line and a finish line have width, and the
+router beat it - and the comment now says so.
+
+**The first real run** was the 2025 Myth of Malham on the course's own files:
+23.7 hours with a generic 70 ft polar, a dead beat to the Eddystone in a
+south-westerly of 16 to 24 knots, in three seconds of computing. Checked
+afterwards by brute force: no step crosses the coastline. The real boats took
+about 44 hours, which is the difference between a generic racing polar sailed
+perfectly and a heavy boat sailed by people.
+
+**What it affects.** No page loads the router yet, so nothing a user sees has
+changed. `route.js`'s `step()` is split into `conditions()` and `sailFrom()`
+so that the grids are read once for a whole fan of headings; its 38 checks are
+unchanged and pass.
+
+## The router takes one step, from the grids and the polar
+
+**What.** `docs/web/route/route.js` gains `sample()`, which reads a wind or
+current grid at a place and a time, and `step()`, which makes one time step of
+a route: the grids sampled, the polar asked for the boat's speed, the vector
+step made. `polar.js` gains `sail()`, the boat's speed on every point of sail
+the polar file can answer for. This is layer three of the four the router is
+built in (board item B2); the isochrone expansion comes next and rests on it.
+
+**Why one step, and not a route.** An isochrone router draws a plausible track
+from almost any arithmetic, so the only place a wrong step can be seen is
+where there is one of them. `docs/web/tests/route-step.js` holds 38 checks
+whose expected answers are each derived in the comment beside them, and seven
+faults were put back one at a time to see that each is caught.
+
+**The boat sails in the wind over the water, not over the ground.** A polar is
+measured through the water, so it is entered with the ground wind less the
+stream: twelve knots of westerly over two knots of east-going stream is ten
+knots to the boat, and over two knots of west-going stream it is fourteen.
+That is why wind against tide is windier as well as rougher. A router that
+enters the polar with the ground wind gets every tidal gate slightly wrong, in
+the direction that flatters it. Each row of a route carries both winds, so a
+lesson can show the difference.
+
+**Beating and running come from the polar file's own optimum rows.** The
+generic 70 ft table runs from 52 to 150 degrees, and a boat that could not
+sail closer than 52 could not beat. The file's `beat_angle`/`beat_vmg` and
+`run_angle`/`run_vmg` rows say where the best angles are and what they make
+good, so `sail()` answers out to those angles with a straight line between two
+speeds that are both in the file - and still refuses anything closer to the
+wind or deeper than that. Nothing is invented; a row says whether its speed
+came from the table or from an optimum row.
+
+**A node with no data is left out, not counted as nothing.** A tidal atlas has
+dry nodes along every coast. Averaging one in as zero would halve the stream
+exactly where it runs hardest, off the headlands, so the nodes that have data
+carry the whole weight and a value is missing only when none of the four has
+one.
+
+**No wind stops a step; no stream does not.** Off the atlas the boat still
+sails, through still water, and the row is marked so a route can report how
+much of it was sailed on no information. Tried against the real 2025 grids:
+the atlas has **no stream data at the start line in the Solent**, so the first
+miles of that race will be reported as sailed in still water - which the
+Solent is not.
+
+**What it affects.** Nothing that exists yet reads these functions; the
+vector step and the polar table lookup are unchanged, and their checks pass as
+before.
+
 ## A sample pack, so the empty machine can be seen working
 
 **What.** drill ships `sample.drillpack.json` beside the app and a **Try the

@@ -420,7 +420,7 @@ var COURSE = (function () {
     if (!r.polar) return bad(0, 'a run must name a polar -- the boat belongs to the run, not to the course');
     if (!r.start) return bad(0, 'a run must choose a start');
     if (!r.step) return bad(0, 'a run must give its time and heading steps');
-    if (r.round === null) return bad(0, 'a run must say how close counts as rounded: round <nm>');
+    if (r.round === null) return bad(0, 'a run must say how far off she rounds a mark: round <nm>');
     //  BOTH GRIDS, IN RUN 2, AND NOT OPTIONALLY. A run that names its boat
     //  and its start but not its weather is a route nobody can reproduce.
     if (r.version >= 2 && !r.wind) return bad(0, 'a RUN 2 file must name its wind grid: wind <file>');

@@ -1404,6 +1404,37 @@ WXLOG
     say "  --    the polar check needs node, skipped"
   fi
 
+  #  ONE STEP OF THE ROUTER, against answers worked by hand: the grids
+  #  sampled, the polar asked, the vector step made. It is the last
+  #  place a wrong step can be seen, because a route is a thousand of
+  #  them and a thousand wrong steps still draw a convincing track.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/route-step.js 2>&1); then
+      ok "one router step agrees with the hand-worked answer $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
+    else
+      bad "a router step samples, speeds or moves the boat wrongly"
+      echo "$r" | head -10
+    fi
+  else
+    say "  --    the router-step check needs node, skipped"
+  fi
+
+  #  THE ROUTER, WHOLE.  Courses laid on the equator in a wind and a
+  #  stream that do not change, so the fastest passage is one triangle
+  #  and can be worked out by hand; then the rules -- the hand a mark is
+  #  left on, the berth, the water that may not be crossed -- which need
+  #  no arithmetic at all.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/router.js 2>&1); then
+      ok "the router finds the passage the triangle gives, and keeps the rules $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
+    else
+      bad "the router sails a wrong passage or breaks a rule of the course"
+      echo "$r" | head -10
+    fi
+  else
+    say "  --    the router check needs node, skipped"
+  fi
+
   if command -v node >/dev/null 2>&1; then
     if r=$(node tests/contacts-figs-check.js 2>&1); then
       ok "$(echo "$r" | sed -n 's/^  ok  *//p')"

@@ -86,8 +86,8 @@ way past the Return Buoy may be the wrong side of it, and the result is a
 perfectly convincing track that would be scored as not having sailed the
 course. The side is not a check applied afterwards; it constrains the search.
 
-**What it does not carry:** how close counts as rounded. That is a property of
-the run, not of the race — the sailing instructions do not give a radius —
+**What it does not carry:** how far off a mark is rounded. That is a property
+of the run, not of the race — the sailing instructions do not give a distance —
 so it lives in the run file as `round`.
 
 ## Lines are given the way the sailing instructions give them
@@ -244,10 +244,52 @@ from RUN 1 are the grids and the gate, and each has its own section below.
 | `scale` | `wind <f> current <f>` | 1.0 is as given. `current 0.5` is the OSCAR question. |
 | `layers` | layer names | Which layers of the areas files are live. |
 | `clear` | layer, distance in nm | Per layer. A layer not named takes 0. |
-| `round` | distance in nm | How close counts as having rounded a mark. |
+| `round` | distance in nm | **The berth:** she rounds each mark at least this far off, and passes no nearer at any time. |
 | `gate` | name lat lon `within` nm | Optional, repeatable. Pass **within** that distance of the point. |
 | `avoid` | name lat lon `off` nm | Optional, repeatable. Stay **at least** that distance off it. |
 | `end` | — | Last line. |
+
+## `round` is a berth, and how a mark is known to be rounded
+
+The racing rule is a string: drawn taut along the track, it must pass each mark
+on the required side. The router tests it with a line running out from the
+mark, away from the turn. She has rounded the mark when she crosses that line
+going the right way round; a track that cuts inside never crosses it, and one
+that passes on the wrong hand crosses it backwards and is refused.
+
+```
+                            <-- outbound
+    .------------------<---------------------
+   /
+  |   - - - - - - - - x======M   the mark, left to port
+   \                  ^
+    '------------------>---------------------
+                            --> homeward
+
+    x    `round` from the mark
+    ==   nearer than that: not sailed
+    - -  the line she must cross, here or further out
+```
+
+**`round` is the distance `x`** (Larry, 13 November 2026). She crosses the line
+at least that far out and passes no nearer than that at any time, so the
+number is a berth and not a tolerance. The fastest route passes exactly that
+far off, because the shorter way round is always quicker; where the wind or the
+stream favours it she may go wider. The first wording of this line read the
+other way — "how close counts as having rounded" — under which the fastest
+route shaves the mark at no distance at all, and at the Eddystone that is over
+the reef, which the coastline data does not contain.
+
+**Boats in the real race do go inside what a prudent berth would be, and have
+for years.** A run can be given a smaller number to see what that is worth.
+Nothing in these formats or in the router's answer is advice to do it.
+
+**A mark that is the end of the finish line is rounded by finishing.** The 2025
+course leaves North Head Buoy to starboard and then finishes on a line running
+north from that same buoy: crossing the line eastward *is* leaving the buoy to
+starboard. Such a mark sets no line of its own, but its side is checked against
+the finish, and a course that says one hand where the finish line can only be
+crossed leaving it on the other is refused.
 
 ## The weather is part of the experiment, which is why RUN 2 exists
 

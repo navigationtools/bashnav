@@ -113,6 +113,61 @@ ok('blank lines and comments are ignored',
 ok('CRLF reads the same', POLAR.parse(TXT.replace(/\n/g, '\r\n')).ok);
 ok('spaces work as well as tabs', POLAR.parse('twa/tws 5 10\n90 6 10\n').ok);
 
+//  ---- sail(): every point of sail the FILE can answer for ---------
+//
+//  The table stops at 50 degrees; a boat that could not sail closer
+//  could not beat. The file's beat rows say where the best upwind angle
+//  is and what it makes good, so sail() answers from the beat angle to
+//  the table's edge with a straight line between two speeds that are
+//  both in the file -- and refuses, still, to go closer than that.
+//
+//  At 10 knots of wind the toy polar beats at 38 degrees making 4.5
+//  good, so the boat is doing 4.5 / cos 38 = 5.7106 through the water.
+(function () {
+  var beat = 4.5 / Math.cos(38 * Math.PI / 180);
+  var o = POLAR.optimum(p, 'beat', 10);
+  ok('the optimum beat speed is VMG over the cosine of the angle',
+     o && near(o.angle, 38) && near(o.kt, beat, 1e-12), JSON.stringify(o));
+
+  var at = POLAR.sail(p, 38, 10);
+  ok('on the beat angle the boat does that speed, and says where it came from',
+     at && near(at.kt, beat, 1e-12) && at.from === 'beat', JSON.stringify(at));
+  var mid = POLAR.sail(p, 44, 10);
+  ok('halfway to the table it is halfway between the two speeds',
+     mid && near(mid.kt, (beat + 6) / 2, 1e-12), JSON.stringify(mid));
+  ok('at the table\'s edge the two agree, so there is no step in the curve',
+     near(POLAR.sail(p, 50, 10).kt, 6) && POLAR.sail(p, 50, 10).from === 'table');
+  ok('closer to the wind than the beat angle it still says nothing',
+     POLAR.sail(p, 37, 10) === null);
+  ok('inside the table it is the table', near(POLAR.sail(p, 90, 10).kt, 10));
+
+  //  half the lightest wind: the angle is held and the speed halves
+  var light = POLAR.sail(p, 40, 2.5);
+  ok('below the lightest wind the angle holds and the speed runs to zero',
+     light && near(light.kt, 0.5 * 3 / Math.cos(40 * Math.PI / 180), 1e-12), JSON.stringify(light));
+  var over = POLAR.sail(p, 40, 40);
+  ok('above the strongest wind it clamps, and says so', over && over.clamped === true);
+
+  //  This file has no run rows, so downwind of the table is still null.
+  ok('with no run rows, deeper than the table is not answered', POLAR.sail(p, 160, 10) === null);
+
+  //  ... and one that has them. At 10 knots it runs at 165 making 3.5
+  //  good: 3.5 / cos 15 = 3.6235 through the water.
+  var q = POLAR.parse(TXT + '#  run_angle\t160\t165\t170\n#  run_vmg\t1.8\t3.5\t9\n');
+  var run = 3.5 / Math.cos(15 * Math.PI / 180);
+  ok('a polar with run rows parses', q.ok, q.err);
+  var r1 = POLAR.sail(q, 165, 10), r2 = POLAR.sail(q, 157.5, 10);
+  ok('on the run angle the boat does VMG over the cosine',
+     r1 && near(r1.kt, run, 1e-12) && r1.from === 'run', JSON.stringify(r1));
+  ok('and halfway out from the table it is halfway between',
+     r2 && near(r2.kt, (4 + run) / 2, 1e-12), JSON.stringify(r2));
+  ok('deeper than the run angle it says nothing: the boat gybes',
+     POLAR.sail(q, 170, 10) === null);
+  ok('a polar is symmetric: the other tack gives the same answer',
+     near(POLAR.sail(q, -44, 10).kt, POLAR.sail(q, 44, 10).kt) &&
+     near(POLAR.sail(q, 316, 10).kt, POLAR.sail(q, 44, 10).kt));
+})();
+
 //  ---- 7. determinism ----------------------------------------------
 ok('the same question twice gives the same answer',
    JSON.stringify(POLAR.speed(p, 83.7, 11.3)) === JSON.stringify(POLAR.speed(p, 83.7, 11.3)));

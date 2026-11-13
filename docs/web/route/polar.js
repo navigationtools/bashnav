@@ -186,7 +186,96 @@ var POLAR = (function () {
     return { kt: top + (bot - top) * sa.f, clamped: clamped };
   }
 
-  return { parse: parse, speed: speed, span: span };
+  // ---------------------------------------------------------------
+  //  The optimum angle and its boat speed at this wind speed, from the
+  //  file's own beat_ or run_ rows: { angle, kt, clamped } or null when
+  //  the file does not carry them.
+  //
+  //  The file gives VMG, the speed made good along the wind; the boat's
+  //  speed through the water at that angle is VMG / |cos(angle)|.
+  //  Between two wind speeds both the angle and the VMG are taken
+  //  linearly, like the table. Below the lightest wind the angle is
+  //  held and the speed runs to zero at zero wind, which is the same
+  //  one honest extrapolation speed() makes; above the strongest it
+  //  clamps, and says so.
+  // ---------------------------------------------------------------
+  function optimum(p, which, twsKt) {
+    var A = p[which + '_angle'], V = p[which + '_vmg'];
+    if (!A || !V || twsKt < 0) return null;
+    var w = twsKt, clamped = false, scale = 1;
+    var top = p.tws[p.tws.length - 1], lo = p.tws[0];
+    if (w > top) { w = top; clamped = true; }
+    if (w < lo) { scale = w / lo; w = lo; }
+    var sw = span(p.tws, w);
+    if (!sw) return null;
+    var hi = Math.min(sw.i + 1, p.tws.length - 1);
+    var ang = A[sw.i] + (A[hi] - A[sw.i]) * sw.f;
+    var vmg = V[sw.i] + (V[hi] - V[sw.i]) * sw.f;
+    var c = Math.abs(Math.cos(ang * Math.PI / 180));
+    if (c < 1e-9) return null;
+    return { angle: ang, kt: scale * vmg / c, clamped: clamped };
+  }
+
+  // ---------------------------------------------------------------
+  //  sail(p, twa, tws) -> { kt, clamped, from } or null
+  //
+  //  THE BOAT'S SPEED ON EVERY POINT OF SAIL THE FILE CAN ANSWER FOR,
+  //  which is more than the table alone. A table that starts at 52
+  //  degrees says nothing about 45, and speed() rightly returns null
+  //  there -- but a boat that cannot sail closer than 52 cannot beat,
+  //  and the file knows better: its beat_angle and beat_vmg rows say
+  //  where the best upwind angle is and what it makes good.
+  //
+  //  So, at this wind speed:
+  //
+  //      closer to the wind than the beat angle     null. Pinching is
+  //                                                 not in the file.
+  //      from the beat angle to the table's edge    a straight line
+  //                                                 between the two
+  //                                                 speeds the file
+  //                                                 does give
+  //      inside the table                           speed(), unchanged
+  //      from the table's edge to the run angle     a straight line,
+  //                                                 as upwind
+  //      deeper than the run angle                  null. The boat
+  //                                                 gybes downwind;
+  //                                                 the file says so.
+  //
+  //  `from` says which of those answered -- 'table', 'beat' or 'run' --
+  //  so a route can report how much of it was sailed on the optimum
+  //  rows rather than on measured table entries.
+  //
+  //  NOTHING IS INVENTED: every speed returned lies between two numbers
+  //  that are in the file. Where the optimum rows are absent this is
+  //  speed() and nothing more.
+  // ---------------------------------------------------------------
+  function sail(p, twaDeg, twsKt) {
+    if (!p || !p.ok) return null;
+    var a = Math.abs(twaDeg);
+    if (a > 180) a = 360 - a;
+    var first = p.twa[0], last = p.twa[p.twa.length - 1], o, e;
+
+    if (a >= first && a <= last) {
+      var t = speed(p, a, twsKt);
+      return t ? { kt: t.kt, clamped: t.clamped, from: 'table' } : null;
+    }
+    if (a < first) {
+      o = optimum(p, 'beat', twsKt);
+      if (!o || a < o.angle - 1e-9 || o.angle >= first) return null;
+      e = speed(p, first, twsKt);
+      if (!e) return null;
+      return { kt: o.kt + (e.kt - o.kt) * (a - o.angle) / (first - o.angle),
+               clamped: o.clamped || e.clamped, from: 'beat' };
+    }
+    o = optimum(p, 'run', twsKt);
+    if (!o || a > o.angle + 1e-9 || o.angle <= last) return null;
+    e = speed(p, last, twsKt);
+    if (!e) return null;
+    return { kt: e.kt + (o.kt - e.kt) * (a - last) / (o.angle - last),
+             clamped: o.clamped || e.clamped, from: 'run' };
+  }
+
+  return { parse: parse, speed: speed, span: span, sail: sail, optimum: optimum };
 })();
 
 if (typeof module !== 'undefined') module.exports = POLAR;

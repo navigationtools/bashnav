@@ -7,10 +7,11 @@
 //  is built from the bottom, and each layer is verified while it is
 //  still small enough to check on paper:
 //
-//      1. this file   the vector step, and the position after it
-//      2. next        the polar lookup, interpolated in TWA and TWS
-//      3. then        one leg, one time step, against a worked answer
-//      4. last        isochrones, which by then is bookkeeping over
+//      1. vec()       the vector step, and the position after it
+//      2. polar.js    the polar lookup, interpolated in TWA and TWS
+//      3. step()      one time step from the grids and the polar,
+//                     against an answer worked by hand
+//      4. next        isochrones, which by then is bookkeeping over
 //                     parts that are already known good
 //
 //  EVERYTHING ABOVE INHERITS THE SIGN CONVENTIONS SET HERE, so a
@@ -152,9 +153,197 @@ var ROUTE = (function () {
     return true;
   }
 
+  // =================================================================
+  //  THE THIRD PIECE: ONE STEP, FROM THE GRIDS AND THE POLAR.
+  //
+  //  Everything above takes its wind and its stream as numbers. This
+  //  is where they come from: the wind and current grids are sampled
+  //  at a place and a time, the polar is asked for the boat's speed,
+  //  and the vector step moves her. It is kept to ONE step on purpose,
+  //  so that a whole step can be checked against an answer worked by
+  //  hand before a thousand of them are chained into a route.
+  // =================================================================
+
+  var P = (typeof POLAR !== 'undefined') ? POLAR
+        : (typeof require !== 'undefined' ? require('./polar.js') : null);
+
+  //  A grid's times as milliseconds, worked out once and kept on it.
+  //  Date.UTC from the digits rather than Date.parse of the string:
+  //  the format has no seconds, and not every engine reads that.
+  function timesOf(g) {
+    if (!g._ms) {
+      g._ms = g.meta.times.map(function (t) {
+        return Date.UTC(+t.substr(0, 4), +t.substr(5, 2) - 1, +t.substr(8, 2),
+                        +t.substr(11, 2), +t.substr(14, 2));
+      });
+    }
+    return g._ms;
+  }
+
+  // ---------------------------------------------------------------
+  //  sample(grid, lat, lon, ms) -> { field: value, ... } or null
+  //
+  //  The grid reader refuses to interpolate, and says that sampling
+  //  between cells is the router's job. This is that job: straight
+  //  lines between the four surrounding nodes, then a straight line
+  //  between the two surrounding times.
+  //
+  //  null MEANS THE GRID DOES NOT COVER THIS PLACE OR THIS TIME. It is
+  //  not zero and is never turned into zero here; what to do about it
+  //  is the caller's decision, and step() below makes it differently
+  //  for the wind than for the stream.
+  //
+  //  A NODE WITH NO DATA IS LEFT OUT, NOT COUNTED AS NOTHING. A tidal
+  //  atlas has dry nodes along every coast, and a boat close inshore
+  //  sits between wet ones and dry ones. Averaging a missing node in as
+  //  zero would halve the stream exactly where it runs hardest, off
+  //  the headlands; so the weights of the nodes that have data are
+  //  scaled up to add to one, and a field is null only when none of
+  //  the four has it. The wet value is carried a little way toward the
+  //  shore, which is what a navigator reading the atlas does too.
+  // ---------------------------------------------------------------
+  function sample(g, lat, lon, ms) {
+    if (!g || !g.ok) return null;
+    var m = g.meta;
+    var fy = (lat - m.lat.from) / m.lat.step;
+    var fx = (lon - m.lon.from) / m.lon.step;
+    var E = 1e-9;
+    if (fy < -E || fy > m.lat.n - 1 + E || fx < -E || fx > m.lon.n - 1 + E) return null;
+    var y0 = Math.min(Math.max(Math.floor(fy), 0), m.lat.n - 2);
+    var x0 = Math.min(Math.max(Math.floor(fx), 0), m.lon.n - 2);
+    if (m.lat.n < 2 || m.lon.n < 2) return null;
+    var wy = Math.min(Math.max(fy - y0, 0), 1), wx = Math.min(Math.max(fx - x0, 0), 1);
+
+    function slice(ti) {
+      var c = [g.at(ti, y0, x0), g.at(ti, y0, x0 + 1), g.at(ti, y0 + 1, x0), g.at(ti, y0 + 1, x0 + 1)];
+      var w = [(1 - wy) * (1 - wx), (1 - wy) * wx, wy * (1 - wx), wy * wx];
+      var o = {}, k, f, i, sum, wsum;
+      for (k = 0; k < m.fields.length; k++) {
+        f = m.fields[k]; sum = 0; wsum = 0;
+        for (i = 0; i < 4; i++) {
+          if (c[i] && c[i][f] !== null && c[i][f] !== undefined) { sum += w[i] * c[i][f]; wsum += w[i]; }
+        }
+        o[f] = wsum > 1e-12 ? sum / wsum : null;
+      }
+      return o;
+    }
+
+    if (m.timeless) return slice(0);
+    var T = timesOf(g), i;
+    if (ms < T[0] || ms > T[T.length - 1]) return null;
+    if (T.length === 1) return slice(0);
+    for (i = 0; i < T.length - 2 && ms > T[i + 1]; i++) { /* find the bracket */ }
+    var a = slice(i), b = slice(i + 1), ft = (ms - T[i]) / (T[i + 1] - T[i]), out = {}, k2, f2;
+    for (k2 = 0; k2 < m.fields.length; k2++) {
+      f2 = m.fields[k2];
+      out[f2] = (a[f2] === null || b[f2] === null) ? null : a[f2] + (b[f2] - a[f2]) * ft;
+    }
+    return out;
+  }
+
+  //  u and v as a navigator names them. u is positive east and v
+  //  positive north, the direction the air or the water is GOING -- so
+  //  a current's set is that direction, and a wind is named for the
+  //  opposite one, where it comes FROM.
+  function windOf(u, v) {
+    var r = from(-v, -u);
+    return { from: r.spd < STILL ? null : r.brg, kt: r.spd };
+  }
+  function streamOf(u, v) {
+    var r = from(v, u);
+    return { set: r.spd < STILL ? null : r.brg, drift: r.spd };
+  }
+
+  // ---------------------------------------------------------------
+  //  step(o) -> one row of a route, or { ok: false, why }
+  //
+  //    o.lat, o.lon, o.ms     where and when the step begins
+  //    o.heading, o.minutes   which way she points, and for how long
+  //    o.wind, o.current      parsed grids; current may be absent
+  //    o.polar                a parsed polar
+  //    o.scale                { wind, current }, 1 when absent
+  //
+  //  THE BOAT SAILS IN THE WIND OVER THE WATER, NOT OVER THE GROUND.
+  //  A polar is measured through the water, so the wind it is entered
+  //  with has to be the wind the water feels: the ground wind less the
+  //  stream. Twelve knots of westerly over two knots of east-going
+  //  stream is ten knots to the boat; over two knots of west-going
+  //  stream it is fourteen. That is why wind against tide is windier
+  //  as well as rougher, and a router that enters the polar with the
+  //  ground wind gets every tidal gate slightly wrong in the direction
+  //  that flatters it. The row carries both, so a lesson can show the
+  //  difference.
+  //
+  //  THE CONDITIONS ARE THOSE AT THE START OF THE STEP, held for the
+  //  whole of it. Over ten minutes on a 6 km stream grid and a 3-hour
+  //  wind grid that is well inside what the grids themselves know.
+  //
+  //  NO WIND DATA STOPS THE STEP; NO STREAM DATA DOES NOT. Without a
+  //  wind there is nothing to sail in and the answer is "cannot say".
+  //  Without a stream -- outside the atlas, or up a river it does not
+  //  chart -- the boat still sails, the step is made through still
+  //  water, and the row says `noStream` so that a route can report how
+  //  much of it was sailed on no information rather than hide it.
+  // ---------------------------------------------------------------
+  //  step() is two halves, and the router calls them separately: the
+  //  conditions at a place and time do not depend on which way the boat
+  //  points, so they are read ONCE and then every heading in the fan is
+  //  tried against them. Sampling two grids for each of seventy-odd
+  //  headings would be the same answer seventy-odd times.
+  function conditions(o) {
+    var sc = o.scale || {}, sw = sc.wind === undefined ? 1 : sc.wind,
+        scur = sc.current === undefined ? 1 : sc.current;
+    var w = sample(o.wind, o.lat, o.lon, o.ms);
+    if (!w || w.u === null || w.v === null) return { ok: false, why: 'there is no wind data here at this time' };
+    var c = o.current ? sample(o.current, o.lat, o.lon, o.ms) : null;
+    var noStream = !c || c.u === null || c.v === null;
+    var wu = w.u * sw, wv = w.v * sw;
+    var cu = noStream ? 0 : c.u * scur, cv = noStream ? 0 : c.v * scur;
+    var ground = windOf(wu, wv);
+    var water = windOf(wu - cu, wv - cv);
+    var st = streamOf(cu, cv);
+    if (water.from === null) return { ok: false, why: 'there is no wind over the water here' };
+    return {
+      ok: true, lat: o.lat, lon: o.lon, ms: o.ms,
+      gwd: ground.from, gws: ground.kt,          //  the wind over the ground
+      twd: water.from, tws: water.kt,            //  the wind over the water: the boat's wind
+      set: st.set, drift: st.drift, noStream: noStream
+    };
+  }
+
+  function sailFrom(c, polar, heading, minutes) {
+    //  The angle from the wind to the bow, clockwise positive. Wind
+    //  from the north and the bow pointing east is +90, and the wind is
+    //  then on the PORT side: positive is port tack.
+    var hd = norm360(heading);
+    var twa = norm360(hd - c.twd + 180) - 180;
+    var bs = P.sail(polar, Math.abs(twa), c.tws);
+    if (!bs) return { ok: false, why: 'the polar does not answer for ' + Math.abs(twa).toFixed(0) + ' degrees off the wind' };
+    var v = vec(hd, bs.kt, c.set === null ? 0 : c.set, c.drift);
+    var to = advance(c.lat, c.lon, v.cog, v.sog, minutes);
+    return {
+      ok: true,
+      lat: c.lat, lon: c.lon, ms: c.ms, minutes: minutes, heading: hd,
+      gwd: c.gwd, gws: c.gws, twd: c.twd, tws: c.tws,
+      twa: Math.abs(twa), tack: twa >= 0 ? 'port' : 'starboard',
+      stw: bs.kt, polar: bs.from, clamped: bs.clamped,
+      set: c.set, drift: c.drift, noStream: c.noStream,
+      cog: v.cog, sog: v.sog, n: v.n, e: v.e,
+      lat2: to.lat, lon2: to.lon
+    };
+  }
+
+  function step(o) {
+    var c = conditions(o);
+    if (!c.ok) return c;
+    return sailFrom(c, o.polar, o.heading, o.minutes);
+  }
+
   return {
     vec: vec, advance: advance, consistent: consistent,
-    norm360: norm360, comp: comp, from: from
+    norm360: norm360, comp: comp, from: from,
+    sample: sample, windOf: windOf, streamOf: streamOf, step: step,
+    conditions: conditions, sailFrom: sailFrom
   };
 })();
 
