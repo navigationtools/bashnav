@@ -1451,6 +1451,21 @@ WXLOG
     say "  --    the passage-log check needs node, skipped"
   fi
 
+  #  SAILING A RUN FROM ITS NAME.  The one place that knows the order
+  #  the router's files are read in. Held to two things: every refusal
+  #  names the file it is about, and the route is the router's own for
+  #  the same files, row for row -- the runner adds nothing.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/sail.js 2>&1); then
+      ok "a run is sailed from its name, and every refusal names its file $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
+    else
+      bad "the run command reads the wrong files, hides a refusal or changes the route"
+      echo "$r" | head -10
+    fi
+  else
+    say "  --    the run-command check needs node, skipped"
+  fi
+
   if command -v node >/dev/null 2>&1; then
     if r=$(node tests/contacts-figs-check.js 2>&1); then
       ok "$(echo "$r" | sed -n 's/^  ok  *//p')"

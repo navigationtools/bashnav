@@ -215,6 +215,68 @@ its kind, its time, its readings, its changes, and the first and last row it
 covers, so a page can light the piece of track a line is about.
 `PASSAGE.text()` prints them as above.
 
+## Sailing a run
+
+`docs/web/route/sail.js` takes the name of a run file and does the rest.
+
+```
+node docs/web/route/sail.js <folder> <run file>
+node docs/web/route/sail.js <folder> <run file> --json <file to save>
+```
+
+The router is five files that must be called in the right order, and this is
+the one place that order is written down:
+
+```
+ the run file            read first, because it names everything else
+      |
+      +--> the course, each areas file, the wind grid, the current
+      |    grid, the polar: each by its own reader
+      |
+ the run is checked against the course and the water it names,
+ and then against the grids
+      |
+ ROUTER.run  -->  the rows  -->  PASSAGE.log
+      |
+ the report:   what was sailed
+               what to know before trusting it
+               the passage log
+```
+
+The report also says what the run asked her to keep off, so that it can be
+read without the run file beside it.
+
+**Every refusal names the file.** A run names six files or more, and "rows 18
+but 17 found" is no use without knowing which of them it was said about.
+
+**The checks before sailing are the ones that would otherwise route.** A
+current handed in as the wind, or a wind from 925 hPa, does not fail: it
+sails, wrongly. Both are refused before anything is sailed.
+
+**It adds nothing to the router and takes nothing away.** The route is the
+one `ROUTER.run` returns for the same files, row for row, and a check holds it
+to that.
+
+| the command ends with | when |
+|---|---|
+| 0 | the run was sailed; the report is printed |
+| 1 | it was refused; the reason is printed, and nothing else |
+| 2 | it was not asked properly; it says how to ask |
+
+`--json` saves the summary, the log's lines and every row of the route, each
+row with the position at both its ends, which is what a chart needs to draw
+the track.
+
+A page reaches the router the same way. `SAIL.sail(read, runName)` is given a
+function that returns a file's text by name, so a page hands it what it
+fetched and the command hands it a folder.
+
+**This is a beta** (Larry, 13 November 2026). The router is handed to the
+course to be tried before it is finished, so that what gets built next is
+what the lessons turn out to need. The report says so on its first line,
+with the two things most likely to mislead: a tack costs the router nothing,
+and gates are refused rather than sailed.
+
 ## The first run: the 2025 Myth of Malham
 
 Sailed on the course's own files — the GFS wind of 00Z on race day, the Shom
@@ -339,6 +401,7 @@ item in the list below.
     node docs/web/tests/route-step.js       one step, against hand-worked answers
     node docs/web/tests/router.js           whole routes small enough to sail in your head
     node docs/web/tests/passage.js          the passage log, on rows written by hand
+    node docs/web/tests/sail.js             a run sailed from its name, and the refusals
 
 Each course in `router.js` is laid on the equator, in a wind and a stream that
 do not change, so that the fastest passage is one triangle and can be worked
@@ -354,3 +417,9 @@ nine degrees backed. Twenty-four faults were put into it one at a time —
 veered and backed swapped, fair and foul the wrong way round, a shift taken
 before the numbers are rounded, the board that rounds the mark folded away
 with the short tacks, a reason written into a line — and each is caught.
+
+The run command is checked against a folder that exists only in memory, so
+each refusal can be provoked by taking one file out or spoiling one line.
+Nineteen faults were put into it one at a time — the grids not checked, a
+refusal that does not name its file, the areas not read, a refusal that ends
+with 0 — and each is caught.

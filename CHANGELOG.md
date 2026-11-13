@@ -1,5 +1,40 @@
 # Changelog
 
+## A run can be sailed from its name, and the router goes to the course as a beta
+
+**What.** `docs/web/route/sail.js`: one command that takes a folder and the
+name of a run file, reads everything the run names, checks it, sails it, and
+prints a report with the passage log in it.
+
+    node docs/web/route/sail.js <folder> <run file> [--json <file>]
+
+**Why.** The router is five files that must be called in the right order.
+That order had been written only in working scripts kept outside the
+repository, so the router could be run by one person. It is now written down
+once, with its own checks, and a page can use the same function the command
+does.
+
+**The router is a beta** - Larry's decision of 13 November 2026. It goes to
+the course to be tried before it is finished, so that what is built next is
+what the lessons turn out to need. Two things are known to be missing and the
+report says both on its first lines: a tack costs the router nothing, so the
+number of tacks is not to be believed; and a `gate ... within` is refused
+rather than sailed.
+
+**Every refusal names the file,** and two files that would otherwise route
+wrongly without complaint - a current given as the wind, an upper-level wind
+- are refused before anything is sailed.
+
+**Checked.** `docs/web/tests/sail.js`, 44 checks, on a folder that exists
+only in memory. The route must be the router's own for the same files, row
+for row. Nineteen faults were put in one at a time and each is caught; one,
+the areas files not being read, got past every check at first and a check
+was added.
+
+**What it affects.** Nothing a user sees. `router.js` and `passage.js` are
+not touched. The test suite gains one check. `ROUTER.md` gains a section,
+"Sailing a run".
+
 ## The router's passage log: what she did, what she had, what had changed
 
 **What.** `docs/web/route/passage.js` (board item B2). The router answers with
