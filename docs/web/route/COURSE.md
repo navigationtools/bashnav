@@ -1,4 +1,4 @@
-# COURSE 1, AREAS 1, RUN 1 — the three files the router reads besides the grids
+# COURSE 1, AREAS 1, RUN 2 — the three files the router reads besides the grids
 
 The course, the water it may not cross, and the settings for one run.
 `docs/web/route/course.js` is the reference: **what it refuses, these formats
@@ -88,7 +88,7 @@ course. The side is not a check applied afterwards; it constrains the search.
 
 **What it does not carry:** how close counts as rounded. That is a property of
 the run, not of the race — the sailing instructions do not give a radius —
-so it lives in RUN 1 as `rounding`.
+so it lives in the run file as `round`.
 
 ## Lines are given the way the sailing instructions give them
 
@@ -124,7 +124,7 @@ to finish before you have started.
 
 **Larry's decision, 10 November:** the router runs the class start as a
 scenario. So the course names every start in SI 8.1 and fixes none of them,
-and `RUN 1` chooses — by class name, or by a time of its own for a "what if".
+and the run file chooses — by class name, or by a time of its own for a "what if".
 Ten minutes at Cowes can be hours at St Alban's Head, and that difference is
 the lesson.
 
@@ -142,7 +142,7 @@ sailing instructions. The moment it also holds things that are not in the
 instructions, that check stops being possible, and the file quietly becomes a
 mixture of what the race says and what a lesson wanted.
 
-**A teaching waypoint is a property of the run**, and `RUN 1` carries it as a
+**A teaching waypoint is a property of the run**, and the run file carries it as a
 `gate`. One course file, many runs, and the race still readable against its
 own authority.
 
@@ -204,40 +204,100 @@ It should not, and the reason is that a margin is not a property of the water
 — it is a property of the boat and the day. A 2 m draught in a flat calm and
 the same boat in a four-metre sea want different distances off the same rock.
 
-**Clearance lives in RUN 1, per layer**, so one set of areas serves every boat
+**Clearance lives in the run file, per layer**, so one set of areas serves every boat
 and every sea state. A legal boundary such as a TSS takes a clearance of zero,
 which is correct: you may touch its edge, you may not be inside it.
 
 ---
 
-# RUN 1
+# RUN 2
 
-    RUN 1
-    course example_race_2025.txt
-    areas  areas_example_2025.txt
-    polar  polar_70ft_v1.txt
-    start  class Class One
-    step   time 600 heading 5
-    scale  wind 1.0 current 1.0
-    layers coast-example-mhw tss-example boom-example
-    clear  coast-example-mhw 0.10  tss-example 0  boom-example 0
-    round  0.10
-    gate   Example Head 50.57800 -2.05200 off 2.0
+    RUN 2
+    course  example_race_2025.txt
+    areas   areas_example_2025.txt
+    polar   polar_70ft_v1.txt
+    wind    wind_20250524_00z.grid
+    current current_20250524.grid
+    start   class Class One
+    step    time 600 heading 5
+    scale   wind 1.0 current 1.0
+    layers  coast-example-mhw tss-example boom-example
+    clear   coast-example-mhw 0.10  tss-example 0  boom-example 0
+    round   0.10
+    gate    Example Head 50.57868 -2.05644 within 2.0
+    avoid   Example Race 50.51000 -2.44000 off 3.0
     end
+
+**RUN 1 is still read** — `course.js` reads both, and a RUN 1 file keeps
+RUN 1's meaning exactly. What follows describes RUN 2; the two differences
+from RUN 1 are the grids and the gate, and each has its own section below.
 
 | Line | Form | Notes |
 |---|---|---|
 | `course` | a filename | The race. |
 | `areas` | a filename | The water. May be repeated. |
 | `polar` | a filename | **The boat is named here**, not in the course. |
+| `wind` | a GRID filename | **Required in RUN 2.** The wind this run was sailed in. |
+| `current` | a GRID filename | **Required in RUN 2.** The stream this run was sailed in. |
 | `start` | `class <name>` or `at <time>` | By class from the course, or a time of your own. |
 | `step` | `time <s> heading <deg>` | The isochrone step and the heading resolution. |
 | `scale` | `wind <f> current <f>` | 1.0 is as given. `current 0.5` is the OSCAR question. |
 | `layers` | layer names | Which layers of the areas files are live. |
 | `clear` | layer, distance in nm | Per layer. A layer not named takes 0. |
 | `round` | distance in nm | How close counts as having rounded a mark. |
-| `gate` | name lat lon `off` nm | Optional, repeatable. The teaching waypoint. |
+| `gate` | name lat lon `within` nm | Optional, repeatable. Pass **within** that distance of the point. |
+| `avoid` | name lat lon `off` nm | Optional, repeatable. Stay **at least** that distance off it. |
 | `end` | — | Last line. |
+
+## The weather is part of the experiment, which is why RUN 2 exists
+
+A run names its boat and its start, and until RUN 2 it did not name the two
+things that decide a route more than either: the wind and the stream. PILOT
+found it writing the 2025 run and kept them in a comment, which is the right
+answer to a format that cannot say something and the wrong place for them to
+stay.
+
+**Both are required.** A route whose weather is not written down cannot be
+reproduced, and "which wind was that sailed in?" is the first question anybody
+asks of a surprising route.
+
+**Why a version and not another optional line.** The rule below is that a new
+line is additive only if a reader that does not know it still reads a
+*correct* file. A reader that ignores `wind` does not: it routes on whatever
+grids it was handed and reports the result as this run — a convincing route in
+the wrong weather, which is the fault `GRID 1` exists to prevent. So it is
+RUN 2, and `course.js` keeps reading RUN 1.
+
+**The kind is checked against the grid, not against the filename.** A filename
+is not evidence. `COURSE.checkGrids(run, grids)` compares each loaded grid's
+own `kind` header with the line that named it, so a current grid handed in as
+the wind is refused. It is a separate call because parsing text and loading
+files are different jobs, and the reader never opens a file.
+
+## A gate said two opposite things, so RUN 2 gives it two words
+
+In RUN 1, `gate Example Head 50.57800 -2.05200 off 2.0` did not say which rule
+it meant, and the two readings are opposite instructions to a router:
+
+| | what it means |
+|---|---|
+| `gate <name> <lat> <lon> within <nm>` | the track must pass **within** that distance of the point — a teaching waypoint, which is how Larry's Level 1 route used it |
+| `avoid <name> <lat> <lon> off <nm>` | the track must stay **at least** that distance off it — a keep-out circle |
+
+**`within` and `off` are kept as different words on purpose,** so a verb read
+too quickly cannot invert the rule. A RUN 1 gate keeps RUN 1's shape and is
+not given a meaning it never had.
+
+**On which side a headland is passed, the file says nothing, and does not need
+to.** A keep-out circle plus the coastline in the areas file leaves only the
+seaward way round, because the landward side crosses the coast. Where a lesson
+wants a particular side anyway, that is what a `gate … within` is for: a point
+on the side you mean.
+
+**On order: the file order is the order,** as it is for the course's marks,
+and a point passed twice — St Alban's Head going out and coming back — is
+written twice. A count or an index would be a second copy of what the file
+already says.
 
 **Why the boat and the start are both here.** Larry asked for one course file
 that serves every boat and every start. That only works if neither is written
@@ -295,10 +355,15 @@ router loses the route rather than reporting the file.
 ## Changing them
 
 A new optional line on an existing version is not a version change if a reader
-that does not know it still reads a correct course — `gate` in RUN 1 is of
+that does not know it still reads a correct course — `gate` in RUN 1 was of
 that kind. Anything that changes the meaning of a line that already exists, or
 that a reader must understand to be correct, is **COURSE 2**, **AREAS 2** or
 **RUN 2**, and `course.js` keeps reading version 1.
+
+**RUN 2 is the first use of that rule.** The grids had to be understood to
+read the file correctly, and the gate's `off` changed meaning, so neither
+could be an addition to RUN 1. RUN 1 files are still read, and still mean what
+they meant.
 
 ## Where this is likely to be wrong
 

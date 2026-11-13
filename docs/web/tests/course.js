@@ -1,4 +1,4 @@
-//  COURSE 1, AREAS 1, RUN 1: what they accept and what they refuse.
+//  COURSE 1, AREAS 1, RUN 1 and RUN 2: what they accept and what they refuse.
 //
 //  THE REFUSALS ARE THE POINT, and they are the same point GRID 1's
 //  tests make. A bad course does not become an error, it becomes a
@@ -176,6 +176,70 @@ refuses('a clearance on water the run is not looking at',
         C.run, 'not in layers');
 refuses('a negative scale', RUN.replace('current 1.0', 'current -1'), C.run, 'zero or more');
 refuses('a run cut short before end', RUN.replace(/\nend$/, ''), C.run, 'cut short');
+
+// ------------------------------------------------------------------ RUN 2
+//  RUN 2 adds the weather to the experiment and splits the gate's `off`
+//  into two verbs. RUN 1 keeps being read, which is half of what a
+//  version change is for, so both shapes are checked here.
+var RUN2 = RUN
+  .replace('RUN 1', 'RUN 2')
+  .replace('polar polar_70ft_v1.txt',
+           'polar polar_70ft_v1.txt\nwind wind_20250524_00z.grid\ncurrent current_20250524.grid')
+  .replace('gate St Albans Head 50.57800 -2.05200 off 2.0',
+           'gate Example Head 50.57800 -2.05200 within 2.0\navoid Example Race 50.51000 -2.44000 off 3.0');
+
+(function () {
+  var r = C.run(RUN2);
+  ok('a good RUN 2 loads', r.ok, r.err);
+  if (!r.ok) return;
+  ok('it knows which version it is', r.version === 2);
+  ok('the run names its wind and its current',
+     r.wind === 'wind_20250524_00z.grid' && r.current === 'current_20250524.grid');
+  ok('a gate says how close to pass', r.gates[0].rule === 'within' && r.gates[0].nm === 2);
+  ok('and an avoid says how far to stay off', r.gates[1].rule === 'avoid' && r.gates[1].nm === 3);
+  ok('both keep their names', r.gates[0].name === 'Example Head' && r.gates[1].name === 'Example Race');
+  var r1 = C.run(RUN);
+  ok('a RUN 1 file still loads, and is not given a rule it never had',
+     r1.ok && r1.version === 1 && r1.gates[0].off === 2 && !r1.gates[0].rule, r1.err);
+})();
+
+refuses('a RUN 2 with no wind grid', RUN2.replace(/^wind.*$/m, ''), C.run, 'must name its wind grid');
+refuses('a RUN 2 with no current grid', RUN2.replace(/^current.*$/m, ''), C.run, 'must name its current grid');
+refuses('a RUN 1 that names a grid anyway', RUN.replace('polar polar_70ft_v1.txt',
+        'polar polar_70ft_v1.txt\nwind wind.grid'), C.run, 'RUN 2 line');
+refuses('a RUN 2 gate still written the RUN 1 way',
+        RUN2.replace('within 2.0', 'off 2.0'), C.run, 'avoid');
+refuses('an avoid in a RUN 1 file', RUN.replace('round 0.10',
+        'round 0.10\navoid X 50.0 -2.0 off 1.0'), C.run, 'RUN 2 line');
+refuses('a first line that is neither version', RUN.replace('RUN 1', 'RUN 3'), C.run,
+        '"RUN 1" or "RUN 2"');
+
+//  The grids a run named, against the grids that were loaded. A filename
+//  is not evidence: the kind is in each grid's own header, so swapping
+//  the two files is caught and swapping their names is not pretended to
+//  be caught.
+(function () {
+  var wind    = { ok: true, meta: { kind: 'wind' } };
+  var current = { ok: true, meta: { kind: 'current' } };
+  var r = C.run(RUN2), r1 = C.run(RUN);
+
+  ok('the right two grids pass', C.checkGrids(r, { wind: wind, current: current }).ok);
+
+  var v = C.checkGrids(r, { wind: current, current: wind });
+  ok('two grids swapped are caught by what they say they are',
+     !v.ok && v.err.indexOf('says kind current') >= 0, v.err);
+
+  var v2 = C.checkGrids(r, { wind: wind });
+  ok('a grid the run names and nobody loaded is caught',
+     !v2.ok && v2.err.indexOf('was not loaded') >= 0, v2.err);
+
+  var v3 = C.checkGrids(r, { wind: wind, current: { ok: false, err: 'rows says 10, the file has 9' } });
+  ok('a grid that did not load is reported with its own reason',
+     !v3.ok && v3.err.indexOf('rows says 10') >= 0, v3.err);
+
+  ok('a RUN 1 file names no grids, so there is nothing to check',
+     C.checkGrids(r1, null).ok);
+})();
 
 // ------------------------------------------------- the one cross-file check
 (function () {

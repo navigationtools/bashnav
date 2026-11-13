@@ -1,6 +1,8 @@
 // =====================================================================
-//  COURSE 1, AREAS 1, RUN 1 -- the three files the router reads
-//  besides the grids.
+//  COURSE 1, AREAS 1, RUN 2 -- the three files the router reads
+//  besides the grids.  RUN 1 is still read, and still means what it
+//  meant: see the RUN section below for what RUN 2 adds and why it
+//  could not be an addition to RUN 1.
 //
 //  Contract: docs/web/route/COURSE.md. This file is the reference for
 //  it: what this refuses, the formats do not allow.
@@ -271,15 +273,45 @@ var COURSE = (function () {
     return a;
   }
 
-  // ---- RUN 1 --------------------------------------------------------
+  // ---- RUN 1 and RUN 2 ----------------------------------------------
+  //
+  //  RUN 2 ADDS THE WEATHER TO THE EXPERIMENT. A run is one experiment --
+  //  this boat, this start, this water -- and until now the wind and the
+  //  stream, which decide the route more than anything else does, were
+  //  not in the file at all. PILOT found it writing the 2025 run and kept
+  //  them in a comment.
+  //
+  //  WHY A VERSION AND NOT ANOTHER OPTIONAL LINE. The rule in COURSE.md
+  //  is that a new line is additive only if a reader that does not know
+  //  it still reads a CORRECT file. A reader that ignores `wind` does not:
+  //  it routes on whatever grids it was handed and reports the result as
+  //  this run. That is a convincing route in the wrong weather, which is
+  //  the fault GRID 1 exists to prevent, so it is RUN 2 and RUN 1 keeps
+  //  being read.
+  //
+  //  AND IT SPLITS THE GATE'S `off` IN TWO. In RUN 1 `gate X off 2.0` did
+  //  not say whether it meant "pass within 2 miles" or "stay 2 miles
+  //  clear", which are opposite instructions to a router. RUN 2 has one
+  //  verb for each, and keeps `within` and `off` as different words, so a
+  //  misread verb cannot quietly invert the rule:
+  //
+  //      gate   Example Head 50.57868 -2.05644 within 2.0
+  //      avoid  Example Race 50.51000 -2.44000 off 3.0
+  //
+  //  A RUN 1 gate keeps RUN 1's shape ({ off: nm } and no rule), because
+  //  its meaning was never pinned down and presenting it as one of the
+  //  two would be inventing what the author meant.
   function parseRun(text) {
     var L = lines(text), i, r = {
-      course: null, areas: [], polar: null, start: null,
+      version: 0, course: null, areas: [], polar: null, start: null,
       step: null, scale: { wind: 1, current: 1 },
-      layers: [], clear: {}, round: null, gates: []
+      layers: [], clear: {}, round: null, gates: [],
+      wind: null, current: null
     };
     if (!L.length) return bad(0, 'the file is empty');
-    if (L[0].s !== 'RUN 1') return bad(L[0].n, 'the first line must be "RUN 1"');
+    if (L[0].s === 'RUN 1') r.version = 1;
+    else if (L[0].s === 'RUN 2') r.version = 2;
+    else return bad(L[0].n, 'the first line must be "RUN 1" or "RUN 2"');
 
     var ended = false;
     for (i = 1; i < L.length; i++) {
@@ -289,6 +321,23 @@ var COURSE = (function () {
       if (k === 'course') { if (w.length !== 2) return bad(ln, 'course takes one filename'); r.course = w[1]; continue; }
       if (k === 'areas')  { if (w.length !== 2) return bad(ln, 'areas takes one filename'); r.areas.push(w[1]); continue; }
       if (k === 'polar')  { if (w.length !== 2) return bad(ln, 'polar takes one filename'); r.polar = w[1]; continue; }
+
+      if (k === 'wind' || k === 'current') {
+        if (r.version < 2) return bad(ln, k + ' is a RUN 2 line; this file says RUN 1');
+        if (w.length !== 2) return bad(ln, k + ' takes one grid filename');
+        r[k] = w[1]; continue;
+      }
+
+      if (k === 'avoid') {
+        if (r.version < 2) return bad(ln, 'avoid is a RUN 2 line; this file says RUN 1');
+        if (w[w.length - 2] !== 'off') return bad(ln, 'avoid is "avoid <name> <lat> <lon> off <nm>"');
+        var ao = num(w[w.length - 1]);
+        if (ao === null || ao <= 0) return bad(ln, 'the distance to stay off must be positive');
+        var ap = pos(w, w.length - 4, ln); if (!ap.ok) return ap;
+        var an = w.slice(1, w.length - 4).join(' ');
+        if (!an) return bad(ln, 'an avoid needs a name');
+        r.gates.push({ name: an, lat: ap.lat, lon: ap.lon, rule: 'avoid', nm: ao }); continue;
+      }
 
       if (k === 'start') {
         if (w[1] === 'class') {
@@ -342,17 +391,28 @@ var COURSE = (function () {
       }
 
       if (k === 'gate') {
-        if (w[w.length - 2] !== 'off') return bad(ln, 'a gate is "gate <name> <lat> <lon> off <nm>"');
+        var want = r.version >= 2 ? 'within' : 'off';
+        if (w[w.length - 2] !== want) {
+          //  Naming the other version's word on purpose: it is the
+          //  mistake somebody copying an old file will actually make.
+          if (r.version >= 2 && w[w.length - 2] === 'off') {
+            return bad(ln, 'in RUN 2 a gate is "gate <name> <lat> <lon> within <nm>", ' +
+                           'and "avoid <name> <lat> <lon> off <nm>" is the one to stay clear of');
+          }
+          return bad(ln, 'a gate is "gate <name> <lat> <lon> ' + want + ' <nm>"');
+        }
         var off = num(w[w.length - 1]);
-        if (off === null || off <= 0) return bad(ln, 'a gate\'s distance off must be positive');
+        if (off === null || off <= 0) return bad(ln, 'a gate\'s distance must be positive');
         var gp = pos(w, w.length - 4, ln); if (!gp.ok) return gp;
         var gn = w.slice(1, w.length - 4).join(' ');
         if (!gn) return bad(ln, 'a gate needs a name');
-        r.gates.push({ name: gn, lat: gp.lat, lon: gp.lon, off: off }); continue;
+        if (r.version >= 2) r.gates.push({ name: gn, lat: gp.lat, lon: gp.lon, rule: 'within', nm: off });
+        else r.gates.push({ name: gn, lat: gp.lat, lon: gp.lon, off: off });
+        continue;
       }
 
       if (k === 'end') { ended = true; continue; }
-      return bad(ln, 'unknown line "' + k + '" in a RUN 1 file');
+      return bad(ln, 'unknown line "' + k + '" in a RUN ' + r.version + ' file');
     }
 
     if (!ended) return bad(L[L.length - 1].n, 'the file does not end with "end" -- it may have been cut short');
@@ -361,6 +421,10 @@ var COURSE = (function () {
     if (!r.start) return bad(0, 'a run must choose a start');
     if (!r.step) return bad(0, 'a run must give its time and heading steps');
     if (r.round === null) return bad(0, 'a run must say how close counts as rounded: round <nm>');
+    //  BOTH GRIDS, IN RUN 2, AND NOT OPTIONALLY. A run that names its boat
+    //  and its start but not its weather is a route nobody can reproduce.
+    if (r.version >= 2 && !r.wind) return bad(0, 'a RUN 2 file must name its wind grid: wind <file>');
+    if (r.version >= 2 && !r.current) return bad(0, 'a RUN 2 file must name its current grid: current <file>');
 
     //  A clearance for a layer the run is not looking at means somebody
     //  expected a margin on water that is not in play. Refused, because
@@ -401,9 +465,36 @@ var COURSE = (function () {
     return { ok: true };
   }
 
+  //  THE GRIDS A RUN NAMED, AGAINST THE GRIDS THAT WERE LOADED.
+  //
+  //  The run file names two filenames; a filename is not evidence of
+  //  anything. The kind is in each grid's own header, so the check is
+  //  made against that rather than against the name: swap the two files
+  //  and nothing in the filenames says so, but a `kind current` grid
+  //  loaded as the wind is caught here.
+  //
+  //  `grids` is { wind: <GRID.parse result>, current: <...> }. It is a
+  //  separate call rather than part of check(), because parsing text and
+  //  loading files are different jobs and the parser never reads a file.
+  function checkGrids(run, grids) {
+    var want = ['wind', 'current'], i, k, g;
+    if (!run || run.version < 2) return { ok: true };   // RUN 1 named none
+    for (i = 0; i < want.length; i++) {
+      k = want[i];
+      g = grids ? grids[k] : null;
+      if (!g) return { ok: false, err: 'the run names a ' + k + ' grid, ' + run[k] + ', which was not loaded' };
+      if (!g.ok) return { ok: false, err: run[k] + ' did not load: ' + g.err };
+      if (!g.meta || g.meta.kind !== k) {
+        return { ok: false, err: run[k] + ' was given as the ' + k + ' grid, but it says kind ' +
+                 ((g.meta && g.meta.kind) || 'nothing') };
+      }
+    }
+    return { ok: true };
+  }
+
   return {
     course: parseCourse, areas: parseAreas, run: parseRun,
-    check: check, along: along
+    check: check, checkGrids: checkGrids, along: along
   };
 })();
 
