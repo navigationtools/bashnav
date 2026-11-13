@@ -508,28 +508,51 @@ app are rebuilt from the built program by `capture.sh`.
 | Tool | Version | Manual | Quick reference | Web page |
 |---|---|---|---|---|
 | `celnav` | 1.6 | `docs/celnav-manual.pdf` | `docs/celnav-quickref.pdf` | owed |
-| `colregs` | 1.15 | owed | owed | owed |
+| `colregs` | 1.15 | `docs/colregs-manual.pdf` | `docs/colregs-quickref.pdf` | owed |
 | `tides` | 1.2 | `docs/tides-manual.pdf` | `docs/tides-quickref.pdf` | owed |
-| `deck-log` | 1.1 | owed | owed | owed |
-| `weather` | 1.0 | owed | owed | owed |
-| `bashnav` (launcher) | 1.0 | owed | owed | owed |
-| `drill` | web only | owed, with the **pack-format reference** | owed | owed |
+| `deck-log` | 1.1 | `docs/deck-log-manual.pdf` | `docs/deck-log-quickref.pdf` | owed |
+| `weather` | 1.0 | `docs/weather-manual.pdf` | `docs/weather-quickref.pdf` | owed |
+| `bashnav` (launcher) | 1.0 | `docs/bashnav-manual.pdf` | `docs/bashnav-quickref.pdf` | owed |
+| `drill` | build 26 | `docs/drill-manual.pdf`, carrying the **pack-format reference** | `docs/drill-quickref.pdf` | owed |
 | `route` | being built | owed at its first release | owed | owed |
 
-**Figures are owed separately, and for one reason.** Under the standing rule
-that documentation figures come from the output of the browser build, new
-figures wait on a decision about a day mode for those apps: every screen in the
-suite is near-black, and a near-black figure does not print. `tides`' manual
-says so in its own closing note rather than quietly going without. celnav's
-existing eight panels are the older monospace figures and stand for this
-version.
+**The web pages are the one thing still owed,** and they are owed to the site
+rather than to this repository: the documentation section of
+`navigationtools.org` is the XO's, and these PDFs are what it will be built
+from.
+
+**The figures are in, and what unblocked them is worth recording.** They had
+been owed on one thing: under the standing rule that documentation figures come
+from the output of the browser build, and with every screen in the suite
+near-black, a captured figure did not print. The day mode (all three apps,
+night still the default) is what released them, and the manuals carry real
+screens captured from the built pages. celnav's eight panels are the older
+monospace figures and stand for that version.
+
+**Two faults the first printed copies found,** both now fixed in
+`docs/manual-src/style.css` and in the capture script, and both worth keeping
+in view when a figure is added:
+
+1. **A figure has to fit on a page.** `figure img` had a width and no height
+   cap, so a tall screenshot printed over the footer and left the page it was
+   pushed off nearly empty. The cap is `max-height` as well as `max-width`; an
+   image given both scales to satisfy both and keeps its shape.
+2. **Capture from the real site, not a staged copy.** One figure was taken
+   from a copy of the site missing a script, so the subject of the picture was
+   never drawn and the figure printed blank. The capture now fails on any 404
+   rather than photographing an incomplete page.
 
 **"Owed" is a commitment, not a gap to be tidied later.** The rule, set by
-Larry on 9 November 2026: **touching a tool triggers writing its manual.** The
-next piece of work that goes into `colregs`, `tides`, `deck-log`, `weather` or
-the launcher brings that tool's manual and card with it. They are not a
-documentation backlog to be worked through separately, because a backlog is
-what let `celnav`'s manual sit at a version the program had left behind.
+Larry on 9 November 2026: **touching a tool triggers writing its manual.** Any
+work that goes into a tool brings that tool's manual and card with it. They are
+not a documentation backlog to be worked through separately, because a backlog
+is what let `celnav`'s manual sit at a version the program had left behind.
+
+**And Larry's QA, every release** (his decision, 12 November 2026): the first
+manual generated in a release goes to him for spot checks before the release is
+called done - a figure that did not draw, a figure or table running over the
+footer, a page left half empty. If that becomes burdensome it drops back to
+after stylesheet changes only, which is his call to make.
 
 ### Not applicable here
 
