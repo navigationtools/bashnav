@@ -111,9 +111,110 @@ function refuses(what, text, needle) {
   }
 }
 
+//  ---- GRID 2: levels, waves, and a grid with no time axis --------
+//
+//  The same reasoning as everything above. The dangerous one here is
+//  the level: a 925 hPa wind loaded as the surface wind does not
+//  error, it routes -- so the level is in the file, is never
+//  defaulted, and a reader can refuse what it was not given.
+function build2(o) {
+  o = o || {};
+  function opt(v, d) { return v === undefined ? d : v; }
+  var kind = opt(o.kind, 'wind');
+  var FIELDS = { wind: 'u v', current: 'u v', wave: 'hs tp dirto', depth: 'z' };
+  var UNITS  = { u: 'kt', v: 'kt', gust: 'kt', hs: 'm', tp: 's', dirto: 'degT',
+                 hs_sea: 'm', tp_sea: 's', dirto_sea: 'degT',
+                 hs_swell: 'm', tp_swell: 's', dirto_swell: 'degT', z: 'm' };
+  var fields = opt(o.fields, FIELDS[kind] || 'u v');
+  var fl = fields === '' ? [] : fields.split(' ');
+  var units = opt(o.units, fl.map(function (f) { return UNITS[f] || '?'; }).join(' '));
+  var timeless = opt(o.timeless, kind === 'depth');
+  var times = opt(o.times, timeless ? 'none' : '2025-05-24T00:00Z 2025-05-24T03:00Z');
+  var nt = (times === 'none' || times === '') ? 1 : times.split(' ').length;
+  var ny = o.ny || 3, nx = o.nx || 3;
+  var rows = (o.rows !== undefined) ? o.rows : nt * ny * nx;
+  var count = (o.count !== undefined) ? o.count : nt * ny * nx;
+  var L = ['GRID 2', 'kind ' + kind];
+  if (kind === 'wind' && !o.nolevel) L.push('level ' + opt(o.level, 'surface'));
+  if (kind === 'wind' && !o.nomethod) L.push('method ' + opt(o.method, 'model'));
+  if (o.level && kind !== 'wind') L.push('level ' + o.level);
+  if (o.method && kind !== 'wind') L.push('method ' + o.method);
+  L.push('units ' + units);
+  if (kind === 'wind' || kind === 'current' || o.uv) {
+    L.push('u ' + opt(o.u, 'east'));
+    L.push('v ' + opt(o.v, 'north'));
+  }
+  L.push('lat ' + opt(o.lat, '49.0 49.5 0.25'));
+  L.push('lon ' + opt(o.lon, '-6.0 -5.5 0.25'));
+  L.push('times ' + times);
+  L.push('fields ' + fields);
+  L.push('order ' + opt(o.order, timeless ? 'lat lon' : 'time lat lon'));
+  L.push('rows ' + rows);
+  var body = [], made = 0, i2;
+  for (i2 = 0; i2 < count; i2++) body.push(fl.map(function (f, j) { return i2 * 10 + j; }).join(' '));
+  return L.concat(body).join('\n') + '\n';
+}
+
+(function () {
+  var w = GRID.parse(build2());
+  ok('a GRID 2 surface wind parses', w.ok, w.err);
+  if (w.ok) {
+    ok('it knows which version it is', w.meta.version === 2);
+    ok('and the level and method are in the file, not assumed',
+       w.meta.level === 'surface' && w.meta.method === 'model');
+  }
+  var up = GRID.parse(build2({ level: '925hPa' }));
+  ok('a 925 hPa wind parses, and says so', up.ok && up.meta.level === '925hPa', up.err);
+  var geo = GRID.parse(build2({ method: 'geostrophic' }));
+  ok('a geostrophic wind parses, and says so', geo.ok && geo.meta.method === 'geostrophic', geo.err);
+
+  var wave = GRID.parse(build2({ kind: 'wave',
+    fields: 'hs tp dirto hs_sea tp_sea dirto_sea' }));
+  ok('a wave grid parses with its partitions', wave.ok, wave.err);
+  if (wave.ok) ok('its units are one per field, in metres, seconds and degrees',
+     wave.meta.units.join(' ') === 'm s degT m s degT');
+
+  var d = GRID.parse(build2({ kind: 'depth' }));
+  ok('a depth grid parses with no time axis at all', d.ok, d.err);
+  if (d.ok) {
+    ok('it is marked timeless and rows is lat x lon', d.meta.timeless === true && d.n === 9);
+    ok('and its one slice is read at index 0', d.at(0, 1, 1) !== null && d.at(1, 1, 1) === null);
+  }
+
+  var one = GRID.parse(build());
+  ok('a GRID 1 file still parses, and is version 1', one.ok && one.meta.version === 1, one.err);
+})();
+
+refuses('a GRID 2 wind with no level', build2({ nolevel: true }), 'must say its level');
+refuses('a GRID 2 wind with no method', build2({ nomethod: true }), 'must say its method');
+refuses('a level that is not one', build2({ level: 'deck' }), 'level is "surface"');
+//  the spacing mistake somebody will actually make, kept beside the
+//  wrong-word one because they arrive from different directions
+refuses('a level written with a space', build2({ level: '925 hPa' }), 'not "925 hPa"');
+refuses('a method that is a guess', build2({ method: 'eyeball' }), 'model" or "geostrophic');
+refuses('a level on a wave grid', build2({ kind: 'wave', level: 'surface' }), 'belong to a wind grid');
+refuses('u and v on a depth grid', build2({ kind: 'depth', uv: true }), 'no u or v');
+refuses('more units than fields', build2({ units: 'kt kt kt' }), 'unit(s) for 2 field(s)');
+refuses('a unit the field is not in', build2({ kind: 'wave', units: 'ft s degT' }), 'hs is in m');
+refuses('"times none" in a GRID 1 file',
+        build().replace(/^times .*$/m, 'times none'), 'GRID 2 line');
+refuses('a timeless grid that still orders by time',
+        build2({ kind: 'depth', order: 'time lat lon' }), 'order must be "lat lon"');
+refuses('a grid with times that orders without one',
+        build2({ order: 'lat lon' }), 'order must be "time lat lon"');
+refuses('a wave grid missing a field it must carry',
+        build2({ kind: 'wave', fields: 'hs tp', units: 'm s' }), 'must begin "hs tp dirto"');
+refuses('a depth grid with a field it may not carry',
+        build2({ kind: 'depth', fields: 'z gust', units: 'm kt' }), 'has no field "gust"');
+refuses('a wave grid in a GRID 1 file', build({ kind: 'wave' }), 'wind or current');
+refuses('a timeless grid whose rows count a time axis',
+        build2({ kind: 'depth', rows: 18 }), 'rows says 18');
+refuses('a timeless grid cut short',
+        build2({ kind: 'depth', count: 5 }), 'cut short');
+
 refuses('an empty file', '', 'empty');
 refuses('something that is not a grid', 'hello\n', 'GRID 1');
-refuses('a version we do not know', build({ head: 'GRID 2' }), 'GRID 1');
+refuses('a version we do not know', build({ head: 'GRID 3' }), '"GRID 1" or "GRID 2"');
 refuses('a header line twice', build().replace('units kt', 'units kt\nunits kt'), 'twice');
 refuses('a header line we do not know', build().replace('units kt', 'units kt\ncolour red'), 'colour');
 refuses('a kind that is neither', build({ kind: 'swell' }), 'wind or current');

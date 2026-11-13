@@ -488,6 +488,16 @@ var COURSE = (function () {
         return { ok: false, err: run[k] + ' was given as the ' + k + ' grid, but it says kind ' +
                  ((g.meta && g.meta.kind) || 'nothing') };
       }
+      //  THE BOAT SAILS IN THE SURFACE WIND, and a 925 hPa or
+      //  geostrophic wind loaded in its place does not error -- it
+      //  routes, on a wind perhaps a third too strong and veered from
+      //  the real one. GRID 2 puts the level in the file so that this
+      //  check can exist; a GRID 1 wind needs no level because GRID 1
+      //  is the surface format and says so.
+      if (k === 'wind' && g.meta.version >= 2 && g.meta.level !== 'surface') {
+        return { ok: false, err: run[k] + ' is a ' + g.meta.level + ' wind, and a route is sailed ' +
+                 'in the surface wind: upper winds are for reading, not for routing' };
+      }
     }
     return { ok: true };
   }

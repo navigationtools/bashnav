@@ -1,4 +1,4 @@
-# GRID 1 — the wind and current grids
+# GRID 2 — the wind, current, wave and depth grids
 
 The format the router reads, and the format the course's converters write.
 `docs/web/route/grid.js` is the reference: **what it refuses, this format does
@@ -16,6 +16,16 @@ an error; it becomes a *route* — a boat sailing through a gap in the wind, or
 an hour of stream applied to the wrong hour. A grid that is wrong in a way
 nothing notices is worse than one that will not load, because the router will
 draw a perfectly convincing track from it.
+
+**Two versions, and both are read.** GRID 1 is the surface wind and the
+surface current, and is described first because everything in it holds for
+GRID 2 as well. GRID 2 adds waves, wind at a level other than the deck, and a
+depth, which has no time axis at all. A GRID 1 file means exactly what it
+always meant.
+
+---
+
+# GRID 1
 
 ## The shape
 
@@ -107,18 +117,147 @@ It never throws. A bad grid is a result with one plain sentence and a line
 number, because a reader that throws in a router is a route that disappears
 rather than a grid that is wrong.
 
-## What GRID 1 does not do
+## What neither version does
 
 1. **No interpolation.** Reading a grid and sampling it between cells are
    different jobs; the second belongs to the router.
 2. **No wrap at ±180.** The Channel does not need it. When something does, it
-   is GRID 2 and old files still read.
-3. **No projection, no levels, no ensembles.** Surface wind and surface
-   current on a regular latitude–longitude grid is the whole of it.
+   is the next version, and old files still read.
+3. **No projection and no ensembles.**
+
+---
+
+# GRID 2
+
+GRID 2 is the same grid, for three more things the course asks of it: **waves**,
+**wind at a level other than the deck**, and a **depth**, which has no time
+axis at all. `grid.js` reads both versions, and a GRID 1 file means exactly
+what it meant.
+
+    GRID 2
+    kind wind
+    level surface
+    method model
+    units kt kt kt
+    u east
+    v north
+    lat 49.00 51.00 0.25
+    lon -6.00 -1.00 0.25
+    times 2025-05-24T00:00Z 2025-05-24T03:00Z
+    fields u v gust
+    order time lat lon
+    rows 1458
+    12.4 -3.1 18.0
+    …
+
+## Why they are here rather than in a format of their own
+
+practical-navigator asked whether the course's four selectable overlays
+belonged in this format at all. They do, and the reason that decided it is
+**not** that they are convenient to put here:
+
+1. **Two of the four are the router's**, not only the course's. A sea state
+   becomes a speed penalty on the polar; a depth becomes a minimum depth under
+   the keel. Anything the router feeds on belongs in the format the router
+   reads.
+2. **A 925 hPa wind loaded as the surface wind is the exact fault this format
+   exists to prevent.** It would not error. It would route — on a wind perhaps
+   a quarter to a third too strong and **veered** from the real surface wind,
+   because friction backs the surface wind out of the gradient wind, so
+   loading the gradient wind as the surface one puts that rotation back the
+   wrong way. The only defence is that the level is **in the file**, and that
+   the router refuses a grid whose level is not `surface` — which is only
+   possible if upper winds live in this format rather than beside it.
+3. **They are the same mechanical object:** values on a regular
+   latitude–longitude grid. What is expensive here is not the wind — it is the
+   span that must be a whole number of steps, the row count checked twice, `-`
+   meaning no data, and a reader that never throws. A second format gets all
+   of that wrong again, or copies it and drifts.
+
+## The level, and how the field was arrived at
+
+| Line | Value | |
+|---|---|---|
+| `level` | `surface`, or a pressure level such as `925hPa` | **Required on a wind grid.** Never defaulted |
+| `method` | `model` or `geostrophic` | **Required on a wind grid.** How the field was arrived at |
+
+They are two lines because they are two different facts: a geostrophic wind is
+worked out from the isobars *at a level*, and somebody will one day want one
+at 925 hPa. The three winds a lesson compares are then three files that differ
+by two lines: `surface`/`model`, `925hPa`/`model`, and `surface`/`geostrophic`.
+
+**A defaulted level is a convention living in a document,** which is the thing
+this format refuses to do with units and with signs. A GRID 1 wind needs no
+level: GRID 1 *is* the surface format, and says so in its own version line.
+
+`COURSE.checkGrids()` refuses a wind grid whose level is not `surface`, by
+name, because the boat sails in the surface wind. Upper winds are for reading.
+
+## The unit belongs to the field
+
+`units kt` cannot carry metres, seconds and degrees, so in GRID 2 **`units` is
+one unit per field, in the order `fields` gives**, and each is checked against
+a fixed dictionary — a file may not say `ft`:
+
+    kind wave
+    units  m  s  degT  m      s      degT
+    fields hs tp dirto hs_sea tp_sea dirto_sea
+
+| field | unit | |
+|---|---|---|
+| `u` `v` `gust` | `kt` | as GRID 1 |
+| `hs` | `m` | significant height |
+| `tp` | `s` | peak period |
+| `dirto` | `degT` | **the direction the sea runs TOWARDS**, like a current's set and the opposite of how a wind is named |
+| `hs_sea` `tp_sea` `dirto_sea` | | the wind-sea partition |
+| `hs_swell` `tp_swell` `dirto_swell` | | the swell partition |
+| `z` | `m` | depth, **positive down from chart datum** — the same datum as the tide heights, so a depth and a height can be added. A drying height is negative |
+
+**`dirto` carries its convention in its own name,** so nothing downstream has
+to remember which way round it is, and the converter does the flip once, where
+the source's convention is known and can be checked. It is the single most
+likely place for a wave layer to be silently wrong.
+
+**The `units` line is a copy of what the field names already fix.** It is kept
+because a file somebody opens has to be readable on its own, and it is checked
+so that the copy cannot drift — which is the rule the project applies
+everywhere else to a copy that must exist.
+
+## A grid with no time axis
+
+    kind depth
+    units  m
+    fields z
+    times none
+    order lat lon
+    rows 129
+
+1. **`times none` is written, not omitted.** An omitted line cannot be told
+   from a truncated header, and the header's fixed shape is this format's whole
+   defence against a file that stopped halfway.
+2. **`order lat lon` follows from it,** and `rows` is then latitudes ×
+   longitudes. Both count checks still run, both ways.
+3. **It has one slice, not none:** `at(0, yi, xi)` reads it, and `meta.timeless`
+   is true.
+
+## What a GRID 2 grid is refused for
+
+Everything GRID 1 refuses, and:
+
+1. a wind grid with no `level` or no `method`, or either of those on a grid
+   that is not a wind;
+2. `u` or `v` on a wave or depth grid — those lines are a vector's sign
+   convention, and a line nothing reads is a line somebody believes;
+3. `units` that does not give exactly one unit per field, or gives a unit the
+   field is not in;
+4. `times none` with an order that still mentions time, or times with an order
+   that does not;
+5. a kind's required fields missing, or a field that kind does not carry.
 
 ## Changing it
 
 A new field on an existing kind is not a version change: `fields` says what
 each row carries, and a reader that does not know an extra field still reads
-`u` and `v`. Anything else — a unit, a sign, an order, a new header line that
-must be understood — is **GRID 2**, and `grid.js` keeps reading GRID 1.
+the ones it needs. Anything else — a unit, a sign, an order, a new header line
+that must be understood — is the next version, and `grid.js` keeps reading the
+ones before it.

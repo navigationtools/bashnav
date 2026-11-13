@@ -34,12 +34,63 @@
 var GRID = (function () {
 
   var TIME = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}Z$/;
-  var KINDS = { wind: 1, current: 1 };
+  var LEVEL = /^(surface|[1-9][0-9]{1,3}hPa)$/;
+  var KINDS = { wind: 1, current: 1 };                      //  GRID 1
+  var KINDS2 = { wind: 1, current: 1, wave: 1, depth: 1 };  //  GRID 2
 
   //  Fields every kind must carry, in this order, before any extras.
   var MUST = ['u', 'v'];
   //  What a kind is allowed to add after them.
   var EXTRA = { wind: { gust: 1 }, current: {} };
+
+  // =================================================================
+  //  GRID 2: the same grid, for three more things the course asks of
+  //  it -- waves, wind at a level other than the deck, and a depth,
+  //  which has no time axis at all.
+  //
+  //  WHY THEY ARE HERE AND NOT IN A FORMAT OF THEIR OWN. They are the
+  //  same mechanical object: values on a regular latitude-longitude
+  //  grid. What is expensive in this file is not the wind -- it is the
+  //  span that must be a whole number of steps, the row count checked
+  //  twice against two independent things, "-" meaning no data and
+  //  never reading back as zero, and a reader that never throws. A
+  //  second format gets all of that wrong again, or copies it and
+  //  drifts.
+  //
+  //  AND BECAUSE THE DANGEROUS ONE IS A WIND. A 925 hPa wind loaded as
+  //  the surface wind does not error; it routes, on a wind perhaps a
+  //  third too strong and veered from the real surface wind, because
+  //  friction backs the surface wind out of the gradient wind. The only
+  //  defence is that the level is IN THE FILE and the router refuses a
+  //  grid that is not `surface` -- which is only possible if upper
+  //  winds live in this format rather than beside it.
+  //
+  //  THE UNIT BELONGS TO THE FIELD. `units kt` cannot carry metres,
+  //  seconds and degrees, so in GRID 2 `units` is one unit per field in
+  //  the order `fields` gives, checked against this dictionary. It is a
+  //  copy of what the field names already fix, kept on purpose and
+  //  checked: a file somebody opens has to be readable on its own.
+  var UNIT = {
+    u: 'kt', v: 'kt', gust: 'kt',
+    //  dirto: the direction the sea RUNS TOWARDS, like a current's set
+    //  and the opposite of how a wind is named. The convention is in
+    //  the field's own name so that nothing downstream has to remember
+    //  it, and the converter does the flip once, where the source's
+    //  convention is known.
+    hs: 'm', tp: 's', dirto: 'degT',
+    hs_sea: 'm', tp_sea: 's', dirto_sea: 'degT',
+    hs_swell: 'm', tp_swell: 's', dirto_swell: 'degT',
+    //  z: metres, positive down from chart datum -- the same datum as
+    //  the tide heights, so a depth and a height can be added. A drying
+    //  height is negative.
+    z: 'm'
+  };
+  var MUST2  = { wind: ['u', 'v'], current: ['u', 'v'],
+                 wave: ['hs', 'tp', 'dirto'], depth: ['z'] };
+  var EXTRA2 = { wind: { gust: 1 }, current: {},
+                 wave: { hs_sea: 1, tp_sea: 1, dirto_sea: 1,
+                         hs_swell: 1, tp_swell: 1, dirto_swell: 1 },
+                 depth: {} };
 
   function err(line, msg) { return { ok: false, line: line, err: msg }; }
 
@@ -84,9 +135,11 @@ var GRID = (function () {
 
     var first = next();
     if (first === null) return err(0, 'the grid is empty');
-    if (first !== 'GRID 1') {
-      return err(i + 1, 'the first line must be "GRID 1", not "' + first + '"');
+    var ver = first === 'GRID 1' ? 1 : (first === 'GRID 2' ? 2 : 0);
+    if (!ver) {
+      return err(i + 1, 'the first line must be "GRID 1" or "GRID 2", not "' + first + '"');
     }
+    m.version = ver;
     i++;
 
     //  ---- the header ---------------------------------------------
@@ -106,16 +159,49 @@ var GRID = (function () {
       seen[key] = 1;
 
       if (key === 'kind') {
-        if (!KINDS[val]) return err(ln, 'kind must be wind or current, not "' + val + '"');
+        var ks = Object.keys(ver === 1 ? KINDS : KINDS2);
+        if (!ks.join(' ').split(' ').length) return err(ln, 'kind is empty');
+        if ((ver === 1 ? KINDS : KINDS2)[val] !== 1) {
+          var names = ks.length > 1
+            ? ks.slice(0, -1).join(', ') + ' or ' + ks[ks.length - 1]
+            : ks[0];
+          return err(ln, 'kind must be ' + names + ', not "' + val + '"');
+        }
         m.kind = val;
+
+      } else if (key === 'level') {
+        //  THE LEVEL IS NEVER DEFAULTED. A defaulted level is a
+        //  convention living in a document, which is the thing this
+        //  format refuses to do with units and with signs.
+        if (ver === 1) return err(ln, 'level is a GRID 2 line; this file says GRID 1');
+        if (!LEVEL.test(val)) return err(ln, 'level is "surface" or a pressure level such as "925hPa", not "' + val + '"');
+        m.level = val;
+
+      } else if (key === 'method') {
+        //  How the field was arrived at, which is NOT the same fact as
+        //  the level: a geostrophic wind is worked out from the isobars
+        //  at a level, and somebody will one day want one at 925 hPa.
+        if (ver === 1) return err(ln, 'method is a GRID 2 line; this file says GRID 1');
+        if (val !== 'model' && val !== 'geostrophic') {
+          return err(ln, 'method is "model" or "geostrophic", not "' + val + '"');
+        }
+        m.method = val;
 
       } else if (key === 'units') {
         //  One unit, deliberately. A format that accepts knots and
         //  metres per second is a format where half the files are in
         //  the other one and nothing says which until a boat is doing
-        //  forty knots in a gale.
-        if (val !== 'kt') return err(ln, 'units must be kt, not "' + val + '"');
-        m.units = val;
+        //  forty knots in a gale. In GRID 2 that becomes one unit per
+        //  field, each checked against the dictionary above, which is
+        //  the same rule where a kind has more than one sort of number.
+        if (ver === 1) {
+          if (val !== 'kt') return err(ln, 'units must be kt, not "' + val + '"');
+          m.units = val;
+        } else {
+          var us = val === '' ? [] : val.split(/[ \t]+/);
+          if (!us.length) return err(ln, 'units is empty: GRID 2 gives one unit per field');
+          m.units = us;
+        }
 
       } else if (key === 'u' || key === 'v') {
         //  The sign convention is IN THE FILE, not only in the
@@ -142,6 +228,14 @@ var GRID = (function () {
         m[key] = { from: a, to: b, step: d, n: st + 1 };
 
       } else if (key === 'times') {
+        //  A GRID WITH NO TIME AXIS SAYS SO, rather than leaving the
+        //  line out: an omitted line cannot be told from a truncated
+        //  header, and the header's fixed shape is this format's whole
+        //  defence against a file that stopped halfway.
+        if (val === 'none') {
+          if (ver === 1) return err(ln, '"times none" is a GRID 2 line; this file says GRID 1');
+          m.times = []; m.timeless = true; continue;
+        }
         var ts = val === '' ? [] : val.split(/[ \t]+/), k;
         if (!ts.length) return err(ln, 'times is empty');
         for (k = 0; k < ts.length; k++) {
@@ -157,17 +251,18 @@ var GRID = (function () {
         m.times = ts;
 
       } else if (key === 'fields') {
-        var fs = val === '' ? [] : val.split(/[ \t]+/), j;
-        for (j = 0; j < MUST.length; j++) {
-          if (fs[j] !== MUST[j]) {
-            return err(ln, 'fields must begin "' + MUST.join(' ') + '"');
-          }
-        }
-        m.fields = fs;
+        //  Judged below, not here: which fields a grid must begin with
+        //  depends on its kind, and `kind` may not have been read yet.
+        var fs = val === '' ? [] : val.split(/[ \t]+/);
+        if (!fs.length) return err(ln, 'fields is empty');
+        m.fields = fs; m.fieldsLine = ln;
 
       } else if (key === 'order') {
         //  One order, for the same reason as one unit.
-        if (val !== 'time lat lon') return err(ln, 'order must be "time lat lon"');
+        if (val !== 'time lat lon' && !(ver === 2 && val === 'lat lon')) {
+          return err(ln, 'order must be "time lat lon"' +
+                         (ver === 2 ? ', or "lat lon" where times is none' : ''));
+        }
         m.order = val;
 
       } else if (key === 'rows') {
@@ -177,26 +272,81 @@ var GRID = (function () {
         break;
 
       } else {
-        return err(ln, 'the header has no "' + key + '" line in GRID 1');
+        return err(ln, 'the header has no "' + key + '" line in GRID ' + ver);
       }
     }
 
     //  ---- is the header complete and consistent? ------------------
-    var need = ['kind', 'units', 'u', 'v', 'lat', 'lon', 'times', 'fields', 'order', 'rows'], q;
+    var need = ['kind', 'units', 'lat', 'lon', 'times', 'fields', 'order', 'rows'], q;
+    if (ver === 1) need = need.concat(['u', 'v']);
     for (q = 0; q < need.length; q++) {
       if (!(need[q] in m)) return err(i, 'the header has no "' + need[q] + '" line');
     }
-    //  fields beyond u and v must be ones this kind allows
-    for (q = MUST.length; q < m.fields.length; q++) {
-      if (!EXTRA[m.kind][m.fields[q]]) {
-        return err(i, 'a ' + m.kind + ' grid has no field "' + m.fields[q] + '"');
+
+    var vector = (m.kind === 'wind' || m.kind === 'current');
+    if (ver === 2) {
+      //  A VECTOR GRID STATES ITS SIGNS; THE OTHERS MUST NOT.  Half the
+      //  bugs in this class of code are a sign, so u and v say where
+      //  they point -- and a `u east` line on a depth grid would be a
+      //  line nothing reads, which is a line somebody believes.
+      if (vector) {
+        if (!('u' in m)) return err(i, 'the header has no "u" line');
+        if (!('v' in m)) return err(i, 'the header has no "v" line');
+      } else if ('u' in m || 'v' in m) {
+        return err(i, 'a ' + m.kind + ' grid has no u or v: those lines are the sign convention of a vector');
+      }
+      //  The level is a fact about a wind and about nothing else.
+      if (m.kind === 'wind') {
+        if (!('level' in m)) return err(i, 'a GRID 2 wind grid must say its level: "level surface" or "level 925hPa"');
+        if (!('method' in m)) return err(i, 'a GRID 2 wind grid must say its method: "method model" or "method geostrophic"');
+      } else if ('level' in m || 'method' in m) {
+        return err(i, 'level and method belong to a wind grid, not a ' + m.kind + ' grid');
+      }
+      //  A grid with no time axis has no time in its order, and a grid
+      //  with one must say so.
+      if (m.timeless && m.order !== 'lat lon') {
+        return err(i, 'times is none, so order must be "lat lon"');
+      }
+      if (!m.timeless && m.order !== 'time lat lon') {
+        return err(i, 'this grid has times, so order must be "time lat lon"');
+      }
+    }
+
+    //  fields must begin with what this kind carries, and may add only
+    //  what this kind allows
+    var must = ver === 1 ? MUST : MUST2[m.kind];
+    var extra = ver === 1 ? EXTRA[m.kind] : EXTRA2[m.kind];
+    for (q = 0; q < must.length; q++) {
+      if (m.fields[q] !== must[q]) {
+        return err(m.fieldsLine || i, 'fields must begin "' + must.join(' ') + '"');
+      }
+    }
+    for (q = must.length; q < m.fields.length; q++) {
+      if (!extra[m.fields[q]]) {
+        return err(m.fieldsLine || i, 'a ' + m.kind + ' grid has no field "' + m.fields[q] + '"');
+      }
+    }
+    if (ver === 2) {
+      //  ONE UNIT PER FIELD, AND THE RIGHT ONE. The unit is fixed by the
+      //  field's name; the line is a copy of that, kept so the file can
+      //  be read on its own and checked so the copy cannot drift.
+      if (m.units.length !== m.fields.length) {
+        return err(i, 'units gives ' + m.units.length + ' unit(s) for ' + m.fields.length + ' field(s)');
+      }
+      for (q = 0; q < m.fields.length; q++) {
+        if (m.units[q] !== UNIT[m.fields[q]]) {
+          return err(i, m.fields[q] + ' is in ' + UNIT[m.fields[q]] + ', and units says "' + m.units[q] + '"');
+        }
       }
     }
 
     //  THE FIRST OF THE TWO COUNT CHECKS: the header against itself.
-    var want = m.times.length * m.lat.n * m.lon.n;
+    //  A grid with no time axis has one slice, not none: rows is then
+    //  latitudes x longitudes, and at(0, yi, xi) reads it.
+    var nt = m.times.length || 1;
+    var want = nt * m.lat.n * m.lon.n;
     if (m.rows !== want) {
-      return err(i, 'rows says ' + m.rows + ', but ' + m.times.length + ' times x ' +
+      return err(i, 'rows says ' + m.rows + ', but ' + (m.timeless ? '1 slice x ' : m.times.length + ' times x ') +
                     m.lat.n + ' latitudes x ' + m.lon.n + ' longitudes is ' + want);
     }
 
@@ -239,7 +389,7 @@ var GRID = (function () {
       //  data. Index order is the header's `order`, which is the only
       //  order GRID 1 has.
       at: function (ti, yi, xi) {
-        if (ti < 0 || ti >= m.times.length) return null;
+        if (ti < 0 || ti >= (m.times.length || 1)) return null;
         if (yi < 0 || yi >= m.lat.n) return null;
         if (xi < 0 || xi >= m.lon.n) return null;
         var base = ((ti * m.lat.n + yi) * m.lon.n + xi) * nf, o = {}, k2;

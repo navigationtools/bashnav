@@ -233,6 +233,16 @@ refuses('a first line that is neither version', RUN.replace('RUN 1', 'RUN 3'), C
   ok('a grid the run names and nobody loaded is caught',
      !v2.ok && v2.err.indexOf('was not loaded') >= 0, v2.err);
 
+  //  the one the level exists for
+  var upper = { ok: true, meta: { kind: 'wind', version: 2, level: '925hPa' } };
+  var vu = C.checkGrids(r, { wind: upper, current: current });
+  ok('an upper wind handed in as the surface wind is refused',
+     !vu.ok && vu.err.indexOf('925hPa wind') >= 0, vu.err);
+
+  var surf = { ok: true, meta: { kind: 'wind', version: 2, level: 'surface', method: 'model' } };
+  ok('and a GRID 2 surface wind is accepted',
+     C.checkGrids(r, { wind: surf, current: current }).ok);
+
   var v3 = C.checkGrids(r, { wind: wind, current: { ok: false, err: 'rows says 10, the file has 9' } });
   ok('a grid that did not load is reported with its own reason',
      !v3.ok && v3.err.indexOf('rows says 10') >= 0, v3.err);
