@@ -49,7 +49,7 @@ var SAIL = (function () {
   var P = (typeof POLAR !== 'undefined') ? POLAR : require('./polar.js');
   var C = (typeof COURSE !== 'undefined') ? COURSE : require('./course.js');
   var X = (typeof ROUTER !== 'undefined') ? ROUTER : require('./router.js');
-  var L = (typeof PASSAGE !== 'undefined') ? PASSAGE : require('./passage.js');
+  var L = (typeof PASSAGELOG !== 'undefined') ? PASSAGELOG : require('./passagelog.js');
 
   function no(stage, err) { return { ok: false, stage: stage, err: err }; }
 

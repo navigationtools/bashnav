@@ -1,5 +1,23 @@
 # Changelog
 
+## The passage log's file is passagelog.js
+
+**What.** `docs/web/route/passage.js` is now `passagelog.js`, its global
+`PASSAGELOG`, and its checks `docs/web/tests/passagelog.js`. Nothing it does
+has changed: a 2025 report sailed after the rename is the same, byte for byte.
+
+**Why.** "Passage" came to name two things: the passage log, and the passage
+file (PASSAGE 1). PILOT went looking for the passage file's reader and opened
+the log. Larry ruled the rename, 13 November 2026. The passage file keeps its
+name, a passage plan in prose, and its reader is `COURSE.passage()` in
+`course.js`. "Sailing directions" was considered and not used: it is the name
+of the Admiralty and US pilot books, and one word from "sailing instructions".
+
+**What it affects.** `sail.js`, `tests/sail.js`, `tests/run-tests.sh` and
+`ROUTER.md` name the new file. A page that loads the log by its old name would
+need the new one; none does today. 683 checks; the faults that touch the log
+were put back under the new name and each is caught.
+
 ## The passage file: a plan for each lesson, a berth for each mark, and passing marks
 
 **What.** A run may name a passage file and one of its plans. A plan is the

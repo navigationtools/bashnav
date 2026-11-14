@@ -444,7 +444,7 @@ before trusting the rest:
 
 ## The passage log
 
-`docs/web/route/passage.js`. The router answers with one row for every step -
+`docs/web/route/passagelog.js`. The router answers with one row for every step -
 144 of them for the 2025 race - which is right for a chart and too much for a
 person. The passage log folds those rows into the lines a navigator would have
 written in the deck log, and beside each line sets down **what had changed**
@@ -724,7 +724,7 @@ tack".
     node docs/web/tests/polar.js            the polar
     node docs/web/tests/route-step.js       one step, against hand-worked answers
     node docs/web/tests/router.js           whole routes small enough to sail in your head
-    node docs/web/tests/passage.js          the passage log, on rows written by hand
+    node docs/web/tests/passagelog.js       the passage log, on rows written by hand
     node docs/web/tests/sail.js             a run sailed from its name, and the refusals
     node docs/web/tests/course.js           the course, areas, run, crew and passage files
 

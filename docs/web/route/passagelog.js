@@ -1,6 +1,11 @@
 // =====================================================================
 //  The passage log: a route's rows, written the way a deck log is.
 //
+//  (This file was passage.js until 13 November 2026. "Passage" came to
+//  name the passage file too - PASSAGE 1, the plans a run sails - and a
+//  reader looking for that file's reader opened this one; Larry ruled the
+//  rename. The passage file is read by COURSE.passage(), in course.js.)
+//
 //  WHAT IT IS FOR. The router answers with one row for every time step
 //  - 144 of them for a day's race at ten minutes. That is the right
 //  thing for a chart and the wrong thing for a person. This file folds
@@ -20,7 +25,7 @@
 //  from every place; it holds no reasons, so any "because" written here
 //  would be invented. The log says "wind veered 10 degrees since
 //  22:40". Whether that is why she tacked is for the reader, and the
-//  lesson, to say. tests/passage.js checks that no reason-word can come
+//  lesson, to say. tests/passagelog.js checks that no reason-word can come
 //  out of this file.
 //
 //  A LINE IS AN ENTRY MADE AT A TIME, as in a deck log:
@@ -63,7 +68,7 @@
 // =====================================================================
 'use strict';
 
-var PASSAGE = (function () {
+var PASSAGELOG = (function () {
 
   var RAD = Math.PI / 180;
 
@@ -492,4 +497,4 @@ var PASSAGE = (function () {
   return { log: log, text: text, swing: swing, DEFAULTS: DEFAULTS };
 })();
 
-if (typeof module !== 'undefined') module.exports = PASSAGE;
+if (typeof module !== 'undefined') module.exports = PASSAGELOG;

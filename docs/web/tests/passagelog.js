@@ -11,9 +11,9 @@
 //  the router holds none. Section 9 reads every word this file made and
 //  fails on a reason-word.
 //
-//    node docs/web/tests/passage.js
+//    node docs/web/tests/passagelog.js
 'use strict';
-var PASSAGE = require('../route/passage.js');
+var PASSAGELOG = require('../route/passagelog.js');
 
 var fail = 0, checks = 0;
 function ok(what, cond, detail) {
@@ -77,18 +77,18 @@ function kinds(r) { return r.lines.map(function (l) { return l.kind; }).join(' '
 function words(l) { return l.changes.map(function (c) { return c.what + ':' + c.word; }).join(' | '); }
 
 var texts = [];
-function keep(r, opt) { var t = PASSAGE.text(r, opt); texts.push(t); return t; }
+function keep(r, opt) { var t = PASSAGELOG.text(r, opt); texts.push(t); return t; }
 
 //  ---- 1. what it will not make a log of ---------------------------
-ok('no rows is refused, with a reason', PASSAGE.log([]).ok === false &&
-   /no rows/.test(PASSAGE.log([]).err));
-ok('and so is nothing at all', PASSAGE.log(null).ok === false);
+ok('no rows is refused, with a reason', PASSAGELOG.log([]).ok === false &&
+   /no rows/.test(PASSAGELOG.log([]).err));
+ok('and so is nothing at all', PASSAGELOG.log(null).ok === false);
 (function () {
   var a = maker(); a('port', 285); delete a.rows[0].sog;
-  var r = PASSAGE.log(a.rows);
+  var r = PASSAGELOG.log(a.rows);
   ok('a row without a speed is named', !r.ok && r.err === 'row 1 has no sog', r.err);
   a = maker(); a('port', 285); a('port', 285); a.rows[1].minutes = 0;
-  r = PASSAGE.log(a.rows);
+  r = PASSAGELOG.log(a.rows);
   ok('a row that lasts no time is named', !r.ok && /^row 2 /.test(r.err), r.err);
 })();
 
@@ -96,7 +96,7 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
 //  Six rows of ten minutes at nine knots: one hour, nine miles.
 (function () {
   var a = maker(); a.many(6, 'port', 285);
-  var r = PASSAGE.log(a.rows);
+  var r = PASSAGELOG.log(a.rows);
   ok('six rows on one tack are one board', r.ok && kinds(r) === 'start board', kinds(r));
   var b = r.lines[1];
   ok('an hour long', b.minutes === 60, String(b.minutes));
@@ -118,13 +118,13 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   a('port', 285, { minutes: 30, sog: 6, stw: 6 });
   a('port', 285, { minutes: 10, sog: 12, stw: 12 });
   a.rows[1].ms = T0 + 30 * 60000;
-  var b = PASSAGE.log(a.rows).lines[1];
+  var b = PASSAGELOG.log(a.rows).lines[1];
   ok('speed made good is distance over time', b.nm === 5 && b.sog === 7.5, b.nm + ' ' + b.sog);
   ok('speed through the water is weighed by time', b.stw === 7.5, String(b.stw));
 
   //  350 and 010 average to north, not to south.
   a = maker(); a('port', 350, { gwd: 305 }); a('port', 10, { gwd: 325 });
-  b = PASSAGE.log(a.rows).lines[1];
+  b = PASSAGELOG.log(a.rows).lines[1];
   ok('headings either side of north average to north', b.heading === 0, String(b.heading));
 })();
 
@@ -133,7 +133,7 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   //  Wind 240. Port tack at 285, starboard at 195: the turn from 285
   //  to 195 is 90 degrees to the left and passes through 240. A tack.
   var a = maker(); a.many(3, 'port', 285); a.many(3, 'starboard', 195);
-  var r = PASSAGE.log(a.rows);
+  var r = PASSAGELOG.log(a.rows);
   ok('two tacks are two boards', kinds(r) === 'start board board', kinds(r));
   ok('through the wind is a tack', r.lines[2].did === 'tacked' && r.lines[2].turn === 90,
      r.lines[2].did + ' ' + r.lines[2].turn);
@@ -142,7 +142,7 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   //  side), port at 030: the turn from 090 to 030 is 60 to the left and
   //  passes through 060, dead downwind. The wind, 240, is not in it.
   a = maker(); a.many(3, 'starboard', 90); a.many(3, 'port', 30);
-  r = PASSAGE.log(a.rows);
+  r = PASSAGELOG.log(a.rows);
   ok('stern through the wind is a gybe', r.lines[2].did === 'gybed' && r.lines[2].turn === 60,
      r.lines[2].did + ' ' + r.lines[2].turn);
 
@@ -151,7 +151,7 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   a = maker();
   a.many(2, 'starboard', 195); a('starboard', 195, { event: 'rounded THE ROCK' });
   a.many(3, 'starboard', 100, { leg: 1 });
-  r = PASSAGE.log(a.rows);
+  r = PASSAGELOG.log(a.rows);
   ok('a rounding ends a board', kinds(r) === 'start board rounded board', kinds(r));
   ok('the same tack and further off the wind is bearing away',
      r.lines[3].did === 'bore away' && r.lines[3].turn === 95, r.lines[3].did + ' ' + r.lines[3].turn);
@@ -160,14 +160,14 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   a = maker();
   a.many(2, 'starboard', 100); a('starboard', 100, { event: 'rounded THE ROCK' });
   a.many(3, 'starboard', 195, { leg: 1 });
-  r = PASSAGE.log(a.rows);
+  r = PASSAGELOG.log(a.rows);
   ok('nearer the wind is hardening up', r.lines[3].did === 'hardened up' && r.lines[3].turn === 95);
 
   //  A new leg on the same heading is a new board and no manoeuvre.
   a = maker();
   a.many(2, 'starboard', 195); a('starboard', 195, { event: 'rounded THE ROCK' });
   a.many(3, 'starboard', 197, { leg: 1 });
-  r = PASSAGE.log(a.rows);
+  r = PASSAGELOG.log(a.rows);
   ok('two degrees is not a manoeuvre', r.lines[3].did === null && r.lines[3].turn === null);
 })();
 
@@ -176,7 +176,7 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   var a = maker();
   a.many(5, 'port', 285); a('port', 285, { event: 'rounded EDDYSTONE LT HOUSE' });
   a.many(2, 'port', 30, { leg: 1 }); a('port', 30, { leg: 1, minutes: 4, event: 'finish' });
-  var r = PASSAGE.log(a.rows);
+  var r = PASSAGELOG.log(a.rows);
   ok('start, board, rounded, board, finish', kinds(r) === 'start board rounded board finish', kinds(r));
   var rd = r.lines[2], fin = r.lines[4];
   ok('the mark is named', rd.name === 'EDDYSTONE LT HOUSE', rd.name);
@@ -198,19 +198,19 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
     for (var i = 0; i < n; i++) a.many(len, i % 2 ? 'starboard' : 'port', i % 2 ? 195 : 285);
     return a;
   }
-  var r = PASSAGE.log(zig(3, 1).rows);
+  var r = PASSAGELOG.log(zig(3, 1).rows);
   ok('three boards of ten minutes are one line', kinds(r) === 'start short', kinds(r));
   ok('which says how many', r.lines[1].boards === 3 && r.lines[1].minutes === 30 &&
      r.lines[1].nm === 4.5, JSON.stringify(r.lines[1]));
-  ok('two are not', kinds(PASSAGE.log(zig(2, 1).rows)) === 'start board board');
-  ok('twenty minutes is still short', kinds(PASSAGE.log(zig(3, 2).rows)) === 'start short');
-  ok('thirty is not', kinds(PASSAGE.log(zig(3, 3).rows)) === 'start board board board');
+  ok('two are not', kinds(PASSAGELOG.log(zig(2, 1).rows)) === 'start board board');
+  ok('twenty minutes is still short', kinds(PASSAGELOG.log(zig(3, 2).rows)) === 'start short');
+  ok('thirty is not', kinds(PASSAGELOG.log(zig(3, 3).rows)) === 'start board board board');
 
   //  A long board in the middle of five short ones: 2 short, long, 2
   //  short. Neither pair is three, so nothing folds.
   var a = maker();
   a('port', 285); a('starboard', 195); a.many(4, 'port', 285); a('starboard', 195); a('port', 285);
-  ok('a long board breaks the run', kinds(PASSAGE.log(a.rows)) === 'start board board board board board');
+  ok('a long board breaks the run', kinds(PASSAGELOG.log(a.rows)) === 'start board board board board board');
 
   //  THE BOARD THAT ROUNDS THE MARK IS NEVER FOLDED AWAY. Three short
   //  boards, the third ending in a rounding: the first two are too few
@@ -218,14 +218,14 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   a = maker();
   a('port', 285); a('starboard', 195); a('port', 285, { event: 'rounded THE ROCK' });
   a.many(3, 'port', 30, { leg: 1 });
-  r = PASSAGE.log(a.rows);
+  r = PASSAGELOG.log(a.rows);
   ok('a board that ends in an event keeps its own line',
      kinds(r) === 'start board board board rounded board', kinds(r));
 
   //  After a fold, the next board is compared with the fold for what
   //  changed, but is not said to have tacked: tacked from which?
   a = zig(3, 1); a.many(4, 'starboard', 195);
-  r = PASSAGE.log(a.rows);
+  r = PASSAGELOG.log(a.rows);
   ok('a board after short-tacking is not called a tack',
      kinds(r) === 'start short board' && r.lines[2].did === null, kinds(r) + ' ' + r.lines[2].did);
   ok('but is compared with it', r.lines[2].since === T0);
@@ -237,14 +237,14 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   a = maker(); a.many(3, 'port', 285);
   a('starboard', 195); a('port', 285); a('starboard', 195);
   a.many(3, 'port', 300, { gwd: 255 });
-  r = PASSAGE.log(a.rows);
+  r = PASSAGELOG.log(a.rows);
   ok('nor measured against the board before the short tacks',
      kinds(r) === 'start board short board' && r.lines[3].did === null && r.lines[3].turn === null,
      kinds(r) + ' ' + r.lines[3].did);
 
-  r = PASSAGE.log(zig(3, 3).rows, { shortBoard: 30 });
+  r = PASSAGELOG.log(zig(3, 3).rows, { shortBoard: 30 });
   ok('the thresholds can be set', kinds(r) === 'start short' && r.thresholds.shortBoard === 30);
-  ok('and come back with the log', PASSAGE.log(zig(3, 1).rows).thresholds.shift === 5);
+  ok('and come back with the log', PASSAGELOG.log(zig(3, 1).rows).thresholds.shift === 5);
 })();
 
 //  ---- 7. the wind: what had changed -------------------------------
@@ -256,7 +256,7 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
     var a = maker();
     a.many(3, 'port', (Math.round(w1) + 45) % 360, o1);
     a.many(3, 'starboard', (Math.round(w2) + 315) % 360, o2);
-    return PASSAGE.log(a.rows).lines[2];
+    return PASSAGELOG.log(a.rows).lines[2];
   }
   var l = two({ gwd: 240 }, { gwd: 246 });
   ok('240 to 246 has veered 6', words(l) === 'wind:veered' && l.changes[0].deg === 6, words(l));
@@ -284,7 +284,7 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   var a = maker();
   a('port', 285, { gwd: 240 }); a('port', 295, { gwd: 250 }); a('port', 305, { gwd: 260 });
   a.many(3, 'starboard', 217, { gwd: 262 });
-  var r = PASSAGE.log(a.rows);
+  var r = PASSAGELOG.log(a.rows);
   ok('a line is logged with the wind it began in', r.lines[1].wind.from === 240);
   ok('and the next is compared with that', r.lines[2].changes[0].deg === 22,
      JSON.stringify(r.lines[2].changes));
@@ -298,13 +298,13 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   ok('direction is said before strength', words(l) === 'wind:veered | strength:freshened', words(l));
   ok('the wind over the water is carried beside the ground wind',
      two({ gws: 17, tws: 19 }, {}).wind.kt === 20 &&
-     PASSAGE.log((function () { var a = maker(); a('port', 285, { gws: 17, tws: 19 }); return a.rows; })())
+     PASSAGELOG.log((function () { var a = maker(); a('port', 285, { gws: 17, tws: 19 }); return a.rows; })())
        .lines[1].wind.overWater === 19);
 })();
 
 //  ---- 8. the stream -----------------------------------------------
 (function () {
-  function one(o) { var a = maker(); a.many(3, 'port', 270, o); return PASSAGE.log(a.rows).lines[1]; }
+  function one(o) { var a = maker(); a.many(3, 'port', 270, o); return PASSAGELOG.log(a.rows).lines[1]; }
   //  She makes good 270. A stream setting 270 at 1 kt is 1 kt fair; one
   //  setting 090 is 1 kt foul; one setting 000 is on the beam.
   var l = one({ set: 270, drift: 1 });
@@ -325,16 +325,16 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   //  the average is 1.0 over the minutes that have a stream - not 0.7.
   var a = maker();
   a('port', 270, { noStream: true }); a.many(2, 'port', 270, { set: 270, drift: 1 });
-  l = PASSAGE.log(a.rows).lines[1];
+  l = PASSAGELOG.log(a.rows).lines[1];
   ok('minutes without data are counted, not averaged in as zero',
      l.stream.kt === 1 && l.stream.noDataMinutes === 10, JSON.stringify(l.stream));
   ok('and the text says how long she had none',
      /stream fair 1\.0 kt   9\.0 kt through the water, 9\.0 made good\n         no stream data for 0h10 of this line/
-       .test(keep(PASSAGE.log(a.rows))));
+       .test(keep(PASSAGELOG.log(a.rows))));
 
   function two(o1, o2) {
     var a = maker(); a.many(3, 'port', 270, o1); a.many(3, 'starboard', 180, o2);
-    return PASSAGE.log(a.rows).lines[2];
+    return PASSAGELOG.log(a.rows).lines[2];
   }
   ok('stream data beginning is said',
      words(two({ noStream: true }, { set: 270, drift: 1 })) === 'data:stream data begins');
@@ -369,7 +369,7 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   //  Half an hour on port at 285, a tack of 60 seconds, half an hour on
   //  starboard at 195. The wind is 240 throughout.
   var a = maker(); a.many(3, 'port', 285); a.man('tack', 'starboard', 60); a.many(3, 'starboard', 195);
-  var r = PASSAGE.log(a.rows);
+  var r = PASSAGELOG.log(a.rows);
   ok('a tack in the rows begins the new board', r.ok && kinds(r) === 'start board board', kinds(r));
   var b = r.lines[2];
   ok('the board begins where the helm went down', b.ms === T0 + 30 * 60000 && b.first === 3);
@@ -393,40 +393,40 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   //  A gybe: starboard at 090 with the wind on the quarter, 95 seconds,
   //  port at 030.
   a = maker(); a.many(3, 'starboard', 90); a.man('gybe', 'port', 95); a.many(3, 'port', 30);
-  r = PASSAGE.log(a.rows); b = r.lines[2];
+  r = PASSAGELOG.log(a.rows); b = r.lines[2];
   ok('a gybe in the rows is called a gybe', b.did === 'gybed' && b.turn === 60 && b.heading === 30, b.did + ' ' + b.turn + ' ' + b.heading);
   ok('and costed apart from a tack', b.cost.gybes === 1 && b.cost.gybeSeconds === 95 && b.cost.tacks === 0);
-  ok('a minute and a half is written as minutes', /\n         the gybe cost 1 min 35 s$/.test(keep(r)), PASSAGE.text(r));
+  ok('a minute and a half is written as minutes', /\n         the gybe cost 1 min 35 s$/.test(keep(r)), PASSAGELOG.text(r));
 
   //  THE ROUTER'S WORD IS TAKEN FOR WHICH IT WAS. 285 to 195 in a wind
   //  from 240 is through the wind, and the log would call it a tack if
   //  it worked it out for itself; the row says gybe.
   a = maker(); a.many(3, 'port', 285); a.man('gybe', 'starboard', 60); a.many(3, 'starboard', 195);
-  ok('the log takes the row\'s word for which manoeuvre it was', PASSAGE.log(a.rows).lines[2].did === 'gybed');
+  ok('the log takes the row\'s word for which manoeuvre it was', PASSAGELOG.log(a.rows).lines[2].did === 'gybed');
 
   //  A tack longer than a step is two rows, ten minutes and then five,
   //  and still one tack.
   a = maker(); a.many(3, 'port', 285); a.man('tack', 'starboard', 600); a.man('tack', 'starboard', 300);
   a.many(3, 'starboard', 195);
-  r = PASSAGE.log(a.rows); b = r.lines[2];
+  r = PASSAGELOG.log(a.rows); b = r.lines[2];
   ok('a tack carried over two rows is one tack', b.cost.tacks === 1 && b.cost.tackSeconds === 900 && b.did === 'tacked', JSON.stringify(b.cost));
-  ok('fifteen minutes is written so', /\n         the tack cost 15 min 00 s$/.test(keep(r)), PASSAGE.text(r));
+  ok('fifteen minutes is written so', /\n         the tack cost 15 min 00 s$/.test(keep(r)), PASSAGELOG.text(r));
 
   //  Short-tacking: three boards of ten minutes, the second and third
   //  each begun with a tack of 30 seconds.
   a = maker(); a('port', 285);
   a.man('tack', 'starboard', 30); a('starboard', 195);
   a.man('tack', 'port', 30); a('port', 285);
-  r = PASSAGE.log(a.rows);
+  r = PASSAGELOG.log(a.rows);
   ok('short tacks fold as before, tacks and all', kinds(r) === 'start short' && r.lines[1].boards === 3, kinds(r));
   ok('and the line says what its tacks came to', r.lines[1].cost.tacks === 2 && r.lines[1].cost.tackSeconds === 60 &&
      /\n         2 tacks cost 60 s/.test(keep(r)), JSON.stringify(r.lines[1].cost));
 
   //  A run with no crew has no such rows, and nothing is said of cost.
   a = maker(); a.many(3, 'port', 285); a.many(3, 'starboard', 195);
-  r = PASSAGE.log(a.rows);
+  r = PASSAGELOG.log(a.rows);
   ok('a log of free tacks says nothing of what they cost',
-     r.lines.every(function (l) { return !l.cost; }) && !/cost/.test(PASSAGE.text(r)));
+     r.lines.every(function (l) { return !l.cost; }) && !/cost/.test(PASSAGELOG.text(r)));
 })();
 
 //  ---- 8c. a gate passed --------------------------------------------
@@ -438,7 +438,7 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   a.many(2, 'port', 285); a('port', 285, { event: 'passed St Albans Head' });
   a.many(2, 'port', 285, { leg: 1 }); a('port', 285, { leg: 1, event: 'rounded THE ROCK; passed Rocky Point' });
   a.many(2, 'port', 30, { leg: 3 }); a('port', 30, { leg: 3, event: 'finish' });
-  var r = PASSAGE.log(a.rows);
+  var r = PASSAGELOG.log(a.rows);
   ok('a gate passed has its own entry, and a row that makes two stations has two',
      r.ok && kinds(r) === 'start board passed board rounded passed board finish', kinds(r));
   var p = r.lines[2];
@@ -467,7 +467,7 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   a.many(3, 'port', 45, { leg: 1, gwd: 259, gws: 23, set: 80, drift: 0.8 });
   a.many(8, 'starboard', 110, { leg: 1, gwd: 272, gws: 19, set: 80, drift: 1.2 });
   a('starboard', 110, { leg: 1, gwd: 272, gws: 19, set: 80, drift: 1.2, event: 'finish' });
-  var r = PASSAGE.log(a.rows);
+  var r = PASSAGELOG.log(a.rows);
   ok('the whole passage reads', r.ok &&
      kinds(r) === 'start short board board rounded board board finish', kinds(r));
   var t = keep(r, { title: 'Example race' });
@@ -487,7 +487,7 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
   //  A passage across midnight writes the new day once.
   var b = maker(); b.many(3, 'port', 285);
   b.rows.forEach(function (w, i) { w.ms = Date.UTC(2025, 4, 24, 23, 50 + i * 10, 0); });
-  var tm = keep(PASSAGE.log(b.rows));
+  var tm = keep(PASSAGELOG.log(b.rows));
   ok('midnight is not crossed inside a board without saying whose day it began in',
      /-- 24 May 2025, times UTC --\n23:50  START/.test(tm), tm);
 
@@ -504,10 +504,10 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
 (function () {
   var a = maker(); a.many(3, 'port', 285); a.many(3, 'starboard', 195, { gwd: 250 });
   var before = JSON.stringify(a.rows);
-  var r1 = PASSAGE.log(a.rows), r2 = PASSAGE.log(a.rows);
+  var r1 = PASSAGELOG.log(a.rows), r2 = PASSAGELOG.log(a.rows);
   ok('the rows are not altered', JSON.stringify(a.rows) === before);
   ok('the same rows twice give the same log', JSON.stringify(r1) === JSON.stringify(r2));
-  ok('a refused log prints its reason', PASSAGE.text(PASSAGE.log([])) === 'there are no rows to make a log of');
+  ok('a refused log prints its reason', PASSAGELOG.text(PASSAGELOG.log([])) === 'there are no rows to make a log of');
 })();
 
 if (fail) { console.log('  ' + fail + ' of ' + checks + ' checks failed'); process.exit(1); }

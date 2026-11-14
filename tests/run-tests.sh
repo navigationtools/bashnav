@@ -1441,7 +1441,7 @@ WXLOG
   #  every word the log made and fails on a reason, because the router
   #  holds none and the log must not invent one (Larry, 13 Nov 2026).
   if command -v node >/dev/null 2>&1; then
-    if r=$(node docs/web/tests/passage.js 2>&1); then
+    if r=$(node docs/web/tests/passagelog.js 2>&1); then
       ok "the passage log folds the rows, states what changed and gives no reasons $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
     else
       bad "the passage log misreads the rows, or says why"

@@ -17,7 +17,7 @@ var GRID = require('../route/grid.js');
 var POLAR = require('../route/polar.js');
 var COURSE = require('../route/course.js');
 var ROUTER = require('../route/router.js');
-var PASSAGE = require('../route/passage.js');
+var PASSAGELOG = require('../route/passagelog.js');
 var SAIL = require('../route/sail.js');
 
 var fail = 0, checks = 0;
@@ -74,7 +74,7 @@ ok('twenty miles on a beam reach at ten knots takes two hours',
      direct.ok && JSON.stringify(direct.rows) === JSON.stringify(s.route.rows) &&
      JSON.stringify(direct.summary) === JSON.stringify(s.route.summary));
   ok('and the log is the passage log of those rows',
-     JSON.stringify(PASSAGE.log(direct.rows)) === JSON.stringify(s.log));
+     JSON.stringify(PASSAGELOG.log(direct.rows)) === JSON.stringify(s.log));
 })();
 ok('the title is the course and the class', s.title === 'A test course, All', s.title);
 
@@ -166,7 +166,7 @@ ok('the time is given both ways', /   2h00 \(2\.00 hours\)\n/.test(t), t);
 ok('a route with nothing to warn of says so, in so many words',
    /Before trusting it:\n  nothing to report/.test(t), t);
 ok('the passage log is in it whole',
-   t.indexOf(PASSAGE.text(s.log, { title: s.title })) > 0);
+   t.indexOf(PASSAGELOG.text(s.log, { title: s.title })) > 0);
 //  A point on the direct line that the run says to keep a mile off.
 (function () {
   var av = SAIL.sail(folder(function (f) {
