@@ -1466,6 +1466,22 @@ WXLOG
     say "  --    the run-command check needs node, skipped"
   fi
 
+  #  THE MOTORBOAT OF LEVELS 1 AND 2 (B21).  Level 3's waypoints and
+  #  times, sailed on rhumb lines at a fixed speed per leg: in still
+  #  water, and in the stream at the same speed or on time.  Held to
+  #  answers worked by hand on the equator, and to saying so where she
+  #  cannot hold her line or a line crosses the water (Larry, 14 Nov 2026).
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/motor.js 2>&1); then
+      ok "the motorboat keeps Level 3's times, holds her lines and says where she cannot $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
+    else
+      bad "the motorboat misses a time, a line or a refusal"
+      echo "$r" | head -10
+    fi
+  else
+    say "  --    the motorboat check needs node, skipped"
+  fi
+
   if command -v node >/dev/null 2>&1; then
     if r=$(node tests/contacts-figs-check.js 2>&1); then
       ok "$(echo "$r" | sed -n 's/^  ok  *//p')"

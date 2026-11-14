@@ -67,12 +67,21 @@
 //    node docs/web/tests/race-2025.js --data <folder> another copy of the data
 //    node docs/web/tests/race-2025.js --show          print what it measured
 //
-//  The parts: files rules pins boats crews limits steps.
+//  The parts: files rules pins boats crews limits steps motor.
+//
+//  MOTOR (B21, Larry, 14 November 2026): the motorboat of Levels 1 and
+//  2, derived from the as-sailed run.  What the lesson will quote is
+//  pinned here: which of her rhumb lines are refused, and the Level 3
+//  points offered to clear them; the arc round the Eddystone; Level 1
+//  arriving on every time; Level 2's finish at the same speed; and that
+//  in 2025 she never meets a stream across her line as strong as she is.
 'use strict';
 var fs = require('fs'), path = require('path'), crypto = require('crypto');
 var ROUTE = require('../route/route.js');
 var ROUTER = require('../route/router.js');
 var SAIL = require('../route/sail.js');
+var COURSE = require('../route/course.js');
+var MOTOR = require('../route/motor.js');
 
 var fail = 0, checks = 0;
 function ok(what, cond, detail) {
@@ -82,7 +91,7 @@ function ok(what, cond, detail) {
 function say(s) { console.log(s); }
 
 // ---- what was asked -------------------------------------------------
-var PARTS = ['files', 'rules', 'pins', 'boats', 'crews', 'limits', 'steps'];
+var PARTS = ['files', 'rules', 'pins', 'boats', 'crews', 'limits', 'steps', 'motor'];
 var DATA = path.join(__dirname, '..', '..', '..', '..', 'practical-navigator', 'data', '2025');
 var want = [], SHOW = false, argv = process.argv.slice(2), ai;
 for (ai = 0; ai < argv.length; ai++) {
@@ -615,6 +624,73 @@ if (asked('steps')) {
     ok('halving the step buys less than a quarter of an hour: the time is good to about ten minutes in a day',
        secs(ten) - secs(five) < 900, 'ten minutes: ' + hms(secs(ten)) + '; five: ' + hms(secs(five)) +
        '; the difference is ' + Math.round(secs(ten) - secs(five)) + ' s');
+  }
+}
+
+if (asked('motor')) {
+  var rm = asSailed();
+  if (sound(rm)) {
+    var l3 = { run: 'run_2025_as_sailed_v1.txt', summary: rm.sum, rows: rm.rows };
+    //  PILOT's nine timing lines, as the lesson's motor files give them
+    var CLEARS = { before: 'clear    L3 tack 11:20        50.71434 -1.53788',
+                   eddy: 'clear    L3 tack 22:30        50.19120 -3.66011' };
+    var motorFile = function (speed, scale, clears) {
+      var L = ['MOTOR 1', 'follow   run_2025_as_sailed_v1.txt', 'speed    ' + speed, 'scale    current ' + scale, 'step     time 600'];
+      if (clears) L.push(CLEARS.before);
+      L = L.concat(['waypoint Hurst narrows        meridian -1.550', 'waypoint St Alban\'s Head      meridian -2.057',
+                    'waypoint Portland Bill        meridian -2.457', 'waypoint Start Point          meridian -3.640']);
+      if (clears) L.push(CLEARS.eddy);
+      L = L.concat(['waypoint Eddystone Lt House   mark', 'waypoint Start Point          meridian -3.640',
+                    'waypoint Portland Bill        meridian -2.457', 'waypoint St Alban\'s Head      meridian -2.057', 'end']);
+      var m = COURSE.motor(L.join('\n') + '\n');
+      if (!m.ok) return { ok: false, why: 'the motor file: ' + m.err };
+      var r = MOTOR.plan(rm.env, l3, m); r.motor = m;
+      return r;
+    };
+    var on1 = function (r) { return r.ok && r.legs.every(function (l) { return l.sailed && l.sailed.arrived && Math.abs(l.sailed.ms - l.t1) < 1000; }); };
+
+    var bare = motorFile('same', 0, false);
+    ok('Level 1 with no clearing waypoints is refused', !bare.ok && !!bare.refused, bare.why);
+    if (bare.refused) {
+      var legsOf = bare.refused.map(function (b) { return b.leg.n; }).join(' ');
+      ok('the refused rhumb lines are leg 1, into the Hurst narrows, and leg 5, Start Point to the Eddystone', legsOf === '1 5', legsOf);
+      var offer = bare.refused.map(function (b) {
+        return b.clears + ' ' + b.suggest.map(function (p) { return p.kind + ' ' + new Date(p.ms).toISOString().slice(11, 16) + ' ' + p.lat.toFixed(5) + ' ' + p.lon.toFixed(5); }).join(', ');
+      }).join(' | ');
+      ok('each is cleared by one of Level 3\'s own tacks: 11:20 at Hurst, 22:30 off Start Point',
+         offer === 'true tack 11:20 50.71434 -1.53788 | true tack 22:30 50.19120 -3.66011', offer);
+      if (SHOW) say('  motor  refused: ' + offer);
+    }
+    var eddy = (bare.points || []).filter(function (p) { return p.kind === 'mark'; })[0];
+    ok('the arc round the Eddystone is Level 3\'s closest point, two track points before and one after, grown for the NE Rock',
+       eddy && eddy.arc.before === 2 && eddy.arc.after === 1 && eddy.arc.grew.join() === 'eddystone-reef',
+       eddy ? eddy.arc.before + ' before, ' + eddy.arc.after + ' after, grew for ' + eddy.arc.grew.join() : 'no mark waypoint');
+
+    var lv1 = motorFile('same', 0, true);
+    ok('Level 1 with them sails 14 legs', lv1.ok && lv1.legs.length === 14, lv1.why);
+    ok('and arrives at every one of Level 3\'s times, to a second', on1(lv1));
+    var lv1nm = lv1.ok ? lv1.legs.reduce(function (a, l) { return a + l.nm; }, 0) : 0;
+    if (SHOW && lv1.ok) say('  motor  Level 1: ' + lv1nm.toFixed(1) + ' nm of rhumb lines');
+
+    var same = motorFile('same', '1.0', true);
+    ok('Level 2 at the same speed sails', same.ok, same.why);
+    if (same.ok) {
+      var fin = same.legs[same.legs.length - 1].sailed.ms, want2 = Date.parse('2025-05-25T08:45:26Z');
+      ok('PINNED: at Level 1\'s speeds the stream brings her in at 08:45:26, 52 minutes before Level 3',
+         Math.abs(fin - want2) <= 120000, new Date(fin).toISOString());
+      ok('PINNED: in 2025 she never meets a stream across her line as strong as she is',
+         same.legs.every(function (l) { return !l.sailed.held.length; }));
+      if (SHOW) say('  motor  Level 2, same speed: finishes ' + new Date(fin).toISOString());
+    }
+    var ontime = motorFile('on-time', '1.0', true);
+    ok('Level 2 on time keeps every one of Level 3\'s times, to a second', on1(ontime), ontime.why);
+    if (ontime.ok) {
+      var vs = ontime.legs.map(function (l) { return l.v; });
+      var lo = Math.min.apply(null, vs), hi = Math.max.apply(null, vs);
+      ok('PINNED: the speeds it needs run from 7.4 to 13.7 knots', Math.abs(lo - 7.4) < 0.1 && Math.abs(hi - 13.7) < 0.1,
+         lo.toFixed(2) + ' to ' + hi.toFixed(2));
+      if (SHOW) say('  motor  Level 2, on time: ' + vs.map(function (v) { return v.toFixed(1); }).join(' '));
+    }
   }
 }
 

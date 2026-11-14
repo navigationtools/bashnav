@@ -1,14 +1,15 @@
-# COURSE 1, AREAS 1, RUN 3, CREW 1, PASSAGE 1 — the files the router reads besides the grids
+# COURSE 1, AREAS 1, RUN 3, CREW 1, PASSAGE 1, MOTOR 1 — the files the router reads besides the grids
 
 The course, the water it may not cross, the settings for one run, how well
-she is tacked, and the figures a lesson changes.
+she is tacked, the figures a lesson changes, and the motorboat of Levels 1
+and 2.
 `docs/web/route/course.js` is the reference: **what it refuses, these formats
 do not allow**, and where this document and that file differ, the file is
 right.
 
-## Why five files and not one
+## Why six files and not one
 
-They have five different lifetimes, and a file's lifetime is the honest
+They have six different lifetimes, and a file's lifetime is the honest
 reason to split it.
 
 | | what it is | how often it changes |
@@ -18,6 +19,7 @@ reason to split it.
 | **run** | this experiment: which boat, which start, what to scale | every run |
 | **crew** | the people: how well a crew's tacks and gybes come off | when the crew changes, or a lesson asks what a better one is worth |
 | **passage** | the lesson: each mark's berth, and the places she must pass | when a lesson asks a different question: two miles off, or one? |
+| **motor** | Levels 1 and 2: a motorboat on Level 3's waypoints and times | when Level 3 is sailed again, or a lesson clears a leg |
 
 Put the run settings inside the course and one course file stops serving
 every boat and every start, which is the thing Larry's class-start decision
@@ -694,7 +696,115 @@ somebody sails tomorrow. Every refusal names the file and the line.
 
 ---
 
-# All five files
+# MOTOR 1
+
+The motorboat of Levels 1 and 2, derived from a Level 3 run (board item B21).
+`docs/web/route/motor.js` sails it; ROUTER.md, "The motorboat of Levels 1 and
+2", says what she does with it.
+
+    MOTOR 1
+    follow   run_2025_as_sailed_v1.txt
+    speed    same
+    scale    current 0
+    step     time 600
+    clear    L3 tack 11:20        50.71434 -1.53788
+    waypoint Hurst narrows        meridian -1.550
+    waypoint St Alban's Head      meridian -2.057
+    waypoint Portland Bill        meridian -2.457
+    waypoint Start Point          meridian -3.640
+    clear    L3 tack 22:30        50.19120 -3.66011
+    waypoint Eddystone Lt House   mark
+    waypoint Start Point          meridian -3.640
+    waypoint Portland Bill        meridian -2.457
+    waypoint St Alban's Head      meridian -2.057
+    end
+
+| Line | Form | Notes |
+|---|---|---|
+| `follow` | a run file | The Level 3 run she is derived from. It names everything else: the course, the areas and their clearances, the berth, the stream grid. |
+| `speed` | `same` or `on-time` | `same`: each leg at the speed that keeps Level 3's time in still water (Level 1's speed). `on-time`: the speed each leg needs to keep it in the stream. |
+| `scale` | `current <f>` | 0 is still water, 1 the stream as the grid gives it. **Required.** |
+| `step` | `time <seconds>` | 10 to 3600. |
+| `waypoint` | name `meridian` lon | Where Level 3's track first crosses that meridian, after the waypoint before it. |
+| `waypoint` | a mark of the course, then `mark` | Level 3's closest point to the mark, and an arc of its track points round it. |
+| `clear` | name lat lon | A clearing waypoint the lesson adds. It has no time of its own. |
+| `end` | — | Last line. |
+
+The start and the finish are Level 3's own and are not written. Each
+waypoint keeps Level 3's time there. **Level 1 is `speed same` with `scale
+current 0`; Level 2 is either speed with `scale current 1.0`.**
+
+## Why Levels 1 and 2 are taken from Level 3
+
+**Larry, 14 November 2026:** "to illustrate the impact of each level's layer
+of reality (tides, wind, weather), we map to the L3 waypoints and times, so
+L1's sailing directions are derived from the L3 run." The lower levels are
+not sailed on their own. They take Level 3's places and times, so a student
+sees what each layer did. With no tide, the times ask for these speeds; with
+the tide, she is early or late, or needs these speeds instead.
+
+## Why `scale current` is required
+
+Level 1's still water is a choice the lesson makes, so the file says so. A
+motor file that forgot the line would otherwise read as one that meant still
+water.
+
+## Why waypoints are meridians and marks
+
+PILOT's nine timing lines are meridians: Hurst 1.550 W, St Alban's Head
+2.057 W, Portland Bill 2.457 W and Start Point 3.640 W, out and back, with the
+Eddystone between (Larry's option a). A meridian is crossed once on each pass,
+so "the first crossing after the waypoint before" names the place without a
+position that could be mistyped.
+
+## A mark is an arc
+
+**Larry, 14 November 2026:** one point and one track point each side, "and if
+its not enough, you just reiterate". One point cannot describe a rounding.
+From Level 3's closest point to the Eddystone, a straight line out cuts the
+light's berth, and one in from the east runs over the NE Rock.
+
+So a `mark` waypoint is Level 3's closest point, plus the track point before
+it and the one after. **The arc takes the next track point on a side while
+the line into or out of it crosses something nearer the mark than that point
+is.** The point reaches past the danger, so taking it goes round the danger
+the way Level 3 did. Anything farther off belongs to the leg, as below.
+Without that limit, an arc could creep thirty miles back along the approach.
+The report says how many points each arc took, and what it grew to clear.
+
+## A leg over a danger is refused, and `clear` clears it
+
+**Larry, 14 November 2026: "a is the right answer, else we base the route on
+tack points, which I think would show the way."**
+
+- **She is held to the water Level 3 was held to:** the run's layers with
+  their clearances, the berth round each mark, and its `avoid`s.
+- **A rhumb line over any of it is refused,** naming the leg and where it
+  crosses.
+- **The refusal offers clearing waypoints from where Level 3 went.** First
+  choice is Level 3's tack or gybe point nearest the crossing that clears both
+  lines. If none does, it offers a point of Level 3's own track that does.
+  Failing that, it offers a chain of such points, at most four.
+- **A `clear` line takes a share of its leg's time by distance,** so her speed
+  on the two parts is the same as on the one.
+
+In 2025, Level 1's bare file is refused twice. Leg 1 cuts the low-water shore
+in the Hurst narrows. The leg from Start Point to the Eddystone cuts the
+land at Prawle Point. Level 3's tacks at 11:20 and 22:30 clear them, and
+they are the two `clear` lines above.
+
+## What MOTOR 1 does not do
+
+- **No top speed** (Larry: "lets see what comes out the other side").
+  `on-time` reports the speed needed, however high.
+- **No positions for marks of its own.** A waypoint is a place on Level 3's
+  track; only a `clear` is placed by hand.
+- **No other kind of line yet.** A timing line that is not a meridian, such as
+  a parallel or a line between two points, is not a form.
+
+---
+
+# All six files
 
 ## What the format cannot see, and why `source` is required
 
@@ -709,7 +819,7 @@ The defence against a wrong figure is not the reader; it is that the file
 looks like the sailing instructions and can be read against them. The reader
 catches what is impossible. A person catches what is merely untrue.
 
-## What all five refuse
+## What all six refuse
 
 The same discipline as GRID 1, for the same reason: a bad input to a router
 does not become an error, it becomes a *route*.
@@ -731,6 +841,11 @@ does not become an error, it becomes a *route*.
    berth on the mark that ends the finish line, a berth outside 0.05 to 2.00
    or finer than a hundredth, and a run that names a passage and says `round`
    as well.
+7. **A motor file that does not say which run it follows, how her speed is
+   set, how much stream she meets, or its step**, and one with no waypoint
+   taken from Level 3. Once it is read, `motor.js` refuses a meridian Level 3
+   never crosses after the waypoint before, a mark not on the course, and a
+   rhumb line over the water.
 
 The reader never throws. A bad file is a result with a sentence and a line, in
 the same shape `GRID.parse` returns, because a reader that throws inside a

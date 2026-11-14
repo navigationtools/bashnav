@@ -1,5 +1,5 @@
 // =====================================================================
-//  COURSE 1, AREAS 1, RUN 3, CREW 1, PASSAGE 1 -- the files the router reads
+//  COURSE 1, AREAS 1, RUN 3, CREW 1, PASSAGE 1, MOTOR 1 -- the files the router reads
 //  besides the grids.  RUN 1 is still read, and still means what it
 //  meant: see the RUN section below for what RUN 2 adds and why it
 //  could not be an addition to RUN 1.
@@ -871,8 +871,108 @@ var COURSE = (function () {
     return { ok: true };
   }
 
+  // ---- MOTOR 1 -----------------------------------------------------
+  //
+  //  The motorboat of the course's Levels 1 and 2, derived from a
+  //  Level 3 run (Larry, 14 November 2026: "to illustrate the impact of
+  //  each level's layer of reality, we map to the L3 waypoints and
+  //  times, so L1's sailing directions are derived from the L3 run").
+  //
+  //      MOTOR 1
+  //      follow   run_2025_as_sailed_v1.txt
+  //      speed    same
+  //      scale    current 0
+  //      step     time 600
+  //      waypoint Hurst narrows       meridian -1.550
+  //      clear    off Start Point     50.20000 -3.68000
+  //      waypoint Eddystone Lt House  mark
+  //      end
+  //
+  //  `follow` names the Level 3 run.  Each `waypoint` is a place on
+  //  Level 3's track: where it first crosses a meridian after the
+  //  waypoint before, or where it comes closest to a mark of the course.
+  //  Level 3's time there is the time the motorboat must keep.  A
+  //  `clear` is a waypoint the lesson adds to take a rhumb line clear of
+  //  a danger; it has no time of its own, and its leg's time is shared
+  //  by distance.  The start and the finish are Level 3's own.
+  //
+  //  `speed same` sails each leg at the speed that keeps Level 3's time
+  //  in still water; `speed on-time` finds, leg by leg, the speed that
+  //  keeps it in the stream.  `scale current` is required, so that
+  //  Level 1's still water is written down and not assumed: Level 1 is
+  //  `speed same` with `scale current 0`.
+  function parseMotor(text) {
+    var L = lines(text), i, m = { version: 0, follow: null, speed: null, scale: null, step: null, points: [] }, ended = false;
+    if (!L.length) return bad(0, 'the file is empty');
+    if (L[0].s !== 'MOTOR 1') return bad(L[0].n, 'the first line must be "MOTOR 1"');
+    m.version = 1;
+    for (i = 1; i < L.length; i++) {
+      var ln = L[i].n, w = L[i].w, k = w[0], v;
+      if (ended) return bad(ln, 'nothing may follow "end"');
+      if (k === 'end') { if (w.length !== 1) return bad(ln, '"end" stands alone on its line'); ended = true; continue; }
+      if (k === 'follow') {
+        if (w.length !== 2) return bad(ln, 'follow takes one run file: the Level 3 run the motorboat is derived from');
+        if (m.follow) return bad(ln, 'a motorboat follows one run');
+        m.follow = w[1]; continue;
+      }
+      if (k === 'speed') {
+        if (w.length !== 2 || (w[1] !== 'same' && w[1] !== 'on-time')) {
+          return bad(ln, 'speed is "speed same" (the speed that keeps Level 3\'s time in still water) or "speed on-time" (the speed that keeps it in the stream)');
+        }
+        if (m.speed) return bad(ln, 'speed is given twice');
+        m.speed = w[1]; continue;
+      }
+      if (k === 'scale') {
+        if (w.length !== 3 || w[1] !== 'current') return bad(ln, 'scale is "scale current <f>": 0 for still water, 1 for the stream as the grid gives it');
+        v = num(w[2]);
+        if (v === null || v < 0) return bad(ln, 'the current scale must be zero or more');
+        m.scale = v; continue;
+      }
+      if (k === 'step') {
+        if (w.length !== 3 || w[1] !== 'time') return bad(ln, 'step is "step time <seconds>"');
+        v = num(w[2]);
+        if (v === null || v < 10 || v > 3600) return bad(ln, 'the time step must be from 10 to 3600 seconds');
+        m.step = v; continue;
+      }
+      if (k === 'waypoint') {
+        if (w.length >= 3 && w[w.length - 1] === 'mark') {
+          var mk = w.slice(1, w.length - 1).join(' ');
+          if (!mk) return bad(ln, 'a mark waypoint is "waypoint <mark of the course> mark"');
+          m.points.push({ kind: 'mark', name: mk, line: ln }); continue;
+        }
+        if (w.length >= 4 && w[w.length - 2] === 'meridian') {
+          v = num(w[w.length - 1]);
+          if (v === null || v < -180 || v > 180) return bad(ln, 'a meridian is a longitude from -180 to 180, west negative');
+          var mn = w.slice(1, w.length - 2).join(' ');
+          if (!mn) return bad(ln, 'a waypoint needs a name');
+          m.points.push({ kind: 'meridian', name: mn, lon: v, line: ln }); continue;
+        }
+        return bad(ln, 'a waypoint is "waypoint <name> meridian <lon>" or "waypoint <mark of the course> mark"');
+      }
+      if (k === 'clear') {
+        if (w.length < 4) return bad(ln, 'a clearing waypoint is "clear <name> <lat> <lon>"');
+        var cp = pos(w, w.length - 2, ln);
+        if (!cp.ok) return cp;
+        var cn = w.slice(1, w.length - 2).join(' ');
+        if (!cn) return bad(ln, 'a clearing waypoint needs a name');
+        m.points.push({ kind: 'clear', name: cn, lat: cp.lat, lon: cp.lon, line: ln }); continue;
+      }
+      return bad(ln, 'unknown line "' + k + '" in a MOTOR 1 file');
+    }
+    if (!ended) return bad(L[L.length - 1].n, 'the file does not end with "end" -- it may have been cut short');
+    if (!m.follow) return bad(0, 'a motorboat must name the Level 3 run it follows: follow <run file>');
+    if (!m.speed) return bad(0, 'a motorboat must say how her speed is set: speed same, or speed on-time');
+    if (m.scale === null) return bad(0, 'a motorboat must say how much of the stream she meets: scale current <f> (0 is Level 1\'s still water)');
+    if (m.step === null) return bad(0, 'a motorboat must give its time step: step time <seconds>');
+    if (!m.points.some(function (p) { return p.kind !== 'clear'; })) {
+      return bad(0, 'a motorboat needs at least one waypoint taken from Level 3: a meridian or a mark');
+    }
+    m.ok = true;
+    return m;
+  }
+
   return {
-    course: parseCourse, areas: parseAreas, run: parseRun, crew: parseCrew, passage: parsePassage,
+    course: parseCourse, areas: parseAreas, run: parseRun, crew: parseCrew, passage: parsePassage, motor: parseMotor,
     check: check, checkGrids: checkGrids, checkCrew: checkCrew, checkPassage: checkPassage,
     finishPin: finishPin, along: along
   };

@@ -1,5 +1,63 @@
 # Changelog
 
+## B21: the motorboat of Levels 1 and 2, derived from Level 3
+
+**What.** A new file, `docs/web/route/motor.js`, and a new format, MOTOR 1. A
+motorboat sails rhumb lines between Level 3's waypoints, at a fixed speed per
+leg, to keep Level 3's times. Board item B21, "fixed speed per leg, instead of
+a polar".
+
+| | the water | her speed on each leg |
+|---|---|---|
+| Level 1 | still | rhumb distance over Level 3's time |
+| Level 2, same speed | the stream | Level 1's: she arrives early or late |
+| Level 2, on time | the stream | whatever keeps Level 3's time |
+
+**Why.** Larry, 14 November 2026: "to illustrate the impact of each level's
+layer of reality (tides, wind, weather), we map to the L3 waypoints and
+times, so L1's sailing directions are derived from the L3 run." Each choice
+was his:
+
+1. **A mode of the router, not a work calculator.** He chose this because a
+   calculator would not be trivial: it would need awk, JS, Python, tests, a
+   page and a manual of its own.
+2. **Waypoints where Level 3 crosses PILOT's nine timing lines,** and the
+   Eddystone.
+3. **Level 2 both ways, holding the rhumb line.** Where it cannot be done,
+   it says so: "the teachable part". A stream across her line as strong as
+   she is sets her off it, and the output says when, where and how far.
+4. **No top speed:** "lets see what comes out the other side".
+5. **A rhumb line over a danger is refused,** naming the leg and where. The
+   lesson adds a clearing waypoint whose leg's time is shared by distance. The
+   refusal offers Level 3's own tack points: "tack points ... would show the
+   way".
+6. **A mark is an arc:** Level 3's closest point and a track point each side,
+   "and if its not enough, you just reiterate". It grows only for a danger
+   nearer the mark than the next point, so it cannot creep along the approach.
+
+**The 2025 race.** The bare Level 1 file is refused twice: at the Hurst
+narrows and at Prawle Point. Level 3's tacks at 11:20 and 22:30 clear both.
+The arc round the Eddystone grows once, to go round the NE Rock.
+
+- Level 1 keeps every time.
+- At Level 1's speeds in the stream she finishes 52 minutes before Level 3.
+- On time, she needs 7.4 to 13.7 knots.
+- She holds every line: at those speeds no cross-stream is as strong as she
+  is.
+
+**Checked.** `docs/web/tests/motor.js`, 117 checks worked by hand on the
+equator, now in `tests/run-tests.sh`. 31 faults were planted in it, and all
+were caught. A new part of `tests/race-2025.js`, `motor`, pins the 2025
+figures above.
+
+**Also corrected.** ROUTER.md said the Eddystone reef was not in the files.
+PILOT's NE Rock area has been, and both as-sailed runs use it.
+
+**What it affects.** Nothing the router does changes, and no published time
+moves. `course.js` reads one more format. COURSE.md and ROUTER.md each have a
+new section. The full suite takes about fifteen seconds longer, for the race
+check's new part.
+
 ## B3: the router is held to the real 2025 race
 
 **What.** A new check, `docs/web/tests/race-2025.js`, sails the 2025 Myth of

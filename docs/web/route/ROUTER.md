@@ -840,6 +840,127 @@ CHANGELOG, run with `--show`, and write the new figure into `FINISH` or
 `AT_LINES`. **To move to a new file of PILOT's:** read what changed, run with
 `--show`, and write the new checksum into `PINNED`.
 
+## The motorboat of Levels 1 and 2
+
+Board item B21, "fixed speed per leg, instead of a polar." It is sailed by
+`docs/web/route/motor.js` from a MOTOR 1 file (COURSE.md).
+
+**Larry, 14 November 2026:** "to illustrate the impact of each level's layer
+of reality (tides, wind, weather), we map to the L3 waypoints and times, so
+L1's sailing directions are derived from the L3 run." So Levels 1 and 2 are
+not routed. They take Level 3's places and times, and show what one layer
+less would ask of a boat that goes straight.
+
+```
+   Level 3, as routed     S ~~\/\/\~~~~~ W1 ~~~~\/\/~~~~~~~ W2 ~~~~~ ...
+                          |               |                  |
+   Levels 1 and 2         S ------------- W1 --------------- W2 ----- ...
+                            rhumb lines, between Level 3's places,
+                            to be sailed in Level 3's times
+```
+
+| | the water | her speed on each leg | what it shows |
+|---|---|---|---|
+| **Level 1** | still | rhumb distance over Level 3's time | what the times ask, with no tide |
+| **Level 2, same speed** | the stream | Level 1's | how early or late the tide makes her |
+| **Level 2, on time** | the stream | whatever keeps Level 3's time | what speed the tide asks for instead |
+
+### Holding the line
+
+```
+                      she heads up
+                     /
+                    /  v (her speed through the water)
+                   /
+   W1 ============*=====================> W2   made good along the line
+                  |
+                  v  the stream's part across the line, cancelled
+```
+
+Each step she looks at the next waypoint from where she is. She splits the
+stream into the part along that bearing and the part across it. If the part
+across is less than her speed, she heads up into it by exactly enough to
+cancel it (the angle whose sine is the part across over her speed). The part
+along adds to, or takes from, what she makes good. She moves on the leg's own
+flat chart, so a line she holds is held to a millionth of a mile.
+
+**Where it cannot be done, it says so, and the report says when, where and
+how far** (Larry: the teachable part). If the stream across her line is as
+strong as she is, she cannot hold the line. She heads straight into the
+cross-stream, which is the least she can be set, and she is set. When the
+stream eases she makes for the waypoint from where she is, as a navigator
+would, rather than regaining the old line. Her distance off the old line is
+in every step of her track.
+
+**There is no top speed** (Larry: "lets see what comes out the other side").
+`on-time` halves its way to the least speed that arrives in time, so the
+speed it reports is the least that will do.
+
+### Where she may not go
+
+She is held to the water Level 3 was held to: the run's layers and their
+clearances, the berth round each mark (the finish buoy excepted, as in the
+router), and the run's `avoid`s. **A rhumb line over any of it is refused**,
+naming the leg and where it crosses. The refusal offers clearing waypoints
+taken from where Level 3 went, Larry's "tack points". Each is a ready line
+for the motor file. A clearing waypoint takes a share of its leg's time by
+distance, so her speed does not change.
+
+**A mark is an arc.** Level 3's closest point, plus a track point before and
+after it. The arc grows a track point at a time while the line into or out of
+it crosses something nearer the mark than that point is. COURSE.md, "A mark
+is an arc", gives the reason and the limit.
+
+### The 2025 race
+
+Level 1's bare file, nine of PILOT's timing lines and the Eddystone, is
+refused twice. Leg 1 passes 0.04 nm from the low-water shore in the Hurst
+narrows. The leg from Start Point to the Eddystone runs over the land at
+Prawle Point. Level 3's tacks at 11:20 and 22:30 clear them. The arc round
+the Eddystone is 01:00, 01:10, the closest point and 01:11:29: the 01:00
+point is taken to go round the NE Rock.
+
+| leg | to | nm | course | Level 3 time | Level 1 speed | Level 2, same speed | Level 2, on time |
+|---|---|---|---|---|---|---|---|
+| 1 | L3 tack 11:20 | 9.7 | 244 | 1h18 | 7.4 kn | on time | 7.4 kn |
+| 2 | Hurst narrows | 1.2 | 202 | 0h10 | 7.4 kn | on time | 7.4 kn |
+| 3 | St Alban's Head | 22.4 | 240 | 2h36 | 8.6 kn | 19 min early | 7.5 kn |
+| 4 | Portland Bill | 15.3 | 268 | 2h02 | 7.5 kn | 10 min early | 8.3 kn |
+| 5 | Start Point | 48.4 | 249 | 6h15 | 7.7 kn | 8 min late | 8.1 kn |
+| 6 | L3 tack 22:30 | 1.7 | 207 | 0h11 | 9.1 kn | 6 min late | 7.5 kn |
+| 7 | Eddystone 01:00 | 22.4 | 272 | 2h28 | 9.1 kn | 8 min early | 8.2 kn |
+| 8 | Eddystone 01:10 | 1.7 | 215 | 0h10 | 9.9 kn | 8 min early | 10.2 kn |
+| 9 | Eddystone, closest | 0.0 | 220 | 0h00 | 9.5 kn | 8 min early | 9.8 kn |
+| 10 | Eddystone 01:11 | 0.2 | 220 | 0h01 | 9.5 kn | 8 min early | 9.8 kn |
+| 11 | Start Point | 25.6 | 108 | 1h47 | 14.3 kn | 11 min early | 13.7 kn |
+| 12 | Portland Bill | 50.4 | 064 | 3h48 | 13.3 kn | 35 min early | 11.7 kn |
+| 13 | St Alban's Head | 17.0 | 064 | 1h13 | 13.9 kn | 45 min early | 12.0 kn |
+| 14 | finish | 20.7 | 059 | 1h37 | 12.8 kn | 52 min early | 12.7 kn |
+
+The same-speed column is how early or late she is at each waypoint, carried
+from the legs before. Level 1 sails 236.6 nm of rhumb lines, against Level 3's
+263.0 over the ground. In the stream at Level 1's speeds she finishes at
+08:45, 52 minutes before Level 3. The first two legs are in the Solent, where
+the grid has no stream, so she sails them as still water, as Level 3 did.
+
+**In 2025 she holds every line.** At 7 to 14 knots, no stream across her line
+is as strong as she is. The "it cannot be done" case is held by
+`tests/motor.js`, on a stream made to do it. These figures are pinned by
+`tests/race-2025.js motor`.
+
+### Running it
+
+    node docs/web/route/motor.js <folder> <motor file> [--route <json>] [--json <file>]
+
+The folder is the run's, as for `sail.js`. `--route` takes the route
+`sail.js --json` wrote for the same run, so it is not sailed twice. A route of
+another run is refused. `--json` writes what PILOT draws: every waypoint with
+Level 3's time, and every leg with its step-by-step track (heading, stream,
+course and speed over the ground, distance off the line) and where she could
+not hold it. A refusal is written too, with the crossings and the waypoints
+offered. Exit 0: sailed, even if she did not arrive, which is itself an
+answer. Exit 1: refused, with the reason. Exit 2: not asked properly.
+
 ## What it does not do yet, and what it assumes
 
 1. **A tack costs nothing unless the run names a crew.** Without one she
@@ -858,9 +979,11 @@ CHANGELOG, run with `--show`, and write the new figure into `FINISH` or
 7. **A minute or two is not a finding, and the time itself is good to about
    ten minutes in a day.** A step under five minutes buys nothing. See "What
    the search can resolve".
-8. **The Eddystone reef is not in the files.** The coastline is EMODnet's,
-   which does not hold the rocks round the light, and a berth alone does not
-   keep a route off them.
+8. **Of the rocks round the Eddystone, only the NE Rock is in the files.**
+   The coastline is EMODnet's, which does not hold them. PILOT's
+   `eddystone-reef` layer is a keep-out area round the NE Rock, which dries
+   1 m, and both as-sailed runs switch it on. The reef's outline stays on the
+   chart. (Until 14 November this item said no rock was in the files.)
 9. **It is not for navigation.** It is for understanding a race after it was
    sailed, and for asking what a different choice would have cost.
 
@@ -873,6 +996,7 @@ CHANGELOG, run with `--show`, and write the new figure into `FINISH` or
     node docs/web/tests/passagelog.js       the passage log, on rows written by hand
     node docs/web/tests/sail.js             a run sailed from its name, and the refusals
     node docs/web/tests/course.js           the course, areas, run, crew and passage files
+    node docs/web/tests/motor.js            the motorboat of Levels 1 and 2, worked by hand
     node docs/web/tests/race-2025.js        the real 2025 race: two to three minutes (see "Held to the real race")
 
 Each course in `router.js` is laid on the equator, in a wind and a stream that
