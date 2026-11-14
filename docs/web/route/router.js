@@ -763,18 +763,44 @@ var ROUTER = (function () {
       }
       //  a manoeuvre that is over before the step is: she sails the rest
       if (st && ms < Tn - 1) { queue.push(nn); stats.kept++; return; }
-      //  HER OWN STATION IS NOT A RIVAL.  The place she makes a station
-      //  is noted in its square, so that of two boats that make it there
-      //  the first is kept; and she sails the rest of that step on from
-      //  it.  That rest may be seconds, too short to leave the square,
-      //  and the first version of this then judged her against her own
-      //  station -- reached earlier, so dropped -- and kept only a
-      //  heading that fell back over the square's edge.  She sailed four
-      //  seconds back the way she came after every station that landed
-      //  near an edge, and gave the time away.  Found by a line pass
-      //  laid on a square's edge (13 November 2026); it was there for
-      //  marks and circles all along.
-      if (was && was.slot < 0 && was.node === node) was = null;
+      //  A SQUARE BELONGS TO THE BOAT THAT REACHED IT FIRST, AND SHE MAY
+      //  STAY IN IT.  The search keeps one boat to a square: the first
+      //  to reach it, because a boat that arrives later is behind one
+      //  that was already there.  The first version applied that to the
+      //  boat herself.  A step that did not carry her out of her own
+      //  square left her in a square "reached earlier" -- by her, the
+      //  step before -- and she was dropped.
+      //
+      //  So she could only ever move by leaving her square, and when
+      //  she sailed less than its half mile in a step she could not move
+      //  at all: twenty miles on a beam reach in two knots of wind gave
+      //  "no route"; the same reach at ten knots gave "no route" with a
+      //  step of two and a half minutes; and the 2025 race at that step
+      //  finished two hours LATER than at ten minutes, with 185 tacks,
+      //  because the only boats that survived were those whose heading
+      //  happened to cross an edge.  Found on 14 November 2026 by asking
+      //  the one thing a finer step must never do, which is make her
+      //  slower.  The published runs were not touched by it: at ten
+      //  minutes in twelve knots and more she crosses three squares a
+      //  step.
+      //
+      //  Now the boat that holds a square may stay in it, step after
+      //  step.  A boat from elsewhere that comes into a square reached
+      //  in an earlier step is still behind, and still dropped; and of
+      //  two boats in the same square at the end of the same step, the
+      //  one further along the leg is kept, as before.
+      //
+      //  (A variant was tried in which a square stayed with the boat
+      //  that first reached it for as long as she stayed, whoever else
+      //  came.  On the 2025 race at five step sizes it made no
+      //  difference the search can resolve, no check could tell the two
+      //  apart, and it was more code, so it was taken out again.)
+      //
+      //  (The station she has just made is a case of the same thing,
+      //  and was found first, on 13 November: the rest of the step after
+      //  a mark or a passing mark may be seconds, too short to leave the
+      //  square, and she was judged against her own station and dropped.)
+      if (was && was.node === node) was = null;
       if (was) {
         //  reached earlier: she was here first
         if (was.ms < eff - 500 || was.slot < 0) return;
@@ -784,14 +810,14 @@ var ROUTER = (function () {
           //  bound
           if (eff < was.ms - 500 ||
               (Math.abs(eff - was.ms) <= 500 && ahead(nl, bx, by, next[was.slot].x, next[was.slot].y))) {
-            next[was.slot] = nn; was.ms = eff;
+            next[was.slot] = nn; was.ms = eff; was.node = nn;
           }
           return;
         }
         //  reached in an earlier step by a boat that, counting what it
         //  owed, was no sooner than this one: this one takes the square
       }
-      seen[nl][key] = { ms: eff, slot: next.length, iter: iter };
+      seen[nl][key] = { ms: eff, slot: next.length, iter: iter, node: nn };
       next.push(nn);
       stats.kept++;
     }

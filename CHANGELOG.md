@@ -1,5 +1,59 @@
 # Changelog
 
+## A boat that sails less than half a mile in a step is no longer lost
+
+**The fault.** The search keeps one boat to a half-mile square: the first to
+reach it. It applied that to the boat herself. A step that did not carry her
+out of her own square left her in a square "reached earlier", by her, the step
+before, and she was dropped. So she could only move by leaving her square, and
+a boat that sails less than half a mile in a step could not move at all.
+
+**What it did.**
+
+| | before | now |
+|---|---|---|
+| 20 miles on a beam reach in 2 knots of wind | no route | 8.33 hours |
+| the same reach at 10 knots, with a 2½-minute step | no route | 2.00 hours |
+| a dead beat in 3 knots of wind | 11.49 hours, 27 tacks | 11.11 hours |
+| the 2025 race with a 2½-minute step | 25.47 hours, 185 tacks | 23.53 hours |
+
+**The fix** (`router.js`). The boat that holds a square may stay in it, step
+after step. A boat from elsewhere that comes into a square reached in an
+earlier step is still behind, and still dropped. The fix of the day before,
+for the station she has just made, turned out to be one case of this.
+
+**How it was found.** B3 is the router held to the real 2025 race. Before
+writing any check I asked what a finer step must never do, which is make her
+slower, and sailed the race at five step sizes.
+
+**What it affects.**
+
+1. **No published run changes.** All twelve 2025 runs were sailed again and
+   compared row by row: the free run, the headlands run, the four crews, the
+   five passage plans, and PILOT's Clipper 68 run.
+2. **A race in light airs would have been wrong,** or had no route. None has
+   been sailed yet.
+3. **A run with a step under about three minutes** would have been wrong.
+
+**What else the measurement showed** (`ROUTER.md`, "What the search can
+resolve").
+
+1. **The time itself is good to about ten minutes in a day.** At a 5-minute
+   step the 2025 race finishes in 23.46 hours, against 23.62 at ten minutes.
+   "A minute or two is not a finding" still holds between two runs at the same
+   step.
+2. **A step under five minutes buys nothing,** and loses a little: 23.53 hours
+   at 2½ minutes. A step is then shorter than a square.
+3. **A step can be too long for the water:** at twenty minutes the 2025 race
+   has no route, because a three-mile board does not fit in the Solent.
+
+**Checked.** 13 new checks in `tests/router.js`, on courses that can be worked
+out by hand; 8 of them fail on the router as it was. Five faults were put into
+the new rule and each is caught. A second form of the rule was tried, could
+not be told from this one by any check or by the 2025 race, and was taken out.
+The 97 earlier faults were put back against the new search and each is still
+caught. 696 checks in the eight files.
+
 ## The passage log's file is passagelog.js
 
 **What.** `docs/web/route/passage.js` is now `passagelog.js`, its global

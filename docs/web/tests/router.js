@@ -746,5 +746,76 @@ var kept = sail({ run: runFile(['avoid Halfway 0 ' + d(10) + ' off 1.0']) });
 ok('the same point as an avoid is still kept off, not passed', kept.ok && kept.summary.passed.length === 0 &&
    nearest(kept, 0, 10 / 60) >= 1 - 1e-6, kept.ok ? nearest(kept, 0, 10 / 60).toFixed(4) : kept.why);
 
+//  ---- 10. a step shorter than a square ------------------------------
+//  The search keeps one boat to a half-mile square, the first to reach
+//  it.  A boat that sails less than half a mile in a step does not
+//  leave her square, and the first version dropped her for it: she was
+//  in a square "reached earlier", by herself.  In light airs, or with a
+//  fine step, that left no route at all, or a bad one.  Found on 14
+//  November 2026 by asking what a finer step must never do.
+//
+//  The toy polar makes 6 knots on a beam reach in 5 of wind and falls
+//  away in proportion below that, so in 2 knots of wind she makes 2.4:
+//  four tenths of a mile in ten minutes, less than a square.
+function slowRun(scale, step, crewLevel) {
+  var r = COURSE.run([crewLevel ? 'RUN 3' : 'RUN 2', 'course c.txt', 'polar p.txt', 'wind w.grid', 'current c.grid',
+    'start at 2025-05-24T00:00Z', 'step time ' + step + ' heading 5', 'scale wind ' + scale + ' current 1.0', 'round 0.10']
+    .concat(crewLevel ? ['crew k.txt ' + crewLevel] : []).concat(['end']).join('\n'));
+  if (!r.ok) throw new Error('the test wrote a bad run: ' + r.err);
+  return r;
+}
+var drifter = sail({ run: slowRun(0.2, 600) });
+ok('twenty miles on a beam reach in two knots of wind is found', drifter.ok, drifter.why);
+if (drifter.ok) {
+  ok('she makes 2.4 knots, less than a square in a step', Math.abs(drifter.rows[0].stw - 2.4) < 1e-9 &&
+     drifter.rows[0].stw * 600 / 3600 < 0.5, drifter.rows[0].stw.toFixed(3));
+  ok('and it takes the distance over the speed: eight hours and twenty minutes',
+     Math.abs(drifter.summary.hours - 20 / 2.4) < 0.02, drifter.summary.hours.toFixed(4) + ' against ' + (20 / 2.4).toFixed(4));
+  ok('straight there: no tack, no gybe, and the rows are sound',
+     drifter.summary.tacks === 0 && drifter.summary.gybes === 0 && sound(drifter) === 0 && noIdleRows(drifter));
+}
+//  THE SAME REACH AT TEN KNOTS, A MINUTE AT A STEP: a sixth of a mile.
+var minute = sail({ run: slowRun(1, 60) });
+ok('the reach of section 1 at one-minute steps is found, and takes the same two hours',
+   minute.ok && Math.abs(minute.summary.hours - reach.summary.hours) < 0.001,
+   minute.ok ? minute.summary.hours.toFixed(5) + ' against ' + reach.summary.hours.toFixed(5) : minute.why);
+ok('in ten times the rows, all sound', minute.ok && minute.rows.length === 120 && sound(minute) === 0);
+
+//  A DEAD BEAT IN THREE KNOTS OF WIND.  The polar's beat makes 3 knots
+//  good in 5 of wind, so 1.8 in 3: twenty miles in 11.11 hours, at 2.35
+//  knots through the water, four tenths of a mile a step.  Before, she
+//  took 11.49 hours over it with 27 tacks.
+var lightBeat = sail({ wind: east10, run: slowRun(0.3, 600) });
+ok('a dead beat in three knots of wind is found', lightBeat.ok, lightBeat.why);
+if (lightBeat.ok) {
+  ok('and takes the distance over the speed made good, to one part in a hundred',
+     Math.abs(lightBeat.summary.hours - 20 / 1.8) < 0.11, lightBeat.summary.hours.toFixed(4) + ' against ' + (20 / 1.8).toFixed(4));
+  ok('the rows are sound', sound(lightBeat) === 0 && noIdleRows(lightBeat));
+}
+//  ... and with a crew, every one of her tacks is still paid for
+var lightCrew = sail({ wind: east10, crew: hands(300, 300), run: slowRun(0.3, 600, 'hands') });
+ok('in light airs with a crew, every tack is paid in full', lightCrew.ok && paidInFull(lightCrew, 300, 300) === 0 &&
+   sound(lightCrew) === 0 && lightCrew.summary.hours > lightBeat.summary.hours,
+   lightCrew.ok ? lightCrew.summary.hours.toFixed(4) + ' h, ' + lightCrew.summary.tacks + ' tacks' : lightCrew.why);
+
+//  A FINER STEP MUST NOT MAKE HER SLOWER.  The dead beat of section 2
+//  at two and a half minutes a step: a quarter of a mile.  Before, "no
+//  route".  Twenty miles at 4.5 knots made good is 4.44 hours.
+var fineBeat = sail({ wind: east10, run: slowRun(1, 150) });
+ok('the dead beat at two-and-a-half-minute steps is found', fineBeat.ok, fineBeat.why);
+ok('and is no slower than at ten minutes', fineBeat.ok && beat.ok && fineBeat.summary.hours <= beat.summary.hours + 0.01,
+   fineBeat.ok ? fineBeat.summary.hours.toFixed(4) + ' against ' + beat.summary.hours.toFixed(4) : '');
+//  WHAT A VERY FINE STEP COSTS, PINNED SO THAT IT IS SEEN IF IT GROWS.
+//  At one minute a step she sails a tenth of a mile, a fifth of a
+//  square.  The first boat into a square is then decided to the minute
+//  but kept to the half mile, and the first in tends to be the one
+//  footing off for speed, not the one pointing.  She loses about two
+//  parts in a hundred.  A step much shorter than the time to cross a
+//  square buys nothing; ROUTER.md says so.
+var oneMinuteBeat = sail({ wind: east10, run: slowRun(1, 60) });
+ok('the dead beat at one-minute steps is found, within three parts in a hundred of distance over speed made good',
+   oneMinuteBeat.ok && oneMinuteBeat.summary.hours < (20 / 4.5) * 1.03 && oneMinuteBeat.summary.hours > 20 / 4.5 - 0.01,
+   oneMinuteBeat.ok ? oneMinuteBeat.summary.hours.toFixed(4) + ' against ' + (20 / 4.5).toFixed(4) : oneMinuteBeat.why);
+
 if (fail) { console.log('  ' + fail + ' of ' + checks + ' checks failed'); process.exit(1); }
 console.log('  all ' + checks + ' checks');

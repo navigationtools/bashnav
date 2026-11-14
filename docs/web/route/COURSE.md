@@ -245,7 +245,7 @@ berth is in the plan.
 | `wind` | a GRID filename | **Required in RUN 2.** The wind this run was sailed in. |
 | `current` | a GRID filename | **Required in RUN 2.** The stream this run was sailed in. |
 | `start` | `class <name>` or `at <time>` | By class from the course, or a time of your own. |
-| `step` | `time <s> heading <deg>` | The isochrone step and the heading resolution. |
+| `step` | `time <s> heading <deg>` | The isochrone step and the heading resolution. A time step under about five minutes buys nothing, and one too long for the narrowest water finds no route: `ROUTER.md`, "What the search can resolve". |
 | `scale` | `wind <f> current <f>` | 1.0 is as given. `current 0.5` is the OSCAR question. |
 | `layers` | layer names | Which layers of the areas files are live. |
 | `clear` | layer, distance in nm | Per layer. A layer not named takes 0. |

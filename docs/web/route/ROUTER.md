@@ -124,56 +124,94 @@ for nothing; but it did lose something. The 2025 race with free tacks, first
 sailed in 23.70 hours, is now sailed in 23.62. The weather and the boat are the
 same. The earlier figure was the search.
 
-### What the search can resolve
-
-A step is ten minutes, and she can only put the helm down at a step. A square
-is half a mile. So two runs that differ by a minute or two have not been told
-apart, and should not be reported as if they had.
-
-The plainest case is in the 2025 files. The run that must stay a mile off
-three headlands finishes 27 seconds *before* the run that may go where it
-likes. A restriction cannot make a passage faster, so that is the size of what
-the search cannot see, in a passage of nearly a day.
-
-So "no boat with this polar could have done better in this weather" is true
-to within a few minutes, and no closer.
-
-### Her own station is not a rival
+### She may stay in her own square
 
 ```
      one half-mile square of the search
     +-------------------------------+
-    |                               |
-    |    x  where she makes a       |    the step is cut at x and she
-    |    |  station: a mark         |    sails the rest of it from there:
-    |    |  rounded, a place        |    here, four seconds, which does
-    |    v  passed                  |    not take her out of the square
-    |    o  four seconds on         |
+    |                               |     in a light air, or with a short
+    |    o  where she is            |     step, she sails less than half
+    |     \                         |     a mile in a step, and ends it
+    |      o  a step later          |     in the square she began it in
+    |       \                       |
+    |        o  and a step later    |
     +-------------------------------+
 ```
 
-When she makes a station, the step is cut at that point, the point is noted in
-its square so that of two boats that make the station there the first is kept,
-and she sails the rest of the step on from it.
+A square is kept for the first boat to reach it, because a boat that arrives
+later is behind one that was already there. The first version applied that to
+the boat herself.
 
-1. **The rest of a step may be seconds.** Going straight on, she does not leave
-   the square.
-2. **The first version then judged her against her own station.** It had been
-   reached earlier, so her continuation was dropped.
-3. **Only a heading that fell back over the square's edge survived.** She
-   sailed four seconds back the way she came after every station that landed
-   near an edge, and gave the time away.
-4. **Now her own station is not a rival:** a boat's continuation from the
-   place it made a station is never judged against that place. Two boats that
-   make the same station are still judged against each other.
+1. **A step that did not carry her out of her square** left her in a square
+   "reached earlier", by her, the step before. She was dropped.
+2. **So she could only move by leaving her square,** and a boat that sails less
+   than half a mile in a step could not move at all.
+3. **What that did:**
 
-It was found by a passing mark laid exactly on a square's edge (13 November 2026), and
-it was there for marks and circles all along. **Every published run is
-unchanged, row for row**: the four crews, the free run and the headlands run.
-The 2025 run with the four headland passing marks as circles finishes 75 seconds
-sooner with tacks free and 65 seconds sooner with an able crew, which is inside
-what the search can resolve, and is the time those four cuts had been giving
-away.
+   | | before | now |
+   |---|---|---|
+   | 20 miles on a beam reach in 2 knots of wind | no route | 8.33 hours: the distance over the speed |
+   | the same reach at 10 knots, with a 2½-minute step | no route | 2.00 hours, as at ten minutes |
+   | a dead beat in 3 knots of wind | 11.49 hours, 27 tacks | 11.11 hours: the distance over the speed made good |
+   | the 2025 race with a 2½-minute step | 25.47 hours, 185 tacks | 23.53 hours |
+
+4. **Now the boat that holds a square may stay in it,** step after step. A boat
+   from elsewhere that comes into a square reached in an earlier step is still
+   behind, and is still dropped.
+
+**How it was found** (14 November 2026): by asking the one thing a finer step
+must never do, which is make her slower, and sailing the 2025 race at five step
+sizes. **The published runs were not touched by it,** row for row, all twelve:
+at ten minutes in twelve knots and more she crosses three squares a step. A
+race in light airs would have been.
+
+**The station she has just made is a case of the same thing,** found the day
+before by a passing mark laid exactly on a square's edge. The rest of the step
+after a mark or a passing mark may be seconds, too short to leave the square;
+she was judged against her own station and dropped, and only a heading that
+fell back over the square's edge survived. She sailed a few seconds back the
+way she came. The runs with headland circles came out 65 to 75 seconds slow.
+
+### What the search can resolve
+
+A step is ten minutes, and she can only put the helm down at a step. A square
+is half a mile. Those two set what the search can see.
+
+**Between two runs at the same step, a minute or two is not a finding.** The
+plainest case is in the 2025 files. The run that must stay a mile off three
+headlands finishes 27 seconds *before* the run that may go where it likes. A
+restriction cannot make a passage faster, so that is the size of what the
+search cannot tell apart, in a passage of nearly a day.
+
+**The time itself is good to about ten minutes in a day.** The 2025 race, the
+same files, at five steps:
+
+| step | tacks free | an able crew |
+|---|---|---|
+| 10 min (the published runs) | 23.62 h | 23.87 h |
+| 6 min 40 s | 23.51 h | |
+| 5 min | 23.46 h | 23.74 h |
+| 3 min 20 s | 23.49 h | |
+| 2 min 30 s | 23.53 h | 23.90 h |
+
+1. **From ten minutes to five she gains ten minutes,** eight with a crew: she
+   may put the helm down twice as often.
+2. **Below five minutes she gains nothing, and loses a little.** A step is then
+   shorter than a square. The first boat into a square is decided to the
+   minute but kept to the half mile, and the first in tends to be the one
+   footing off for speed, not the one pointing. On a dead beat at one-minute
+   steps that costs two parts in a hundred, and a check pins it.
+3. **A smaller square gains about three minutes** (23.57 hours at a third of a
+   mile), for twice the work.
+
+So "no boat with this polar could have done better in this weather" is true
+to about ten minutes in a day, and no closer. **A step much shorter than the
+time she takes to cross a square buys nothing:** five minutes is as fine as
+is worth asking for with a boat like this one.
+
+**A step can also be too long for the water.** At twenty minutes the 2025 race
+has no route at all: a board of three miles does not fit in the Solent, and the
+router says there was nowhere left she could sail to.
 
 ## Rounding a mark
 
@@ -711,7 +749,9 @@ tack".
 6. **She tacks, and gybes, only at a step.** Ten minutes apart, in these
    runs. A layline is therefore judged to within a few minutes, never
    exactly.
-7. **A minute or two is not a finding.** See "What the search can resolve".
+7. **A minute or two is not a finding, and the time itself is good to about
+   ten minutes in a day.** A step under five minutes buys nothing. See "What
+   the search can resolve".
 8. **The Eddystone reef is not in the files.** The coastline is EMODnet's,
    which does not hold the rocks round the light, and a berth alone does not
    keep a route off them.
@@ -783,6 +823,18 @@ and a check was added for a buoy rounded twice. Twelve of the gate faults that
 still apply were put back against the new code — a circle made where she
 leaves it, a mark allowed to be unwound, a row that makes two stations logged
 as one — and each is caught.
+
+Light airs and fine steps are checked on the same courses. Twenty miles on a
+beam reach in 2 knots of wind is the distance over the speed; the reach at
+one-minute steps takes the two hours it takes at ten; a dead beat in 3 knots of
+wind is the distance over the speed made good, to one part in a hundred, and
+with a crew every tack is still paid for; the dead beat at 2½-minute steps is
+no slower than at ten. Five faults were put in, among them the rule left out,
+the rule kept for a station only, and the square forgetting which boat holds
+it, and each is caught. A variant that let a square stay with its first boat
+whoever else came was tried, could not be told from this one by any check or
+by the 2025 race, and was taken out. Every earlier fault list was then put
+back against the new search, 97 faults in all, and each is still caught.
 
 The crew file's reader is checked in `course.js`, with the other formats:
 seven faults, among them shares that need not add to 100 and a level allowed
