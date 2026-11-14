@@ -378,5 +378,170 @@ refuses('a first line that is none of the versions', RUN.replace('RUN 1', 'RUN 4
   ok('a crew file that did not read is said, in its reader\'s words', !k3.ok && /crew_x\.txt did not load: /.test(k3.err), k3.err);
 })();
 
+//  ---- the passage file: PASSAGE 1, and the run's `passage` line -----
+//  Larry, 13 November 2026: the figures of a lesson live in a passage
+//  file of named plans; each mark has its berth there; a place she
+//  must pass is a `pass` line, a line when it has a compass word and a
+//  circle when it has none; the mark that ends the finish line takes
+//  no berth.  Two invented courses: Alpha then Bravo, finishing apart
+//  from both; and Alpha then Home Buoy, which is one end of the finish.
+(function () {
+  var CRS = C.course(['COURSE 1', 'name An invented course', 'source Invented for this test. Not a real course.',
+    'start line 50.0 -1.0 to 50.01 -1.0 cross west', 'start class All 2025-05-24T10:00Z',
+    'mark Alpha 50.0 -2.0 port', 'mark Bravo 50.5 -2.5 port',
+    'finish line 50.0 -1.1 to 50.01 -1.1 cross east', 'end'].join('\n'));
+  var PIN = C.course(['COURSE 1', 'name An invented course with a pin', 'source Invented for this test. Not a real course.',
+    'start line 50.0 -1.0 to 50.01 -1.0 cross west', 'start class All 2025-05-24T10:00Z',
+    'mark Alpha 50.0 -2.0 port', 'mark Home Buoy 50.0 -1.1 starboard',
+    'finish line 50.0 -1.1 bearing 000 length 0.10 cross east', 'end'].join('\n'));
+  ok('the two invented courses read', CRS.ok && PIN.ok, CRS.err || PIN.err);
+  ok('the mark that is one end of the finish line is found, and only there',
+     C.finishPin(PIN) === 'Home Buoy' && C.finishPin(CRS) === null, C.finishPin(PIN) + ' / ' + C.finishPin(CRS));
+
+  function pf(lines) { return C.passage(['PASSAGE 1'].concat(lines).concat(['end']).join('\n')); }
+  function shape(plan) {
+    return plan.items.map(function (it) { return it.kind.charAt(0) + ':' + it.name; }).join(' | ');
+  }
+  var NEAR = ['plan near', 'pass Near Head 50.1 -1.5 within 2.0', 'mark Alpha berth 0.15',
+              'pass Far Head 50.3 -2.2 south within 1.5', 'mark Bravo berth 0.10', 'pass Near Head 50.1 -1.5 within 2.0'];
+  var BARE = ['plan bare', 'mark Alpha berth 0.20', 'mark Bravo berth 0.05'];
+  var p = pf(NEAR.concat(BARE));
+  ok('a passage file with two plans reads', p.ok, p.err);
+  if (p.ok) {
+    ok('its plans are kept in the order written', p.order.join(' ') === 'near bare', p.order.join(' '));
+    ok('a plan keeps its marks and passes in the order written',
+       shape(p.plans.near) === 'p:Near Head | m:Alpha | p:Far Head | m:Bravo | p:Near Head', shape(p.plans.near));
+    ok('each mark keeps its own berth', p.plans.near.items[1].berth === 0.15 && p.plans.near.items[3].berth === 0.1 &&
+       p.plans.bare.items[0].berth === 0.2 && p.plans.bare.items[1].berth === 0.05);
+    ok('a pass with a compass word keeps it, and one without has none',
+       p.plans.near.items[2].dir === 'south' && p.plans.near.items[2].nm === 1.5 && p.plans.near.items[0].dir === null);
+    ok('a pass keeps its point, and a name with spaces', p.plans.near.items[0].name === 'Near Head' &&
+       p.plans.near.items[0].lat === 50.1 && p.plans.near.items[0].lon === -1.5 && p.plans.near.items[0].nm === 2);
+    ok('every compass word reads', ['north', 'east', 'south', 'west'].every(function (d) {
+      var q = pf(['plan a', 'pass X 50.1 -1.5 ' + d + ' within 1.0']);
+      return q.ok && q.plans.a.items[0].dir === d;
+    }));
+  }
+
+  //  what the reader refuses, each with what it says
+  function no(what, text, frag) {
+    var r = typeof text === 'string' ? C.passage(text) : pf(text);
+    ok(what, !r.ok && r.err.indexOf(frag) >= 0, r.ok ? 'it read' : r.err);
+  }
+  no('an empty file', '', 'empty');
+  no('a first line that is not PASSAGE 1', 'PASSAGE 2\nplan a\nmark Alpha berth 0.10\nend\n', 'the first line must be "PASSAGE 1"');
+  no('a file cut short', 'PASSAGE 1\nplan a\nmark Alpha berth 0.10\n', 'cut short');
+  no('anything after end', 'PASSAGE 1\nplan a\nmark Alpha berth 0.10\nend\nplan b\n', 'nothing may follow');
+  no('a file with no plan', [], 'at least one plan');
+  no('a mark before any plan', ['mark Alpha berth 0.10', 'plan a', 'mark Bravo berth 0.10'], 'belongs to a plan');
+  no('a plan written twice', ['plan a', 'mark Alpha berth 0.10', 'plan a', 'mark Alpha berth 0.10'], 'written twice');
+  no('a plan with nothing in it', ['plan a', 'plan b', 'mark Alpha berth 0.10'], '"a" has nothing in it');
+  no('a last plan with nothing in it', ['plan a', 'mark Alpha berth 0.10', 'plan b'], '"b" has nothing in it');
+  no('a plan name of two words', ['plan two miles', 'mark Alpha berth 0.10'], 'one word');
+  no('a berth under a twentieth of a mile', ['plan a', 'mark Alpha berth 0.04'], 'from 0.05 to 2.00');
+  no('a berth over two miles', ['plan a', 'mark Alpha berth 2.01'], 'from 0.05 to 2.00');
+  no('a berth to three decimals', ['plan a', 'mark Alpha berth 0.125'], 'at most two decimals');
+  no('a berth with no figure before the point', ['plan a', 'mark Alpha berth .15'], 'at most two decimals');
+  no('a berth that is not last on its line', ['plan a', 'mark Alpha berth 0.10 port'], 'with the berth last');
+  no('a mark with no name', ['plan a', 'mark berth 0.10'], 'needs the name');
+  ok('the two ends of the berth\'s range are allowed', pf(['plan a', 'mark Alpha berth 0.05', 'mark Bravo berth 2.00']).ok);
+  no('a pass with a bearing for a compass word', ['plan a', 'pass X 50.1 -1.5 southwest within 1.0'],
+     '"southwest" is not north, east, south or west');
+  no('a pass that says "off"', ['plan a', 'pass X 50.1 -1.5 off 1.0'], 'a pass is "pass <name> <lat> <lon> within <nm>"');
+  no('a pass of no distance', ['plan a', 'pass X 50.1 -1.5 within 0'], 'must be positive');
+  no('a pass with no name', ['plan a', 'pass 50.1 -1.5 south within 1.0'], 'needs a name');
+  no('a pass in Africa', ['plan a', 'pass X 150.1 -1.5 within 1.0'], 'not between -90 and 90');
+  no('a gate line, which a passage file does not have', ['plan a', 'gate X 50.1 -1.5 within 1.0'], 'unknown line "gate"');
+
+  //  THE RUN'S `passage` LINE, AND ONE PLACE FOR A BERTH
+  function runOf(lines, ver, noRound) {
+    return C.run([ver || 'RUN 3', 'course c.txt', 'polar p.txt', 'wind w.grid', 'current s.grid', 'start class All',
+                  'step time 600 heading 5'].concat(noRound ? [] : ['round 0.10']).concat(lines).concat(['end']).join('\n'));
+  }
+  var r = runOf(['passage f.txt near'], 'RUN 3', true);
+  ok('a run that names a passage and no round reads', r.ok && r.passage.file === 'f.txt' && r.passage.plan === 'near' &&
+     r.round === null, r.err);
+  var r2 = runOf(['passage f.txt near'], 'RUN 2', true);
+  ok('passage is a RUN 3 line: a RUN 2 file with one is refused, and told which version',
+     !r2.ok && r2.err === 'passage is a RUN 3 line; this file says RUN 2', r2.err);
+  var both = runOf(['passage f.txt near']);
+  ok('a run that names a passage and says round as well is refused, and both lines are named',
+     !both.ok && /names a passage \(line 9\), which gives each mark its own berth, so it may not also say "round"/.test(both.err) &&
+     both.line === 8, both.err + ' at line ' + both.line);
+  var neither = runOf([], 'RUN 3', true);
+  ok('a run with neither is refused, and told it may have either',
+     !neither.ok && /"round <nm>", or name a passage/.test(neither.err), neither.err);
+  ok('passage takes a file and a plan', !runOf(['passage f.txt'], 'RUN 3', true).ok &&
+     /"passage <file> <plan>"/.test(runOf(['passage f.txt'], 'RUN 3', true).err));
+  ok('a run sails one passage', /sails one passage/.test(runOf(['passage f.txt a', 'passage f.txt b'], 'RUN 3', true).err));
+  var ml = runOf(['passage f.txt near', 'mark Alpha'], 'RUN 3', true);
+  ok('a mark line in a run is refused, and told where marks are placed now',
+     !ml.ok && /a mark is placed in a passage file, with its berth/.test(ml.err), ml.err);
+
+  //  A GATE IN A RUN IS READ, AND REFUSED BY THE CHECK
+  var gr = runOf(['gate Near Head 50.1 -1.5 within 2.0'], 'RUN 2');
+  ok('a RUN 2 gate still reads, so the file says what it means', gr.ok && gr.gates[0].rule === 'within', gr.err);
+  var gk = C.check(gr, CRS, []);
+  ok('and the check refuses it, naming its line and what replaced it',
+     !gk.ok && /^line 9 is a gate, which a run no longer sails: a place she must pass is "pass/.test(gk.err), gk.err);
+  ok('a run that only keeps off things still passes the check',
+     C.check(runOf(['avoid The Race 50.2 -1.8 off 3.0']), CRS, []).ok);
+
+  //  THE PASSAGE AGAINST THE COURSE
+  function chk(lines, course, plan) {
+    var q = pf(lines);
+    if (!q.ok) return { ok: false, err: 'the test wrote a bad passage: ' + q.err };
+    return C.checkPassage(runOf(['passage f.txt ' + (plan || 'a')], 'RUN 3', true), q, course || CRS);
+  }
+  ok('a run with no passage needs no passage check', C.checkPassage(runOf([]), null, CRS).ok);
+  var k = chk(NEAR.concat(BARE), CRS, 'near');
+  ok('both plans of the good file pass the check against the course', k.ok, k.err);
+  k = chk(NEAR, CRS, 'far');
+  ok('a plan the file does not have is named, with the ones it does',
+     !k.ok && /plan "far", which f\.txt does not have; it has near/.test(k.err), k.err);
+  k = C.checkPassage(runOf(['passage f.txt a'], 'RUN 3', true), null, CRS);
+  ok('a passage file that was not loaded is said', !k.ok && /f\.txt, which was not loaded/.test(k.err), k.err);
+  k = chk(['plan a', 'mark Alpha berth 0.10']);
+  ok('a plan must place EVERY mark: one left out cannot be told from one forgotten',
+     !k.ok && /plan "a" does not place "Bravo"; every mark of the course appears in every plan/.test(k.err), k.err);
+  k = chk(['plan a', 'mark Bravo berth 0.10', 'mark Alpha berth 0.10']);
+  ok('marks out of the course\'s order are refused, at the line that is out of turn',
+     !k.ok && /^f\.txt, line 3: plan "a" places "Bravo" where the course rounds "Alpha" next/.test(k.err), k.err);
+  k = chk(['plan a', 'mark Alpha berth 0.10', 'mark Alpha berth 0.10', 'mark Bravo berth 0.10']);
+  ok('a mark placed twice where the course rounds it once is refused at the second',
+     !k.ok && /line 4: plan "a" places "Alpha" where the course rounds "Bravo" next/.test(k.err), k.err);
+  k = chk(['plan a', 'mark Alpha berth 0.10', 'mark Bravo berth 0.10', 'mark Bravo berth 0.10']);
+  ok('and one placed again after the last is refused',
+     !k.ok && /line 5: plan "a" places "Bravo" again, after every mark of the course/.test(k.err), k.err);
+  //  A COURSE THAT ROUNDS ONE BUOY TWICE: Alpha, Bravo, Alpha.  Its plan
+  //  places Alpha twice, and may give it a different berth each time.
+  var TWICE = C.course(['COURSE 1', 'name An invented course round one buoy twice', 'source Invented for this test. Not a real course.',
+    'start line 50.0 -1.0 to 50.01 -1.0 cross west', 'start class All 2025-05-24T10:00Z',
+    'mark Alpha 50.0 -2.0 port', 'mark Bravo 50.5 -2.5 port', 'mark Alpha 50.0 -2.0 port',
+    'finish line 50.0 -1.1 to 50.01 -1.1 cross east', 'end'].join('\n'));
+  k = chk(['plan a', 'mark Alpha berth 0.10', 'mark Bravo berth 0.10', 'mark Alpha berth 0.30'], TWICE);
+  ok('a course that rounds one buoy twice has a plan that places it twice', TWICE.ok && k.ok, TWICE.err || k.err);
+  k = chk(['plan a', 'mark Alpha berth 0.10', 'mark Bravo berth 0.10'], TWICE);
+  ok('and one that places it once is refused', !k.ok && /does not place "Alpha"/.test(k.err), k.err);
+  k = chk(['plan a', 'mark Alpha berth 0.10', 'mark Charlie berth 0.10', 'mark Bravo berth 0.10']);
+  ok('a mark the course does not have is named, with the ones it does',
+     !k.ok && /the course has no mark "Charlie"; it has Alpha, Bravo/.test(k.err), k.err);
+  k = chk(['plan a', 'mark Alpha', 'mark Bravo berth 0.10']);
+  ok('a mark with no berth is refused', !k.ok && /line 3: plan "a" gives Alpha no berth/.test(k.err), k.err);
+  k = chk(['plan good', 'mark Alpha berth 0.10', 'mark Bravo berth 0.10', 'plan bad', 'mark Alpha berth 0.10'], CRS, 'good');
+  ok('a fault in a plan the run does not sail is refused all the same',
+     !k.ok && /plan "bad" does not place "Bravo"/.test(k.err), k.err);
+  //  the mark that ends the finish line
+  k = chk(['plan a', 'mark Alpha berth 0.10', 'mark Home Buoy'], PIN);
+  ok('the mark that ends the finish line is placed with no berth', k.ok, k.err);
+  k = chk(['plan a', 'mark Alpha berth 0.10', 'mark Home Buoy berth 0.10'], PIN);
+  ok('a berth on the mark that ends the finish line is refused, and told why',
+     !k.ok && /Home Buoy is the end of the finish line, and takes no berth: a berth round it would cover the line she must cross/.test(k.err), k.err);
+  k = chk(['plan a', 'mark Alpha berth 0.10', 'mark Home Buoy', 'pass Late 50.0 -1.3 within 1.0'], PIN);
+  ok('nothing may come after it', !k.ok && /nothing may come after Home Buoy, which is the end of the finish line/.test(k.err), k.err);
+  k = chk(['plan a', 'mark Alpha berth 0.10', 'pass Last 50.0 -1.3 within 1.0', 'mark Home Buoy'], PIN);
+  ok('a pass on the way to it is fine', k.ok, k.err);
+})();
+
 if (fail) { console.log('  ' + fail + ' of ' + checks + ' checks failed'); process.exit(1); }
 console.log('  all ' + checks + ' checks');

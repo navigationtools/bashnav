@@ -22,14 +22,15 @@
 //  THIS IS A BETA (Larry, 13 November 2026). The router is handed to
 //  the course to be tried before it is finished, and the report says so
 //  on its first line together with the two things most likely to
-//  mislead. With no crew: a tack costs it nothing, and gates are
-//  refused rather than sailed. With a crew: every tack costs the crew's
-//  average, so no one tack is the bad one, and gates are refused. See
-//  "What it does not do yet" in ROUTER.md.
+//  mislead. With no crew: a tack costs it nothing, so the number of
+//  tacks means nothing. With a crew: every tack costs the crew's
+//  average, so no one tack is the bad one. See "What it does not do
+//  yet" in ROUTER.md.
 //
-//  THE ORDER, now that a run may name a crew: the run; the course, the
-//  areas, the two grids, the polar and the crew file; the run checked
-//  against the course, the grids and the crew file; then the router.
+//  THE ORDER, now that a run may name a crew and a passage: the run;
+//  the course, the areas, the two grids, the polar, the crew file and
+//  the passage file; the run checked against the course, the grids, the
+//  crew file, and its passage against the course; then the router.
 //
 //  EVERY REFUSAL NAMES THE FILE. A run names six or more files, and
 //  "rows 18 but 17 found" is no use without knowing which of them it
@@ -111,6 +112,14 @@ var SAIL = (function () {
       if (got.bad) return got.bad;
       crew = got.v;
     }
+    //  the passage, when the run names one: the plan she sails, and the
+    //  berth of each mark in it
+    var passage = null;
+    if (run.passage) {
+      got = one('passage', run.passage.file, C.passage);
+      if (got.bad) return got.bad;
+      passage = got.v;
+    }
 
     //  the run against the course and the water it names ...
     var chk = C.check(run, course, areas);
@@ -122,9 +131,13 @@ var SAIL = (function () {
     //  ... and against its crew file: the level it asks for is in it
     chk = C.checkCrew(run, crew);
     if (!chk.ok) return no('check', runName + ': ' + chk.err);
+    //  ... and its passage against the course: every mark in every plan,
+    //  in order, each with a berth but the one that ends the finish line
+    chk = C.checkPassage(run, passage, course);
+    if (!chk.ok) return no('check', runName + ': ' + chk.err);
 
     return { ok: true, runName: runName, run: run, course: course, areas: areas,
-             wind: wind, current: current, polar: polar, crew: crew };
+             wind: wind, current: current, polar: polar, crew: crew, passage: passage };
   }
 
   // ---------------------------------------------------------------
@@ -136,7 +149,7 @@ var SAIL = (function () {
     if (!env.ok) return env;
     var route = X.run({ course: env.course, run: env.run, areas: env.areas,
                         wind: env.wind, current: env.current, polar: env.polar,
-                        crew: env.crew }, opt);
+                        crew: env.crew, passage: env.passage }, opt);
     if (!route.ok) return no('route', runName + ': ' + route.why);
     var log = L.log(route.rows);
     if (!log.ok) return no('log', runName + ': ' + log.err);
@@ -168,12 +181,12 @@ var SAIL = (function () {
   var BETA_FREE = [
     'BETA. This is the fastest passage this polar could make in this forecast:',
     'a bound and a shape, not a prediction and not advice. A tack costs the',
-    'router nothing, so do not believe how often she tacks. Gates are not sailed.'
+    'router nothing, so do not believe how often she tacks.'
   ];
   var BETA_CREW = [
     'BETA. This is the fastest passage this polar and this crew could make in',
     'this forecast: a bound and a shape, not a prediction and not advice. Every',
-    'tack costs the crew\'s average; no one tack is the bad one. Gates are not sailed.'
+    'tack costs the crew\'s average; no one tack is the bad one.'
   ];
 
   //  one manoeuvre's lines: how many, what each costs, what that came to,
@@ -193,6 +206,13 @@ var SAIL = (function () {
     out.push('');
     out.push(s.title);
     out.push('  run       ' + s.runName);
+    //  THE BOAT AND THE BERTHS, so that the speeds below are read as this
+    //  polar's (PILOT, 13 November 2026: "9.2 kt through the water" is
+    //  read as a fact about boats unless the polar is named) and the
+    //  route can be sailed again from what is printed
+    out.push('  boat      ' + s.run.polar + ' (every speed below is this polar\'s)');
+    if (sum.passage) out.push('  passage   plan ' + sum.passage.plan + ', from ' + sum.passage.file);
+    else out.push('  berth     ' + sum.round.toFixed(2) + ' nm round every mark (the run\'s "round")');
     out.push('  start     ' + sum.start);
     out.push('  finish    ' + sum.finish + '   ' + span(sum.hours * 60) +
              ' (' + sum.hours.toFixed(2) + ' hours)');
@@ -209,9 +229,15 @@ var SAIL = (function () {
       out.push('  tacks     ' + sum.tacks + ', and ' + sum.gybes + (sum.gybes === 1 ? ' gybe' : ' gybes') +
                ', each costing nothing: the run names no crew');
     }
-    (sum.rounded || []).forEach(function (r) {
-      out.push('  rounded   ' + r.mark + ' at ' + r.at);
-    });
+    //  the marks she rounded and the places she passed, in the order
+    //  she made them, each with the figure it was sailed to
+    var made = (sum.rounded || []).map(function (r) {
+      return { at: r.at, say: '  rounded   ' + r.mark + ', berth ' + r.berth.toFixed(2) + ' nm, at ' + r.at };
+    }).concat((sum.passed || []).map(function (p) {
+      return { at: p.at, say: '  passed    ' + p.name + ', ' + (p.dir ? p.dir + ' ' : '') + 'within ' + p.nm + ' nm, at ' + p.at };
+    }));
+    made.sort(function (a, b) { return a.at < b.at ? -1 : a.at > b.at ? 1 : 0; });
+    made.forEach(function (m) { out.push(m.say); });
     //  what the run asked her to keep off, so that a report can be read
     //  without the run file beside it
     (s.run.gates || []).forEach(function (g) {

@@ -285,6 +285,7 @@ var PASSAGE = (function () {
   //    'board'    tack, heading, offWind, did, turn, ends, + the measures
   //    'short'    boards (how many), + the measures
   //    'rounded'  ms, name, elapsedMinutes
+  //    'passed'   ms, name, elapsedMinutes      (a pass of the plan)
   //    'finish'   ms, elapsedMinutes
   //  'board' and 'short' lines carry changes[] and since (the time of
   //  the line they are compared with).
@@ -356,8 +357,14 @@ var PASSAGE = (function () {
         if (line.ends === 'finish') {
           lines.push({ kind: 'finish', ms: te, elapsedMinutes: el });
         } else {
-          lines.push({ kind: 'rounded', ms: te, elapsedMinutes: el,
-                       name: String(line.ends).replace(/^rounded\s+/, '') });
+          //  A row may end by making more than one station - a mark
+          //  rounded inside the circle of the gate beyond it - and each
+          //  has its own entry, in the order she made them.
+          String(line.ends).split('; ').forEach(function (e) {
+            var passed = /^passed\s+/.test(e);
+            lines.push({ kind: passed ? 'passed' : 'rounded', ms: te, elapsedMinutes: el,
+                         name: e.replace(/^(rounded|passed)\s+/, '') });
+          });
         }
       }
     }
@@ -454,6 +461,10 @@ var PASSAGE = (function () {
       }
       if (l.kind === 'rounded') {
         out.push(t + 'ROUNDED ' + l.name + '  ' + span(l.elapsedMinutes) + ' from the start');
+        return;
+      }
+      if (l.kind === 'passed') {
+        out.push(t + 'PASSED ' + l.name + '  ' + span(l.elapsedMinutes) + ' from the start');
         return;
       }
       var head;

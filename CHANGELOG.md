@@ -1,5 +1,105 @@
 # Changelog
 
+## The passage file: a plan for each lesson, a berth for each mark, and passing marks
+
+**What.** A run may name a passage file and one of its plans. A plan is the
+passage written down the page as it is sailed: the marks of the course in
+their order, each with its own berth, and the places she must pass among them.
+
+    PASSAGE 1
+    plan two-miles
+      pass  St Albans Head  50.57868 -2.05644  south within 2.0
+      pass  Portland Bill   50.51353 -2.45676  south within 2.0
+      mark  Eddystone Lt House                 berth 0.15
+      pass  Portland Bill   50.51353 -2.45676  south within 2.0
+      pass  St Albans Head  50.57868 -2.05644  south within 2.0
+      mark  North Head Buoy
+    end
+
+and in the run: `passage passage_2025_v1.txt two-miles`.
+
+**Why.** Larry asked whether PILOT would want to set these figures as part of
+an analysis. A lesson is a comparison (two miles off, or one), so a variant
+should be cheap to write and plain to read. Three ways were put to PILOT and
+the XO: in the run file, in a passage file of named plans, or passed in when
+the run is sailed. Larry chose the passage file. Nothing is passed in at
+sailing time, because a run is one experiment and must be sailed again from
+its files alone. The berth for each mark is PILOT's proposal: the Eddystone
+wants more than a buoy.
+
+**What Larry ruled, 13 November 2026.**
+
+1. **The course keeps the sailing instructions' words for a mark:** `port`,
+   `starboard`, `either`.
+2. **A place passed on one side takes a compass word,** `north`, `east`, `south`
+   or `west`. It is then a line from its point, that many miles that way, which
+   she must cross. Without one it is a circle she must come into, as before.
+   Words, not symbols: `<<` and `>>` are easy to swap at a glance.
+3. **A berth is nautical miles,** at most two decimals, from 0.05 to 2.00. It
+   means what `round` means: never nearer, at any time.
+4. **The buoy at the end of the finish line takes no berth.** The 2025 line
+   runs only 0.10 nm north from North Head Buoy, so a berth of 0.10 round it
+   would cover the whole line but its far tip. A berth written there is refused,
+   with the reason.
+5. **Red, green and white belong in the drawings,** as sidelights, and not in
+   the files: buoyage turns the colours round in IALA B.
+6. **The line is `pass`, and the thing is a passing mark.** "Gate" was taken
+   twice: B15 is the `tidal_gate`, and to a racing sailor a gate is two marks
+   to sail between.
+
+**What it affects.**
+
+1. **A run with no passage sails exactly as before, row for row,** with
+   `round`, one berth for every mark. Every published 2025 run was sailed again
+   and compared row by row.
+2. **A run that names a passage may not also say `round`;** both lines are
+   named in the refusal.
+3. **A run's `gate` line is read and refused when sailed,** with a message
+   naming its line and what replaced it. The `mark` line the held gate work
+   added to RUN 3 is gone, and a run that has one is told where marks are
+   placed now. That work was never committed. This replaces it, and keeps its
+   finding that a mark once rounded stays rounded.
+4. **Every plan in the file is checked against the course,** not only the one
+   sailed. Every mark is checked, in its order, matched one by one, so a course
+   that rounds one buoy twice has a plan that places it twice. Every refusal
+   names the file and the line.
+5. **The report names the boat's polar,** so that a speed is read as that
+   polar's (PILOT asked), and **the plan, each mark's berth, and each pass's
+   compass word and distance**, so a result can be sailed again from what it
+   prints (the XO asked).
+
+**A fault in the search, found by a line pass, and there all along.** When she
+makes a station the step is cut there, the place is noted in its square, and
+she sails the rest of the step on from it. When the rest was seconds, too short
+to leave the square, her continuation was judged against her own station and
+dropped. Only a heading that fell back over the square's edge survived, so she
+sailed a few seconds back the way she came. Her own station is no longer a
+rival. **Every published run is unchanged, row for row.** The 2025 run with
+the four headland passing marks as circles finishes 75 seconds sooner with tacks free, and 65
+with an able crew.
+
+**The 2025 race, from PILOT's passage file:**
+
+| plan | tacks free | an able crew |
+|---|---|---|
+| `as-sailed`, Eddystone berth 0.15 | 09:37:54Z | 09:52:50Z |
+| `two-miles`, the four passing marks as lines | 09:44:23Z | 10:04:03Z |
+
+With the lines she passes Portland Bill 0.31 nm off: close under the Bill is
+where the line is quickest to cross, and only the coastline's clearance holds
+her off. The Portland Race and the Eddystone reef are not in the files.
+
+**Checked.** 26 faults were put in one at a time across course.js, router.js
+and sail.js, and each is caught. One got past every check at first, which
+exposed the name-lookup fault above. The 12 earlier gate faults that still
+apply, the 33 tack-cost faults, the 19 run-command faults and the router's
+first 7 were all put back against the new code, and each is caught. 683 checks
+in the eight files.
+
+**Not done.** A mark that may be left on either hand is still refused. A pass
+has no time window. A line between two given points is not yet a form. The
+Eddystone reef is not in an areas file.
+
 ## A tack costs something, and a crew decides how much
 
 **What.** A run may now name a crew, and the router charges for every tack

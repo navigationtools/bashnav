@@ -1,5 +1,5 @@
 // =====================================================================
-//  COURSE 1, AREAS 1, RUN 3, CREW 1 -- the files the router reads
+//  COURSE 1, AREAS 1, RUN 3, CREW 1, PASSAGE 1 -- the files the router reads
 //  besides the grids.  RUN 1 is still read, and still means what it
 //  meant: see the RUN section below for what RUN 2 adds and why it
 //  could not be an addition to RUN 1.
@@ -307,7 +307,7 @@ var COURSE = (function () {
       version: 0, course: null, areas: [], polar: null, start: null,
       step: null, scale: { wind: 1, current: 1 },
       layers: [], clear: {}, round: null, gates: [],
-      wind: null, current: null, crew: null
+      wind: null, current: null, crew: null, passage: null, roundLine: 0
     };
     if (!L.length) return bad(0, 'the file is empty');
     if (L[0].s === 'RUN 1') r.version = 1;
@@ -409,7 +409,7 @@ var COURSE = (function () {
       if (k === 'round') {
         v = num(w[1]);
         if (v === null || v <= 0) return bad(ln, 'round must be a positive distance in nautical miles');
-        r.round = v; continue;
+        r.round = v; r.roundLine = ln; continue;
       }
 
       if (k === 'gate') {
@@ -428,9 +428,36 @@ var COURSE = (function () {
         var gp = pos(w, w.length - 4, ln); if (!gp.ok) return gp;
         var gn = w.slice(1, w.length - 4).join(' ');
         if (!gn) return bad(ln, 'a gate needs a name');
-        if (r.version >= 2) r.gates.push({ name: gn, lat: gp.lat, lon: gp.lon, rule: 'within', nm: off });
+        //  STILL READ, NO LONGER SAILED.  A RUN 2 file with a gate in it
+        //  is read, so that it says what it means; check() then refuses
+        //  it and names what replaced it: a `pass` line in a passage
+        //  file (Larry, 13 November 2026), where the places she must
+        //  pass sit beside the marks and their berths.
+        if (r.version >= 2) r.gates.push({ name: gn, lat: gp.lat, lon: gp.lon, rule: 'within', nm: off, line: ln });
         else r.gates.push({ name: gn, lat: gp.lat, lon: gp.lon, off: off });
         continue;
+      }
+
+      //  THE PASSAGE: WHICH PLAN, OF WHICH PASSAGE FILE, THIS RUN SAILS
+      //  (Larry, 13 November 2026).  The figures of a lesson -- each
+      //  mark's berth, and the places she must pass on the way -- live
+      //  in a passage file of named plans, so that "two miles off" and
+      //  "one mile off" are two plans in one file and not two copies of
+      //  a run.  A RUN 3 line, for the reason `crew` is: a reader that
+      //  skipped it would sail the run with no berths and no passes and
+      //  report the result as this run.
+      if (k === 'passage') {
+        if (r.version < 3) return bad(ln, 'passage is a RUN 3 line; this file says RUN ' + r.version);
+        if (w.length !== 3) return bad(ln, 'passage is "passage <file> <plan>"');
+        if (r.passage) return bad(ln, 'a run sails one passage');
+        r.passage = { file: w[1], plan: w[2], line: ln }; continue;
+      }
+      //  Where a mark falls among the places she passes is said in the
+      //  plan, beside its berth.  The line is named, because the shape
+      //  of it was shown before the passage file was settled.
+      if (k === 'mark') {
+        return bad(ln, 'a mark is placed in a passage file, with its berth: "mark <name> berth <nm>" in a plan, ' +
+                       'and the run names the plan with "passage <file> <plan>"');
       }
 
       if (k === 'end') { ended = true; continue; }
@@ -442,7 +469,20 @@ var COURSE = (function () {
     if (!r.polar) return bad(0, 'a run must name a polar -- the boat belongs to the run, not to the course');
     if (!r.start) return bad(0, 'a run must choose a start');
     if (!r.step) return bad(0, 'a run must give its time and heading steps');
-    if (r.round === null) return bad(0, 'a run must say how far off she rounds a mark: round <nm>');
+    //  ONE PLACE FOR A BERTH.  A run that names a passage has each
+    //  mark's berth from its plan; a `round` beside it would be a
+    //  second figure for the same thing, and a reader could not tell
+    //  which was sailed.  So the two together are refused, and the
+    //  refusal names both lines.  A run with no passage says `round`,
+    //  one berth for every mark, exactly as before.
+    if (r.passage) {
+      if (r.round !== null) {
+        return bad(r.roundLine, 'this run names a passage (line ' + r.passage.line + '), which gives each mark its own berth, ' +
+                                'so it may not also say "round": take one of the two out');
+      }
+    } else if (r.round === null) {
+      return bad(0, 'a run must say how far off she rounds a mark: "round <nm>", or name a passage that gives each mark its berth');
+    }
     //  BOTH GRIDS, IN RUN 2, AND NOT OPTIONALLY. A run that names its boat
     //  and its start but not its weather is a route nobody can reproduce.
     if (r.version >= 2 && !r.wind) return bad(0, 'a RUN 2 file must name its wind grid: wind <file>');
@@ -482,6 +522,17 @@ var COURSE = (function () {
       if (!have[run.layers[i]]) {
         return { ok: false, err: 'the run uses layer "' + run.layers[i] +
                  '", which none of its areas files holds' };
+      }
+    }
+
+    //  A GATE IN A RUN IS NOT SAILED.  A place she must pass is a `pass`
+    //  line in a passage file (Larry, 13 November 2026), in its place
+    //  among the marks.  Refused rather than ignored: a gate ignored is
+    //  a route that leaves out the thing the run was written to ask.
+    for (i = 0; i < (run.gates || []).length; i++) {
+      if (run.gates[i].rule === 'within') {
+        return { ok: false, err: 'line ' + run.gates[i].line + ' is a gate, which a run no longer sails: a place she must pass ' +
+                 'is "pass <name> <lat> <lon> within <nm>" in a passage file, and the run names it with "passage <file> <plan>"' };
       }
     }
     return { ok: true };
@@ -645,9 +696,185 @@ var COURSE = (function () {
     return { ok: true };
   }
 
+  // ---- PASSAGE 1 ---------------------------------------------------
+  //
+  //  The figures a lesson changes, in one file a learner can open
+  //  (Larry, 13 November 2026; the berth per mark is PILOT's proposal).
+  //
+  //      PASSAGE 1
+  //      plan two-miles
+  //        pass  St Albans Head 50.57868 -2.05644 south within 2.0
+  //        mark  Eddystone Lt House berth 0.15
+  //        mark  North Head Buoy
+  //      end
+  //
+  //  A plan is the passage sailed down the page: the marks of the
+  //  course in their order, each with its berth, and the places she
+  //  must pass among them.  A run names one plan; a lesson that asks
+  //  "two miles off, or one?" is two plans in one file.
+  //
+  //  THE WORDS.  The course file keeps the sailing instructions' own
+  //  words for a mark, port, starboard or either, and this file does
+  //  not repeat them.  A place passed on one side takes a compass word,
+  //  north, east, south or west, and is then a LINE from its point, that
+  //  many miles that way, which she must cross: "south within 2.0" at a
+  //  headland is a line two miles south from it.  A pass with no
+  //  compass word is a circle she must come into, on either side.
+  //
+  //  A BERTH is nautical miles, at most two decimals, from 0.05 to 2.00:
+  //  close under a buoy to well off a reef.  It means what `round`
+  //  means: she rounds on the right side and is never nearer, at any
+  //  time.  A hundredth is the finest figure a chart gives a berth to.
+  var PLAN = /^[A-Za-z0-9][A-Za-z0-9_.-]*$/;
+  function berthOf(w) {
+    if (!/^[0-9]+(\.[0-9]{1,2})?$/.test(w)) return null;
+    return parseFloat(w);
+  }
+  function parsePassage(text) {
+    var L = lines(text), i, p = { version: 0, plans: {}, order: [] }, cur = null, ended = false;
+    if (!L.length) return bad(0, 'the file is empty');
+    if (L[0].s !== 'PASSAGE 1') return bad(L[0].n, 'the first line must be "PASSAGE 1"');
+    p.version = 1;
+    for (i = 1; i < L.length; i++) {
+      var ln = L[i].n, w = L[i].w, k = w[0];
+      if (ended) return bad(ln, 'nothing may follow "end"');
+      if (k === 'end') {
+        if (w.length !== 1) return bad(ln, '"end" stands alone on its line');
+        ended = true; continue;
+      }
+      if (k === 'plan') {
+        if (w.length !== 2 || !PLAN.test(w[1])) {
+          return bad(ln, 'a plan is "plan <name>", the name one word of letters, figures, "-", "_" or "."');
+        }
+        if (p.plans.hasOwnProperty(w[1])) return bad(ln, 'the plan "' + w[1] + '" is written twice');
+        if (cur && !cur.items.length) return bad(cur.line, 'the plan "' + cur.name + '" has nothing in it');
+        cur = { name: w[1], line: ln, items: [] };
+        p.plans[w[1]] = cur; p.order.push(w[1]); continue;
+      }
+      if (k !== 'mark' && k !== 'pass') return bad(ln, 'unknown line "' + k + '" in a PASSAGE 1 file');
+      if (!cur) return bad(ln, 'a ' + k + ' line belongs to a plan: write "plan <name>" above it');
+
+      if (k === 'mark') {
+        var berth = null, nw = w.slice(1);
+        if (w.length >= 3 && w[w.length - 2] === 'berth') {
+          berth = berthOf(w[w.length - 1]);
+          if (berth === null) return bad(ln, 'a berth is nautical miles with at most two decimals, as "berth 0.15"');
+          if (berth < 0.05 || berth > 2) {
+            return bad(ln, 'a berth is from 0.05 to 2.00 nautical miles, and this one is ' + w[w.length - 1]);
+          }
+          nw = w.slice(1, w.length - 2);
+        } else if (w.indexOf('berth') > 0) {
+          return bad(ln, 'a mark line is "mark <name> berth <nm>", with the berth last');
+        }
+        var mn = nw.join(' ');
+        if (!mn) return bad(ln, 'mark needs the name of a mark of the course');
+        //  A mark may be placed more than once: a course may round the
+        //  same buoy twice.  Whether this is the right mark here is the
+        //  course's to say, and checkPassage() holds it to the course.
+        cur.items.push({ kind: 'mark', name: mn, berth: berth, line: ln }); continue;
+      }
+
+      //  pass <name> <lat> <lon> [north|east|south|west] within <nm>
+      if (w.length < 6 || w[w.length - 2] !== 'within') {
+        return bad(ln, 'a pass is "pass <name> <lat> <lon> within <nm>", with north, east, south or west ' +
+                       'before "within" when she must pass on one side');
+      }
+      var nm = num(w[w.length - 1]);
+      if (nm === null || nm <= 0) return bad(ln, 'the distance of a pass must be positive');
+      var dir = null, at = w.length - 4, before = w[w.length - 3];
+      if (COMPASS.hasOwnProperty(before)) { dir = before; at = w.length - 5; }
+      else if (num(before) === null) return bad(ln, '"' + before + '" is not north, east, south or west');
+      var pp = pos(w, at, ln);
+      if (!pp.ok) return pp;
+      var pn = w.slice(1, at).join(' ');
+      if (!pn) return bad(ln, 'a pass needs a name');
+      cur.items.push({ kind: 'pass', name: pn, lat: pp.lat, lon: pp.lon, dir: dir, nm: nm, line: ln });
+    }
+    if (!ended) return bad(L[L.length - 1].n, 'the file does not end with "end" -- it may have been cut short');
+    if (!p.order.length) return bad(0, 'a passage file needs at least one plan');
+    if (cur && !cur.items.length) return bad(cur.line, 'the plan "' + cur.name + '" has nothing in it');
+    p.ok = true;
+    return p;
+  }
+
+  //  THE MARK THAT ENDS THE FINISH LINE.  When the course's last mark is
+  //  one end of the finish line, crossing the line the right way is
+  //  rounding it (the router's own rule, which this mirrors).  It takes
+  //  NO BERTH: the 2025 finish line runs only 0.10 miles north from
+  //  North Head Buoy, and a berth of 0.10 round the buoy would cover
+  //  all of it but the far tip, so she could not finish (found in
+  //  PILOT's proposal, 13 November 2026; Larry ruled it out).
+  function finishPin(course) {
+    var m = course.marks[course.marks.length - 1];
+    if (!m || !course.finish) return null;
+    function apart(a, b) {
+      return Math.hypot((a.lat - b.lat) * 60, (a.lon - b.lon) * 60 * Math.cos(a.lat * Math.PI / 180));
+    }
+    return (apart(m, course.finish.a) < 0.02 || apart(m, course.finish.b) < 0.02) ? m.name : null;
+  }
+
+  //  THE PASSAGE AGAINST THE COURSE.  Every plan in the file, not only
+  //  the one the run sails: a file is written for one course, and a
+  //  fault in the plan nobody sailed today is the one somebody sails
+  //  tomorrow.  Every mark of the course, in its order, in every plan,
+  //  because a mark left out cannot be told from a mark forgotten.
+  //
+  //  ONE BY ONE, NOT BY NAME.  The plan's marks are matched against the
+  //  course's in turn: the first mark line against the course's first
+  //  mark, and so on.  A course may round the same buoy twice, and a
+  //  check that looked a name up would find the first rounding both
+  //  times; the first form of this did, and so refused every plan for
+  //  such a course (found by putting its own order check back, which
+  //  then caught nothing: a name looked up can never be out of turn).
+  function checkPassage(run, passage, course) {
+    if (!run || !run.passage) return { ok: true };
+    var file = run.passage.file;
+    if (!passage) return { ok: false, err: 'the run names a passage file, ' + file + ', which was not loaded' };
+    if (!passage.ok) return { ok: false, err: file + ' did not load: ' + passage.err };
+    if (!passage.plans.hasOwnProperty(run.passage.plan)) {
+      return { ok: false, err: 'the run sails plan "' + run.passage.plan + '", which ' + file +
+               ' does not have; it has ' + passage.order.join(', ') };
+    }
+    var names = course.marks.map(function (m) { return m.name; }), pin = finishPin(course), n, i;
+    function no(it, why) { return { ok: false, err: file + ', line ' + it.line + ': ' + why }; }
+    for (n = 0; n < passage.order.length; n++) {
+      var plan = passage.plans[passage.order[n]], at = 0, ended = false;
+      for (i = 0; i < plan.items.length; i++) {
+        var it = plan.items[i];
+        if (ended) return no(it, 'nothing may come after ' + pin + ', which is the end of the finish line');
+        if (it.kind !== 'mark') continue;
+        if (names.indexOf(it.name) < 0) {
+          return no(it, 'the course has no mark "' + it.name + '"; it has ' + (names.join(', ') || 'none'));
+        }
+        if (at >= names.length) {
+          return no(it, 'plan "' + plan.name + '" places "' + it.name + '" again, after every mark of the course');
+        }
+        if (it.name !== names[at]) {
+          return no(it, 'plan "' + plan.name + '" places "' + it.name + '" where the course rounds "' + names[at] + '" next');
+        }
+        at++;
+        if (it.name === pin && at === names.length) {
+          if (it.berth !== null) {
+            return no(it, it.name + ' is the end of the finish line, and takes no berth: a berth round it would cover ' +
+                          'the line she must cross. Take "berth ' + it.berth.toFixed(2) + '" off this line');
+          }
+          ended = true;
+        } else if (it.berth === null) {
+          return no(it, 'plan "' + plan.name + '" gives ' + it.name + ' no berth: end its line "berth <nm>"');
+        }
+      }
+      if (at < names.length) {
+        return { ok: false, err: file + ': plan "' + plan.name + '" does not place "' + names[at] +
+                 '"; every mark of the course appears in every plan, in its order' };
+      }
+    }
+    return { ok: true };
+  }
+
   return {
-    course: parseCourse, areas: parseAreas, run: parseRun, crew: parseCrew,
-    check: check, checkGrids: checkGrids, checkCrew: checkCrew, along: along
+    course: parseCourse, areas: parseAreas, run: parseRun, crew: parseCrew, passage: parsePassage,
+    check: check, checkGrids: checkGrids, checkCrew: checkCrew, checkPassage: checkPassage,
+    finishPin: finishPin, along: along
   };
 })();
 

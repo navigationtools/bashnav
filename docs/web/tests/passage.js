@@ -429,6 +429,29 @@ ok('and so is nothing at all', PASSAGE.log(null).ok === false);
      r.lines.every(function (l) { return !l.cost; }) && !/cost/.test(PASSAGE.text(r)));
 })();
 
+//  ---- 8c. a gate passed --------------------------------------------
+//  The router marks the row on which she comes within a gate's distance
+//  with `passed <name>`. It ends a board, as a rounding does, and has
+//  an entry of its own.
+(function () {
+  var a = maker();
+  a.many(2, 'port', 285); a('port', 285, { event: 'passed St Albans Head' });
+  a.many(2, 'port', 285, { leg: 1 }); a('port', 285, { leg: 1, event: 'rounded THE ROCK; passed Rocky Point' });
+  a.many(2, 'port', 30, { leg: 3 }); a('port', 30, { leg: 3, event: 'finish' });
+  var r = PASSAGE.log(a.rows);
+  ok('a gate passed has its own entry, and a row that makes two stations has two',
+     r.ok && kinds(r) === 'start board passed board rounded passed board finish', kinds(r));
+  var p = r.lines[2];
+  ok('it says which gate, and when', p.name === 'St Albans Head' && p.elapsedMinutes === 30 && p.ms === T0 + 30 * 60000,
+     JSON.stringify(p));
+  ok('the mark and the gate made together are named apart, in the order made',
+     r.lines[4].name === 'THE ROCK' && r.lines[5].name === 'Rocky Point' && r.lines[4].ms === r.lines[5].ms);
+  ok('sailing on through a gate is not a manoeuvre', r.lines[3].did === null && r.lines[3].tack === 'port');
+  var t = keep(r);
+  ok('the text says so', /10:30  PASSED St Albans Head  0h30 from the start\n/.test(t) &&
+     /11:00  ROUNDED THE ROCK  1h00 from the start\n11:00  PASSED Rocky Point  1h00 from the start\n/.test(t), t);
+})();
+
 //  ---- 9. it says what, and never why ------------------------------
 (function () {
   //  A passage with everything in it: no stream data, short tacks, a

@@ -137,10 +137,16 @@ ok('a current handed in as the wind is refused before anything is sailed',
 r = refusal(function (f) { f['run.txt'] = f['run.txt'].replace('start class All', 'start class Nobody'); });
 ok('a class the course does not list', !r.ok && r.stage === 'check' && /Nobody/.test(r.err), r.err);
 
-//  What the router will not sail yet comes out as its own reason.
-r = refusal(function (f) { f['run.txt'] = runText(['gate Headland ' + d(1) + ' ' + d(10) + ' within 2']); });
-ok('a gate is refused with the router\'s reason, not sailed round or ignored',
-   !r.ok && r.stage === 'route' && /^run\.txt: /.test(r.err) && /gate/.test(r.err), r.err);
+//  What the router cannot sail comes out as its own reason: the finish
+//  walled in on every side.
+r = refusal(function (f) {
+  f['a.txt'] = ['AREAS 1', 'source Invented for this test.', 'layer cage', 'area',
+                '  ' + d(-1) + ' ' + d(19), '  ' + d(1) + ' ' + d(19), '  ' + d(1) + ' ' + d(21), '  ' + d(-1) + ' ' + d(21),
+                'end area', 'end'].join('\n') + '\n';
+  f['run.txt'] = runText(['areas a.txt', 'layers cage']);
+});
+ok('a course that cannot be sailed is refused with the router\'s reason, and the run\'s name',
+   !r.ok && r.stage === 'route' && /^run\.txt: no route/.test(r.err), r.err);
 
 //  A read that throws is a file that is not there, not a crash.
 r = SAIL.sail(function () { throw new Error('disk on fire'); }, 'run.txt');
@@ -149,8 +155,8 @@ ok('a reader that throws is a missing file', !r.ok && r.stage === 'run', r.err);
 //  ---- 3. the report ------------------------------------------------
 var t = SAIL.report(s), lines = t.split('\n');
 ok('the report opens by saying it is a beta', /^BETA\. /.test(lines[0]), lines[0]);
-ok('and names the two things most likely to mislead',
-   /A tack costs the\nrouter nothing/.test(t) && /Gates are not sailed/.test(t), lines.slice(0, 3).join(' / '));
+ok('and says the thing most likely to mislead: with no crew, a tack costs nothing',
+   /A tack costs the\nrouter nothing, so do not believe how often she tacks\./.test(t), lines.slice(0, 3).join(' / '));
 ok('it names the course, the run, the start and the finish',
    /\nA test course, All\n/.test(t) && /\n  run       run\.txt\n/.test(t) &&
    t.indexOf('\n  start     ' + s.route.summary.start + '\n') > 0 &&
@@ -249,6 +255,61 @@ ok('a refusal reports its reason and nothing else', SAIL.report(r) === r.err && 
   var r3 = SAIL.sail(crewed('crack'), 'run.txt');
   ok('a level the file does not give is refused before anything is sailed, naming the ones it has',
      !r3.ok && r3.stage === 'check' && /crew level "crack", which k\.txt does not give; it has able, green/.test(r3.err), r3.err);
+})();
+
+//  ---- 7. a run that names a passage ----------------------------------
+//  The reach of section 1, sailed from a passage file: a plan with a
+//  line across her way, a circle on it, and the course's one mark,
+//  which ends the finish line and so is placed with no berth.
+(function () {
+  function planned(passageText, runPlan) {
+    return folder(function (f) {
+      f['run.txt'] = runText(['passage f.txt ' + (runPlan || 'reach')]).replace('RUN 2', 'RUN 3').replace('round 0.10\n', '');
+      f['f.txt'] = passageText;
+    });
+  }
+  var GOOD = ['PASSAGE 1', 'plan reach', 'pass Spit ' + d(0.5) + ' ' + d(5) + ' south within 1.0',
+              'pass Halfway 0 ' + d(10) + ' within 1.0', 'mark Far Buoy', 'end'].join('\n') + '\n';
+  var g = SAIL.sail(planned(GOOD), 'run.txt');
+  ok('a run that names a passage is sailed', g.ok, g.err);
+  if (!g.ok) return;
+  ok('and takes no longer when its passes are on her way', Math.abs(g.route.summary.hours - s.route.summary.hours) < 1e-9,
+     g.route.summary.hours.toFixed(6) + ' against ' + s.route.summary.hours.toFixed(6));
+  var rep = SAIL.report(g);
+  ok('the report names the boat\'s polar, and says the speeds are its',
+     /\n  boat      p\.txt \(every speed below is this polar's\)\n/.test(rep), rep);
+  ok('and the plan and its file', /\n  passage   plan reach, from f\.txt\n/.test(rep), rep);
+  ok('it says each place she passed, the figures it was sailed to, and when',
+     new RegExp('\\n  passed    Spit, south within 1 nm, at ' + g.route.summary.passed[0].at + '\\n').test(rep) &&
+     new RegExp('\\n  passed    Halfway, within 1 nm, at ' + g.route.summary.passed[1].at + '\\n').test(rep), rep);
+  ok('and the passage log has the entries', /\n\d\d:\d\d  PASSED Halfway  0h54 from the start\n/.test(rep), rep);
+  var wideG = rep.split('\n').filter(function (x) { return x.length > 80; });
+  ok('no line of it is wider than 80 columns', wideG.length === 0, wideG[0]);
+  ok('a run with no passage says the one berth it gives every mark',
+     /\n  berth     0\.10 nm round every mark \(the run's "round"\)\n/.test(t), t);
+
+  //  THE PASSAGE IS CHECKED AGAINST THE COURSE BEFORE ANYTHING IS SAILED,
+  //  and every refusal names the file and the line.
+  var m = SAIL.sail(planned(GOOD.replace('mark Far Buoy', 'mark Far Buoy berth 0.10')), 'run.txt');
+  ok('a berth on the mark that ends the finish line is refused before sailing, naming the file and line',
+     !m.ok && m.stage === 'check' && /^run\.txt: f\.txt, line 5: Far Buoy is the end of the finish line, and takes no berth/.test(m.err), m.err);
+  var n = SAIL.sail(planned(GOOD.replace('mark Far Buoy\n', '')), 'run.txt');
+  ok('a plan that leaves out the course\'s mark is refused before sailing',
+     !n.ok && n.stage === 'check' && /plan "reach" does not place "Far Buoy"/.test(n.err), n.err);
+  var p = SAIL.sail(planned(GOOD, 'inshore'), 'run.txt');
+  ok('a plan the file does not have is refused, naming the ones it has',
+     !p.ok && p.stage === 'check' && /plan "inshore", which f\.txt does not have; it has reach/.test(p.err), p.err);
+  var q = SAIL.sail(planned(GOOD.replace('within 1.0', 'off 1.0')), 'run.txt');
+  ok('a passage file that does not read is refused in its reader\'s words, naming it',
+     !q.ok && q.stage === 'passage' && /^f\.txt: a pass is/.test(q.err), q.err);
+  var lost = SAIL.sail(folder(function (f) {
+    f['run.txt'] = runText(['passage none.txt reach']).replace('RUN 2', 'RUN 3').replace('round 0.10\n', '');
+  }), 'run.txt');
+  ok('a passage file that is not in the folder is named',
+     !lost.ok && lost.stage === 'passage' && /names a passage file, none\.txt, which is not in the folder/.test(lost.err), lost.err);
+  var gate = SAIL.sail(folder(function (f) { f['run.txt'] = runText(['gate Halfway 0 ' + d(10) + ' within 1.0']); }), 'run.txt');
+  ok('a run with a gate line is refused before sailing, and told what replaced it',
+     !gate.ok && gate.stage === 'check' && /is a gate, which a run no longer sails/.test(gate.err), gate.err);
 })();
 
 //  ---- 4. the same twice, and hands off -----------------------------

@@ -68,7 +68,7 @@ var NORTHERLY = field('wind', 0, -10), STILL = field('current', 0, 0);
 function sail(o) {
   return ROUTER.run({ course: o.course || EAST, run: o.run || runFile(), areas: o.areas || [],
                       wind: o.wind || NORTHERLY, current: o.current === undefined ? STILL : o.current,
-                      polar: polar, crew: o.crew });
+                      polar: polar, crew: o.crew, passage: o.passage });
 }
 
 //  ---- every row must be a step the lower layers would own ----------
@@ -274,9 +274,7 @@ var wh = sail({ course: wrongHand });
 ok('a finish pin on the wrong hand for its own line is refused',
    !wh.ok && /leaves it to starboard/.test(wh.why), wh.why);
 
-var gated = sail({ run: runFile(['gate Somewhere 0 ' + d(10) + ' within 1.0']) });
-ok('a gate is refused rather than ignored, until the router sails them',
-   !gated.ok && /does not sail gates yet/.test(gated.why), gated.why);
+//  (gates are sailed now: section 9)
 
 var early = ROUTER.run({ course: EAST, areas: [], wind: NORTHERLY, current: STILL, polar: polar,
   run: COURSE.run(['RUN 2', 'course c.txt', 'polar p.txt', 'wind w.grid', 'current c.grid',
@@ -502,6 +500,251 @@ ok('and so is a level the file does not give', !noLevel.ok && /crew level "nobod
 
 var twice = crewed({ wind: east10 }, 300, 300);
 ok('the same crew twice gives the same finish', twice.ok && twice.summary.finish === beat300.summary.finish);
+
+//  ---- 9. a passage plan: passes, and a berth for each mark -----------
+//  A run that names a passage sails one plan of it, written down the
+//  page as the passage is sailed: the marks of the course in order,
+//  each with its berth, and the places she must pass among them (Larry,
+//  13 November 2026).  A pass with a compass word is a line out from
+//  its point that she must cross; one without is a circle she must
+//  come into.  The router is handed the passage file already read; the
+//  file itself is tested in tests/course.js.
+function plan(lines, crewLevel, runLines) {
+  var r = COURSE.run(['RUN 3', 'course c.txt', 'polar p.txt', 'wind w.grid', 'current c.grid',
+    'start at 2025-05-24T00:00Z', 'step time 600 heading 5', 'scale wind 1.0 current 1.0', 'passage f.txt t']
+    .concat(runLines || []).concat(crewLevel ? ['crew k.txt ' + crewLevel] : []).concat(['end']).join('\n'));
+  if (!r.ok) throw new Error('the test wrote a bad run: ' + r.err);
+  var p = COURSE.passage(['PASSAGE 1', 'plan t'].concat(lines).concat(['end']).join('\n'));
+  if (!p.ok) throw new Error('the test wrote a bad passage: ' + p.err);
+  return { run: r, passage: p };
+}
+function sailPlan(o, lines, crewLevel, runLines) {
+  var pl = plan(lines, crewLevel, runLines), q = {}, k;
+  for (k in o) q[k] = o[k];
+  q.run = pl.run; q.passage = pl.passage;
+  return sail(q);
+}
+//  a pass: a name, where it is in miles north and east, how near, and
+//  the compass word when it has one
+function pass(name, north, east, nm, dir) {
+  return 'pass ' + name + ' ' + d(north) + ' ' + d(east) + ' ' + (dir ? dir + ' ' : '') + 'within ' + nm;
+}
+var FAR = 'mark Far Buoy';      //  the end of EAST's finish line: placed, with no berth
+function who(r) { return r.summary.passed.map(function (p) { return p.name; }).join(' '); }
+function secsAfterStart(iso) { return (Date.parse(iso) - Date.parse('2025-05-24T00:00:00Z')) / 1000; }
+function noIdleRows(r) { return r.rows.every(function (w) { return w.minutes > 0; }); }
+function rowsOf(r) { return r.ok ? JSON.stringify(r.rows) : r.why; }
+//  where the row that made a station ends, in miles north and east.
+//  (Positions are written to six decimals of a degree, so "ten miles
+//  east" is 10.00002: the checks allow a ten-thousandth of a mile.)
+function madeAt(r, ev) {
+  var w = r.rows.filter(function (x) { return (x.event || '').split('; ').indexOf(ev) >= 0; });
+  return w.length === 1 ? { n: w[0].lat2 * 60, e: w[0].lon2 * 60 } : null;
+}
+
+//  A PLAN THAT ONLY GIVES THE BERTH `round` GAVE SAILS THE SAME ROUTE.
+//  The out-and-back of section 4, its buoy at 0.10 in the plan: the same
+//  rows as the run that says `round 0.10`, every one.
+var OUT = outAndBack('port', 0.4);
+var viaPlan = sailPlan({ course: OUT }, ['mark Out Buoy berth 0.10']);
+ok('a plan that gives the berth round gave sails the same route, row for row',
+   viaPlan.ok && portRound.ok && rowsOf(viaPlan) === rowsOf(portRound), viaPlan.ok ? '' : viaPlan.why);
+
+//  A BERTH IS THE PLAN'S, MARK BY MARK.  Half a mile off the buoy: never
+//  nearer, all the way round, and longer for it.
+var wide = sailPlan({ course: OUT }, ['mark Out Buoy berth 0.50']);
+ok('a wider berth is kept all the way round', wide.ok && nearest(wide, 0, 10 / 60) >= 0.5 - 1e-6,
+   wide.ok ? nearest(wide, 0, 10 / 60).toFixed(4) : wide.why);
+ok('and costs her time', wide.ok && wide.summary.hours > viaPlan.summary.hours,
+   wide.ok ? wide.summary.hours.toFixed(4) + ' against ' + viaPlan.summary.hours.toFixed(4) : '');
+ok('she still leaves it to port', wide.ok && swing(wide, 0, 10 / 60) < -300);
+ok('the summary says the berth each mark was rounded at', wide.ok && viaPlan.ok &&
+   wide.summary.rounded[0].berth === 0.5 && viaPlan.summary.rounded[0].berth === 0.1 &&
+   portRound.summary.rounded[0].berth === 0.1 && portRound.summary.round === 0.1 && wide.summary.round === null);
+
+//  A CIRCLE ON THE STRAIGHT LINE COSTS NOTHING.  The beam reach of
+//  section 1, with a pass a mile across its middle: she is within a
+//  mile of (0, 10) when she has made 9 miles, less a hair for sailing
+//  along the edge of the lines, which at ten knots is 54 minutes.
+var onLine = sailPlan({}, [pass('Halfway', 0, 10, 1), FAR]);
+ok('a plan with a pass on its straight line is sailed', onLine.ok, onLine.why);
+if (onLine.ok) {
+  ok('and takes no longer for it', Math.abs(onLine.summary.hours - reach.summary.hours) < 1e-9,
+     onLine.summary.hours.toFixed(5) + ' against ' + reach.summary.hours.toFixed(5));
+  ok('the pass is made, and the summary says when, how near, and on no side', who(onLine) === 'Halfway' &&
+     Math.abs(secsAfterStart(onLine.summary.passed[0].at) - 54 * 60) < 20 &&
+     onLine.summary.passed[0].nm === 1 && onLine.summary.passed[0].dir === null, JSON.stringify(onLine.summary.passed));
+  var cutAt = onLine.rows.filter(function (w) { return w.event === 'passed Halfway'; });
+  ok('a row ends where she comes within the mile, and says so', cutAt.length === 1 &&
+     Math.abs(Math.hypot(cutAt[0].lon2 * 60 - 10, cutAt[0].lat2 * 60) - 1) < 1e-3,
+     cutAt.length ? Math.hypot(cutAt[0].lon2 * 60 - 10, cutAt[0].lat2 * 60).toFixed(6) : 'no such row');
+  ok('a pass puts nothing in her way: she sails on through it', nearest(onLine, 0, 10 / 60) < 0.2);
+  //  ... AND IT HAS NO BERTH.  A pass within a twentieth of a mile: she
+  //  must come nearer its point than a berth would let her, and does.
+  var tight = sailPlan({}, [pass('Needle', 0, 10, 0.05), FAR]);
+  ok('a pass has no berth: she comes within a twentieth of a mile of its point',
+     tight.ok && nearest(tight, 0, 10 / 60) <= 0.05 + 1e-6, tight.ok ? nearest(tight, 0, 10 / 60).toFixed(5) : tight.why);
+  ok('the rows are sound, and none is idle', sound(onLine) === 0 && noIdleRows(onLine));
+}
+
+//  A LINE ACROSS HER WAY IS CROSSED WHERE SHE IS GOING ANYWAY.  A spit
+//  half a mile north of the way, to be passed south within a mile: a
+//  line from (0.5, 10) down to (-0.5, 10), straight across the reach.
+var spit = sailPlan({}, [pass('Spit', 0.5, 10, 1, 'south'), FAR]);
+ok('a line across her way is sailed, at no cost', spit.ok && Math.abs(spit.summary.hours - reach.summary.hours) < 1e-9,
+   spit.ok ? spit.summary.hours.toFixed(5) : spit.why);
+var sAt = spit.ok ? madeAt(spit, 'passed Spit') : null;
+ok('and the row that makes it ends on the line, between its ends', sAt && Math.abs(sAt.e - 10) < 1e-4 &&
+   sAt.n <= 0.5 + 1e-4 && sAt.n >= -0.5 - 1e-4, JSON.stringify(sAt));
+ok('the summary says its compass word and its length', spit.ok && spit.summary.passed[0].dir === 'south' &&
+   spit.summary.passed[0].nm === 1);
+
+//  A LINE HAS NO INSIDE.  A line from half a mile east of the start,
+//  half a mile north, down to half a mile south: the start is within a
+//  mile of its point, which would make a circle of one mile "passed"
+//  as the gun goes.  A line is made only by crossing it, half a mile
+//  on: three minutes at ten knots.
+var early = sailPlan({}, [pass('Bar', 0.5, 0.5, 1, 'south'), FAR]);
+ok('a line near the start is not passed at the start, but where she crosses it, three minutes on',
+   early.ok && early.summary.passed[0].at !== early.summary.start &&
+   Math.abs(secsAfterStart(early.summary.passed[0].at) - 180) < 10, early.ok ? JSON.stringify(early.summary.passed) : early.why);
+
+//  A LINE OFF HER WAY MUST BE GONE TO, AND CROSSED, NOT MERELY NEARED.
+//  A point two miles north of the way.  "north within 1" is a line from
+//  (2, 10) up to (3, 10); "south within 1" from (2, 10) down to (1, 10);
+//  a circle of one mile may be entered anywhere a mile from the point.
+//  The three are sailed differently, and each where its own rule says.
+var ridgeN = sailPlan({}, [pass('Ridge', 2, 10, 1, 'north'), FAR]);
+var ridgeS = sailPlan({}, [pass('Ridge', 2, 10, 1, 'south'), FAR]);
+var ridgeC = sailPlan({}, [pass('Ridge', 2, 10, 1), FAR]);
+var nAt = ridgeN.ok ? madeAt(ridgeN, 'passed Ridge') : null;
+var sAt2 = ridgeS.ok ? madeAt(ridgeS, 'passed Ridge') : null;
+var cAt = ridgeC.ok ? madeAt(ridgeC, 'passed Ridge') : null;
+ok('a line to the north of a point is crossed to the north of it, between its ends',
+   nAt && Math.abs(nAt.e - 10) < 1e-4 && nAt.n >= 2 - 1e-4 && nAt.n <= 3 + 1e-4, ridgeN.ok ? JSON.stringify(nAt) : ridgeN.why);
+ok('a line to the south of it, to the south', sAt2 && Math.abs(sAt2.e - 10) < 1e-4 && sAt2.n >= 1 - 1e-4 && sAt2.n <= 2 + 1e-4,
+   ridgeS.ok ? JSON.stringify(sAt2) : ridgeS.why);
+ok('a circle is entered a mile from its point, and not on either line',
+   cAt && Math.abs(Math.hypot(cAt.e - 10, cAt.n - 2) - 1) < 1e-3 && Math.abs(cAt.e - 10) > 1e-3,
+   ridgeC.ok ? JSON.stringify(cAt) : ridgeC.why);
+ok('the line further from her way costs the most, the circle the least',
+   ridgeN.ok && ridgeS.ok && ridgeC.ok && ridgeN.summary.hours > ridgeS.summary.hours &&
+   ridgeS.summary.hours > ridgeC.summary.hours && ridgeC.summary.hours > reach.summary.hours,
+   [ridgeN, ridgeS, ridgeC].map(function (x) { return x.ok ? x.summary.hours.toFixed(4) : x.why; }).join(' '));
+ok('the rows are sound', ridgeN.ok && sound(ridgeN) === 0 && noIdleRows(ridgeN) && sound(ridgeS) === 0);
+
+//  A CIRCLE OFF THE LINE MUST BE GONE TO.  Five miles north of the
+//  middle, to be passed within one.  The shortest way is to (4, 10) and
+//  back down: two legs of 10.77 miles, 21.5 in all, sailed 68 and 112
+//  degrees off the wind at 7.8 knots on the toy polar, which is 2.76
+//  hours; nothing is faster than ten knots, so nothing does it in under
+//  2.15.
+var offLine = sailPlan({}, [pass('Northing', 5, 10, 1), FAR]);
+ok('a plan with a pass off its straight line is sailed', offLine.ok, offLine.why);
+if (offLine.ok) {
+  ok('she goes within the mile, and no nearer than she must', nearest(offLine, 5 / 60, 10 / 60) <= 1 + 1e-6 &&
+     nearest(offLine, 5 / 60, 10 / 60) > 0.9, nearest(offLine, 5 / 60, 10 / 60).toFixed(4));
+  ok('it costs her what the two legs cost: more than 2.15 hours, and no more than 2.8',
+     offLine.summary.hours > 2.15 && offLine.summary.hours < 2.8, offLine.summary.hours.toFixed(4));
+  ok('the rows are sound', sound(offLine) === 0 && noIdleRows(offLine));
+}
+
+//  THE ORDER WRITTEN IS THE ORDER SAILED.  A three miles north of the
+//  five-mile point, B three miles south of the fifteen.  A then B lies
+//  along the way.  B then A is out to fifteen, back to five, and out
+//  again: at least 40 miles where the other is little more than 20.
+var ab = sailPlan({}, [pass('A', 3, 5, 1), pass('B', -3, 15, 1), FAR]);
+var ba = sailPlan({}, [pass('B', -3, 15, 1), pass('A', 3, 5, 1), FAR]);
+ok('passes are made in the order they are written', ab.ok && who(ab) === 'A B' && ba.ok && who(ba) === 'B A',
+   (ab.ok ? who(ab) : ab.why) + ' / ' + (ba.ok ? who(ba) : ba.why));
+ok('and each later than the one before', ab.ok && ba.ok &&
+   ab.summary.passed[0].at < ab.summary.passed[1].at && ba.summary.passed[0].at < ba.summary.passed[1].at);
+ok('written the wrong way round, she sails there and back again: over an hour longer',
+   ab.ok && ba.ok && ba.summary.hours > ab.summary.hours + 1, ab.ok && ba.ok ? ab.summary.hours.toFixed(3) + ' and ' + ba.summary.hours.toFixed(3) : '');
+
+//  AMONG THE MARKS.  The out-and-back, with a pass two miles north of
+//  the half-way point: written before the mark it is made on the way
+//  out; after, on the way home; both, twice.
+var G = pass('Headland', 2, 5, 0.5), OB = 'mark Out Buoy berth 0.10';
+var before = sailPlan({ course: OUT }, [G, OB]);
+var afterIt = sailPlan({ course: OUT }, [OB, G]);
+var both = sailPlan({ course: OUT }, [G, OB, G]);
+ok('a pass written before a mark is made before she rounds it', before.ok && who(before) === 'Headland' &&
+   before.summary.passed[0].at < before.summary.rounded[0].at, before.ok ? JSON.stringify(before.summary.passed) : before.why);
+ok('one written after it, after', afterIt.ok && who(afterIt) === 'Headland' &&
+   afterIt.summary.passed[0].at > afterIt.summary.rounded[0].at, afterIt.ok ? JSON.stringify(afterIt.summary.passed) : afterIt.why);
+ok('one written both sides is made going out and again coming home', both.ok && who(both) === 'Headland Headland' &&
+   both.summary.passed[0].at < both.summary.rounded[0].at && both.summary.rounded[0].at < both.summary.passed[1].at,
+   both.ok ? JSON.stringify(both.summary.passed) : both.why);
+ok('and going there twice takes longer than going once, which takes longer than not going',
+   both.ok && before.ok && afterIt.ok && both.summary.hours > before.summary.hours &&
+   both.summary.hours > afterIt.summary.hours && before.summary.hours > portRound.summary.hours &&
+   afterIt.summary.hours > portRound.summary.hours);
+//  SHE STILL GOES ROUND THE BUOY.  The first time these three were
+//  sailed she did not: with the headland to make again on the way home
+//  it was quicker to reach past the buoy, hook across the line out from
+//  it and come back the side she went out, and the track swung two
+//  degrees round the mark where it should swing a whole turn.  A mark
+//  once rounded now stays rounded.
+ok('with a pass before the mark she still goes round it, anticlockwise',
+   before.ok && swing(before, 0, 10 / 60) < -300, before.ok ? swing(before, 0, 10 / 60).toFixed(0) + ' degrees' : before.why);
+ok('and with one after it', afterIt.ok && swing(afterIt, 0, 10 / 60) < -300, afterIt.ok ? swing(afterIt, 0, 10 / 60).toFixed(0) + ' degrees' : afterIt.why);
+ok('and with one either side', both.ok && swing(both, 0, 10 / 60) < -300, both.ok ? swing(both, 0, 10 / 60).toFixed(0) + ' degrees' : both.why);
+ok('the rows are sound', both.ok && sound(both) === 0 && noIdleRows(both) && sound(before) === 0 && sound(afterIt) === 0);
+//  the summary pairs each pass made with its own figures, in order
+var mixed = sailPlan({ course: OUT }, [pass('Headland', 2, 5, 0.5), OB, pass('Headland', 2, 5, 1.5, 'north')]);
+ok('two passes of one name keep their own figures, in the order made', mixed.ok &&
+   mixed.summary.passed[0].nm === 0.5 && mixed.summary.passed[0].dir === null &&
+   mixed.summary.passed[1].nm === 1.5 && mixed.summary.passed[1].dir === 'north', mixed.ok ? JSON.stringify(mixed.summary.passed) : mixed.why);
+
+//  A CIRCLE SHE IS ALREADY INSIDE IS MADE WHERE SHE IS: one drawn round
+//  the start line is passed as the gun goes, and no row is made for it.
+var home = sailPlan({}, [pass('Home', 0, 0, 1), FAR]);
+ok('a pass round the start line is made at the start', home.ok && who(home) === 'Home' &&
+   home.summary.passed[0].at === home.summary.start && noIdleRows(home) &&
+   Math.abs(home.summary.hours - reach.summary.hours) < 1e-9, home.ok ? JSON.stringify(home.summary.passed) : home.why);
+//  Two whose circles overlap, half a mile apart along the way: the
+//  second is entered half a mile after the first, three minutes at ten
+//  knots.
+var lap = sailPlan({}, [pass('P', 0, 10, 1), pass('Q', 0, 10.5, 1), FAR]);
+ok('two circles that overlap are made one after the other, three minutes apart',
+   lap.ok && who(lap) === 'P Q' &&
+   Math.abs(secsAfterStart(lap.summary.passed[1].at) - secsAfterStart(lap.summary.passed[0].at) - 180) < 5,
+   lap.ok ? JSON.stringify(lap.summary.passed) : lap.why);
+
+//  A PASS AND A COST TOGETHER.  The dead beat of section 8 with a pass on
+//  the way: every tack is still paid for.
+var passBeat = sailPlan({ wind: east10, crew: hands(300, 300) }, [pass('Halfway', 0, 10, 1), FAR], 'hands');
+ok('a pass on a beat, with a crew: the pass is made and every tack paid in full',
+   passBeat.ok && who(passBeat) === 'Halfway' && paidInFull(passBeat, 300, 300) === 0 && sound(passBeat) === 0,
+   passBeat.ok ? who(passBeat) : passBeat.why);
+
+//  what cannot be sailed
+var walledPass = sailPlan({ areas: [CAGE] }, [pass('Inside', 0, 20, 0.3), FAR], null, ['layers cage']);
+ok('a pass that cannot be reached gives no route', !walledPass.ok && /no route/.test(walledPass.why), walledPass.why);
+function refused(what, r, re) { ok(what, !r.ok && re.test(r.why), r.ok ? 'it sailed' : r.why); }
+refused('a plan that leaves out a mark of the course is refused',
+        sailPlan({ course: OUT }, [G]), /the plan does not place Out Buoy/);
+refused('a plan that places a mark the course does not have is refused',
+        sailPlan({ course: OUT }, [G, 'mark Nowhere berth 0.10']), /the plan places Nowhere where the course has Out Buoy/);
+refused('a plan that gives a mark no berth is refused', sailPlan({ course: OUT }, ['mark Out Buoy']), /gives Out Buoy no berth/);
+refused('a plan that leaves out the mark that ends the finish line is refused',
+        sailPlan({}, [pass('Halfway', 0, 10, 1)]), /the plan does not place Far Buoy/);
+refused('a berth on the mark that ends the finish line is refused',
+        sailPlan({}, [pass('Halfway', 0, 10, 1), 'mark Far Buoy berth 0.10']), /Far Buoy is the end of the finish line, and takes no berth/);
+refused('a run that names a passage the router was not given is refused',
+        sail({ run: plan([FAR]).run }), /names a passage file, f\.txt, and none was given to the router/);
+refused('a gate line in a run is refused, and told what replaced it',
+        sail({ run: runFile(['gate Somewhere 0 ' + d(10) + ' within 1.0']) }), /"gate" lines, which are not sailed: .*"pass" line in a passage file/);
+var old1 = ROUTER.run({ course: EAST, areas: [], wind: NORTHERLY, current: STILL, polar: polar,
+  run: COURSE.run(['RUN 1', 'course c.txt', 'polar p.txt', 'start at 2025-05-24T00:00Z', 'step time 600 heading 5',
+                   'round 0.10', 'gate Somewhere 0 ' + d(10) + ' off 1.0', 'end'].join('\n')) });
+ok('a RUN 1 gate, which never said which it meant, is refused and not ignored',
+   !old1.ok && /RUN 1 gate/.test(old1.why), old1.why);
+//  and an avoid is still an avoid: the same point, to be kept a mile off
+var kept = sail({ run: runFile(['avoid Halfway 0 ' + d(10) + ' off 1.0']) });
+ok('the same point as an avoid is still kept off, not passed', kept.ok && kept.summary.passed.length === 0 &&
+   nearest(kept, 0, 10 / 60) >= 1 - 1e-6, kept.ok ? nearest(kept, 0, 10 / 60).toFixed(4) : kept.why);
 
 if (fail) { console.log('  ' + fail + ' of ' + checks + ' checks failed'); process.exit(1); }
 console.log('  all ' + checks + ' checks');

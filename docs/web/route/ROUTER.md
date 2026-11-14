@@ -138,6 +138,43 @@ the search cannot see, in a passage of nearly a day.
 So "no boat with this polar could have done better in this weather" is true
 to within a few minutes, and no closer.
 
+### Her own station is not a rival
+
+```
+     one half-mile square of the search
+    +-------------------------------+
+    |                               |
+    |    x  where she makes a       |    the step is cut at x and she
+    |    |  station: a mark         |    sails the rest of it from there:
+    |    |  rounded, a place        |    here, four seconds, which does
+    |    v  passed                  |    not take her out of the square
+    |    o  four seconds on         |
+    +-------------------------------+
+```
+
+When she makes a station, the step is cut at that point, the point is noted in
+its square so that of two boats that make the station there the first is kept,
+and she sails the rest of the step on from it.
+
+1. **The rest of a step may be seconds.** Going straight on, she does not leave
+   the square.
+2. **The first version then judged her against her own station.** It had been
+   reached earlier, so her continuation was dropped.
+3. **Only a heading that fell back over the square's edge survived.** She
+   sailed four seconds back the way she came after every station that landed
+   near an edge, and gave the time away.
+4. **Now her own station is not a rival:** a boat's continuation from the
+   place it made a station is never judged against that place. Two boats that
+   make the same station are still judged against each other.
+
+It was found by a passing mark laid exactly on a square's edge (13 November 2026), and
+it was there for marks and circles all along. **Every published run is
+unchanged, row for row**: the four crews, the free run and the headlands run.
+The 2025 run with the four headland passing marks as circles finishes 75 seconds
+sooner with tacks free and 65 seconds sooner with an able crew, which is inside
+what the search can resolve, and is the time those four cuts had been giving
+away.
+
 ## Rounding a mark
 
 ```
@@ -161,14 +198,141 @@ right way round — anticlockwise to leave it to port, clockwise for starboard.
 A track that cuts inside never crosses the line; one that passes on the wrong
 hand crosses it backwards and is refused.
 
-**`round` is a berth** (Larry, 13 November 2026): she crosses that line at
-least `round` miles out and passes no nearer at any time. The fastest route
-passes exactly that far off. Boats in the real race do go inside what a prudent
+**The berth** (Larry, 13 November 2026): she crosses that line at least the
+berth out and passes no nearer at any time. A run with no passage gives every
+mark the one berth it says with `round`; a run that names a passage gives each
+mark the berth its plan says. The fastest route passes exactly that far off. Boats in the real race do go inside what a prudent
 berth would be, and have for years; a run can be given a smaller number to see
 what that is worth, and nothing here is advice to do it.
 
 **A mark that is the end of the finish line is rounded by finishing,** and its
-side is checked against the way the line is crossed.
+side is checked against the way the line is crossed. It takes no berth: a berth
+round it would cover the line she must cross.
+
+### A mark once rounded stays rounded
+
+```
+        out   - - - - - - - - - >  \
+                                    \   she reaches past the buoy,
+                         buoy  M ====\======>  the line out from it
+                                    /   hooks across the line,
+        home  < - - - - - - - - - /    and comes back the side she
+                                        went out.  NOT a rounding.
+```
+
+Crossing the line out from a mark the right way is how she rounds it. Nothing
+then stopped her crossing it back the other way a moment later, which unwinds
+the turn: the string drawn along her track no longer goes round the mark at
+all. A headland to pass found it. With one before the buoy and again after
+it, that hook was the fastest way, and the check that measures how far the
+track swings round the mark read two degrees where it should read a full turn.
+
+So the line of every mark she has rounded is a wall to her from the wrong
+side, for the rest of the passage. Behind the mark she may cross its line
+freely: that is only the far side of going round it. Courses with nothing to
+pass had not been tempted, and their routes are unchanged to the row.
+
+## Passing marks, and a berth for each mark
+
+A run that names a passage sails one plan of it (`COURSE.md`, "PASSAGE 1"): the
+marks of the course in their order, each with its berth, and the passing marks
+among them, written down the page as she sails it. The line is `pass`; the
+thing is a passing mark (Larry, 13 November 2026), and "gate" is left to B15,
+the `tidal_gate`.
+
+    plan two-miles
+      pass  St Albans Head  50.57868 -2.05644  south within 2.0
+      pass  Portland Bill   50.51353 -2.45676  south within 2.0
+      mark  Eddystone Lt House                 berth 0.15
+      pass  Portland Bill   50.51353 -2.45676  south within 2.0
+      pass  St Albans Head  50.57868 -2.05644  south within 2.0
+      mark  North Head Buoy
+
+**The marks and the passing marks together are the stations of the passage,** in the
+order she must make them, and a leg runs from one station to the next.
+
+```
+ start --> pass --> pass --> MARK --> pass --> pass --> finish
+   leg 0     leg 1    leg 2     leg 3    leg 4    leg 5
+```
+
+**A passing mark is one of two shapes.**
+
+```
+   with a compass word: a LINE          with none: a CIRCLE
+
+        Portland Bill *                         .  -  ~  -  .
+                      |                     .                   .
+     out  <-----------+-----------        .     *  the point      .
+                      |                - - o - - - - - - - - - - - - ->
+     home ------------+---------->        .                       .
+                      |                     .                   .
+                      + 2 nm south              '  -  ~  -  '
+
+   made where she crosses it,           made the moment she comes within
+   either way: the plan's order         its distance, here at o
+   says which way she is going
+```
+
+1. **A line is made where she crosses it,** and a circle where she first comes
+   within its distance. The step is cut there, as it is at a mark, so the log
+   has the moment.
+2. **A circle she is already inside is made where she is.** One drawn round
+   the start line is made as the gun goes; two that overlap are made one after
+   the other as she enters each. **A line has no inside:** it is made only by
+   crossing it.
+3. **A passing mark puts nothing in her way, and has no berth.** An `avoid` is
+   water she may not enter; a passing mark is the opposite.
+4. **Each mark has its berth from the plan,** and keeps it all the way round.
+   The mark that ends the finish line takes none.
+5. **The line out from a mark is laid by the stations either side of it,**
+   which may be passing marks. A headland to be passed on the way to a mark changes
+   the way she comes at it, and so the height of her turn.
+6. **A plan that gave every mark the berth `round` gave sails the same route,
+   row for row.** That is checked on the small courses and on the 2025 race.
+
+**What the route says it sailed to.** Each mark rounded carries its berth in
+the summary and the report, and each place passed carries its compass word and
+distance, so a result can be sailed again from what it prints (the XO's
+point). The report also names the polar, so that a speed in it is read as that
+polar's and not as a fact about boats (PILOT's).
+
+### The 2025 race with its passing marks
+
+PILOT's passage file (`passage_2025_v1.txt`): the race as set, with the
+Eddystone at the 0.15 nm berth the tracked Clipper 68s show; and Level 1, south
+of St Alban's Head and Portland Bill inside two miles, out and home. The same
+boat and weather as the first run below.
+
+| plan | tacks free: finish, 25 May | an able crew: finish, 25 May |
+|---|---|---|
+| `as-sailed`: Eddystone berth 0.15 | 09:37:54Z | 09:52:50Z |
+| `two-miles`: the four passing marks as lines | 09:44:23Z (6½ min later) | 10:04:03Z (11 min later) |
+| `two-mile-circles`: the same as circles | 09:44:46Z | |
+
+With tacks free on `two-miles` she passes St Alban's at 13:55Z and Portland
+Bill at 16:07Z, rounds the Eddystone at 01:13Z, and on the way home passes the
+Bill at 06:54Z and St Alban's at 08:08Z.
+
+Checked by brute force, with none of the router's own index:
+
+1. **No step crosses the coastline,** the Casquets scheme or the Sowley boom.
+2. **She is never nearer the Eddystone than 0.152 nm,** against a berth of
+   0.15, and the track goes once round the light, leaving it to port.
+3. **Each line is crossed out and home.**
+4. **She passes Portland Bill 0.31 nm off and St Alban's 0.81.** Close under
+   the Bill is where the line is quickest to cross, and the only thing holding
+   her off is the coastline's clearance of a tenth of a mile. The Portland Race
+   is not in these files.
+
+**The berth of 0.15 at the Eddystone costs 35 seconds** against 0.10, which is
+inside what the search can resolve. **It does not keep a route off the reef:**
+Larry's chart shows the NE Rock, drying, about 0.15 nm out, and rocks to about
+0.23 nm north-east. The reef is to go into an areas file.
+
+**Going by the headlands costs her six to eleven minutes on this day.** A
+minute or two of any such figure is inside what the search can resolve, and it
+is one day and a generic boat: a thing to show, not a rule to teach.
 
 ## The water she may not cross
 
@@ -177,6 +341,8 @@ side is checked against the way the line is crossed.
 | a `line` in a live layer | never crosses it, and stays the layer's clearance off it |
 | an `area` in a live layer | never enters it; its edges are lines |
 | `avoid <name> ... off <nm>` | stays at least that far from the point |
+| a mark of the course | stays at least its berth off it, all the way round |
+| a passing mark | nothing: it is a place to go, not water to keep off |
 | a layer the run does not name | is not in the water at all |
 | the start line, on the first leg | is a wall behind her |
 
@@ -269,6 +435,9 @@ before trusting the rest:
 | `noStreamMinutes` | how long she sailed where the atlas has no data, through still water |
 | `clampedMinutes` | how long the wind was above the strongest in the polar |
 | `optimumMinutes` | how long she was on the polar's beat or run rows rather than its table |
+| `rounded` | each mark she rounded, with the time and the berth it was rounded at |
+| `passed` | each place she passed, with the time, its distance and its compass word, or none for a circle |
+| `passage`, `round` | the passage file and plan sailed; or, for a run with none, the one berth it gave every mark |
 | `tacks`, `gybes` | how many of each she made, counted apart |
 | `tackSeconds`, `gybeSeconds` | the time given to each, when the run names a crew |
 | `crew` | the crew file, the level, and what a tack and a gybe cost that crew; nothing, when the run names none |
@@ -361,11 +530,12 @@ is the one place that order is written down:
  the run file            read first, because it names everything else
       |
       +--> the course, each areas file, the wind grid, the current
-      |    grid, the polar, and the crew file when the run names
-      |    one: each by its own reader
+      |    grid, the polar, and the crew file and the passage file
+      |    when the run names them: each by its own reader
       |
  the run is checked against the course and the water it names,
- against the grids, and against its crew file
+ against the grids, and against its crew file; its passage is
+ checked against the course, every plan in it
       |
  ROUTER.run  -->  the rows  -->  PASSAGE.log
       |
@@ -374,8 +544,9 @@ is the one place that order is written down:
                the passage log
 ```
 
-The report also says what the run asked her to keep off, so that it can be
-read without the run file beside it.
+The report also says what the run asked her to keep off, the boat's polar,
+and the plan sailed or the one berth given every mark, so that it can be read
+without the run file beside it.
 
 **Every refusal names the file.** A run names six files or more, and "rows 18
 but 17 found" is no use without knowing which of them it was said about.
@@ -406,9 +577,10 @@ fetched and the command hands it a folder.
 course to be tried before it is finished, so that what gets built next is
 what the lessons turn out to need. The report says so on its first line,
 with the two things most likely to mislead. For a run with no crew: a tack
-costs the router nothing, and gates are refused rather than sailed. For a run
-with one: every tack costs the crew's average, so no one tack is the bad one,
-and gates are refused. With a crew the report also gives what a tack and a
+costs the router nothing, so the number of tacks means nothing. For a run with
+one: every tack costs the crew's average, so no one tack is the bad one. The
+report lists each mark she rounded and each place she passed, in the order she
+made them, with the time and the figure it was sailed to. With a crew it also gives what a tack and a
 gybe cost on average, what they came to over the passage, and how that crew's
 manoeuvres come off.
 
@@ -530,16 +702,20 @@ tack".
    short-tacks the Solent because nothing says she should not. With one,
    every tack costs that crew's average: no one tack is the bad one, and the
    cost is the same in thirty knots as in ten.
-2. **No gates.** `avoid` is sailed; `gate ... within` is refused with the
-   reason rather than ignored.
-3. **A mark that may be left on either hand** is refused likewise.
+2. **A mark that may be left on either hand** is refused, with the reason
+   rather than ignored.
+3. **A passing mark has no time window.** She must make it in its turn; when
+   she makes it is hers to choose.
 4. **The polar is the boat.** A generic polar gives a generic boat's passage.
 5. **The forecast is taken as the truth,** and the stream atlas as the stream.
 6. **She tacks, and gybes, only at a step.** Ten minutes apart, in these
    runs. A layline is therefore judged to within a few minutes, never
    exactly.
 7. **A minute or two is not a finding.** See "What the search can resolve".
-8. **It is not for navigation.** It is for understanding a race after it was
+8. **The Eddystone reef is not in the files.** The coastline is EMODnet's,
+   which does not hold the rocks round the light, and a berth alone does not
+   keep a route off them.
+9. **It is not for navigation.** It is for understanding a race after it was
    sailed, and for asking what a different choice would have cost.
 
 ## Running the checks
@@ -550,7 +726,7 @@ tack".
     node docs/web/tests/router.js           whole routes small enough to sail in your head
     node docs/web/tests/passage.js          the passage log, on rows written by hand
     node docs/web/tests/sail.js             a run sailed from its name, and the refusals
-    node docs/web/tests/course.js           the course, areas, run and crew files
+    node docs/web/tests/course.js           the course, areas, run, crew and passage files
 
 Each course in `router.js` is laid on the equator, in a wind and a stream that
 do not change, so that the fastest passage is one triangle and can be worked
@@ -587,6 +763,26 @@ refusal that does not name its file, the areas not read, a refusal that ends
 with 0 — and each is caught. Six more were put in for the crew: the crew file
 not read, the crew not handed to the router, a crew's report opening by
 saying that tacks are free.
+
+Passing marks are checked on the same small courses. A circle on the straight line
+costs nothing and is made at the minute the distance gives; a line across her
+way costs nothing and is crossed between its ends; a line two miles north of
+her way is crossed north of the point, one south of it south, and a circle of
+the same size is entered a mile from the point and costs least; two passes
+written the wrong way round send her there and back again; a pass written
+before a mark is made before it, after it after, and both sides twice; a wider
+berth is kept all the way round, and costs time. Twenty-six faults were put in
+across the three files: a line sailed as a circle, a line drawn the wrong way,
+the plan's berth ignored, a berth on the finish buoy, a line given an inside,
+her own station a rival again, the figures paired to the wrong pass. Each is
+caught. One got past every check at first. The order check, put back, caught
+nothing, because the plan's marks were looked up by name, and a name looked up
+can never be out of turn. That was a fault in its own right: a course that
+rounds one buoy twice could have no plan. The marks are now matched one by one,
+and a check was added for a buoy rounded twice. Twelve of the gate faults that
+still apply were put back against the new code — a circle made where she
+leaves it, a mark allowed to be unwound, a row that makes two stations logged
+as one — and each is caught.
 
 The crew file's reader is checked in `course.js`, with the other formats:
 seven faults, among them shares that need not add to 100 and a level allowed

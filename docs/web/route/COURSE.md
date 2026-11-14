@@ -1,14 +1,14 @@
-# COURSE 1, AREAS 1, RUN 3, CREW 1 — the files the router reads besides the grids
+# COURSE 1, AREAS 1, RUN 3, CREW 1, PASSAGE 1 — the files the router reads besides the grids
 
-The course, the water it may not cross, the settings for one run, and how
-well she is tacked.
+The course, the water it may not cross, the settings for one run, how well
+she is tacked, and the figures a lesson changes.
 `docs/web/route/course.js` is the reference: **what it refuses, these formats
 do not allow**, and where this document and that file differ, the file is
 right.
 
-## Why four files and not one
+## Why five files and not one
 
-They have four different lifetimes, and a file's lifetime is the honest
+They have five different lifetimes, and a file's lifetime is the honest
 reason to split it.
 
 | | what it is | how often it changes |
@@ -17,6 +17,7 @@ reason to split it.
 | **areas** | the water: coastline, traffic schemes, exclusion zones | when the world or the source data changes |
 | **run** | this experiment: which boat, which start, what to scale | every run |
 | **crew** | the people: how well a crew's tacks and gybes come off | when the crew changes, or a lesson asks what a better one is worth |
+| **passage** | the lesson: each mark's berth, and the places she must pass | when a lesson asks a different question: two miles off, or one? |
 
 Put the run settings inside the course and one course file stops serving
 every boat and every start, which is the thing Larry's class-start decision
@@ -144,9 +145,9 @@ sailing instructions. The moment it also holds things that are not in the
 instructions, that check stops being possible, and the file quietly becomes a
 mixture of what the race says and what a lesson wanted.
 
-**A teaching waypoint is a property of the run**, and the run file carries it as a
-`gate`. One course file, many runs, and the race still readable against its
-own authority.
+**A teaching waypoint is a property of the lesson**, and a passage file carries
+it as a passing mark, a `pass` line, in a named plan the run picks. One course file, many plans,
+and the race still readable against its own authority.
 
 ---
 
@@ -225,16 +226,16 @@ which is correct: you may touch its edge, you may not be inside it.
     scale   wind 1.0 current 1.0
     layers  coast-example-mhw tss-example boom-example
     clear   coast-example-mhw 0.10  tss-example 0  boom-example 0
-    round   0.10
-    gate    Example Head 50.57868 -2.05644 within 2.0
     avoid   Example Race 50.51000 -2.44000 off 3.0
     crew    crew_example_v1.txt able
+    passage passage_example_v1.txt two-miles
     end
 
 **RUN 1 and RUN 2 are still read** — `course.js` reads all three, and a file
 keeps the meaning of the version it says it is. What follows describes RUN 3.
-It differs from RUN 2 by one line, `crew`, and from RUN 1 also by the grids
-and the gate; each has its own section below.
+It differs from RUN 2 by two lines, `crew` and `passage`, each with its own
+section below. A run that names a passage leaves out `round`: each mark's
+berth is in the plan.
 
 | Line | Form | Notes |
 |---|---|---|
@@ -248,10 +249,11 @@ and the gate; each has its own section below.
 | `scale` | `wind <f> current <f>` | 1.0 is as given. `current 0.5` is the OSCAR question. |
 | `layers` | layer names | Which layers of the areas files are live. |
 | `clear` | layer, distance in nm | Per layer. A layer not named takes 0. |
-| `round` | distance in nm | **The berth:** she rounds each mark at least this far off, and passes no nearer at any time. |
-| `gate` | name lat lon `within` nm | Optional, repeatable. Pass **within** that distance of the point. |
+| `round` | distance in nm | **The berth for every mark,** when the run names no passage: she rounds each mark at least this far off, and passes no nearer at any time. A run that names a passage may not also say it. |
+| `passage` | a PASSAGE filename, a plan | **RUN 3.** Optional. The plan this run sails: each mark's berth, and the places she must pass. In place of `round`. |
 | `avoid` | name lat lon `off` nm | Optional, repeatable. Stay **at least** that distance off it. |
 | `crew` | a CREW filename, a level | **RUN 3.** Optional. How well she is tacked and gybed. Without it a manoeuvre costs nothing. |
+| `gate` | name lat lon `within` nm | **Read, and not sailed.** A RUN 2 line, refused when the run is checked: a place to pass is a `pass` line in a passage file. |
 | `end` | — | Last line. |
 
 ## `round` is a berth, and how a mark is known to be rounded
@@ -276,7 +278,9 @@ that passes on the wrong hand crosses it backwards and is refused.
     - -  the line she must cross, here or further out
 ```
 
-**`round` is the distance `x`** (Larry, 13 November 2026). She crosses the line
+**`round` is the distance `x`** (Larry, 13 November 2026), for every mark,
+when the run names no passage; a run that names one takes each mark's `x`
+from its plan (PASSAGE 1, below). Either way she crosses the line
 at least that far out and passes no nearer than that at any time, so the
 number is a berth and not a tolerance. The fastest route passes exactly that
 far off, because the shorter way round is always quicker; where the wind or the
@@ -294,7 +298,9 @@ course leaves North Head Buoy to starboard and then finishes on a line running
 north from that same buoy: crossing the line eastward *is* leaving the buoy to
 starboard. Such a mark sets no line of its own, but its side is checked against
 the finish, and a course that says one hand where the finish line can only be
-crossed leaving it on the other is refused.
+crossed leaving it on the other is refused. **It takes no berth:** a berth round
+it would cover the line she must cross (PASSAGE 1, "The mark that ends the
+finish line").
 
 ## The weather is part of the experiment, which is why RUN 2 exists
 
@@ -335,16 +341,20 @@ it meant, and the two readings are opposite instructions to a router:
 too quickly cannot invert the rule. A RUN 1 gate keeps RUN 1's shape and is
 not given a meaning it never had.
 
-**On which side a headland is passed, the file says nothing, and does not need
-to.** A keep-out circle plus the coastline in the areas file leaves only the
-seaward way round, because the landward side crosses the coast. Where a lesson
-wants a particular side anyway, that is what a `gate … within` is for: a point
-on the side you mean.
+**A gate is no longer sailed from a run** (Larry, 13 November 2026). The places
+she must pass now live in a passage file, as `pass` lines, beside the marks and
+their berths, so that the figures of a lesson are all in one file and a second
+lesson is a second plan and not a second run. A RUN 2 file with a gate still
+reads, so that it says what it means, and is refused when it is checked, in
+these words:
 
-**On order: the file order is the order,** as it is for the course's marks,
-and a point passed twice — St Alban's Head going out and coming back — is
-written twice. A count or an index would be a second copy of what the file
-already says.
+    line 45 is a gate, which a run no longer sails: a place she must pass is
+    "pass <name> <lat> <lon> within <nm>" in a passage file, and the run names
+    it with "passage <file> <plan>"
+
+Refused rather than ignored: a gate ignored is a route that leaves out the
+thing the run was written to ask. An `avoid` is unchanged and stays in the
+run: it is water to keep off, which belongs with the run's view of the water.
 
 **Why the boat and the start are both here.** Larry asked for one course file
 that serves every boat and every start. That only works if neither is written
@@ -359,28 +369,49 @@ grids.
 
 ---
 
-## RUN 3 adds the crew, and only the crew
+## RUN 3 adds two lines, and nothing else
 
     crew    crew_example_v1.txt able
+    passage passage_example_v1.txt two-miles
 
-One line: a CREW file, and which of its levels sails this run. Everything else
-in RUN 3 is RUN 2.
+`crew` names a CREW file, and which of its levels sails this run. `passage`
+names a PASSAGE file, and which of its plans this run sails. Everything else in
+RUN 3 is RUN 2.
 
-**Why one line is a new version.** The rule is in "Changing them" below: a
+**Why a line is a new version.** The rule is in "Changing them" below: a
 line that a reader must understand to be correct is a new version. A reader
 that did not know `crew` would sail the run with tacks that cost nothing and
 report the result as this run — a convincing route for the wrong crew, which
-is the same fault `wind` was made a RUN 2 line to prevent. So a RUN 2 file
-with a `crew` line is refused, in these words:
+is the same fault `wind` was made a RUN 2 line to prevent. A reader that did
+not know `passage` would sail the run with no berth and no passes. So a RUN 2
+file with either line is refused, in these words:
 
     crew is a RUN 3 line; this file says RUN 2
+    passage is a RUN 3 line; this file says RUN 2
 
-**The line is optional.** A RUN 3 without it, and every RUN 2, is sailed with
-manoeuvres that cost nothing, and the report says so on its first lines.
+**One place for a berth.** A run that names a passage has each mark's berth
+from its plan. A `round` beside it would be a second figure for the same thing,
+and a reader could not tell which was sailed, so the two together are refused
+and both lines are named:
 
-**A run names the level, not the numbers.** The numbers live in the crew
-file, where a second run can use them and a learner can read them. To ask a
-different question, add a level to the crew file and name that.
+    this run names a passage (line 15), which gives each mark its own berth,
+    so it may not also say "round": take one of the two out
+
+A run with no passage says `round`, one berth for every mark, exactly as
+before; every run written before the passage file still sails unchanged, to
+the row.
+
+**A `mark` line in a run is refused,** with a message that says where marks are
+placed now. The shape was shown to PILOT before the passage file was settled,
+so a run may still be written with one.
+
+**Both lines are optional.** A RUN 3 without `crew` is sailed with manoeuvres
+that cost nothing, and the report says so on its first lines.
+
+**A run names the level and the plan, not the numbers.** The numbers live in
+the crew file and the passage file, where a second run can use them and a
+learner can read them. To ask a different question, add a level or a plan and
+name that.
 
 ---
 
@@ -492,7 +523,178 @@ router that a file could disagree with.
 
 ---
 
-# All four files
+# PASSAGE 1
+
+    PASSAGE 1
+    # Comments and blank lines anywhere, as in the other files.
+    plan as-sailed
+      mark  Outer Rock                          berth 0.15
+      mark  Return Buoy
+    plan two-miles
+      pass  Example Head  50.57868 -2.05644  south within 2.0
+      mark  Outer Rock                          berth 0.15
+      pass  Example Head  50.57868 -2.05644  south within 2.0
+      mark  Return Buoy
+    end
+
+**The figures a lesson changes, in one file a learner can open** (Larry, 13
+November 2026; a berth for each mark is PILOT's proposal). A plan is the
+passage written down the page as it is sailed: the marks of the course in
+their order, each with its berth, and the places she must pass among them. A
+run names one plan. A lesson that asks "two miles off, or one?" is two plans in
+one file.
+
+| Line | Form | Notes |
+|---|---|---|
+| `plan` | one word | Starts a plan. Letters, figures, `-`, `_` and `.`; each name once. |
+| `mark` | a mark of the course, then `berth <nm>` | Every mark of the course, in its order, in every plan. The berth is required, except on the mark that ends the finish line, which takes none. |
+| `pass` | name lat lon [`north`\|`east`\|`south`\|`west`] `within` nm | A **passing mark**: a place she must pass, in its turn. With a compass word, a line she must cross; without one, a circle she must come into. |
+| `end` | — | Last line. |
+
+## Why a passage file, and not lines in the run
+
+Larry asked whether PILOT would want to set these figures as part of an
+analysis, and so whether they should be passable. Three ways were put to PILOT
+and the XO:
+
+| | where the figures live | what it costs |
+|---|---|---|
+| A | in the run file | a variant is a second run file, differing in one number |
+| **B** | **in a passage file of named plans, the run naming one** | **one new format** |
+| C | passed in when the run is sailed | the result cannot be reproduced from the files |
+
+**B** is the one built, for three reasons. A lesson is a comparison, so a
+variant should be cheap to write and plain to read. The figures belong in one
+place a learner can open, the way the crew's do. And nothing is passed in at
+sailing time, because a run is exactly one experiment and must be sailed again
+from its files alone (the XO's house view). A page that lets a student move a
+passing mark can write a plan and sail that.
+
+## The words: the sailing instructions' for a mark, a compass point for a passing mark
+
+**The line is `pass`, and the thing is a passing mark** (Larry, 13 November
+2026). "Gate" was taken twice: B15, the calculator for when the stream turns at
+a headland, is the `tidal_gate`, and to a racing sailor a gate is two marks to
+sail between, which this is not. A passing mark may be a position in open water
+with no buoy; racing already knows virtual marks, and the file gives a
+position either way.
+
+**A mark keeps the words the sailing instructions use,** `port`, `starboard` or
+`either`, and they stay in the course file, copied from the instructions so
+that the file can be checked against them by eye. The passage file does not
+repeat them.
+
+**A place passed on one side takes a compass word,** and is then a line from
+its point, that many miles in that direction, which she must cross:
+
+```
+                       Example Head
+     land                   *  the point given
+     . . . . . . . . . . . .|. . . . . . . . . .   the coast
+                            |
+         out  <-------------+--------------  she crosses the line;
+                            |                the plan's order says
+         home --------------+------------->  which way she is going
+                            |
+                            +  2.0 nm south: the end of the line
+
+     pass  Example Head  50.57868 -2.05644  south within 2.0
+```
+
+**A passing mark with no compass word is a circle,** to be come into on either side:
+
+```
+                         .  -  ~  -  .
+                     .                   .
+                   .      * the point      .     she has made it the
+          - - - - o - - - - - - - - - - - - - >  moment she comes within
+                   .                       .     its distance, here at o
+                     .                   .
+                         '  -  ~  -  '
+
+     pass  Example Head  50.57868 -2.05644  within 2.0
+```
+
+**Words, not symbols.** Larry first proposed `<<`, `^^`, `>>` and `__` for the
+four sides, then chose the words: `<<` and `>>` are easy to swap at a glance,
+and a word cannot be misread.
+
+**Colours belong in the drawings, not the files.** Red for port, green for
+starboard and white for either, the way a boat shows her sidelights, is how
+PILOT's course pages draw a rounding. The files keep the instructions' words,
+because buoyage turns the colours round in IALA B ("red right returning"), and
+a learner who sees `red` beside a mark may read it as a buoy.
+
+**A line has no inside.** A circle she is already inside when its turn comes is
+made where she is. A line is made only by crossing it.
+
+## A berth for each mark
+
+A berth is nautical miles, at most two decimals, from 0.05 to 2.00: close under
+a buoy to well off a reef. It means what `round` means: she rounds on the right
+side and is never nearer than that, at any time.
+
+**Why two decimals.** Larry first suggested a count of tenths. Tenths cannot
+hold 0.15, the berth the tracked Clipper 68s show at the Eddystone, and these
+formats state their units outright. A hundredth of a mile is about twenty
+yards, which is as fine as a chart gives a berth.
+
+## The mark that ends the finish line takes no berth
+
+```
+         N
+         ^
+         +  the far end of the line, 0.10 nm north of the buoy
+         |
+         |  the finish line: she crosses it going east,
+         |  which leaves the buoy to starboard
+         |
+         *  North Head Buoy
+
+     a berth of 0.10 round the buoy reaches exactly to the far end,
+     and covers the whole line but that one point: she could not finish
+```
+
+The 2025 finish line runs only 0.10 nm north from North Head Buoy. Crossing it
+the right way *is* rounding the buoy, so the line itself says where she may go.
+A berth written on that mark is refused, and the refusal says why:
+
+    passage_2025_v1.txt, line 34: North Head Buoy is the end of the finish line,
+    and takes no berth: a berth round it would cover the line she must cross.
+    Take "berth 0.10" off this line
+
+It was found in PILOT's proposal, which gave the buoy 0.10, and Larry ruled it
+out. A mark is the end of the finish line when it is the course's last mark and
+lies within 0.02 nm of one end of the line, the same rule the router uses.
+
+## Every mark, in its order, in every plan
+
+**Every mark of the course appears in every plan, in the course's order.** A
+mark left out cannot be told from a mark forgotten: the passes meant for the
+way out would be sailed on the way home, and the route would look like a route.
+
+**Matched one by one, not by name.** The plan's first mark line is held to the
+course's first mark, its second to the second, and so on. A course may round
+the same buoy twice, and its plans then place it twice, with a berth each time.
+A check that looked a name up would have found the first rounding both times.
+
+**Every plan in the file is checked,** not only the one a run sails: a file is
+written for one course, and a fault in the plan nobody sails today is the one
+somebody sails tomorrow. Every refusal names the file and the line.
+
+## What PASSAGE 1 does not do yet
+
+- **`either`** is read, and a mark that may be left on either hand is refused by
+  the router: sailing both ways and keeping the quicker is the next piece.
+- **A passing mark has no time window.** "Before the stream turns" is not yet a
+  thing a plan can say; that is the `tidal_gate`'s question.
+- **A line is drawn from a point.** A line between two given points is not yet
+  a form.
+- **An `avoid` stays in the run.** It is water to keep off, and is not in a plan.
+
+---
+
+# All five files
 
 ## What the format cannot see, and why `source` is required
 
@@ -507,7 +709,7 @@ The defence against a wrong figure is not the reader; it is that the file
 looks like the sailing instructions and can be read against them. The reader
 catches what is impossible. A person catches what is merely untrue.
 
-## What all four refuse
+## What all five refuse
 
 The same discipline as GRID 1, for the same reason: a bad input to a router
 does not become an error, it becomes a *route*.
@@ -523,6 +725,12 @@ does not become an error, it becomes a *route*.
 5. **A crew line whose shares do not add to 100, a level with no gybe line,
    a run that asks for a level its crew file does not give** — all refused,
    the last naming the levels the file does have.
+6. **A plan that leaves a mark of the course unplaced, places one the course
+   does not have, places them out of the course's order, or gives a mark no
+   berth** — all refused, each naming the file, the line and the mark. So is a
+   berth on the mark that ends the finish line, a berth outside 0.05 to 2.00
+   or finer than a hundredth, and a run that names a passage and says `round`
+   as well.
 
 The reader never throws. A bad file is a result with a sentence and a line, in
 the same shape `GRID.parse` returns, because a reader that throws inside a
@@ -552,9 +760,14 @@ they meant.
 
 **RUN 3 is the second.** `crew` adds nothing to what any other line means,
 and a run may leave it out; but a reader that skipped it would sail the wrong
-crew, so it could not be an addition to RUN 2. The first draft of it was one,
-and this rule is what caught that. RUN 2 files are still read, and still mean
-what they meant.
+crew, so it could not be an addition to RUN 2. `passage` is the same case:
+skip it and she is sailed with no berth and no passes. The first draft of
+`crew` was an optional RUN 2 line, and this rule is what caught that. RUN 2
+files are still read, and still mean what they meant.
+
+**PASSAGE 1 is a new format, not a new version of one.** A lesson's figures
+have their own lifetime, which is the reason for a file. A RUN 2 `gate` still
+reads, and is refused when sailed, because its place is now a `pass` line.
 
 ## Where this is likely to be wrong
 

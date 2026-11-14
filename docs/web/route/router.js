@@ -54,6 +54,7 @@ var ROUTER = (function () {
   var EPS = 1e-9;
 
   function no(why) { return { ok: false, why: why }; }
+  var COMPASS = { north: 0, east: 90, south: 180, west: 270 };
 
   //  From one bearing round to another by the shorter way; clockwise is
   //  positive.
@@ -192,9 +193,6 @@ var ROUTER = (function () {
     if (!run || !run.ok) return no('there is no run');
     if (!env.wind || !env.wind.ok) return no('there is no wind grid');
     if (!env.polar || !env.polar.ok) return no('there is no polar');
-    if (run.gates && run.gates.some(function (g) { return g.rule !== 'avoid'; })) {
-      return no('this run has a gate, and the router does not sail gates yet; it sails "avoid" lines');
-    }
 
     //  the middle latitude of the course, for the one flat sheet
     var lats = [c.start.a.lat, c.start.b.lat, c.finish.a.lat, c.finish.b.lat];
@@ -255,10 +253,78 @@ var ROUTER = (function () {
     //  within a tenth of a degree of each other -- and there the mark
     //  can only have been meant to be gone round, so a whole turn is
     //  added.  Between the two it is a mark passed on the way by.
-    var way = [g.start.mid].concat(marks).concat([g.finish.mid]);
-    g.gates = [];
-    for (i = 0; i < marks.length; i++) {
-      var m = marks[i], prev = way[i], next = way[i + 2];
+    //
+    //  THE PASSES OF THE PLAN TAKE THEIR PLACE AMONG THE MARKS.  A pass
+    //  is a place she must pass, in its turn: with a compass word, a
+    //  line out from its point which she must cross ("south within 2.0"
+    //  is two miles south from a headland); without one, a circle she
+    //  must come into.  Neither has a berth or a side to round.  The
+    //  plan of the run's passage file lists marks and passes in the
+    //  order she makes them (Larry, 13 November 2026), and those, in
+    //  that order, are the STATIONS of the passage: a leg runs from one
+    //  station to the next.  Each mark takes its berth from the plan;
+    //  a run with no passage gives every mark the one berth it says
+    //  with `round`, as it always has.
+    //
+    //  The line out from a mark is laid by where she comes from and
+    //  where she goes next, and those are now the stations either side
+    //  of it, which may be passes: a headland to be passed on the way
+    //  to a mark changes the way she comes at it.
+    //
+    //  The plan was checked against the course before it got here
+    //  (COURSE.checkPassage); these refusals are for a router handed a
+    //  plan directly, which must not sail one that leaves a mark out.
+    if ((run.gates || []).some(function (q) { return q.rule !== 'within' && q.rule !== 'avoid'; })) {
+      return no('this run has a RUN 1 gate, which never said whether she must pass near it or stay off it; ' +
+                'a RUN 3 file names a passage, whose "pass" lines are the places she must pass');
+    }
+    if ((run.gates || []).some(function (q) { return q.rule === 'within'; })) {
+      return no('this run has "gate" lines, which are not sailed: a place she must pass is a "pass" line in a passage file');
+    }
+    function passStation(q) {
+      var p = pt(q), s = { kind: 'pass', name: q.name, x: p.x, y: p.y, lat: q.lat, lon: q.lon, nm: q.nm,
+                           dir: q.dir || null, aimx: p.x, aimy: p.y };
+      if (s.dir) {
+        //  the far end of the line, and the middle of it to aim at
+        var u = unit(COMPASS[s.dir]);
+        s.ex = p.x + u.x * q.nm; s.ey = p.y + u.y * q.nm;
+        s.aimx = p.x + u.x * q.nm / 2; s.aimy = p.y + u.y * q.nm / 2;
+      }
+      return s;
+    }
+    var stations = [];
+    if (run.passage) {
+      var pf = env.passage;
+      if (!pf || !pf.ok) return no('the run names a passage file, ' + run.passage.file + ', and none was given to the router');
+      var plan = pf.plans[run.passage.plan];
+      if (!plan) return no('the passage file has no plan "' + run.passage.plan + '"');
+      var mi = 0, ended = false;
+      for (i = 0; i < plan.items.length; i++) {
+        var it = plan.items[i];
+        if (ended) return no('the plan has ' + it.name + ' after ' + g.pin + ', which is the end of the finish line');
+        if (it.kind === 'pass') { stations.push(passStation(it)); continue; }
+        if (g.pin && it.name === g.pin && mi === marks.length) {
+          if (it.berth !== null && it.berth !== undefined) return no(g.pin + ' is the end of the finish line, and takes no berth');
+          ended = true; continue;
+        }
+        if (mi >= marks.length || marks[mi].name !== it.name) {
+          return no('the plan places ' + it.name + ' where the course has ' + (mi < marks.length ? marks[mi].name : 'no more marks'));
+        }
+        if (!(it.berth > 0)) return no('the plan gives ' + it.name + ' no berth');
+        marks[mi].berth = it.berth;
+        stations.push(marks[mi]); mi++;
+      }
+      if (mi < marks.length) return no('the plan does not place ' + marks[mi].name);
+      if (g.pin && !ended) return no('the plan does not place ' + g.pin);
+    } else {
+      marks.forEach(function (mk) { mk.berth = run.round; stations.push(mk); });
+    }
+
+    var way = [g.start.mid].concat(stations).concat([g.finish.mid]);
+    g.stations = [];
+    for (i = 0; i < stations.length; i++) {
+      var m = stations[i], prev = way[i], next = way[i + 2];
+      if (m.kind === 'pass') { g.stations.push(m); continue; }
       if (m.side === 'either') { return no(m.name + ' may be left on either hand, which the router does not sail yet'); }
       var bp = brgOf(prev.x - m.x, prev.y - m.y), bn = brgOf(next.x - m.x, next.y - m.y);
       var port = m.side === 'port';
@@ -266,13 +332,14 @@ var ROUTER = (function () {
       var sweep = (r > 180 || r >= 90) ? r : r + 360;
       var gb = port ? R.norm360(bp - sweep / 2) : R.norm360(bp + sweep / 2);
       var gu = unit(gb);
-      g.gates.push({
+      g.stations.push({
+        kind: 'mark', berth: m.berth,
         name: m.name, x: m.x, y: m.y, lat: m.lat, lon: m.lon, side: m.side,
         gx: gu.x, gy: gu.y, bearing: gb, sweep: sweep,
         sense: port ? 1 : -1,                    //  anticlockwise is positive
         fx: m.x + gu.x * 500, fy: m.y + gu.y * 500,
         //  where she aims: on the line, just outside the berth
-        aimx: m.x + gu.x * (run.round + 0.03), aimy: m.y + gu.y * (run.round + 0.03)
+        aimx: m.x + gu.x * (m.berth + 0.03), aimy: m.y + gu.y * (m.berth + 0.03)
       });
     }
 
@@ -293,8 +360,13 @@ var ROUTER = (function () {
       });
     });
     //  each mark she rounds keeps its berth, all the way round
-    g.gates.forEach(function (gt) { w.add(gt.x, gt.y, gt.x, gt.y, run.round, 'the berth round ' + gt.name); });
+    g.stations.forEach(function (gt) {
+      if (gt.kind === 'mark') w.add(gt.x, gt.y, gt.x, gt.y, gt.berth, 'the berth round ' + gt.name);
+    });
+    //  an `avoid` is water she may not enter; a pass is the opposite,
+    //  and puts nothing in her way
     (run.gates || []).forEach(function (a) {
+      if (a.rule !== 'avoid') return;
       w.add(X(a.lon), Y(a.lat), X(a.lon), Y(a.lat), a.nm, 'the ' + a.nm + ' miles off ' + a.name);
     });
     g.water = w; g.segments = nseg;
@@ -325,7 +397,7 @@ var ROUTER = (function () {
     var rn = env.run, polar = env.polar;
     var cell = opt.cell || 0.5, reach = opt.reach || 1.6;
     var dt = rn.step.time * 1000, dh = rn.step.heading;
-    var nleg = g.gates.length + 1;
+    var nleg = g.stations.length + 1;
     var stats = { expanded: 0, tried: 0, stopped: {}, kept: 0, startPoints: 0, startDropped: 0 };
 
     //  THE COST OF A TACK, AND OF A GYBE.  A run may name a crew, and a
@@ -359,9 +431,38 @@ var ROUTER = (function () {
     //  where each leg begins and where it is bound, for "nearer" and
     //  for the limit of the search
     var from = [g.start.mid], to = [];
-    g.gates.forEach(function (gt) { to.push({ x: gt.aimx, y: gt.aimy }); from.push({ x: gt.aimx, y: gt.aimy }); });
+    g.stations.forEach(function (gt) { to.push({ x: gt.aimx, y: gt.aimy }); from.push({ x: gt.aimx, y: gt.aimy }); });
     to.push(g.finish.mid);
     function left(leg, x, y) { return Math.hypot(to[leg].x - x, to[leg].y - y); }
+
+    //  HOW A PASS WITH NO COMPASS WORD IS MADE.  Where along a step she
+    //  first comes within its distance of its point: the fraction of the
+    //  step, or -1 if she does not.  (She begins the step outside it; a
+    //  circle she is already inside was passed where she stood, below.
+    //  A pass with a compass word is a line, and is crossed: cross().)
+    function enter(ax, ay, bx, by, cx, cy, r) {
+      var dx = bx - ax, dy = by - ay, fx = ax - cx, fy = ay - cy;
+      var a = dx * dx + dy * dy, b = 2 * (fx * dx + fy * dy), c = fx * fx + fy * fy - r * r;
+      if (c <= 0) return 0;
+      if (a < 1e-18) return -1;
+      var disc = b * b - 4 * a * c;
+      if (disc < 0) return -1;
+      var t = (-b - Math.sqrt(disc)) / (2 * a);
+      return (t >= 0 && t <= 1) ? t : -1;
+    }
+    //  A CIRCLE SHE IS ALREADY INSIDE IS PASSED WHERE SHE IS.  Two passes
+    //  whose circles overlap, one drawn round the start line, a mark
+    //  rounded inside the circle of the headland beyond it: there is no
+    //  step to cut, so the leg moves on at once and the name is kept.
+    //  (A line has no inside; it is made only by crossing it.)
+    function already(leg, x, y, names) {
+      while (leg < g.stations.length && g.stations[leg].kind === 'pass' && !g.stations[leg].dir &&
+             Math.hypot(x - g.stations[leg].x, y - g.stations[leg].y) <= g.stations[leg].nm + 1e-9) {
+        names.push('passed ' + g.stations[leg].name);
+        leg++;
+      }
+      return leg;
+    }
     //  how far along the leg she has got: her place measured down the
     //  straight line from where the leg began to where it is bound
     function made(leg, x, y) {
@@ -404,8 +505,9 @@ var ROUTER = (function () {
       var sx = g.X(off.lon), sy = g.Y(off.lat);
       stats.startPoints++;
       if (g.water.tooNear(sx, sy)) { stats.startDropped++; continue; }
-      frontier.push({ lat: off.lat, lon: off.lon, x: sx, y: sy, ms: g.t0, leg: 0, parent: null, row: null, along: f,
-                        tack: null, heading: null, owed: 0, via: null });
+      var pre = [], leg0 = already(0, sx, sy, pre);
+      frontier.push({ lat: off.lat, lon: off.lon, x: sx, y: sy, ms: g.t0, leg: leg0, parent: null, row: null, along: f,
+                        tack: null, heading: null, owed: 0, via: null, pre: pre });
     }
     if (!frontier.length) return no('every place on the start line is nearer the shore than the run allows');
 
@@ -420,6 +522,11 @@ var ROUTER = (function () {
       while (queue.length) {
         var node = queue.pop();
         //  a leg that has been completed is not searched for long after
+        //  (A gate's leg was first searched for longer than a mark's, on
+        //  the argument that the first boat into a circle miles across
+        //  is only the first at its near edge.  Measured, it made no
+        //  difference the search can resolve, in either direction, so
+        //  it was taken out again.)
         if (legOver[node.leg] >= 0 && iter > legOver[node.leg] + 1) continue;
         var minutes = (Tn - node.ms) / 60000;
         if (minutes < 1e-6) continue;
@@ -518,14 +625,21 @@ var ROUTER = (function () {
     function consider(node, row, Tn, next, queue, st) {
       var ax = node.x, ay = node.y, bx = g.X(row.lon2), by = g.Y(row.lat2);
       var leg = node.leg, f = 1, ev = null, t;
-      if (leg < g.gates.length) {
-        var gt = g.gates[leg];
-        t = cross(ax, ay, bx, by, gt.x, gt.y, gt.fx, gt.fy);
-        if (t >= 0) {
-          //  which way round is she going as she crosses?
-          var z = gt.gx * (by - ay) - gt.gy * (bx - ax);
-          if (z * gt.sense <= 0) { stats.stopped.wrongWay = (stats.stopped.wrongWay || 0) + 1; return; }
-          ev = 'round'; f = t;
+      if (leg < g.stations.length) {
+        var gt = g.stations[leg];
+        if (gt.kind === 'pass') {
+          //  either way across a line: the order of the stations is what
+          //  says which way she is going
+          t = gt.dir ? cross(ax, ay, bx, by, gt.x, gt.y, gt.ex, gt.ey) : enter(ax, ay, bx, by, gt.x, gt.y, gt.nm);
+          if (t >= 0) { ev = 'pass'; f = t; }
+        } else {
+          t = cross(ax, ay, bx, by, gt.x, gt.y, gt.fx, gt.fy);
+          if (t >= 0) {
+            //  which way round is she going as she crosses?
+            var z = gt.gx * (by - ay) - gt.gy * (bx - ax);
+            if (z * gt.sense <= 0) { stats.stopped.wrongWay = (stats.stopped.wrongWay || 0) + 1; return; }
+            ev = 'round'; f = t;
+          }
         }
       } else {
         t = cross(ax, ay, bx, by, g.finish.a.x, g.finish.a.y, g.finish.b.x, g.finish.b.y);
@@ -547,6 +661,41 @@ var ROUTER = (function () {
       var what = g.water.stops(ax, ay, bx, by);
       if (what) { stats.stopped[what] = (stats.stopped[what] || 0) + 1; return; }
 
+      //  A MARK ONCE ROUNDED STAYS ROUNDED.  She rounds a mark by
+      //  crossing the line out from it the right way.  Nothing then
+      //  stopped her crossing it back the other way a moment later,
+      //  which unwinds the turn: the string drawn along her track no
+      //  longer goes round the mark at all.  It was found by a gate.
+      //  With a headland to pass before the buoy and again after it,
+      //  the fastest "rounding" was to reach past the buoy, hook across
+      //  its line, and come home the side she went out -- and the check
+      //  that measures how far the track swings round the mark read
+      //  two degrees where it should read a full turn.  Courses without
+      //  gates had not been tempted, because their next mark lay on the
+      //  far side of the turn; the fault was there all the same.
+      //
+      //  So the line of every mark she has rounded is a wall to her
+      //  from the wrong side, for the rest of the passage.
+      for (var pk = 0; pk < leg && pk < g.stations.length; pk++) {
+        var pm = g.stations[pk];
+        if (pm.kind !== 'mark') continue;
+        //  Which side of the line each end of the step is on: positive
+        //  is the side she came out on when she rounded.  The step that
+        //  rounded the mark ends ON the line, so "on it" counts as
+        //  through it; a test that asked only whether this step crosses
+        //  the line let her turn back from the line itself.
+        var sA = (pm.gx * (ay - pm.y) - pm.gy * (ax - pm.x)) * pm.sense;
+        var sB = (pm.gx * (by - pm.y) - pm.gy * (bx - pm.x)) * pm.sense;
+        if (sA >= -1e-9 && sB < -1e-9) {
+          //  ... and where she comes back over it: out along the line
+          //  from the mark is unwinding; behind the mark is only the
+          //  far side of going round it.
+          var tt = sA <= 0 ? 0 : sA / (sA - sB);
+          var al = (ax + (bx - ax) * tt - pm.x) * pm.gx + (ay + (by - ay) * tt - pm.y) * pm.gy;
+          if (al >= 0) { stats.stopped.unwound = (stats.stopped.unwound || 0) + 1; return; }
+        }
+      }
+
       if (ev) {
         var r2 = {}, kk;
         for (kk in row) r2[kk] = row[kk];
@@ -555,7 +704,12 @@ var ROUTER = (function () {
       }
       var ms = node.ms + row.minutes * 60000;
       if (ev === 'finish') { finishes.push({ ms: ms, node: node, row: row }); return; }
-      var nl = ev === 'round' ? leg + 1 : leg;
+      //  the station made on this row, and any gate beyond it that she
+      //  is inside as she makes it
+      var evs = [], nl = leg;
+      if (ev === 'round') { evs.push('rounded ' + g.stations[leg].name); nl = leg + 1; }
+      if (ev === 'pass') { evs.push('passed ' + g.stations[leg].name); nl = leg + 1; }
+      if (nl > leg) nl = already(nl, bx, by, evs);
       if (!ev && !inReach(leg, bx, by)) { stats.stopped.reach = (stats.stopped.reach || 0) + 1; return; }
 
       //  What she is doing as this row ends: sailing on a tack, or part
@@ -569,7 +723,7 @@ var ROUTER = (function () {
         via = st.via; tk = st.tack; hd = st.heading;
       }
       var nn = { lat: lat2, lon: lon2, x: bx, y: by, ms: ms, leg: nl, parent: node, row: row,
-                 ev: ev === 'round' ? g.gates[leg].name : null,
+                 ev: evs.length ? evs.join('; ') : null,
                  tack: tk, heading: hd, owed: owed, via: via };
 
       //  "FIRST" COUNTS WHAT SHE STILL OWES: a boat here now with two
@@ -599,16 +753,28 @@ var ROUTER = (function () {
       var key = cellKey(bx, by) + ':' + tk + (via ? ':' + via : '') +
                 (((offT >= 0 ? 'port' : 'starboard') === tk && P.sail(polar, Math.abs(offT), row.tws)) ? ':f' : ':n');
       var was = seen[nl][key];
-      if (ev === 'round') {
-        if (legOver[leg] < 0) legOver[leg] = iter;
+      if (nl > leg) {
+        for (var lk = leg; lk < nl; lk++) if (legOver[lk] < 0) legOver[lk] = iter;
         if (was && was.ms <= eff + 500) return;
-        seen[nl][key] = { ms: eff, slot: -1, iter: iter };
+        seen[nl][key] = { ms: eff, slot: -1, iter: iter, node: nn };
         queue.push(nn);
         stats.kept++;
         return;
       }
       //  a manoeuvre that is over before the step is: she sails the rest
       if (st && ms < Tn - 1) { queue.push(nn); stats.kept++; return; }
+      //  HER OWN STATION IS NOT A RIVAL.  The place she makes a station
+      //  is noted in its square, so that of two boats that make it there
+      //  the first is kept; and she sails the rest of that step on from
+      //  it.  That rest may be seconds, too short to leave the square,
+      //  and the first version of this then judged her against her own
+      //  station -- reached earlier, so dropped -- and kept only a
+      //  heading that fell back over the square's edge.  She sailed four
+      //  seconds back the way she came after every station that landed
+      //  near an edge, and gave the time away.  Found by a line pass
+      //  laid on a square's edge (13 November 2026); it was there for
+      //  marks and circles all along.
+      if (was && was.slot < 0 && was.node === node) was = null;
       if (was) {
         //  reached earlier: she was here first
         if (was.ms < eff - 500 || was.slot < 0) return;
@@ -643,17 +809,22 @@ var ROUTER = (function () {
       for (q in rw) out[q] = rw[q];
       out.leg = lg; out.event = evn;
       rows.unshift(out);
-      evn = nd.ev ? 'rounded ' + nd.ev : null;
+      evn = nd.ev || null;
       lg = nd.parent ? nd.parent.leg : 0;
       rw = nd.row; var keep = nd; nd = nd.parent;
       if (!nd) { stats.along = keep.along; break; }
     }
+    //  the place on the start line this route began from, and any gate
+    //  she was inside as she started
+    var root = best.node;
+    while (root.parent) root = root.parent;
 
     //  what the track adds up to
     var sum = { start: utc(g.t0), finish: utc(best.ms), hours: (best.ms - g.t0) / 3600000,
                 ground: 0, water: 0, tacks: 0, gybes: 0, tackSeconds: 0, gybeSeconds: 0,
                 noStreamMinutes: 0, clampedMinutes: 0,
-                optimumMinutes: 0, rounded: [], startAlong: stats.along, pin: g.pin || null };
+                optimumMinutes: 0, rounded: [], passed: [], startAlong: stats.along, pin: g.pin || null };
+    (root.pre || []).forEach(function (e) { sum.passed.push({ name: e.replace(/^passed /, ''), at: utc(g.t0) }); });
     for (i = 0; i < rows.length; i++) {
       var rr = rows[i];
       sum.ground += rr.sog * rr.minutes / 60;
@@ -670,13 +841,31 @@ var ROUTER = (function () {
       if (rr.noStream) sum.noStreamMinutes += rr.minutes;
       if (rr.clamped) sum.clampedMinutes += rr.minutes;
       if (rr.polar !== 'table' && rr.polar !== 'manoeuvre') sum.optimumMinutes += rr.minutes;
-      if (rr.event && rr.event !== 'finish') sum.rounded.push({ mark: rr.event.replace(/^rounded /, ''),
-                                                               at: utc(rr.ms + rr.minutes * 60000) });
+      //  A row may end by making more than one station: a mark rounded
+      //  inside the circle of the gate beyond it is both at once.
+      if (rr.event && rr.event !== 'finish') {
+        rr.event.split('; ').forEach(function (e) {
+          var when = utc(rr.ms + rr.minutes * 60000);
+          if (/^rounded /.test(e)) sum.rounded.push({ mark: e.replace(/^rounded /, ''), at: when });
+          else if (/^passed /.test(e)) sum.passed.push({ name: e.replace(/^passed /, ''), at: when });
+        });
+      }
     }
     //  what the run asked a manoeuvre to cost, so that a report need
     //  not open the crew file to say it
     sum.crew = rn.crew ? { file: rn.crew.file, level: rn.crew.level, tack: cost.tack, gybe: cost.gybe } : null;
-    return { ok: true, rows: rows, summary: sum, stats: stats, gates: g.gates };
+    //  WHAT EACH STATION ASKED, beside when she made it, so that a report
+    //  says the figures the route was sailed to and can be sailed again
+    //  from what it prints (the XO, 13 November 2026).  Stations are
+    //  made strictly in order, so the k-th pass made is the k-th pass of
+    //  the plan, and the same for the marks.
+    var sp = g.stations.filter(function (s) { return s.kind === 'pass'; });
+    var sm = g.stations.filter(function (s) { return s.kind === 'mark'; });
+    sum.passed.forEach(function (p, k) { if (sp[k]) { p.nm = sp[k].nm; p.dir = sp[k].dir; } });
+    sum.rounded.forEach(function (r, k) { if (sm[k]) r.berth = sm[k].berth; });
+    sum.passage = rn.passage ? { file: rn.passage.file, plan: rn.passage.plan } : null;
+    sum.round = rn.passage ? null : rn.round;
+    return { ok: true, rows: rows, summary: sum, stats: stats, stations: g.stations };
   }
 
   return { run: run, compile: compile, utc: utc, cross: cross, segSeg: segSeg, ptSeg: ptSeg };
