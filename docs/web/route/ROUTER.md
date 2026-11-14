@@ -734,6 +734,112 @@ cost nothing the router has no reason not to, and that is the first item in
 the list below. The same race sailed by four crews is under "The cost of a
 tack".
 
+## Held to the real race
+
+`docs/web/tests/race-2025.js` holds the router to the race that was sailed:
+PILOT's course, coastline, wind, stream and polar, and what eleven real boats
+did, from the race's tracker. It is board item B3.
+
+```
+   W                                                                        E
+   Eddystone    Start Point       Portland Bill   St Alban's    Hurst    start,
+       *            |                  |              |           |      finish
+     4.27W        3.640W             2.457W         2.057W      1.550W    ][
+
+       <------------+------------------+--------------+-----------+------  out
+                  held               held          EXCEPTED    EXCEPTED
+
+       -------------+------------------+--------------+------------------>  home
+     held         held               held           held            held
+```
+
+PILOT timed every real boat where she crossed four meridians, out and home,
+where she came closest to the light, and at the finish: nine lines. The router
+is timed at the same nine, from the same gun.
+
+### What is held (Larry, 14 November 2026)
+
+| | what it checks | why |
+|---|---|---|
+| **rules** | Every step of every route against every piece of the coastline and each layer's clearance; each berth; the hand each mark was left on; each passing mark made; the start and the finish; each row handing on to the next. | By arithmetic of the test's own, that owes nothing to the router. The router keeps its water in a table of squares for speed; this goes through all of it. |
+| **orderings** | A restriction never makes her faster: headlands to keep off, a wider berth, passing marks. A worse crew is never quicker. A five-minute step is never slower than a ten-minute one. | These must be so whatever the answer is. Every fault found in the search so far was found by one of them and not by a wrong number. |
+| **pins** | The ten finishing times the documents and lessons quote, and the as-sailed run's time at each of the nine lines. | A change that moves one is seen, and must be made on purpose, with its reason in the CHANGELOG. |
+| **boats** | From Portland Bill on, the router leads every real boat at every line it was observed at. | Its boat is a generic 70 ft racing yacht with free tacks and a forecast it knows in advance. It should lead. |
+
+**Every comparison of two times allows two minutes,** which is what the search
+cannot tell apart ("What the search can resolve").
+
+### The router beside the real boats
+
+Hours from each boat's own gun. The router is the as-sailed run: tacks free.
+
+| line | router | Ker 46 | Sydney GTS 43 | Open 50 | Carroll Marine 60 | fastest Clipper 68 |
+|---|---|---|---|---|---|---|
+| Hurst narrows (out) | 1.47 | **1.16** | **1.20** | **1.29** | **1.27** | 1.50 |
+| St Alban's Head (out) | 4.07 | **4.04** | 4.29 | 4.91 | 5.12 | 7.36 |
+| Portland Bill (out) | 6.10 | 6.62 | 6.70? | 8.05? | 8.22 | 10.98 |
+| Start Point (out) | 12.35 | 14.27 | 14.38 | 16.53 | 15.08 | 23.43 |
+| Eddystone | 15.17 | 18.60 | 18.89 | 21.37 | 19.62 | 28.48 |
+| Start Point (back) | 16.98 | 20.60 | 21.24 | 24.55 | 23.95 | 31.23 |
+| Portland Bill (back) | 20.78 | 25.65 | 26.68? | 29.93 | 31.16 | 37.68 |
+| St Alban's Head (back) | 22.00 | 27.49 | 28.50? | 31.04 | 32.67 | 41.16 |
+| finish | 23.62 | 29.07? | 30.44 | 32.92 | 35.52 | 43.94 |
+
+**Bold** is a real boat ahead of the router. `?` is a time the tracker did not
+observe: it was silent across the line, the time is interpolated, and it is
+not held either way. The test prints all eleven boats.
+
+1. **From Portland Bill on she leads every boat,** at 69 observed times. The
+   closest is the Ker 46 at Portland Bill, 31 minutes behind her.
+2. **At Hurst six real boats lead her, and at St Alban's Head the Ker 46 still
+   does.** The stream data does not cover the Solent, so the router sails its
+   first hour and forty minutes as still water while the real boats had the ebb
+   (PILOT's finding). Those two lines are a **stated exception**.
+3. **The exception is itself checked.** It stands only while a real boat does
+   lead her there. When the Solent stream data comes and she leads at Hurst
+   too, the test fails until the exception is taken out, and the line is then
+   held like the rest.
+
+### What is not held, and why
+
+1. **Single legs.** She is slower than the fastest real boat on three of the
+   nine legs. One is the Solent. One is fair: the Open 50 had a better tide from
+   Portland Bill to St Alban's for arriving at a different hour. The last leg is
+   a tie, against an interpolated time. The router makes the best passage, not
+   the best of every leg.
+2. **PILOT's Clipper 68 run against the real Clipper 68s.** That polar was
+   measured in this same race, so it would be the method agreeing with itself.
+
+### The data is read where it lives
+
+The test reads PILOT's folder, `practical-navigator/data/2025/`, beside this
+repository. Nothing is copied: a copy would have missed both of the corrections
+PILOT has already made. It only reads.
+
+1. **Each file is pinned by its checksum.** If one changes, the test names the
+   file and says so, and a note at the top says that any failure below may be
+   the file and not the router.
+2. **If the folder is not there, the test fails and says where it looked.** A
+   check that passes because it could not look is worse than none.
+3. **The crews and the passage plans are written by the test,** from PILOT's
+   as-sailed run, so that each differs from it in one thing.
+
+### Running it, and changing a pinned time
+
+    node docs/web/tests/race-2025.js                  all of it: two to three minutes
+    node docs/web/tests/race-2025.js boats pins       some parts
+    node docs/web/tests/race-2025.js --show           print what it measured
+    node docs/web/tests/race-2025.js --data <folder>  another copy of the data
+
+The parts are `files`, `rules`, `pins`, `boats`, `crews`, `limits` and `steps`.
+It sails the race eleven times, so it is its own command and the full suite
+runs it once, outside its loop over shells; it is not in the one-second gate.
+
+**To change a pinned time:** change the router on purpose, say why in the
+CHANGELOG, run with `--show`, and write the new figure into `FINISH` or
+`AT_LINES`. **To move to a new file of PILOT's:** read what changed, run with
+`--show`, and write the new checksum into `PINNED`.
+
 ## What it does not do yet, and what it assumes
 
 1. **A tack costs nothing unless the run names a crew.** Without one she
@@ -767,6 +873,7 @@ tack".
     node docs/web/tests/passagelog.js       the passage log, on rows written by hand
     node docs/web/tests/sail.js             a run sailed from its name, and the refusals
     node docs/web/tests/course.js           the course, areas, run, crew and passage files
+    node docs/web/tests/race-2025.js        the real 2025 race: two to three minutes (see "Held to the real race")
 
 Each course in `router.js` is laid on the equator, in a wind and a stream that
 do not change, so that the fastest passage is one triangle and can be worked
@@ -835,6 +942,19 @@ it, and each is caught. A variant that let a square stay with its first boat
 whoever else came was tried, could not be told from this one by any check or
 by the 2025 race, and was taken out. Every earlier fault list was then put
 back against the new search, 97 faults in all, and each is still caught.
+
+The real race is checked in `race-2025.js`, 86 checks. Its own checks were
+proven the same way, with 24 faults, none of them put into either repository:
+the router was faulted in a scratch copy, and PILOT's data in a scratch copy of
+the folder. In the router: the coastline clearance ignored, no berth, the
+stream not sampled, a crew not charged, a plan's berth or its passing marks
+ignored, an `avoid` dropped. In the data: a pinned file changed in place, a real
+boat put ahead of the router at Portland Bill, the leg times cut short, the
+exception made unnecessary, the folder taken away. Each is caught by the check
+meant for it, and an interpolated time put ahead of the router, which is not
+evidence, rightly passes. One got through at first. A router that ignored the
+plan's berth passed, because the test read the berth from the route's own
+summary and so held it to the figure it had used; it now reads what was asked.
 
 The crew file's reader is checked in `course.js`, with the other formats:
 seven faults, among them shares that need not add to 100 and a level allowed

@@ -1,5 +1,53 @@
 # Changelog
 
+## B3: the router is held to the real 2025 race
+
+**What.** A new check, `docs/web/tests/race-2025.js`, sails the 2025 Myth of
+Malham eleven times on PILOT's own files and holds the router to four things.
+Board item B3.
+
+| | what it checks |
+|---|---|
+| rules | Every step of every route against all of the coastline, each clearance, each berth, the hand each mark was left on, each passing mark, the start and the finish. By arithmetic of the test's own. |
+| orderings | A restriction never makes her faster; a worse crew is never quicker; a five-minute step is never slower than a ten-minute one. |
+| pins | The ten finishing times the documents quote, and the as-sailed run's time at nine lines. |
+| boats | From Portland Bill on, the router leads every real boat at every line it was observed at. |
+
+**Why these.** Larry ruled each choice, 14 November 2026.
+
+1. **Against the real boats, one claim that can fail.** The router's boat is a
+   generic 70 ft racing yacht with free tacks, so it should lead every real
+   boat. It does from Portland Bill on: 69 observed times, the closest 31
+   minutes behind. At Hurst and St Alban's Head, outbound, real boats lead it,
+   because the stream data does not cover the Solent. Those two lines are a
+   stated exception, and the exception is checked: when it is no longer needed
+   the test fails until it is taken out.
+2. **The data is read where it lives,** in PILOT's folder, each file pinned by
+   its checksum. A copy would have missed both of PILOT's corrections. A
+   changed file is named as the cause.
+3. **Its own command, and the full suite runs it once.** It takes two to three
+   minutes, so it is not in the one-second gate, and `tests/run-tests.sh` runs
+   it after its loop over shells, showing its progress.
+
+**Not held, on purpose.** Single legs: a real boat can have a better tide on
+one leg for arriving at a different hour. PILOT's Clipper 68 run against the
+real Clipper 68s: that polar was measured in this same race.
+
+**What it affects.** Nothing in the router changes. A change to the router
+that moves a published time now fails this check until the new time is pinned
+on purpose. A change to one of PILOT's pinned files fails it by name. The
+full suite takes two to three minutes longer, and needs PILOT's repository
+beside this one.
+
+**What it found before it existed.** The boat lost in a light air, below, was
+found by the first question asked for it.
+
+**Checked.** 86 checks. 24 faults were put back, in scratch copies of the
+router and of PILOT's folder, and each is caught by the check meant for it. One
+got through at first: the test read a mark's berth from the route's own
+summary, so a router that ignored the plan's berth was held to the figure it
+had used. It now reads the berth that was asked.
+
 ## A boat that sails less than half a mile in a step is no longer lost
 
 **The fault.** The search keeps one boat to a half-mile square: the first to
