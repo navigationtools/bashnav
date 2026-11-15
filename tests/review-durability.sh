@@ -49,10 +49,10 @@ wait 2>/dev/null
 #  section is asked for rather than written in. A test that hard-codes a
 #  key starts failing for the wrong reason the moment the table changes,
 #  which is the very thing the new key format exists to prevent.
-K1=$($AWKB -f src/colregs/engine.awk -f src/colregs/contacts.awk \
+K1=$($AWKB -f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk \
        -f src/colregs/review.awk -v cmode=plain -v cmd=rvkeys -v which=mot \
        </dev/null | sed -n 1p)
-K2=$($AWKB -f src/colregs/engine.awk -f src/colregs/contacts.awk \
+K2=$($AWKB -f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk \
        -f src/colregs/review.awk -v cmode=plain -v cmd=rvkeys -v which=mot \
        </dev/null | sed -n 4p)
 if [ ! -s "$H/review.tsv" ]; then
@@ -65,7 +65,7 @@ fi
 H2="$T/h2"; mkdir -p "$H2"
 printf '3\nf\nthe answer never says not under command\nq\nx\n' \
   | COLREGS_HOME="$H2" COLREGS_AWK="$AWKB" $SHL ./bin/colregs review > "$T/out2" 2>&1
-r=$($AWKB -f src/colregs/engine.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
+r=$($AWKB -f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
       -v cmode=plain -v cmd=rvreport -v rfile="$H2/review.tsv" -v rvver=t </dev/null)
 case $r in
   *"never says not under command"*) : ;;

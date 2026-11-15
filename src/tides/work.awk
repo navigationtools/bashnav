@@ -28,16 +28,12 @@
 #  engine that called into this file would not parse without it.
 # =====================================================================
 
-#  ---- lifted from src/colregs/contacts.awk -------------------------
-#  The vector machinery the tracking party uses: the bearing of a
-#  vector given its east and north parts, and an angle folded into
-#  -180..180.  COPIED rather than shared, because build.sh packs each
-#  tool's awk into that tool alone, and contacts.awk cannot be loaded
-#  into tides: it calls colregs' engine (tb(), the plot, the yards
-#  arithmetic), and mawk refuses a file whose callees are missing.  The
-#  same two lines, the same names, so the lineage is plain.
-function rbrg(x,y){ return nrm360(atan2d(x,y)) }
-function sgn180(a){ a=nrm360(a); return (a>180)?a-360:a }
+#  ---- from src/common/bearing.awk ---------------------------------
+#  The vector machinery the tracking party uses -- rbrg(), the bearing
+#  of a vector given its east and north parts, and sgn180(), an angle
+#  folded into -180..180 -- comes from src/common/bearing.awk, which
+#  colregs' contacts use as well.  build.sh packs it between engine.awk
+#  and this file in the ENGINE payload (board item B13).
 
 # ---------------------------------------------------------------------
 #  Small helpers.  Every format here has a twin in work.js.

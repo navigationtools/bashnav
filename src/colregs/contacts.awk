@@ -8,9 +8,9 @@
 # =====================================================================
 function ktym(){ return 33.3333333 }
 
-#  Bearing of a relative position, and the signed drift between two.
-function rbrg(x,y){ return nrm360(atan2d(x,y)) }
-function sgn180(a){ a=nrm360(a); return (a>180)?a-360:a }
+#  Bearing of a relative position, rbrg(), and the signed drift between
+#  two, sgn180(), are in src/common/bearing.awk, which tides uses too.
+#  build.sh packs it ahead of this file in the CONTACTS payload.
 
 # ---------------------------------------------------------------------
 #  THE PLOT.  Own ship at the centre, head up, and the contact drawn

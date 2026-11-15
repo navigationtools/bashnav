@@ -152,7 +152,7 @@ for SH in $SHELLS; do
   CH="$tmp/celnav-$SH-$AW"; CR="$tmp/colregs-$SH-$AW"
   #  The three files colregs loads together. mawk resolves called
   #  functions at parse time, so the engine alone no longer loads.
-  CSRC="-f src/colregs/engine.awk -f src/colregs/contacts.awk -f src/colregs/review.awk"
+  CSRC="-f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk -f src/colregs/review.awk"
   rm -rf "$CH" "$CR"
 
   # ---- celnav ------------------------------------------------------
@@ -674,9 +674,9 @@ WXLOG
   #  code can work in one file and break when another is loaded after
   #  it. Check each tool's files as they are actually loaded together.
   fp=0
-  for grp in "src/colregs/engine.awk src/colregs/contacts.awk src/colregs/review.awk" \
+  for grp in "src/colregs/engine.awk src/common/bearing.awk src/colregs/contacts.awk src/colregs/review.awk" \
              "src/celnav/engine.awk src/celnav/teach.awk" \
-             "src/tides/tables.awk src/tides/engine.awk src/tides/work.awk"; do
+             "src/tides/tables.awk src/tides/engine.awk src/common/bearing.awk src/tides/work.awk"; do
     r=$($AW -f tests/fnparam-check.awk $grp)
     n=$(echo "$r" | tail -1 | $AW '{print $2}')
     if [ "$n" != 0 ]; then bad "$n parameters shadow a function name"; echo "$r" | grep -v '^BAD' | head -4; fp=1; fi
@@ -745,9 +745,9 @@ WXLOG
   for grp in \
     "src/common/log.awk src/common/colour.awk src/weather/grid.awk src/weather/wx.awk src/weather/score.awk src/weather/chart.awk src/weather/teach.awk src/weather/screens.awk" \
     "src/common/log.awk src/common/colour.awk src/decklog/views.awk src/decklog/screens.awk" \
-    "src/colregs/engine.awk src/colregs/contacts.awk src/colregs/review.awk" \
+    "src/colregs/engine.awk src/common/bearing.awk src/colregs/contacts.awk src/colregs/review.awk" \
     "src/celnav/engine.awk src/celnav/teach.awk" \
-    "src/tides/engine.awk src/tides/work.awk" \
+    "src/tides/engine.awk src/common/bearing.awk src/tides/work.awk" \
     "src/seamanship/engine.awk"; do
     [ -f "${grp%% *}" ] || continue
     r=$($AW -f tests/fnvar-check.awk $grp 2>/dev/null | tail -1)
@@ -768,7 +768,7 @@ WXLOG
   #  generator used RT, which is gawk's record terminator, and the lint
   #  did not cover that file or that name.
   r=$($AW -f tests/awkvars-check.awk src/celnav/engine.awk src/celnav/teach.awk \
-        src/colregs/engine.awk src/colregs/contacts.awk src/colregs/review.awk \
+        src/colregs/engine.awk src/common/bearing.awk src/colregs/contacts.awk src/colregs/review.awk \
         src/tides/engine.awk src/tides/tables.awk src/tides/work.awk docs/ansi2svg.awk \
         tests/tides-work-check.awk \
         tests/contacts-check.awk tests/review-check.awk tests/tides-check.awk \
@@ -912,7 +912,7 @@ WXLOG
   #  tool calls - including the falling tide, the 360/0 wrap, a stream
   #  faster than the boat, the extrapolation flags, and input that must
   #  be refused with a message rather than a crash.
-  r=$($AW -f src/tides/tables.awk -f src/tides/engine.awk -f src/tides/work.awk \
+  r=$($AW -f src/tides/tables.awk -f src/tides/engine.awk -f src/common/bearing.awk -f src/tides/work.awk \
         -f tests/tides-work-check.awk -v SF=src/tides/stations.dat -v DAT=tests/tides-work.dat </dev/null 2>&1)
   case "$r" in
     *"TIDESWORK 0 of "*) ok "tides work gives the worked answers ($(printf '%s' "$r" | tail -1 | $AW '{print $4}') checks)" ;;
@@ -980,7 +980,7 @@ WXLOG
   fi
 
   # ---- the review session ------------------------------------------
-  RVK="-f src/colregs/engine.awk -f src/colregs/contacts.awk -f src/colregs/review.awk -f tests/review-check.awk"
+  RVK="-f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk -f src/colregs/review.awk -f tests/review-check.awk"
   n=$($AW $RVK -v cmode=plain -v what=count </dev/null)
   [ "$n" -ge 150 ] || bad "only $n reviewable claims; expected all 153"
   r=$($AW $RVK -v cmode=plain -v what=keys </dev/null | tail -1)
@@ -1019,7 +1019,7 @@ WXLOG
   #  killed the whole suite one line before its summary.  It had been
   #  there for weeks; nothing noticed, because nothing ran on a Mac.
   nx=$(COLREGS_HOME="$RVH" COLREGS_AWK="$AW" $SH ./bin/colregs review </dev/null >/dev/null 2>&1
-       $AW -f src/colregs/engine.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
+       $AW -f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
            -v cmode=plain -v cmd=rvnext -v rfile="$RVH/review.tsv" </dev/null)
   check "review resumes at the next unanswered claim" "enc-3" "$nx"
 
@@ -1028,12 +1028,12 @@ WXLOG
   RVT="$tmp/rv.tsv"
   printf 'enc-12\tflag\tthe semicolon splits option b\nlig-3\tok\t\n' > "$RVT"
   RVB="$tmp/rv.body"
-  $AW -f src/colregs/engine.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
+  $AW -f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
       -v cmode=plain -v cmd=rvreport -v rfile="$RVT" -v rvver=test </dev/null > "$RVB"
   grep -q "enc-12" "$RVB" || bad "the report does not name the flagged item"
   grep -q "the semicolon splits option b" "$RVB" || bad "the report drops the reviewer's note"
   grep -q "program says" "$RVB" || bad "the report does not carry what the program claims"
-  U=$($AW -f src/colregs/engine.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
+  U=$($AW -f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
       -v cmode=plain -v cmd=rvurl -v rfile="$RVT" -v rbody="$RVB" </dev/null)
   case "$U" in https://github.com/*/bashnav/issues/new*) ;;
                *) bad "the review link is not a github issue url" ;; esac

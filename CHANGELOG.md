@@ -1,5 +1,48 @@
 # Changelog
 
+## B13: rbrg and sgn180 shared in src/common/bearing.awk
+
+**What.** The two pieces of vector arithmetic that colregs and tides both
+use are now one file, `src/common/bearing.awk`:
+
+- **`rbrg(x, y)`:** the bearing of a vector given its east and north parts.
+  It is a contact's relative bearing in colregs, and a stream's set in tides.
+- **`sgn180(a)`:** an angle folded into -180 to 180.
+
+`build.sh` packs the file into both tools, after the engine whose
+`nrm360()` and `atan2d()` it calls:
+
+- **colregs:** at the head of the CONTACTS payload, before `contacts.awk`.
+- **tides:** in the ENGINE payload, between `engine.awk` and `work.awk`.
+
+**Why.** `src/tides/work.awk` carried a copy of the two lines from
+`src/colregs/contacts.awk`. build.sh packs each tool's awk into that tool
+alone, and contacts.awk calls colregs' engine, so it cannot be loaded into
+tides. One file packed into both means one place to mend. Board item B13,
+which B10 (work.js as a shared engine) listed as "tidy first".
+
+**What it affects.**
+
+- **Nothing a tool prints changes.** The same two functions run in the same
+  tools.
+- **bin/colregs and bin/tides are rebuilt,** and so is the iPad bundle
+  (`release/bashnav-ipad.sh`). The other four tools are byte for byte as
+  they were.
+- **Every command that loads `contacts.awk` or `work.awk` loads
+  `src/common/bearing.awk` before it:**
+  - the tests and their lint groups;
+  - the colregs web generator;
+  - the two tides web tests;
+  - the review command in `tests/REVIEW.md`.
+
+  mawk refuses a call to a function it has not seen, so a command that
+  leaves it out fails at once, by name.
+- **The browser's own copies are unchanged:** `docs/web/colregs/contacts.js`
+  and `docs/web/tides/work.js` are ports, held to the awk by the diff tests.
+
+**Checked.** The suite on dash with mawk and with gawk: everything that
+passed before B13 passes after it.
+
 ## B21: the motorboat of Levels 1 and 2, derived from Level 3
 
 **What.** A new file, `docs/web/route/motor.js`, and a new format, MOTOR 1. A

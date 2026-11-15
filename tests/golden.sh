@@ -17,7 +17,7 @@ set -e
 cd "$(dirname "$0")/.."
 AW=${GOLDEN_AWK:-awk}
 G=tests/golden
-E="-f src/colregs/engine.awk -f src/colregs/contacts.awk"
+E="-f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk"
 CE="-f src/celnav/engine.awk"
 CT="-f src/celnav/engine.awk -f src/celnav/teach.awk"
 mode=compare

@@ -23,6 +23,8 @@ var cp = require('child_process');
 var REPO = path.resolve(__dirname, '..', '..', '..');
 var WEB = path.join(REPO, 'docs', 'web', 'tides') + path.sep;
 var SRC = path.join(REPO, 'src', 'tides') + path.sep;
+//  rbrg() and sgn180(), shared with colregs, loaded as build.sh packs them (B13)
+var BEARING = path.join(REPO, 'src', 'common', 'bearing.awk');
 var tabs = require(WEB + 'tables.js');
 global.TT_CONST = tabs.TT_CONST; global.TT_SAT = tabs.TT_SAT; global.TT_SHAL = tabs.TT_SHAL;
 var TIDE = require(WEB + 'engine.js');
@@ -53,7 +55,7 @@ fs.readFileSync(path.join(REPO, 'tests', 'tides-work.dat'), 'utf8').split('\n').
   var f = L.split('|');
   CASES.push({ name: f[0], args: f[1] });
 });
-var help = cp.execFileSync(AWK, ['-f', SRC + 'tables.awk', '-f', SRC + 'engine.awk', '-f', SRC + 'work.awk',
+var help = cp.execFileSync(AWK, ['-f', SRC + 'tables.awk', '-f', SRC + 'engine.awk', '-f', BEARING, '-f', SRC + 'work.awk',
   '-v', 'cmd=work', '-v', 'wname=help', '-v', 'cmode=plain'], { input: '', encoding: 'utf8' });
 var nex = 0;
 help.split('\n').forEach(function (L) {
@@ -85,7 +87,7 @@ CASES.push(
 
 function awkRun(c) {
   var wargs = c.args === '' ? '' : '|' + c.args.split(/ +/).join('|');
-  var a = ['-f', SRC + 'tables.awk', '-f', SRC + 'engine.awk', '-f', SRC + 'work.awk',
+  var a = ['-f', SRC + 'tables.awk', '-f', SRC + 'engine.awk', '-f', BEARING, '-f', SRC + 'work.awk',
            '-v', 'cmd=work', '-v', 'wname=' + c.name, '-v', 'wargs=' + wargs, '-v', 'nofig=1',
            '-v', 'cmode=plain', '-v', 'SF=' + SRC + 'stations.dat', '-v', 'defstation=' + (c.def || '')];
   if (c.now) a.push('-v', 'nowdate=' + c.now[0], '-v', 'nowtime=' + c.now[1]);

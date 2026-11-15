@@ -6,7 +6,7 @@
 #  values in tests/tides-work.dat come from tests/tides-work-ref.py, an
 #  independent working of the same definitions, never from this tool.
 #
-#    awk -f src/tides/tables.awk -f src/tides/engine.awk -f src/tides/work.awk \
+#    awk -f src/tides/tables.awk -f src/tides/engine.awk -f src/common/bearing.awk -f src/tides/work.awk \
 #        -f tests/tides-work-check.awk -v SF=src/tides/stations.dat -v DAT=tests/tides-work.dat
 #
 #  Prints one line per failure and ends  TIDESWORK <failures> of <checks>.

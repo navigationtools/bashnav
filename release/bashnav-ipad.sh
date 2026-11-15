@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003697609
+BASHNAV_BYTES=003700810
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -9372,6 +9372,38 @@ function scen_outcome(k,   c0,cn,t0,tn){
 #__BN_END_ENGINE__
 #__BN_START_CONTACTS__
 # =====================================================================
+#  bearing.awk -- two pieces of vector arithmetic, shared by colregs and
+#  tides.  Board item B13.
+#
+#    rbrg(x, y)   the bearing, 0 to 360 degrees true, of a vector given
+#                 its EAST part first and its NORTH part second: a
+#                 contact's relative position, or a stream's set from
+#                 its east and north rates
+#    sgn180(a)    an angle folded into -180 to 180: how far, and which
+#                 way, one bearing lies from another (+ to starboard)
+#
+#  WHY THEY ARE HERE.  They were written for colregs' contact
+#  management (src/colregs/contacts.awk), and the coastal calculators
+#  in src/tides/work.awk needed the same two.  build.sh packs each
+#  tool's awk into that tool alone, and contacts.awk cannot be loaded
+#  into tides: it calls colregs' engine, and mawk refuses a file whose
+#  callees are missing.  So tides had to carry a copy.  A copy is two
+#  places to mend; one file, packed into both tools, is one.
+#
+#  WHAT THEY NEED.  nrm360() and atan2d(y, x) from the engine they are
+#  packed with.  Each of colregs' and tides' engine.awk defines both,
+#  the same way, so this file is loaded AFTER the engine and before the
+#  file that calls it:
+#
+#    colregs   engine.awk, then (CONTACTS payload) bearing.awk, contacts.awk
+#    tides     (ENGINE payload) engine.awk, bearing.awk, work.awk
+#
+#  It defines nothing else and has no BEGIN, so loading it adds no
+#  behaviour, only the two names.
+# =====================================================================
+function rbrg(x,y){ return nrm360(atan2d(x,y)) }
+function sgn180(a){ a=nrm360(a); return (a>180)?a-360:a }
+# =====================================================================
 #  colregs -- contacts.  Managing them the way a tracking party does:
 #  by bearing drift, in relative motion, with the arithmetic done in
 #  your head before the plot has caught up.
@@ -9381,9 +9413,9 @@ function scen_outcome(k,   c0,cn,t0,tn){
 # =====================================================================
 function ktym(){ return 33.3333333 }
 
-#  Bearing of a relative position, and the signed drift between two.
-function rbrg(x,y){ return nrm360(atan2d(x,y)) }
-function sgn180(a){ a=nrm360(a); return (a>180)?a-360:a }
+#  Bearing of a relative position, rbrg(), and the signed drift between
+#  two, sgn180(), are in src/common/bearing.awk, which tides uses too.
+#  build.sh packs it ahead of this file in the CONTACTS payload.
 
 # ---------------------------------------------------------------------
 #  THE PLOT.  Own ship at the centre, head up, and the contact drawn
@@ -12230,6 +12262,38 @@ BEGIN{
   else if(cmd!="" && cmd!="work"){ print "tides: unknown cmd " cmd; exit 2 }
 }
 # =====================================================================
+#  bearing.awk -- two pieces of vector arithmetic, shared by colregs and
+#  tides.  Board item B13.
+#
+#    rbrg(x, y)   the bearing, 0 to 360 degrees true, of a vector given
+#                 its EAST part first and its NORTH part second: a
+#                 contact's relative position, or a stream's set from
+#                 its east and north rates
+#    sgn180(a)    an angle folded into -180 to 180: how far, and which
+#                 way, one bearing lies from another (+ to starboard)
+#
+#  WHY THEY ARE HERE.  They were written for colregs' contact
+#  management (src/colregs/contacts.awk), and the coastal calculators
+#  in src/tides/work.awk needed the same two.  build.sh packs each
+#  tool's awk into that tool alone, and contacts.awk cannot be loaded
+#  into tides: it calls colregs' engine, and mawk refuses a file whose
+#  callees are missing.  So tides had to carry a copy.  A copy is two
+#  places to mend; one file, packed into both tools, is one.
+#
+#  WHAT THEY NEED.  nrm360() and atan2d(y, x) from the engine they are
+#  packed with.  Each of colregs' and tides' engine.awk defines both,
+#  the same way, so this file is loaded AFTER the engine and before the
+#  file that calls it:
+#
+#    colregs   engine.awk, then (CONTACTS payload) bearing.awk, contacts.awk
+#    tides     (ENGINE payload) engine.awk, bearing.awk, work.awk
+#
+#  It defines nothing else and has no BEGIN, so loading it adds no
+#  behaviour, only the two names.
+# =====================================================================
+function rbrg(x,y){ return nrm360(atan2d(x,y)) }
+function sgn180(a){ a=nrm360(a); return (a>180)?a-360:a }
+# =====================================================================
 #  tides -- work.  The coastal-navigation calculators.
 #
 #    tides work twelfths   height at a time: twelfths, cosine, harmonic
@@ -12259,16 +12323,12 @@ BEGIN{
 #  engine that called into this file would not parse without it.
 # =====================================================================
 
-#  ---- lifted from src/colregs/contacts.awk -------------------------
-#  The vector machinery the tracking party uses: the bearing of a
-#  vector given its east and north parts, and an angle folded into
-#  -180..180.  COPIED rather than shared, because build.sh packs each
-#  tool's awk into that tool alone, and contacts.awk cannot be loaded
-#  into tides: it calls colregs' engine (tb(), the plot, the yards
-#  arithmetic), and mawk refuses a file whose callees are missing.  The
-#  same two lines, the same names, so the lineage is plain.
-function rbrg(x,y){ return nrm360(atan2d(x,y)) }
-function sgn180(a){ a=nrm360(a); return (a>180)?a-360:a }
+#  ---- from src/common/bearing.awk ---------------------------------
+#  The vector machinery the tracking party uses -- rbrg(), the bearing
+#  of a vector given its east and north parts, and sgn180(), an angle
+#  folded into -180..180 -- comes from src/common/bearing.awk, which
+#  colregs' contacts use as well.  build.sh packs it between engine.awk
+#  and this file in the ENGINE payload (board item B13).
 
 # ---------------------------------------------------------------------
 #  Small helpers.  Every format here has a twin in work.js.

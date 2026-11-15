@@ -33,8 +33,9 @@ for a in mawk gawk awk; do command -v "$a" >/dev/null 2>&1 && { AWK=$a; break; }
 #  THE TOOL LOADS ALL THREE, SO MUST THIS. engine.awk calls into
 #  contacts.awk and review.awk, and mawk refuses a call to a function it
 #  cannot see -- which is the right behaviour and the reason the tests
-#  carry the same note.
-ENG="-f $SRC/engine.awk -f $SRC/contacts.awk -f $SRC/review.awk"
+#  carry the same note.  src/common/bearing.awk (rbrg, sgn180) goes
+#  between the engine and contacts.awk, as build.sh packs it (B13).
+ENG="-f $SRC/engine.awk -f $ROOT/src/common/bearing.awk -f $SRC/contacts.awk -f $SRC/review.awk"
 
 VER=$(sed -n 's/^COLREGS_VERSION=//p' "$SRC/10-head.sh" | head -1)
 [ -n "$VER" ] || { echo "make-colregs-web: cannot read COLREGS_VERSION" >&2; exit 1; }

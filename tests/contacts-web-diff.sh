@@ -69,7 +69,7 @@ for A in $AWKS; do
   # all three files, because mawk refuses a function it has not seen and
   # the engine calls into review.awk -- the reason this is written
   # mawk-first: a run under gawk hides it.
-  $A -f src/colregs/engine.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
+  $A -f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
      -f tests/contacts-web-dump.awk -v cmode=plain </dev/null > "$TMP/awk.out" 2>"$TMP/err" || {
        echo "FAIL -- $A could not run the contacts dump:"; head -3 "$TMP/err"; rc=1; continue; }
   a=$(wc -l < "$TMP/awk.out" | tr -d ' ')

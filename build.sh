@@ -142,6 +142,10 @@ build_colregs() {
     cat src/colregs/engine.awk
     echo '#__BN_END_ENGINE__'
     echo '#__BN_START_CONTACTS__'
+    #  rbrg() and sgn180(), shared with tides: after the engine, whose
+    #  nrm360() and atan2d() they call, and before the contacts that
+    #  call them.  See src/common/bearing.awk.
+    cat src/common/bearing.awk
     cat src/colregs/contacts.awk
     echo '#__BN_END_CONTACTS__'
     echo '#__BN_START_REVIEW__'
@@ -175,6 +179,9 @@ build_tides() {
     echo '#__BN_END_TABLES__'
     echo '#__BN_START_ENGINE__'
     cat src/tides/engine.awk
+    #  rbrg() and sgn180(), shared with colregs' contacts: after the
+    #  engine, whose nrm360() and atan2d() they call
+    cat src/common/bearing.awk
     #  the coastal-navigation calculators ride in the same payload, after
     #  the engine whose functions they call
     cat src/tides/work.awk

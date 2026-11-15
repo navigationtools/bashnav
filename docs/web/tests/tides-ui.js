@@ -14,6 +14,8 @@ const SHOTS = process.env.SHOTDIR || fs.mkdtempSync(path.join(os.tmpdir(), 'tide
 
 const BASE = 'http://127.0.0.1:8088/tides/';
 const SRC = path.resolve(__dirname, '..', '..', '..', 'src', 'tides') + path.sep;
+//  rbrg() and sgn180(), shared with colregs, loaded as build.sh packs them (B13)
+const BEARING = path.resolve(__dirname, '..', '..', '..', 'src', 'common', 'bearing.awk');
 
 function awkDay(id, y, m, d, now) {
   return execFileSync('mawk', [
@@ -179,7 +181,7 @@ const CASES = [
     const r = require('child_process').spawnSync('mawk', [
       '-v', 'cmode=plain', '-v', 'SF=' + SRC + 'stations.dat', '-v', 'cmd=work',
       '-v', 'wname=' + name, '-v', 'wargs=' + wargs, '-v', 'nofig=1',
-      '-f', SRC + 'tables.awk', '-f', SRC + 'engine.awk', '-f', SRC + 'work.awk'
+      '-f', SRC + 'tables.awk', '-f', SRC + 'engine.awk', '-f', BEARING, '-f', SRC + 'work.awk'
     ], { input: '', encoding: 'utf8', cwd: SRC });
     return r.stdout.replace(/^\n/, '').replace(/\n+$/, '');
   }

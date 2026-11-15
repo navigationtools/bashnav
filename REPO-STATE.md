@@ -868,9 +868,11 @@ and how it is checked:
                and where the day's range sits between neaps and springs
     stream, secondary, twelfths   the arithmetic that goes round them
 
-The vector helpers came from `src/colregs/contacts.awk` as planned — copied,
-not shared, because that file calls colregs' engine and cannot load into
-tides. **Still open:** the reverse triangle (from an observed track and
+The vector helpers came from `src/colregs/contacts.awk` as planned. They
+are now one shared file, `src/common/bearing.awk` (`rbrg`, `sgn180`), which
+`build.sh` packs into both colregs and tides: contacts.awk calls colregs'
+engine and cannot load into tides, so the two helpers live on their own
+(board item B13). **Still open:** the reverse triangle (from an observed track and
 heading, the stream that did it) is not a separate calculator; `setdrift`
 answers the same question from two fixes. The atlas means are the Admiralty
 definition from M2 and S2 and are offered only where the tide is

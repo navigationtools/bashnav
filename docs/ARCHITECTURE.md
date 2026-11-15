@@ -131,6 +131,7 @@ marking without the shell having to remember anything. That is also what makes
     src/common/20-about.sh        the About menu shared by the tools
     src/common/log.awk            the append-only record layer (deck-log, weather)
     src/common/colour.awk         col_init/cw/cwd/hr, shared
+    src/common/bearing.awk        rbrg/sgn180, vector bearings: colregs and tides
 
     src/celnav/10-head.sh         config, colour, awk detection, eng()/teach()
     src/celnav/engine.awk         almanac, sight reduction, plotting, fix
@@ -141,6 +142,7 @@ marking without the shell having to remember anything. That is also what makes
     src/colregs/10-head.sh        as above, plus the reporting style
     src/colregs/engine.awk        lights, shapes, sounds, encounters, scenarios
     src/colregs/contacts.awk      the Navy contact-management section
+                                  (packed after src/common/bearing.awk)
     src/colregs/review.awk        153 reviewable claims and the report builder
     src/colregs/26-review.sh      the interactive review session
     src/colregs/30-ui.sh          commands and menu
@@ -148,7 +150,8 @@ marking without the shell having to remember anything. That is also what makes
     src/tides/10-head.sh          config, colour, awk detection, eng()
     src/tides/tables.awk          generated: constituent definitions
     src/tides/engine.awk          harmonic prediction, station search, drawing
-    src/tides/work.awk            the coastal work calculators (in the engine payload)
+    src/tides/work.awk            the coastal work calculators (in the engine payload,
+                                  after engine.awk and src/common/bearing.awk)
     src/tides/stations.dat        generated: 8,334 stations
     src/tides/30-ui.sh            commands and menu
     src/tides/gen/*.py            the generators (run offline, output committed)
@@ -168,6 +171,31 @@ marking without the shell having to remember anything. That is also what makes
     src/launcher/bashnav.sh       the launcher, whole. No awk, nothing embedded.
 
 The numeric prefixes are concatenation order, nothing more.
+
+### A shared awk file is packed into each tool that uses it
+
+Each tool is one file, so nothing is shared at run time. A file in
+`src/common/` is shared at BUILD time instead: `build.sh` packs a copy of it
+into every tool that needs it, in the payload whose functions it calls.
+
+```
+    src/common/bearing.awk   rbrg(), sgn180()
+             |   calls nrm360() and atan2d(), which each engine defines
+             |
+     +-------+--------------------+
+     v                            v
+  bin/colregs                   bin/tides
+    ENGINE    engine.awk          ENGINE    engine.awk
+    CONTACTS  bearing.awk  <-               bearing.awk  <-
+              contacts.awk                  work.awk
+    REVIEW    review.awk
+```
+
+The order matters to mawk, which refuses a call to a function it has not
+yet seen. So the shared file goes after the engine it calls into, and before
+the file that calls it. Every test that loads the sources directly loads
+them in the same order. Board item B13 made this one file; before it, tides
+carried its own copy of the two lines.
 
 ---
 
