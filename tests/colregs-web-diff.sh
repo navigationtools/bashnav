@@ -57,7 +57,11 @@ rc=0; n=0
 
 for A in $AWKS; do
   n=$((n+1))
-  $A -f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
+  #  busybox is one program with many applets: its awk is "busybox awk",
+  #  and "busybox -f" asks for an applet called -f.  So the name in the
+  #  list is not always the command to run.
+  case "$A" in busybox) RUN="busybox awk" ;; *) RUN=$A ;; esac
+  $RUN -f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
      -f tests/colregs-web-dump.awk </dev/null > "$TMP/awk.out" 2>"$TMP/err" || {
        echo "FAIL -- $A could not run the colregs dump:"; head -3 "$TMP/err"; rc=1; continue; }
   a=$(wc -l < "$TMP/awk.out" | tr -d ' ')

@@ -49,6 +49,13 @@ AWKS=
 for a in mawk gawk awk original-awk busybox; do
   command -v "$a" >/dev/null 2>&1 || continue
   [ "$a" = busybox ] && { busybox awk '' >/dev/null 2>&1 || continue; }
+  #  A busybox can be built without its maths library, and then its awk
+  #  has no atan2, sin or cos at all.  Contacts cannot run on such an awk,
+  #  any more than the tool could, so it is left out -- and said so,
+  #  because an awk silently dropped from the list reads as one checked.
+  [ "$a" = busybox ] && { busybox awk 'BEGIN { x = atan2(0, 1) }' >/dev/null 2>&1 || {
+    echo "  --    busybox's awk here has no maths (atan2), so it cannot run contacts: not compared"
+    continue; }; }
   AWKS="$AWKS $a"
 done
 [ -n "$AWKS" ] || AWKS=awk
@@ -66,10 +73,14 @@ rc=0; n=0
 
 for A in $AWKS; do
   n=$((n+1))
+  #  busybox is one program with many applets: its awk is "busybox awk",
+  #  and "busybox -f" asks for an applet called -f.  So the name in the
+  #  list is not always the command to run.
+  case "$A" in busybox) RUN="busybox awk" ;; *) RUN=$A ;; esac
   # all three files, because mawk refuses a function it has not seen and
   # the engine calls into review.awk -- the reason this is written
   # mawk-first: a run under gawk hides it.
-  $A -f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
+  $RUN -f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
      -f tests/contacts-web-dump.awk -v cmode=plain </dev/null > "$TMP/awk.out" 2>"$TMP/err" || {
        echo "FAIL -- $A could not run the contacts dump:"; head -3 "$TMP/err"; rc=1; continue; }
   a=$(wc -l < "$TMP/awk.out" | tr -d ' ')

@@ -91,6 +91,7 @@ const LESSONS = require(path.join(ROOT, 'docs/web/weather/lessons.js')).LESSONS;
     and reported the renderer had lost a space it never had.  */
 function treeText(n) {                 /* inside a block: no gaps */
   if (n.tag === '#text') return n.textContent;
+  if (isDemo(n)) return '';              /* wherever it sits: see below */
   if (n.kids.length) return n.kids.map(treeText).join('');
   return n.textContent || '';
 }
@@ -105,7 +106,15 @@ function treeText(n) {                 /* inside a block: no gaps */
     excluding a subtree is exactly how a check goes quietly blind, its
     presence is asserted separately below: a lesson whose figure the shell
     prints and the browser drops would now fail on the missing panel
-    rather than pass on a shorter list of words.  */
+    rather than pass on a shorter list of words.
+
+    WHEREVER THE PANEL SITS.  weather.js gives each figure a box of its
+    own (div.figbox), so that a repaint on a mode change empties the
+    figure and not the lesson round it.  That puts the panel one level
+    down, and this used to skip it only at the top, so the panel's labels
+    ("N NE E", "Train the gun north") were read as words of the coriolis
+    lesson.  The panel count already looked all the way down; the word
+    comparison now does too.  */
 function isDemo(n) { return n.className && /\bgundemo\b/.test(n.className); }
 function countDemos(n, acc) {
   acc = acc || { n: 0 };

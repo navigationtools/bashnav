@@ -1,5 +1,37 @@
 # Changelog
 
+## Two checks mended: the weather reflow check, and busybox in the web diffs
+
+**The weather reflow check now skips a demonstration panel wherever it
+sits.**
+
+- **What was wrong:** `tests/weather-reflow-check.js` compares a lesson's
+  words in the terminal with its words in the browser. It leaves out the
+  interactive gunnery panel, whose labels are the browser's own, but only
+  when the panel is a top-level part of the lesson.
+- **Why it changed:** `weather.js` gives each figure a box of its own, so a
+  repaint on a display-mode change empties the figure and not the lesson
+  round it. That puts the panel one level down. The check then read its
+  labels ("N NE E", "Train the gun north") as words of the coriolis lesson,
+  and failed on every awk.
+- **What it affects:** the lesson pages are unchanged; only the check
+  changes. It still counts panels against the terminal's markers all the
+  way down, so a panel that is dropped or leaks its labels still fails.
+  Both faults were planted and both were caught.
+
+**The two web-against-shell diffs now run busybox's awk as `busybox awk`.**
+
+- **What was wrong:** `tests/colregs-web-diff.sh` and
+  `tests/contacts-web-diff.sh` ran each awk in their list by its name.
+  busybox is one program with many applets, so `busybox -f` asked for an
+  applet called `-f` and failed.
+- **What changed:** the colregs diff now compares four awks wherever
+  busybox is installed. The contacts diff also checks that busybox's awk has
+  maths (atan2), because a busybox built without it cannot run contacts at
+  all. One without maths is left out, and the diff says so.
+- **What it affects:** only machines with busybox; macOS has none. The
+  suite passes in full on dash with mawk and with gawk.
+
 ## B13: rbrg and sgn180 shared in src/common/bearing.awk
 
 **What.** The two pieces of vector arithmetic that colregs and tides both
