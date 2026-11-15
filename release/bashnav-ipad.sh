@@ -10829,7 +10829,7 @@ bn_unpack() {
 #  Part of Bash Navigation Software.  https://github.com/navigationtools/bashnav
 #  Copyright 2026 M. Larry Sherman.  Apache License 2.0.
 # =====================================================================
-TIDES_VERSION=1.2
+TIDES_VERSION=1.3
 TIDES_HOME=${TIDES_HOME:-$(bn_home .tides)}
 CONF="$TIDES_HOME/config"
 ENGINE="$TIDES_HOME/engine-$TIDES_VERSION.awk"

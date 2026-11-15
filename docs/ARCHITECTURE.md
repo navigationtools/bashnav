@@ -52,7 +52,7 @@ extraction repeats if the executable is newer than the extracted engine
 
     ~/.celnav/    engine-1.6.awk  teach-1.6.awk  celnav.conf
     ~/.colregs/   engine-1.15.awk  contacts-1.15.awk  review-1.15.awk  colregs.conf
-    ~/.tides/     engine-1.2.awk  tables-1.2.awk  stations.dat  config  lastlist
+    ~/.tides/     engine-1.3.awk  tables-1.3.awk  stations.dat  config  lastlist
     ~/.bashnav/   decklog-1.1.awk  weather-1.0.awk  log  boat  *.conf
 
 ### `$HOME` is not writable on iOS, so the folder is chosen, not assumed

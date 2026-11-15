@@ -1,5 +1,36 @@
 # Changelog
 
+## tides 1.3: the version moves with the tidal gate calculator
+
+**What.** `tides` is version **1.3**. Nothing else in the program changed:
+it is the build that gained the tidal gate calculator (the entry below), now
+carrying its own number.
+
+**Why.** Larry, 15 November 2026: 1.3 now, then 1.4 with the lunar
+calculator and 1.5 with depth. Two different programs both said 1.2, one with
+six calculators and one with seven, and two manuals with them; only the
+build date in the footer told the manuals apart. A number now means one set
+of calculators. It is also the published practice (Semantic Versioning 2.0.0,
+item 7: new, backward-compatible function takes a new minor version), and
+what `colregs` and `celnav` have done with each feature.
+
+**What it affects.**
+
+1. `TIDES_VERSION` in `src/tides/10-head.sh`, the one place it is set.
+   `tides --version`, the menu, and the footers of the manual and the quick
+   reference read it from there; both PDFs are rebuilt and say 1.3.
+2. **The engine an installed copy unpacks is now `engine-1.3.awk` and
+   `tables-1.3.awk`,** so it is unpacked afresh on the first run. The 1.2
+   pair stays behind in `~/.tides` (about 115 KB); nothing reads it and it
+   can be removed by hand.
+3. `bin/tides` and the iPad installer are rebuilt.
+4. Three mentions written by hand follow: `README.md`, `REPO-STATE.md`,
+   `docs/ARCHITECTURE.md`.
+5. **Not affected:** the browser build, which is told apart by its cache
+   (`tides-v11`, moved with the calculator), and nothing outside bashnav
+   states a `tides` version (the XO searched the website, the course and
+   spec).
+
 ## A seventh work calculator: the tidal gate (B15)
 
 **What.** `tides work tidal_gate`, and `?work=tidal_gate` in the browser:

@@ -16,7 +16,7 @@ New here? Start with [`CLAUDE.md`](CLAUDE.md), then
 |---|---|---|---|
 | `bin/celnav` | 1.6 | 258 KB | celestial navigation: almanac, sight reduction, plotting, fix, and a teaching track |
 | `bin/colregs` | 1.15 | 255 KB | rules of the road: lights, shapes, sounds, encounters, collision-avoidance scenarios, contact management, and an interactive review |
-| `bin/tides` | 1.2 | 2.9 MB | harmonic tide prediction, 8,334 stations worldwide, and the seven coastal work calculators |
+| `bin/tides` | 1.3 | 2.9 MB | harmonic tide prediction, 8,334 stations worldwide, and the seven coastal work calculators |
 | `bin/deck-log` | 1.1 | 49 KB | the boat's records &mdash; deck, engine, provisions &mdash; append-only in UTC, spares derived by replaying the log |
 | `bin/weather` | 1.0 | 106 KB | reasons over the log's observations and shows its working; ten lessons, the Coriolis tier and the wind demonstration; forecast scoring |
 | `bin/bashnav` | 1.0 | 3 KB | the launcher: a menu in front of the other five, and one home-screen icon on an iPad |
