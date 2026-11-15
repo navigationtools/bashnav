@@ -703,16 +703,15 @@ The motorboat of Levels 1 and 2, derived from a Level 3 run (board item B21).
 2", says what she does with it.
 
     MOTOR 1
-    follow   run_2025_as_sailed_v1.txt
+    follow   run_2025_as_sailed_cmems_v1.txt
     speed    same
     scale    current 0
     step     time 600
-    clear    L3 tack 11:20        50.71434 -1.53788
+    clear    L3 tack 11:00        50.73404 -1.51447
     waypoint Hurst narrows        meridian -1.550
     waypoint St Alban's Head      meridian -2.057
     waypoint Portland Bill        meridian -2.457
     waypoint Start Point          meridian -3.640
-    clear    L3 tack 22:30        50.19120 -3.66011
     waypoint Eddystone Lt House   mark
     waypoint Start Point          meridian -3.640
     waypoint Portland Bill        meridian -2.457
@@ -761,8 +760,8 @@ position that could be mistyped.
 
 **Larry, 14 November 2026:** one point and one track point each side, "and if
 its not enough, you just reiterate". One point cannot describe a rounding.
-From Level 3's closest point to the Eddystone, a straight line out cuts the
-light's berth, and one in from the east runs over the NE Rock.
+Level 3's closest point to the Eddystone is on its berth, so a straight line
+into it or out of it can cut the light's berth, or run over the NE Rock.
 
 So a `mark` waypoint is Level 3's closest point, plus the track point before
 it and the one after. **The arc takes the next track point on a side while
@@ -788,10 +787,10 @@ tack points, which I think would show the way."**
 - **A `clear` line takes a share of its leg's time by distance,** so her speed
   on the two parts is the same as on the one.
 
-In 2025, Level 1's bare file is refused twice. Leg 1 cuts the low-water shore
-in the Hurst narrows. The leg from Start Point to the Eddystone cuts the
-land at Prawle Point. Level 3's tacks at 11:20 and 22:30 clear them, and
-they are the two `clear` lines above.
+In 2025, on the Copernicus stream, Level 1's bare file is refused once: leg 1
+passes 0.08 nm from the low-water shore in the Hurst narrows, inside the
+coast's clearance of 0.10. Level 3's tack at 11:00 clears it, and it is the
+`clear` line above.
 
 ## What MOTOR 1 does not do
 

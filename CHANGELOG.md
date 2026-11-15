@@ -1,5 +1,68 @@
 # Changelog
 
+## The 2025 race on the Copernicus stream: B3 and B21 move together
+
+**What.** The real-race check (`docs/web/tests/race-2025.js`, board item B3)
+and the motorboat of Levels 1 and 2 (B21) now sail PILOT's Copernicus runs
+(`run_2025_as_sailed_cmems_v1.txt` and `run_2025_headlands_1nm_cmems_v1.txt`)
+in place of the Shom ones. The stream is the Copernicus North-West Shelf
+model, which covers the western Solent, where the Shom atlas has no data.
+Larry, 15 November 2026: "move both, its the right decision".
+
+**Why both at once.** Levels 1 and 2 are derived from Level 3 (Larry's tenet
+for B21), so they follow the same run as the check that holds Level 3.
+
+**Every pinned figure was re-pinned on purpose:**
+
+| | Shom stream | Copernicus stream |
+|---|---|---|
+| as-sailed finish | 09:37:19 (23.62 h) | 09:30:15 (23.50 h) |
+| crack, able, ordinary, green crews | 09:40:55, 09:52:24, 10:10:57, 10:34:38 | 09:34:03, 09:44:03, 09:54:12, 10:15:22 |
+| five-minute step | 09:27:30 | 09:23:04 |
+| Level 1 clearing waypoints | two (Level 3's tacks at 11:20 and 22:30) | one (Level 3's tack at 11:00) |
+| Level 2 at Level 1's speeds | in at 08:45:26 | in at 08:39:07 |
+| Level 2 on time | 7.4 to 13.7 knots | 7.4 to 13.8 knots |
+
+The checksums of the new stream and runs are pinned. So are Larry's stream
+readings (`stream_check_readings_2025_v1.txt`), because the exception at Hurst
+rests on them. The Shom runs stay in PILOT's folder, unchanged, and are no
+longer read.
+
+**The exception at Hurst and St Alban's Head is narrowed, each line for its
+own reason:**
+
+- **Hurst:** two real boats lead the router there, by four and seven
+  minutes. Larry read the chart's streams there: the model's ebb is about a
+  quarter weaker than the chart's (2.7 knots against 3.6), with the timing
+  right. Larry ruled to teach the model as it is, with that caveat; PILOT
+  asked that the exception stay, narrowed to that cause.
+- **St Alban's Head, outbound:** a tie. The router leads the closest real
+  boat (the Ker 46) by about a minute, inside what the search resolves. PILOT
+  and the XO left this judgment to bashnav; holding the line would rest the
+  claim on a margin the search cannot see.
+- **The exception still checks itself.** A line stands only while an
+  observed boat is ahead of the router there, or within two minutes. When
+  the router is clearly ahead, the check fails until that line is taken out.
+- **From Portland Bill on she leads every real boat,** at 69 observed times.
+  The closest is 42 minutes behind, where it was 31 minutes before.
+
+**ROUTER.md's 2025 sections are redone on the new stream:** the step table,
+the passing-mark plans, the four crews, the first run with its passage log,
+the real boats, and the motorboat's table. One finding changed: steps under
+five minutes now go both ways (three minutes twenty gains under four
+minutes, two and a half loses five). The time is still good to about ten
+minutes in a day. COURSE.md's MOTOR 1 example follows the new run.
+
+**motor.js takes a name inside the data folder,** as `sail.js` does, and
+still takes a path. A name is looked for in the folder first (Larry: "do it,
+its the right move"; PILOT found the difference). Six checks are added to
+`docs/web/tests/motor.js`, and two lookup faults planted in it were both
+caught.
+
+**What it affects.** Nothing in the router changes. Every 2025 figure the
+documents quote moves to the Copernicus stream. PILOT has the re-derived
+motor files (spec, 15 November) and draws from them.
+
 ## Two checks mended: the weather reflow check, and busybox in the web diffs
 
 **The weather reflow check now skips a demonstration panel wherever it

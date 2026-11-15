@@ -694,7 +694,25 @@ var MOTOR = (function () {
     return o;
   }
 
-  return { waypoints: waypoints, grow: grow, legs: legs, water: water, crosses: crosses, turns: turns, dangers: dangers,
+  // ---------------------------------------------------------------------
+  //  where(folder, name, exists) -> the motor file's path, or null
+  //
+  //  A NAME IS LOOKED FOR IN THE DATA FOLDER FIRST, as sail.js looks for
+  //  its run, and then as a path of its own (Larry, 15 November 2026:
+  //  "do it, its the right move").  So a lesson can hand both commands the
+  //  folder and a name, and a full path that works today still works.
+  //  `exists` is fs.existsSync, passed in so the checks can give it a
+  //  folder that exists only in memory.
+  // ---------------------------------------------------------------------
+  function where(folder, name, exists) {
+    if (!name) return null;
+    var inFolder = folder.replace(/\/+$/, '') + '/' + name;
+    if (exists(inFolder)) return inFolder;
+    if (exists(name)) return name;
+    return null;
+  }
+
+  return { where: where, waypoints: waypoints, grow: grow, legs: legs, water: water, crosses: crosses, turns: turns, dangers: dangers,
            sailLeg: sailLeg, onTime: onTime, plan: plan, report: report, data: data, TOP: TOP };
 })();
 
@@ -705,7 +723,9 @@ if (typeof module !== 'undefined') module.exports = MOTOR;
 //  answer).  1: refused, with the reason.  2: not asked properly.
 //
 //  The folder holds the run the motor file follows and everything the
-//  run names, as for sail.js.  The route is that run sailed; --route
+//  run names, as for sail.js.  The motor file is a name in that folder,
+//  or failing that a path (see where(), above).  The route is that run
+//  sailed; --route
 //  takes one sail.js already wrote with --json, so it is not sailed
 //  twice, and refuses it if it is of another run.
 // ---------------------------------------------------------------------
@@ -725,9 +745,10 @@ if (typeof require !== 'undefined' && typeof module !== 'undefined' && require.m
     }
     var folder = rest[0];
     if (!fs.existsSync(folder) || !fs.statSync(folder).isDirectory()) { console.error('there is no folder ' + folder); process.exit(1); }
-    if (!fs.existsSync(rest[1])) { console.error('there is no motor file ' + rest[1]); process.exit(1); }
-    var m = C.motor(fs.readFileSync(rest[1], 'utf8'));
-    if (!m.ok) { console.error(rest[1] + ': ' + (m.err || m.why)); process.exit(1); }
+    var mf = MOTOR.where(folder, rest[1], fs.existsSync);
+    if (!mf) { console.error('there is no motor file ' + rest[1] + ', in ' + folder + ' or as a path'); process.exit(1); }
+    var m = C.motor(fs.readFileSync(mf, 'utf8'));
+    if (!m.ok) { console.error(mf + ': ' + (m.err || m.why)); process.exit(1); }
     function read(name) { var p = path.join(folder, name); return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null; }
     var env = SAIL.load(read, m.follow);
     if (!env.ok) { console.error(env.err); process.exit(1); }

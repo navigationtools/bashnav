@@ -375,6 +375,19 @@ ok('it is refused as the leg\'s, with Level 3\'s corner to clear it', far.refuse
    far.refused[0].clears && far.refused[0].suggest[0].ms === at(3));
 
 // =====================================================================
+console.log('finding the motor file');
+// =====================================================================
+//  a name in the data folder first, as sail.js does; then a path
+var FILES = { 'data/l1.txt': 1, 'data/both.txt': 1, 'both.txt': 1, '/home/me/lessons/l2.txt': 1 };
+function has(p) { return FILES.hasOwnProperty(p); }
+ok('a name is found in the data folder', MOTOR.where('data', 'l1.txt', has) === 'data/l1.txt');
+ok('a folder given with a slash finds it too', MOTOR.where('data/', 'l1.txt', has) === 'data/l1.txt');
+ok('a full path still works', MOTOR.where('data', '/home/me/lessons/l2.txt', has) === '/home/me/lessons/l2.txt');
+ok('the data folder comes first when a name is in both places', MOTOR.where('data', 'both.txt', has) === 'data/both.txt');
+ok('a file in neither place is not found', MOTOR.where('data', 'l9.txt', has) === null);
+ok('no name is not found', MOTOR.where('data', '', has) === null);
+
+// =====================================================================
 console.log('what PILOT draws');
 // =====================================================================
 if (same.ok) {

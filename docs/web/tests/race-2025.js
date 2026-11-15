@@ -32,13 +32,24 @@
 //               racing yacht with free tacks and a forecast it knows in
 //               advance, so it should lead every real boat at every
 //               line.  It does from Portland Bill on, and that is held.
-//               At Hurst and St Alban's Head, outbound, real boats lead
-//               it, because the stream data does not cover the Solent
-//               and the router sails it as still water (PILOT found
-//               this).  Those two lines are a STATED EXCEPTION, and the
-//               exception is itself checked: when the Solent data comes
-//               and the router leads there too, this file fails until
-//               the exception is taken out.
+//               Hurst and St Alban's Head, outbound, are a STATED
+//               EXCEPTION, each for its own reason (15 November 2026,
+//               on the Copernicus stream):
+//                 Hurst: real boats lead the router by 4 to 7 minutes.
+//                   Larry read the chart's streams there (PILOT's
+//                   stream_check_readings_2025_v1.txt): the model's ebb
+//                   is about a quarter weaker than the chart's, 2.7 kn
+//                   against 3.6, so the router is given less ebb than
+//                   the boats had.  Larry: teach the model as it is,
+//                   with that caveat.
+//                 St Alban's Head: a tie.  The router leads the closest
+//                   real boat by about a minute, inside what the search
+//                   resolves, so neither "leads" nor "is led" is a claim.
+//               The exception is itself checked: each line stands only
+//               while an observed boat is ahead of the router there, or
+//               within the two minutes the search cannot tell apart.
+//               When the router is clearly ahead at one, this file fails
+//               until that line is taken out of the exception.
 //
 //  WHAT IS NOT HELD.  Single legs: the router is slower than the fastest
 //  real boat on three of them, two fairly -- a real boat can have a
@@ -114,17 +125,30 @@ if (!DATA || !fs.existsSync(path.join(DATA, 'course_2025_v3.txt'))) {
 }
 
 // ---- the files, pinned ------------------------------------------------
-//  sha256, first sixteen characters.  Taken on 14 November 2026.
+//  sha256, first sixteen characters.  Taken on 14 November 2026; the
+//  stream and the two runs on 15 November, when this check moved to the
+//  Copernicus stream (Larry: "move both").
+//
+//  THE STREAM IS COPERNICUS'S, not the Shom atlas's.  The atlas has no
+//  data west of about Cowes, so the router sailed the western Solent as
+//  still water; the Copernicus North-West Shelf model covers it.  PILOT's
+//  Shom runs stay in its folder, unchanged, and are no longer read here.
+//
+//  LARRY'S STREAM READINGS ARE PINNED TOO, because the exception at Hurst
+//  below rests on them: if they change, the reason for the exception has.
+var AS_SAILED = 'run_2025_as_sailed_cmems_v1.txt';
+var HEADLANDS = 'run_2025_headlands_1nm_cmems_v1.txt';
 var PINNED = {
-  'course_2025_v3.txt':            'e840534aa9c58780',
-  'areas_rules_2025.txt':          '37d2ff50b2a3f532',
-  'areas_coast_emodnet_2025.txt':  '8909ebf7ff006bd2',
-  'wind_20250524_00z_v2.grid':     '6b112cc12af4944d',
-  'current_20250524_v2.grid':      '74e456ee3a75ab88',
-  'polar_generic70_v1.txt':        '4646a1e3b720aab6',
-  'run_2025_as_sailed_v1.txt':     'dec894ef9cdee544',
-  'run_2025_headlands_1nm_v1.txt': 'a1f978ce74c9af5f',
-  'legs_2025_real_v2.txt':         'e8fa6c8b3d679048'
+  'course_2025_v3.txt':                  'e840534aa9c58780',
+  'areas_rules_2025.txt':                '37d2ff50b2a3f532',
+  'areas_coast_emodnet_2025.txt':        '8909ebf7ff006bd2',
+  'wind_20250524_00z_v2.grid':           '6b112cc12af4944d',
+  'current_20250524_cmems_v1.grid':      'c8790f97dbfaebec',
+  'polar_generic70_v1.txt':              '4646a1e3b720aab6',
+  'run_2025_as_sailed_cmems_v1.txt':     'c7ed2127729e5745',
+  'run_2025_headlands_1nm_cmems_v1.txt': '4187a58e653a109d',
+  'legs_2025_real_v2.txt':               'e8fa6c8b3d679048',
+  'stream_check_readings_2025_v1.txt':   '51ecd1f0aa4c7a1f'
 };
 function fileText(name) {
   try { return fs.readFileSync(path.join(DATA, name), 'utf8'); } catch (e) { return null; }
@@ -162,13 +186,13 @@ function read(name) {
 }
 //  a run written from PILOT's as-sailed run, by changing lines of it; a
 //  line that is not there to change is said, not passed over
-var BASE = fileText('run_2025_as_sailed_v1.txt') || '';
+var BASE = fileText(AS_SAILED) || '';
 function variant(name, edits) {
   var t = BASE, i;
   for (i = 0; i < edits.length; i++) {
     if (!edits[i][0].test(t)) {
       ok('PILOT\'s as-sailed run has the line the ' + name + ' run is made from', false,
-         'no line matching ' + edits[i][0] + ' in run_2025_as_sailed_v1.txt');
+         'no line matching ' + edits[i][0] + ' in ' + AS_SAILED);
       return null;
     }
     t = t.replace(edits[i][0], edits[i][1]);
@@ -411,17 +435,19 @@ function notFaster(what, slow, fast) {
 //  on 14 November 2026 with the files pinned above.  ROUTER.md, the
 //  CHANGELOG and PILOT's lessons quote these.  To change one, change the
 //  router on purpose, say why in the CHANGELOG, and write the new time.
+//  Re-pinned on 15 November 2026 when the stream became Copernicus's
+//  (Larry: "move both"); the reason is in the CHANGELOG.
 var FINISH = {
-  'as-sailed':        85039,   //  09:37:19Z, 23.62 hours: tacks free, PILOT's run as it stands
-  'headlands':        85012,   //  09:36:52Z: a mile off three headlands (27 s the wrong way: see TOL)
-  'crack crew':       85255,   //  09:40:55Z
-  'able crew':        85944,   //  09:52:24Z
-  'ordinary crew':    87057,   //  10:10:57Z
-  'green crew':       88478,   //  10:34:38Z
-  'berth 0.15':       85074,   //  09:37:54Z: the Eddystone at PILOT's berth
-  'lines':            85463,   //  09:44:23Z: the Level 1 headlands, south within two miles
-  'circles':          85486,   //  09:44:46Z: the same as circles
-  'five-minute step': 84450    //  09:27:30Z, 23.46 hours
+  'as-sailed':        84615,   //  09:30:15Z, 23.50 hours: tacks free, PILOT's run as it stands
+  'headlands':        84615,   //  09:30:15Z: a mile off three headlands costs nothing on this stream
+  'crack crew':       84843,   //  09:34:03Z
+  'able crew':        85443,   //  09:44:03Z
+  'ordinary crew':    86052,   //  09:54:12Z
+  'green crew':       87322,   //  10:15:22Z
+  'berth 0.15':       84739,   //  09:32:19Z: the Eddystone at PILOT's berth
+  'lines':            85167,   //  09:39:27Z: the Level 1 headlands, south within two miles
+  'circles':          85111,   //  09:38:31Z: the same as circles
+  'five-minute step': 84184    //  09:23:04Z, 23.38 hours
 };
 function pinned(r) {
   if (!r.ok) return;
@@ -449,6 +475,11 @@ var LINES = [
   { name: 'North Head (finish)' }
 ];
 var HELD_FROM = 2;                   //  Portland Bill (out): the first line the claim is held at
+//  why each line before it is excepted: the header says it in full
+var EXCEPTED_WHY = {
+  'Hurst narrows (out)': 'the model\'s ebb at Hurst is about a quarter weaker than the chart\'s (stream_check_readings_2025_v1.txt)',
+  "St Alban's Head (out)": 'a tie: the router and the closest real boat are within what the search resolves'
+};
 function hoursAt(r) {
   var turn = nearest(r.rows, LIGHT[0], LIGHT[1]).ms, out = {};
   LINES.forEach(function (ln) {
@@ -468,15 +499,15 @@ function hoursAt(r) {
 }
 //  the published times at the lines, hours from the gun, for the pins
 var AT_LINES = {
-  'Hurst narrows (out)': 1.4673,
-  "St Alban's Head (out)": 4.0741,
-  'Portland Bill (out)': 6.1040,
-  'Start Point (out)': 12.3480,
-  'Eddystone (rounding)': 15.1705,
-  'Start Point (back)': 16.9803,
-  'Portland Bill (back)': 20.7822,
-  "St Alban's Head (back)": 22.0039,
-  'North Head (finish)': 23.6219
+  'Hurst narrows (out)': 1.2676,
+  "St Alban's Head (out)": 4.0181,
+  'Portland Bill (out)': 5.9126,
+  'Start Point (out)': 12.4226,
+  'Eddystone (rounding)': 15.1574,
+  'Start Point (back)': 16.9360,
+  'Portland Bill (back)': 20.6961,
+  "St Alban's Head (back)": 21.8904,
+  'North Head (finish)': 23.5042
 };
 //  the real boats, from PILOT's file
 function realBoats() {
@@ -496,7 +527,7 @@ function realBoats() {
 say('  the 2025 race data: ' + DATA);
 
 var base = null;
-function asSailed() { return base || (base = sailed('as-sailed', 'run_2025_as_sailed_v1.txt')); }
+function asSailed() { return base || (base = sailed('as-sailed', AS_SAILED)); }
 
 if (asked('rules')) {
   var r0 = asSailed();
@@ -568,13 +599,18 @@ if (asked('boats')) {
        held > 60 && least && least.lead > 0.25, held + ' observed times held, ' + guessed + ' interpolated and left out' +
        (least ? '; the closest is ' + least.who + ', ' + (least.lead * 60).toFixed(0) + ' minutes behind the router' : ''));
     if (SHOW && least) say('  boats ' + held + ' held, ' + guessed + ' guessed; closest ' + least.who + ' ' + (least.lead * 60).toFixed(1) + ' min');
-    //  THE EXCEPTION IS CHECKED TOO.  It stands only while it is needed.
+    //  THE EXCEPTION IS CHECKED TOO.  It stands only while it is needed:
+    //  while an observed boat is ahead of the router at the line, or
+    //  within the two minutes the search cannot tell apart from it.
     LINES.slice(0, HELD_FROM).forEach(function (ln) {
-      var ahead = real.boats.filter(function (b) { return b.at[ln.name] && !b.at[ln.name].guessed && b.at[ln.name].hours < h2[ln.name]; });
-      ok('the exception at ' + ln.name + ' is still needed: a real boat leads the router there',
-         ahead.length > 0, 'no observed real boat leads the router at ' + ln.name + ' any more. If the stream data now covers ' +
-         'the Solent, take this line out of the exception (HELD_FROM) so that it is held like the rest.');
-      if (SHOW) say('  excepted ' + ln.name + ': ' + ahead.length + ' real boats ahead');
+      var near = real.boats.filter(function (b) {
+        var c = b.at[ln.name];
+        return c && !c.guessed && (c.hours - h2[ln.name]) * 3600 <= TOL;
+      });
+      ok('the exception at ' + ln.name + ' is still needed (' + EXCEPTED_WHY[ln.name] + '): a real boat is ahead of the router there, or within ' + TOL + ' s',
+         near.length > 0, 'the router is now clearly ahead of every observed boat at ' + ln.name + '. Take this line out of ' +
+         'the exception (HELD_FROM and EXCEPTED_WHY) so that it is held like the rest, and say why in the CHANGELOG.');
+      if (SHOW) say('  excepted ' + ln.name + ': ' + near.length + ' real boats ahead or within ' + TOL + ' s');
     });
   }
 }
@@ -596,7 +632,7 @@ if (asked('crews')) {
 }
 
 if (asked('limits')) {
-  var f2 = asSailed(), hl = sailed('headlands', 'run_2025_headlands_1nm_v1.txt');
+  var f2 = asSailed(), hl = sailed('headlands', HEADLANDS);
   var b10 = sailed('berth 0.10', withPlan('berth-010')), b15 = sailed('berth 0.15', withPlan('berth-015'));
   var li = sailed('lines', withPlan('lines')), ci2 = sailed('circles', withPlan('circles'));
   [f2, hl, b10, b15, li, ci2].forEach(function (r) { if (sound(r) && FINISH.hasOwnProperty(r.label)) pinned(r); });
@@ -630,16 +666,17 @@ if (asked('steps')) {
 if (asked('motor')) {
   var rm = asSailed();
   if (sound(rm)) {
-    var l3 = { run: 'run_2025_as_sailed_v1.txt', summary: rm.sum, rows: rm.rows };
+    var l3 = { run: AS_SAILED, summary: rm.sum, rows: rm.rows };
     //  PILOT's nine timing lines, as the lesson's motor files give them
-    var CLEARS = { before: 'clear    L3 tack 11:20        50.71434 -1.53788',
-                   eddy: 'clear    L3 tack 22:30        50.19120 -3.66011' };
+    //  On the Copernicus stream one clearing waypoint does it: Level 3's
+    //  tack at 11:00 takes Level 1 clear of the shore into the Hurst
+    //  narrows.  The leg from Start Point no longer crosses Prawle Point.
+    var CLEARS = { before: 'clear    L3 tack 11:00        50.73404 -1.51447' };
     var motorFile = function (speed, scale, clears) {
-      var L = ['MOTOR 1', 'follow   run_2025_as_sailed_v1.txt', 'speed    ' + speed, 'scale    current ' + scale, 'step     time 600'];
+      var L = ['MOTOR 1', 'follow   ' + AS_SAILED, 'speed    ' + speed, 'scale    current ' + scale, 'step     time 600'];
       if (clears) L.push(CLEARS.before);
       L = L.concat(['waypoint Hurst narrows        meridian -1.550', 'waypoint St Alban\'s Head      meridian -2.057',
                     'waypoint Portland Bill        meridian -2.457', 'waypoint Start Point          meridian -3.640']);
-      if (clears) L.push(CLEARS.eddy);
       L = L.concat(['waypoint Eddystone Lt House   mark', 'waypoint Start Point          meridian -3.640',
                     'waypoint Portland Bill        meridian -2.457', 'waypoint St Alban\'s Head      meridian -2.057', 'end']);
       var m = COURSE.motor(L.join('\n') + '\n');
@@ -653,21 +690,21 @@ if (asked('motor')) {
     ok('Level 1 with no clearing waypoints is refused', !bare.ok && !!bare.refused, bare.why);
     if (bare.refused) {
       var legsOf = bare.refused.map(function (b) { return b.leg.n; }).join(' ');
-      ok('the refused rhumb lines are leg 1, into the Hurst narrows, and leg 5, Start Point to the Eddystone', legsOf === '1 5', legsOf);
+      ok('the one refused rhumb line is leg 1, into the Hurst narrows', legsOf === '1', legsOf);
       var offer = bare.refused.map(function (b) {
         return b.clears + ' ' + b.suggest.map(function (p) { return p.kind + ' ' + new Date(p.ms).toISOString().slice(11, 16) + ' ' + p.lat.toFixed(5) + ' ' + p.lon.toFixed(5); }).join(', ');
       }).join(' | ');
-      ok('each is cleared by one of Level 3\'s own tacks: 11:20 at Hurst, 22:30 off Start Point',
-         offer === 'true tack 11:20 50.71434 -1.53788 | true tack 22:30 50.19120 -3.66011', offer);
+      ok('it is cleared by Level 3\'s own tack at 11:00',
+         offer === 'true tack 11:00 50.73404 -1.51447', offer);
       if (SHOW) say('  motor  refused: ' + offer);
     }
     var eddy = (bare.points || []).filter(function (p) { return p.kind === 'mark'; })[0];
-    ok('the arc round the Eddystone is Level 3\'s closest point, two track points before and one after, grown for the NE Rock',
-       eddy && eddy.arc.before === 2 && eddy.arc.after === 1 && eddy.arc.grew.join() === 'eddystone-reef',
+    ok('the arc round the Eddystone is Level 3\'s closest point, two track points before and one after, grown to clear the light\'s berth',
+       eddy && eddy.arc.before === 2 && eddy.arc.after === 1 && eddy.arc.grew.join() === 'the berth round Eddystone Lt House',
        eddy ? eddy.arc.before + ' before, ' + eddy.arc.after + ' after, grew for ' + eddy.arc.grew.join() : 'no mark waypoint');
 
     var lv1 = motorFile('same', 0, true);
-    ok('Level 1 with them sails 14 legs', lv1.ok && lv1.legs.length === 14, lv1.why);
+    ok('Level 1 with it sails 13 legs', lv1.ok && lv1.legs.length === 13, lv1.why);
     ok('and arrives at every one of Level 3\'s times, to a second', on1(lv1));
     var lv1nm = lv1.ok ? lv1.legs.reduce(function (a, l) { return a + l.nm; }, 0) : 0;
     if (SHOW && lv1.ok) say('  motor  Level 1: ' + lv1nm.toFixed(1) + ' nm of rhumb lines');
@@ -675,8 +712,8 @@ if (asked('motor')) {
     var same = motorFile('same', '1.0', true);
     ok('Level 2 at the same speed sails', same.ok, same.why);
     if (same.ok) {
-      var fin = same.legs[same.legs.length - 1].sailed.ms, want2 = Date.parse('2025-05-25T08:45:26Z');
-      ok('PINNED: at Level 1\'s speeds the stream brings her in at 08:45:26, 52 minutes before Level 3',
+      var fin = same.legs[same.legs.length - 1].sailed.ms, want2 = Date.parse('2025-05-25T08:39:07Z');
+      ok('PINNED: at Level 1\'s speeds the stream brings her in at 08:39:07, 51 minutes before Level 3',
          Math.abs(fin - want2) <= 120000, new Date(fin).toISOString());
       ok('PINNED: in 2025 she never meets a stream across her line as strong as she is',
          same.legs.every(function (l) { return !l.sailed.held.length; }));
@@ -687,7 +724,7 @@ if (asked('motor')) {
     if (ontime.ok) {
       var vs = ontime.legs.map(function (l) { return l.v; });
       var lo = Math.min.apply(null, vs), hi = Math.max.apply(null, vs);
-      ok('PINNED: the speeds it needs run from 7.4 to 13.7 knots', Math.abs(lo - 7.4) < 0.1 && Math.abs(hi - 13.7) < 0.1,
+      ok('PINNED: the speeds it needs run from 7.4 to 13.8 knots', Math.abs(lo - 7.4) < 0.1 && Math.abs(hi - 13.8) < 0.1,
          lo.toFixed(2) + ' to ' + hi.toFixed(2));
       if (SHOW) say('  motor  Level 2, on time: ' + vs.map(function (v) { return v.toFixed(1); }).join(' '));
     }
