@@ -192,7 +192,11 @@ const CASES = [
     ['secondary', 'hw=05:36 hwh=6.4 mhws=6.8 mhwn=5.3 dhws=-0.4 dhwn=-0.3 thw1=0000 tdhw1=-10 thw2=0600 tdhw2=5', ''],
     ['twelfths', 'hw=23:10 hwh=4.0 lw=05:20 lwh=1.0 t=01:00', ''],
     ['twelfths', 'station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00', 'l1-5'],
-    ['atlas', 'station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00', 'l3-2025-1']
+    ['atlas', 'station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00', 'l3-2025-1'],
+    //  the tidal gate: the atlas form with a typed high water, which needs no
+    //  station, and the pilot-book form at a station, which waits for one
+    ['tidal_gate', 'hw=14:32 track=255 streams=075:2.2,078:2.6,080:2.0,085:0.9,250:0.4,255:1.5,258:2.4,260:2.7,258:2.1,255:1.0,080:0.3,078:1.4,076:2.1 t=17:00 dist=22 sog=7', 'l3-2025-2'],
+    ['tidal_gate', 'station=ticon/portsmouth-por-gbr-cmems date=2025-05-24 t=11:00 opens=5 shuts=-1', '']
   ];
   for (const [name, args, lesson] of WCASES) {
     const q = 'work=' + name + '&' + args.split(' ').map(kv => {

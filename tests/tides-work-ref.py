@@ -17,6 +17,11 @@ available it is the one used, so the two cannot share a mistake:
              ground vector, not by the asin of the cross-track part
   setdrift   mid-latitude sailing, the definition itself
   stream, secondary  the RYA linear interpolation, the definition itself
+  tidal_gate the stream along her track is a DOT PRODUCT of two unit
+             vectors, not the cosine of a difference; the time the gate
+             turns is found by BISECTION on the straight line between two
+             pages, not by the proportion; and the high waters of the
+             station form are copied from `tides today`, as for atlas
   atlas      only the arithmetic on the predicted turns: the turns come
              from the harmonic engine, which is checked against NOAA's
              published tables by tests/tides-check.awk, and are copied
@@ -135,6 +140,122 @@ def setdrift(la1, lo1, co, stw, hrs, fla, flo, lee=0, wind=''):
     return dict(drlat=la2, drlon=lo2, set=brg(fe, fn), drift=drift, rate=drift / hrs)
 
 
+def half_up(x):
+    """to the nearest whole number, a half going up: floor(x + 0.5)"""
+    return math.floor(x + 0.5)
+
+
+def hundredth(x):
+    """to a hundredth, a half going away from nothing, as it is printed"""
+    return math.copysign(math.floor(abs(x) * 100 + 0.5) / 100.0, x) if x else 0.0
+
+
+def gate(hw, t=None, dist=None, sog=None, prev=None, nxt=None,
+         track=None, pairs=None, frm=-6, foul=0.0, opens=None, shuts=None):
+    """A tidal gate.  Times are minutes from the midnight of hw's day.
+
+    atlas form: track and pairs (set, rate) for the pages from `frm`.
+    pilot form: opens and shuts, hours from high water.
+    prev and nxt are the high waters either side; the mean, 12 h 25 min,
+    when they are not given."""
+    H = {0: hw, -1: hw - 745 if prev is None else prev, 1: hw + 745 if nxt is None else nxt}
+    H[2] = H[1] + 745; H[3] = H[2] + 745; H[-2] = H[-1] - 745
+    out = {}
+    wins = []                      # (opens, shuts, opens known, shuts known)
+    if pairs is not None:
+        tk = math.radians(track)
+        ux, uy = math.sin(tk), math.cos(tk)
+        full = len(pairs) == 13
+        sam = []                   # (time, along, tide, page)
+        for k in ((-1, 0, 1) if full else (0,)):
+            for i, (st, rate) in enumerate(pairs):
+                tm = H[k] + (frm + i) * 60
+                if sam and tm <= sam[-1][0]:
+                    continue
+                a = math.radians(st)
+                sam.append((tm, hundredth(rate * (math.sin(a) * ux + math.cos(a) * uy)), k, frm + i))
+        c = -foul
+
+        def f(x):                  # the straight lines between the pages, less the level
+            for (t1, a1, _, _), (t2, a2, _, _) in zip(sam, sam[1:]):
+                if t1 <= x <= t2:
+                    return a1 + (a2 - a1) * (x - t1) / (t2 - t1) - c
+            return None
+
+        def root(t1, t2):          # bisection: where the line reaches the level
+            lo, hi = t1, t2
+            up = f(hi) >= 0
+            for _ in range(80):
+                mid = (lo + hi) / 2.0
+                if (f(mid) >= 0) == up:
+                    hi = mid
+                else:
+                    lo = mid
+            return half_up((lo + hi) / 2.0)
+
+        cur = None
+        if sam[0][1] - c >= 0:
+            cur = [sam[0][0], None, False, False]
+        for (t1, a1, _, _), (t2, a2, _, _) in zip(sam, sam[1:]):
+            if a1 - c < 0 <= a2 - c:
+                cur = [root(t1, t2), None, True, False]
+            elif a1 - c >= 0 > a2 - c:
+                cur[1] = root(t1, t2); cur[3] = True
+                wins.append(tuple(cur)); cur = None
+        if cur:
+            cur[1] = sam[-1][0]
+            wins.append(tuple(cur))
+        lo, hi = (hw - 360, hw + 360) if full else (sam[0][0] - 1, sam[-1][0] + 1)
+        mine = [s_ for s_ in sam if s_[2] == 0]
+        b = max(mine, key=lambda s_: s_[1])
+        out['best'] = b[1]; out['bestpage'] = b[3]
+        known = full or t is None or sam[0][0] <= t <= sam[-1][0]
+        if t is not None and known:
+            out['along'] = f(t) + c
+    else:
+        for k in (-2, -1, 0, 1, 2):
+            o = half_up(H[k] + opens * 60)
+            s_ = half_up((H[k] if shuts > opens else H[k + 1]) + shuts * 60)
+            wins.append((o, s_, True, True))
+        lo, hi = hw - 360, hw + 360
+        known = True
+    rep = [w for w in wins if w[1] > lo and w[0] < hi]
+    out['n'] = len(rep)
+    for i, w in enumerate(rep, 1):
+        out['o%d' % i] = w[0]; out['s%d' % i] = w[1]
+        out['ok%d' % i] = int(w[2]); out['sk%d' % i] = int(w[3])
+    if t is not None:
+        if not known:
+            out['state'] = 'unknown'
+        else:
+            inside = [w for w in wins if w[0] <= t < w[1]]
+            out['state'] = 'open' if inside else 'shut'
+            if inside and inside[0][3]:
+                out['left'] = inside[0][1] - t
+            if not inside:
+                later = [w for w in wins if w[2] and w[0] > t]
+                if later:
+                    out['left'] = later[0][0] - t
+    if sog:
+        p = half_up(dist / sog * 60)
+        out['p'] = p
+        for i, w in enumerate(rep, 1):
+            if w[2]:
+                out['lv%d' % i] = w[0] - p
+            if w[3]:
+                out['lb%d' % i] = w[1] - p
+    return out
+
+
+def near(m, hw):
+    """a clock time as the minute nearest that high water"""
+    while m - hw > 720:
+        m -= 1440
+    while m - hw < -720:
+        m += 1440
+    return m
+
+
 def show(name, d):
     print(name, ' '.join('%s=%.6f' % kv if isinstance(kv[1], float) else '%s=%s' % kv
                          for kv in d.items()))
@@ -177,6 +298,42 @@ if __name__ == '__main__':
     show('K6', setdrift(50.4630, -2.4550, 250, 6.5, 2, 50.3660, -2.8260))
     print('K7 HW', secondary('10:52', 4.39, 5.5, 4.4, -0.2, -0.1, '0000', 20, '0600', 10))
     print('K7 LW', secondary('04:30', 1.50, 0.8, 2.2, 0.1, 0.0, '0000', 5, '0600', 25))
+    #  ---- the tidal gate
+    HELP = [(75, 2.2), (78, 2.6), (80, 2.0), (85, 0.9), (250, 0.4), (255, 1.5), (258, 2.4),
+            (260, 2.7), (258, 2.1), (255, 1.0), (80, 0.3), (78, 1.4), (76, 2.1)]
+    hw = hm('14:32')
+    show('G1 the help example', gate(hw, t=near(hm('17:00'), hw), dist=22, sog=7, track=255, pairs=HELP))
+    #  open across LOW water: one window from the tide before, one into the next
+    LOWW = [(255, 2.0), (255, 1.6), (255, 0.9), (255, 0.2), (75, 0.6), (75, 1.5), (75, 2.2),
+            (75, 2.0), (75, 1.2), (75, 0.3), (255, 0.5), (255, 1.3), (255, 1.9)]
+    show('G2 across low water', gate(hw, t=near(hm('20:00'), hw), track=255, pairs=LOWW))
+    show('G3 the same, the next HW given 12h40 on', gate(hw, nxt=hw + 760, t=near(hm('20:00'), hw), track=255, pairs=LOWW))
+    show('G4 the help example, a knot of foul accepted', gate(hw, t=near(hm('11:45'), hw), track=255, pairs=HELP, foul=1.0))
+    hw2 = hm('23:40')
+    PART = [(270, 1.5), (275, 0.6), (90, 0.5), (92, 1.8)]
+    show('G5 four pages from HW +2', gate(hw2, t=near(hm('03:10'), hw2), track=90, pairs=PART, frm=2, foul=0.8))
+    show('G6 the same, a time off the pages', gate(hw2, t=near(hm('08:00'), hw2), track=90, pairs=PART, frm=2))
+    show('G7 foul on every page', gate(hw, track=75, pairs=[(250, 1.0), (255, 2.0), (260, 1.5)], frm=-1))
+    show('G8 fair on every page', gate(hw, track=255, pairs=[(250, 1.0), (255, 2.0), (260, 1.5)], frm=-1, dist=10, sog=5))
+    show('G9 the pilot book, across low water', gate(hw, t=near(hm('17:00'), hw), dist=22, sog=7, opens=5, shuts=-1))
+    show('G10 the pilot book, on one tide', gate(hw, t=near(hm('15:00'), hw), opens=-1, shuts=5))
+    hw3 = hm('22:50')
+    show('G11 half hours, the next HW given, over midnight',
+         gate(hw3, nxt=near(hm('11:22'), hw3 + 745), t=near(hm('02:00'), hw3), dist=6, sog=4.5, opens=4.5, shuts=-1.5))
+    #  Portsmouth 2025-05-24, as `tides today` prints its high waters:
+    #  20:18 the day before, 08:42, 21:10
+    hwp = hm('08:42')
+    show('G12 Portsmouth, the pilot book', gate(hwp, prev=hm('20:18') - 1440, nxt=hm('21:10'), t=hm('11:00'), opens=5, shuts=-1))
+    show('G13 Portsmouth, the atlas', gate(hwp, prev=hm('20:18') - 1440, nxt=hm('21:10'), t=hm('11:00'), track=255, pairs=LOWW))
+    #  two pages where the printed hundredths matter: unrounded, the gate
+    #  would open a minute earlier (23 min after the page, not 24)
+    show('G14 worked from the printed figures', gate(hm('10:00'), track=255, pairs=[(60, 0.3), (230, 0.5)], frm=0))
+    #  her time is on the far side of midnight from the high water
+    hw4 = hm('01:10')
+    show('G15 23:30 is the evening before', gate(hw4, t=near(hm('23:30'), hw4), opens=-3, shuts=2))
+    #  tides only 11 h 30 min apart: the next tide's first page falls before
+    #  this tide's last, and is left out
+    show('G16 the next HW 11h30 on', gate(hw, nxt=hw + 690, t=near(hm('21:00'), hw), track=255, pairs=LOWW))
     #  Dover's means, from M2 2.253 and S2 0.708 in src/tides/stations.dat,
     #  and the range of the 10:00 tide (HW 6.61 - the LW after it, 0.93)
     sp, np_ = 2 * (2.253 + 0.708), 2 * (2.253 - 0.708)

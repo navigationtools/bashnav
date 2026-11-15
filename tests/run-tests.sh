@@ -924,7 +924,7 @@ WXLOG
   #  drifted from the code is a broken link on somebody else's site.
   o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides work help 2>&1)
   n=$(printf '%s\n' "$o" | grep -c '^    tides work ' || true)
-  check "tides work help gives an example for each calculator" "7" "$n"
+  check "tides work help gives an example for each calculator" "9" "$n"
   wbad=0
   printf '%s\n' "$o" | grep '^    tides work ' | sed 's/^    tides work //' > "$tmp/work-ex"
   while IFS= read -r _l; do

@@ -9,7 +9,7 @@
  *
  *    1. a SURFACE it may call -- WORK_SHARED -- which does not change
  *       without a note to its inbox;
- *    2. a BOUNDARY -- WORK_PURE_CALLS -- so that the five calculators in
+ *    2. a BOUNDARY -- WORK_PURE_CALLS -- so that the six calculators in
  *       WORK_PURE_WORK need three trig functions from the tide engine and
  *       nothing else, and the course can supply those in a short shim
  *       instead of shipping 2.9 MB of station data.
@@ -110,7 +110,7 @@ function run(c) {
   return r.ok ? r.lines.join('\n') : 'REFUSED: ' + r.msg;
 }
 
-/* ---- 2. the five calculators answer with the shim alone, and say the
+/* ---- 2. the six calculators answer with the shim alone, and say the
           same thing they say with the whole engine behind them -------- */
 (function () {
   if (!CASES.length) { fail('no pure cases found in tests/tides-work.dat -- is the filter right?'); return; }

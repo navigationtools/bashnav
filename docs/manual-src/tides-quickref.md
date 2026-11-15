@@ -1,5 +1,5 @@
 # TIDES quick reference
-**Version {{VERSION}}** — harmonic prediction and the six coastal calculators.
+**Version {{VERSION}}** — harmonic prediction and the seven coastal calculators.
 
 ## Commands
 
@@ -40,7 +40,7 @@ tide subtracts. Reversing that pair is how a mast meets a bridge.
 
 A `+` in a URL is a space: write `tdhw2=5`, not `tdhw2=+5`.
 
-## The six calculators
+## The seven calculators
 
 | name | what it gives | the parameters it must have |
 |---|---|---|
@@ -50,6 +50,7 @@ A `+` in a URL is a space: write `tdhw2=5`, not `tdhw2=+5`.
 | `atlas` | which atlas page, and where the range sits | `station` (+ `date t`) |
 | `cts` | course to steer | `track stw streams` |
 | `setdrift` | set and drift from a DR and a fix | `start co stw hours fix` |
+| `tidal_gate` | when a headland opens and shuts, and when to leave | `hw` (or `station t`), then `track streams`, or `opens shuts` |
 
 `streams` is `set:rate` per hour, comma separated — `135:1.5,150:2.0` is two
 hours. Vectors are summed and the triangle solved **once**, not hour by hour.
@@ -60,6 +61,10 @@ so heading = water track − leeway.
 Atlas pages run `HW -3` … `HW` … `HW +6`, each covering half an hour either
 side; **exactly half past goes to the later page**.
 
+A tidal gate is **open while the stream is with her**: rate × cos(set − track)
+on each atlas page, the turn found between two pages by a straight line. Or
+from the pilot book: `opens=5 shuts=-1` is HW +5 to an hour before the next.
+
 ## What it says when it will not guess
 
 | | |
@@ -67,6 +72,7 @@ side; **exactly half past goes to the later page**.
 | **SECONDARY** | no constants here; turns corrected from a reference, curve a half cosine |
 | **EXTRAPOLATED** | beyond springs or neaps, or outside the almanac's limits |
 | **cannot make good this track** | the stream beats the boat; the working shows why |
+| **not on the pages given** | a tidal gate turns outside the atlas pages typed; that end is not guessed |
 | means not available | not semidiurnal, or a secondary port — range given alone |
 | one plain sentence naming a parameter | bad input; **nothing is worked** |
 
@@ -79,6 +85,8 @@ side; **exactly half past goes to the later page**.
 | `cts track=255 stw=7.0 streams=030:1.5` | water track 246.3 T (steer 246), SOG 5.86 kn |
 | the same `+ leeway=5 wind=port` | heading 241.3 T (steer 241) |
 | `setdrift start=50.4630,-2.4550 co=250 stw=6.5 hours=2 fix=50.3660,-2.8260` | set 235 T, drift 2.4 nm, 1.2 kn |
+| `tidal_gate hw=14:32 track=255 from=-3 streams=085:0.9,250:0.4 foul=0.5` | opens 11:50 |
+| `tidal_gate hw=14:32 opens=5 shuts=-1 t=17:00` | open 07:07 to 13:32 and 19:32 to 01:57; at 17:00 shut, opens in 2 h 32 min |
 
 ## Rules of thumb
 

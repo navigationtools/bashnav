@@ -156,10 +156,11 @@ promised to it, and both are stated in the file as lists and held by
    else's build:** it travels with a note to the course's inbox in the same
    queue run, never on its own.
 2. **`WORK_PURE_CALLS` is the tide-engine boundary** — `sind`, `cosd`,
-   `asind`. The five calculators in `WORK_PURE_WORK` reach the engine through
+   `asind`. The six calculators in `WORK_PURE_WORK` reach the engine through
    those three and nothing else, so a lesson can work an example without the
-   2.9 MB of station data. `atlas`, and `twelfths` with `station=`, are
-   outside that boundary on purpose and stay links into the full app.
+   2.9 MB of station data. `atlas`, and `twelfths` and `tidal_gate` with
+   `station=`, are outside that boundary on purpose and stay links into the
+   full app.
 
 **Everything else the file exposes is `WORK_HOST`** and belongs to the tides
 page and the tests; it may change freely.

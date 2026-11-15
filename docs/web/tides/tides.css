@@ -409,6 +409,12 @@ svg.wfig .c-harm { stroke: var(--low); stroke-width: 2; fill: none; }
 svg.wfig .c-water { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 7 4; fill: none; }
 svg.wfig .c-tide { stroke: var(--low); stroke-width: 2; fill: none; }
 svg.wfig .now { stroke: var(--now); stroke-width: 1.5; stroke-dasharray: 4 3; }
+/*  the tidal gate: the strip of open and shut, and the bars of stream  */
+svg.wfig .g-shut { fill: var(--line); opacity: .45; }
+svg.wfig .g-open { fill: var(--curve); opacity: .7; }
+svg.wfig .g-unk { fill: none; stroke: var(--dim); stroke-width: 1; stroke-dasharray: 4 3; }
+svg.wfig .g-fair { fill: var(--curve); opacity: .8; }
+svg.wfig .g-foul { fill: var(--low); opacity: .8; }
 svg.wfig .pt { fill: var(--text); }
 svg.wfig .pt.acc { fill: var(--now); }
 svg.wfig .pt.hv { fill: var(--low); }

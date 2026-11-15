@@ -1,6 +1,6 @@
 # tides — the coastal work calculators: the URL contract
 
-This file is **the authoritative contract** for linking into the six coastal
+This file is **the authoritative contract** for linking into the seven coastal
 navigation calculators in the browser build of `tides`. The coastal navigation
 course deep-links here from its lessons, so the parameter names below are
 fixed: a name is never renamed or given a new meaning. New parameters may be
@@ -61,12 +61,12 @@ it as four lists at the top:
 | `WORK_SHARED` | `NAMES`, `SPEC`, `run`, `figure` — the surface a lesson may call. Changing one of the four travels with a note to the course's inbox |
 | `WORK_HOST` | everything else exposed: the tides page's and the tests'. It may change without warning |
 | `WORK_PURE_CALLS` | `sind`, `cosd`, `asind` — the only tide-engine calls the pure calculators make |
-| `WORK_PURE_WORK` | `twelfths` (typed times), `secondary`, `stream`, `cts`, `setdrift` — the five that stay inside that boundary |
+| `WORK_PURE_WORK` | `twelfths` (typed times), `secondary`, `stream`, `cts`, `setdrift`, `tidal_gate` (typed `hw`) — the six that stay inside that boundary |
 
-**What the boundary buys a lesson:** those five can be worked without the
+**What the boundary buys a lesson:** those six can be worked without the
 2.9 MB of station data, which would otherwise have to be downloaded before a
-student could see twelfths done. `atlas`, and `twelfths` with `station=`,
-need the real engine and stay links into the full app.
+student could see twelfths done. `atlas`, and `twelfths` or `tidal_gate` with
+`station=`, need the real engine and stay links into the full app.
 
 **It is checked by running, not by reading.** `docs/web/tests/work-engine.js`
 runs every pure case against a tide engine that answers those three calls and
@@ -87,7 +87,7 @@ watching by showing that `atlas` does reach past them.
 | dates | `YYYY-MM-DD` |
 | variation, deviation | degrees, **east positive, west negative** (`var=-2` is 2° W) |
 | `lesson` | optional, on every calculator: see below |
-| `work` | which calculator: `twelfths secondary stream atlas cts setdrift` |
+| `work` | which calculator: `twelfths secondary stream atlas cts setdrift tidal_gate` |
 
 **A `+` in a query string is a space.** Browsers decode `tdhw2=+5` as
 `tdhw2= 5`. Write positive values unsigned (`tdhw2=5`) or as `%2B5`; an
@@ -97,8 +97,8 @@ unsigned number is positive, and a leading space is trimmed, so both work.
 `ticon/southampton-sou-gbr-da_idh`, `noaa/8452660` — letters, digits and
 `_ . / -`. A `/` may be written as-is or as `%2F`.
 
-**Times at a station** (`t` and `date` for `atlas` and the station form of
-`twelfths`) are the station's own **standard time** — GMT for the UK, with no
+**Times at a station** (`t` and `date` for `atlas` and the station forms of
+`twelfths` and `tidal_gate`) are the station's own **standard time** — GMT for the UK, with no
 summer time — exactly as every other `tides` screen and a printed tide table.
 
 **Every value is checked.** An unknown parameter, a value that is not a
@@ -315,6 +315,81 @@ includes any leeway too, and the working says so. The antimeridian is handled.
     ?work=setdrift&start=50.10,-1.50&co=090&stw=6&hours=3&fix=50.05,-1.20
     tides work setdrift start=50.10,-1.50 co=090 stw=6 hours=3 fix=50.05,-1.20
 
+## 7. `tidal_gate` — when a headland's stream turns, and the window to get round
+
+A headland where the stream runs hard is a gate: open while the stream is
+with her, shut while it is against her. A navigator finds when it opens and
+shuts in one of two ways, and this takes both (Larry, 15 November 2026).
+
+```
+   the atlas form                         the pilot-book form
+   13 pages, HW -6 to HW +6               "the west-going stream begins
+   set and rate at the headland            at HW Portsmouth +5"
+            |                                        |
+   along her track on each page:           opens= and shuts=,
+   rate x cos(set - track)                 hours from high water
+            |                                        |
+   where it turns, between two             HW + the hours
+   pages, by a straight line                         |
+            +-------------------+--------------------+
+                                v
+              the gate, by the clock:  OPEN 12:13 to 18:18
+                                |
+              t=     is it open when she is there, and for how long
+              dist=, sog=    when to leave to arrive while it is
+```
+
+**The high water,** one of two ways:
+
+| parameter | | meaning |
+|---|---|---|
+| `hw` | typed form | time of high water at the atlas's (or pilot book's) standard port |
+| `hw2` | typed form, optional | the next high water there. Without it the tides are taken as 12 h 25 min apart, the mean, and the working says so |
+| `station` | station form (shell: the chosen station) | a station id: the high water nearest `t`, and the ones before and after it, are predicted |
+| `date` | station form, default today | in the station's standard time |
+
+**The gate,** one of two forms:
+
+| parameter | | meaning |
+|---|---|---|
+| `track` | atlas form | her track past the headland, deg T |
+| `streams` | atlas form | `set:rate` for each atlas page, comma separated, as `cts` takes them. 2 to 13 pairs |
+| `from` | atlas form, default `-6` | the atlas page of the first pair: `-6` is HW −6. A whole number, −6 to 6 |
+| `foul` | atlas form, default 0 | the foul stream she will accept, kn: the gate is open while the stream is no more than this against her |
+| `opens` | pilot-book form | hours from high water when the fair stream begins, −6.5 to 6.5 (`4.5` is HW +4:30) |
+| `shuts` | pilot-book form | hours from high water when it ends |
+
+**And, with either form:**
+
+| parameter | | meaning |
+|---|---|---|
+| `t` | optional (required with `station`; default now) | the time she expects to be at the gate. With `hw`, it is taken as the time nearest that high water |
+| `dist`, `sog` | optional, together | miles to the gate and her speed over the ground on the way: when to leave |
+
+**The atlas form** resolves the stream on each page along her track, rate ×
+cos(set − track): with her is +, against her is −. The gate turns where that
+passes zero (or minus `foul`), found between two pages by a straight line, as
+it is done with a pencil. With all thirteen pages the pages are run round into
+the tide before and the tide after, so a window open across low water is found
+whole. With fewer, the working says which end is not on the pages given.
+
+**The pilot-book form** adds the hours to the high water. When `shuts` is not
+after `opens`, the gate opens on one tide and shuts on the next.
+
+**Worked from the figures as printed.** The stream along her track is taken to
+a hundredth of a knot and a turn of the gate to the whole minute, as each is
+printed, and every later step uses the printed figure. A student with the
+working and a pencil gets the same minute.
+
+**What it does not do.** Springs and neaps: *when* the stream turns does not
+depend on them; how hard it runs does, and `stream` gives the day's rate. And
+a gate here is a place and a time, not a passage of miles through it.
+
+    ?work=tidal_gate&hw=14:32&track=255&streams=075:2.2,078:2.6,080:2.0,085:0.9,250:0.4,255:1.5,258:2.4,260:2.7,258:2.1,255:1.0,080:0.3,078:1.4,076:2.1&t=17:00&dist=22&sog=7
+    ?work=tidal_gate&hw=14:32&opens=5&shuts=-1&t=17:00&dist=22&sog=7
+    tides work tidal_gate hw=14:32 track=255 streams=075:2.2,078:2.6,080:2.0,085:0.9,250:0.4,255:1.5,258:2.4,260:2.7,258:2.1,255:1.0,080:0.3,078:1.4,076:2.1 t=17:00 dist=22 sog=7
+    tides work tidal_gate hw=14:32 opens=5 shuts=-1 t=17:00 dist=22 sog=7
+
 ---
 
 ## Checked answers
@@ -331,6 +406,8 @@ confirmed first by `tests/tides-work-ref.py`:
 | `work=cts&track=250&stw=7.5&streams=290:1.2,285:0.9,280:0.4,100:0.3,105:0.8,110:1.1&dist=48.4` | water track 249.8 T (steer 250) |
 | `work=setdrift&start=50.4630,-2.4550&co=250&stw=6.5&hours=2&fix=50.3660,-2.8260` | set 235 T, drift 2.4 nm, 1.2 kn |
 | `work=secondary&hw=10:52&hwh=4.39&lw=04:30&lwh=1.50&mhws=5.5&mhwn=4.4&mlwn=2.2&mlws=0.8&dhws=-0.2&dhwn=-0.1&dlwn=0.0&dlws=0.1&thw1=0000&tdhw1=20&thw2=0600&tdhw2=10&tlw1=0000&tdlw1=5&tlw2=0600&tdlw2=25` | HW 11:10 4.29 m, LW 04:50 1.55 m |
+| `work=tidal_gate&hw=14:32&track=255&streams=075:2.2,...,076:2.1&t=17:00&dist=22&sog=7` (the example above) | open 12:13 to 18:18; at 17:00 open, shuts in 1 h 18 min; leave between 09:04 and 15:09 |
+| `work=tidal_gate&hw=14:32&opens=5&shuts=-1&t=17:00&dist=22&sog=7` | open 07:07 to 13:32, and 19:32 to 01:57 next day; at 17:00 shut, opens in 2 h 32 min |
 
 **A training and cross-checking aid, not a substitute for judgement.** Where
 this and the almanac, the atlas or the chart differ, they are right.

@@ -980,7 +980,10 @@ machine. Two things about how that check is built:
    definition and, where there is a second way, uses it: the twelfths are
    integrated from the staircase rather than read from 0-1-3-6-9-11-12, and
    the course to steer is found by bisection on the ground track rather than
-   the asin of the cross-track part. The coastal course's own chapter
+   the asin of the cross-track part; the tidal gate's stream along the track
+   is a dot product of two vectors rather than rate x cos, and its turn is
+   found by bisection on the straight line rather than by the proportion.
+   The coastal course's own chapter
    examples are in there too. One expected value was first typed by hand and
    was wrong; the script caught it — which is the rule above, again.
 2. **The browser against the awk.** `docs/web/tests/tides-work.js` compares
@@ -994,7 +997,13 @@ Faults planted and caught: leeway applied the wrong way, a twelfths
 cumulative of 8 for 9 (which passed until cases were added in tidal hours 1,
 5 and 6 — the staircase is only tested where a case lands), `toFixed` for
 printf's rounding, the falling-tide sign dropped, and the water vector drawn
-three degrees off.
+three degrees off. For the tidal gate, twenty-seven in the awk and seven in
+the port: among them the stream along her track with its sign turned
+round, the foul limit applied with the wrong sign, a turn worked from the
+unrounded stream, the mean interval used when `hw2` is given, a time across
+midnight read on the wrong tide, and high water drawn off the middle of the
+strip. Three were not caught at first and each became a case (rounding, a
+time across midnight, tides eleven and a half hours apart).
 
 ## Golden files
 

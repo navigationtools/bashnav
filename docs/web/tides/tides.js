@@ -1012,7 +1012,7 @@ function saveOffline() {
 
 
 /* =====================================================================
-   Coastal work: the six calculators.
+   Coastal work: the seven calculators.
 
    The arithmetic and every line of the working are in work.js, which is
    held to `tides work` character for character.  This part is only the
@@ -1039,6 +1039,8 @@ var WLESSON = '';
 
 function workNeedsStation(name, a) {
   if (name === 'atlas') return true;
+  //  the tidal gate predicts its high water at a station unless hw= is typed
+  if (name === 'tidal_gate') return !a.hw;
   if (name !== 'twelfths') return false;
   return !(a.lw || a.hw || a.lwh || a.hwh);
 }
@@ -1235,8 +1237,9 @@ window.addEventListener('DOMContentLoaded', function () {
   $('w-clear').addEventListener('click', function () { drawWorkForm({}); $('w-result').hidden = true; });
 
   /*  ?work=... opens the calculator straight away -- before the station
-      index has loaded, because four of the six never need it.  The two
-      that do wait for it below. */
+      index has loaded, because four of the seven never need it.  The
+      ones that do (the atlas page always; twelfths and the tidal gate
+      when they are given a station) wait for it below. */
   var WQ = WORK.fromQuery(location.search), wq = asObj(WQ);
   var startWork = wq.work !== undefined;
   WLESSON = wq.lesson || '';

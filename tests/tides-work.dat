@@ -82,5 +82,58 @@ cts|track=255 stw=7.0 streams=030:1.5 leeway=5 wind=port|water=246.284810 cts=24
 cts|track=250 stw=7.5 streams=290:1.2,285:0.9,280:0.4,100:0.3,105:0.8,110:1.1 dist=48.4|water=249.781465 cts=250 sog=7.540799 time=385.105072
 setdrift|start=50.4630,-2.4550 co=250 stw=6.5 hours=2 fix=50.3660,-2.8260|set=235.073900 drift=2.399461 rate=1.199731
 secondary|hw=10:52 hwh=4.39 lw=04:30 lwh=1.50 mhws=5.5 mhwn=4.4 mlwn=2.2 mlws=0.8 dhws=-0.2 dhwn=-0.1 dlwn=0.0 dlws=0.1 thw1=0000 tdhw1=20 thw2=0600 tdhw2=10 tlw1=0000 tdlw1=5 tlw2=0600 tdlw2=25|Htime=670 Hheight=4.290909 Ltime=290 Lheight=1.55
+# ---- tidal_gate: every expected value is from tests/tides-work-ref.py, which finds the
+# turn by bisection and the stream along the track by a dot product.  Times are minutes
+# from the midnight of the high water's day.
+# the atlas, all thirteen pages: the help example
+tidal_gate|hw=14:32 track=255 streams=075:2.2,078:2.6,080:2.0,085:0.9,250:0.4,255:1.5,258:2.4,260:2.7,258:2.1,255:1.0,080:0.3,078:1.4,076:2.1 t=17:00 dist=22 sog=7|best=2.690000 bestpage=1 along=1.586667 n=1 o1=733 s1=1098 ok1=1 sk1=1 state=open left=78 p=189 lv1=544 lb1=909
+# open across LOW water: a window from the tide before, and one into the next
+tidal_gate|hw=14:32 track=255 streams=255:2.0,255:1.6,255:0.9,255:0.2,075:0.6,075:1.5,075:2.2,075:2.0,075:1.2,075:0.3,255:0.5,255:1.3,255:1.9 t=20:00|best=2.000000 bestpage=-6 along=1.580000 n=2 o1=330 s1=707 ok1=1 sk1=1 o2=1075 s2=1452 ok2=1 sk2=1 state=open left=252
+# the same with the next high water given, 12 h 40 min on: only the last shutting moves
+tidal_gate|hw=14:32 hw2=03:12 track=255 streams=255:2.0,255:1.6,255:0.9,255:0.2,075:0.6,075:1.5,075:2.2,075:2.0,075:1.2,075:0.3,255:0.5,255:1.3,255:1.9 t=20:00|best=2.000000 bestpage=-6 along=1.580000 n=2 o1=330 s1=707 ok1=1 sk1=1 o2=1075 s2=1467 ok2=1 sk2=1 state=open left=267
+# a knot of foul stream accepted: the window widens
+tidal_gate|hw=14:32 track=255 streams=075:2.2,078:2.6,080:2.0,085:0.9,250:0.4,255:1.5,258:2.4,260:2.7,258:2.1,255:1.0,080:0.3,078:1.4,076:2.1 foul=1.0 t=11:45|best=2.690000 bestpage=1 along=-0.610500 n=1 o1=686 s1=1150 ok1=1 sk1=1 state=open left=445
+# four pages from HW +2: it opens on them, and when it shuts is not on them
+tidal_gate|hw=23:40 track=090 streams=270:1.5,275:0.6,090:0.5,092:1.8 from=2 foul=0.8 t=03:10|best=1.800000 bestpage=5 along=-0.050000 n=1 o1=1587 s1=1720 ok1=1 sk1=0 state=open
+# the same, asked about a time off the pages: not known
+tidal_gate|hw=23:40 track=090 streams=270:1.5,275:0.6,090:0.5,092:1.8 from=2 t=08:00|best=1.800000 bestpage=5 n=1 o1=1633 s1=1720 ok1=1 sk1=0 state=unknown
+# foul on every page given
+tidal_gate|hw=14:32 track=075 streams=250:1.0,255:2.0,260:1.5 from=-1|best=-1.000000 bestpage=-1 n=0
+# fair on every page given
+tidal_gate|hw=14:32 track=255 streams=250:1.0,255:2.0,260:1.5 from=-1 dist=10 sog=5|best=2.000000 bestpage=0 n=1 o1=812 s1=932 ok1=0 sk1=0 p=120
+# the pilot book, across low water
+tidal_gate|hw=14:32 opens=5 shuts=-1 t=17:00 dist=22 sog=7|n=2 o1=427 s1=812 ok1=1 sk1=1 o2=1172 s2=1557 ok2=1 sk2=1 state=shut left=152 p=189 lv1=238 lb1=623 lv2=983 lb2=1368
+# the pilot book, both hours on one tide
+tidal_gate|hw=14:32 opens=-1 shuts=5 t=15:00|n=1 o1=812 s1=1172 ok1=1 sk1=1 state=open left=272
+# half hours, the next high water given, over midnight
+tidal_gate|hw=22:50 hw2=11:22 opens=4.5 shuts=-1.5 t=02:00 dist=6 sog=4.5|n=2 o1=895 s1=1280 ok1=1 sk1=1 o2=1640 s2=2032 ok2=1 sk2=1 state=shut left=80 p=80 lv1=815 lb1=1200 lv2=1560 lb2=1952
+# Portsmouth's own high waters, as `tides today` prints them: 20:18 the day before, 08:42, 21:10
+tidal_gate|station=ticon/portsmouth-por-gbr-cmems date=2025-05-24 t=11:00 opens=5 shuts=-1|n=2 o1=78 s1=462 ok1=1 sk1=1 o2=822 s2=1210 ok2=1 sk2=1 state=shut left=162
+# and the atlas form from the same prediction
+tidal_gate|station=ticon/portsmouth-por-gbr-cmems date=2025-05-24 t=11:00 track=255 streams=255:2.0,255:1.6,255:0.9,255:0.2,075:0.6,075:1.5,075:2.2,075:2.0,075:1.2,075:0.3,255:0.5,255:1.3,255:1.9|best=2.000000 bestpage=-6 along=-0.930000 n=2 o1=-19 s1=357 ok1=1 sk1=1 o2=725 s2=1105 ok2=1 sk2=1 state=shut left=65
+# two pages where the printed hundredths matter: unrounded it would open a minute earlier
+tidal_gate|hw=10:00 track=255 streams=060:0.3,230:0.5 from=0|best=0.450000 bestpage=1 n=1 o1=624 s1=660 ok1=1 sk1=0
+# her time on the far side of midnight from the high water: 23:30 is the evening before
+tidal_gate|hw=01:10 opens=-3 shuts=2 t=23:30|n=1 o1=-110 s1=190 ok1=1 sk1=1 state=open left=220
+# tides only 11 h 30 min apart: the next tide's first page falls before this tide's last
+tidal_gate|hw=14:32 hw2=02:02 track=255 streams=255:2.0,255:1.6,255:0.9,255:0.2,075:0.6,075:1.5,075:2.2,075:2.0,075:1.2,075:0.3,255:0.5,255:1.3,255:1.9 t=21:00|best=2.000000 bestpage=-6 along=1.620000 n=2 o1=330 s1=707 ok1=1 sk1=1 o2=1075 s2=1397 ok2=1 sk2=1 state=open left=137
+# tidal_gate: input that must be refused
+tidal_gate|hw=14:32|err=needs the atlas
+tidal_gate|hw=14:32 opens=5|err=shuts= is needed
+tidal_gate|hw=14:32 opens=5 shuts=5|err=the same hour
+tidal_gate|hw=14:32 opens=5 shuts=-1 track=090|err=not both
+tidal_gate|hw=14:32 station=ticon/dover-dov-gbr-bodc opens=5 shuts=-1|err=give hw=, or station=
+tidal_gate|hw=14:32 hw2=15:00 opens=5 shuts=-1|err=about twelve and a half hours later
+tidal_gate|hw=14:32 track=090 streams=090:1|err=2 to 13 set:rate pairs
+tidal_gate|hw=14:32 track=090 streams=090:1,270:1 from=6|err=runs past HW +6
+tidal_gate|hw=14:32 track=090 streams=090:1,270:x|err=is not set:rate
+tidal_gate|hw=14:32 track=090 streams=090:1,270:1 from=1.5|err=should be a whole page
+tidal_gate|hw=14:32 opens=5 shuts=-1 dist=10|err=dist= and sog= go together
+tidal_gate|hw=14:32 opens=5 shuts=-1 dist=10 sog=0|err=sog= must be more than 0
+tidal_gate|hw=14:32 opens=5 shuts=-1 t=25:00|err=is not a time
+tidal_gate|hw=14:32 opens=7 shuts=-1|err=out of range
+tidal_gate|hw=14:32 opens=5 shuts=-1 stw=6|err=does not take stw=
+tidal_gate|hw=14:32 date=2025-05-24 opens=5 shuts=-1|err=date= goes with station=
+tidal_gate|station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00 hw2=22:00 opens=5 shuts=-1|err=hw2= goes with hw=
 # station ids carry underscores
 atlas|station=ticon/southampton-sou-gbr-da_idh date=2026-11-07 t=10:00|means=1

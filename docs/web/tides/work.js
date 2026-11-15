@@ -59,13 +59,13 @@ var WORK_SHARED     = ['NAMES', 'SPEC', 'run', 'figure'];
 var WORK_HOST       = ['EXAMPLES', 'lessonHref', 'fromQuery', 'stationId',
                        'useTide', 'fx', 'sprintf'];
 var WORK_PURE_CALLS = ['sind', 'cosd', 'asind'];
-var WORK_PURE_WORK  = ['twelfths', 'secondary', 'stream', 'cts', 'setdrift'];
+var WORK_PURE_WORK  = ['twelfths', 'secondary', 'stream', 'cts', 'setdrift', 'tidal_gate'];
 
 var WORK = (function () {
   var T = (typeof TIDE !== 'undefined') ? TIDE : null;
   function useTide(t) { T = t; }
 
-  var NAMES = ['twelfths', 'secondary', 'stream', 'atlas', 'cts', 'setdrift'];
+  var NAMES = ['twelfths', 'secondary', 'stream', 'atlas', 'cts', 'setdrift', 'tidal_gate'];
 
   /* ---- formatting, each the twin of a wk_ helper ------------------- */
   function trunc(x) { return Math.trunc(x); }
@@ -768,6 +768,314 @@ var WORK = (function () {
   }
 
   /* =================================================================
+     7.  A tidal gate.  The twin of wk_gate() in src/tides/work.awk,
+     which carries the reasons: two forms (the atlas's pages along her
+     track, or the pilot book's hours), the tides either side, and
+     every later step worked from the figures as printed.
+     ================================================================= */
+  function gclk(m) {
+    var d = ffloor(ffloor(m + 0.5) / 1440.0), s = hhmm(m);
+    if (d === 1) return s + ' next day';
+    if (d === -1) return s + ' the day before';
+    if (d > 1) return s + sprintf(' %d days on', d);
+    if (d < -1) return s + sprintf(' %d days before', -d);
+    return s;
+  }
+  function gpage(p) { return p === 0 ? 'HW' : 'HW ' + (p < 0 ? '-' : '+') + wg(fabs(p)); }
+  function gtide(k) {
+    if (k === 1) return ' of the next tide';
+    if (k === -1) return ' of the tide before';
+    if (k === 2) return ' of the tide after next';
+    if (k === -2) return ' of the tide before last';
+    return '';
+  }
+  function gate() {
+    allow('tidal_gate', 'hw hw2 station date t dist sog track streams from foul opens shuts');
+    if (S.err !== '') return 0;
+    var atl = has('track') || has('streams') || has('from') || has('foul');
+    var plt = has('opens') || has('shuts');
+    if (atl && plt) return err("give the atlas's streams= and track=, or the pilot book's opens= and shuts=, not both");
+    if (!atl && !plt) return err("tidal_gate needs the atlas's streams= and track=, or the pilot book's opens= and shuts=");
+    var man = has('hw');
+    if (man && has('station')) return err('give hw=, or station= to predict it, not both');
+    if (man && has('date')) return err('date= goes with station=; hw= is a time by the clock');
+    if (!man && has('hw2')) return err('hw2= goes with hw=; with station= the next high water is predicted');
+    if (!man && !has('station') && !(S.ctx.defStation || ''))
+      return err('hw= is needed (high water at the standard port, HH:MM), or station= to predict it');
+    var Tk = 0, ns = 0, ps, q, i, j, k, from = 0, foul = 0, opens = 0, shuts = 0, full = false, gs = [], gr = [];
+    if (atl) {
+      Tk = ang('track', '', 'her track past the headland, deg true');
+      if (S.err !== '') return 0;
+      if (!has('streams')) return err('streams= is needed (set:rate for each atlas page, e.g. 080:1.9,078:2.4)');
+      ps = S.a.streams.split(','); ns = ps.length;
+      if (ns < 2 || ns > 13) return err('streams= takes 2 to 13 set:rate pairs, one for each atlas page');
+      for (i = 1; i <= ns; i++) {
+        q = ps[i - 1].split(':');
+        if (q.length !== 2 || !isnum(q[0]) || !isnum(q[1]))
+          return err('streams= pair ' + i + " '" + ps[i - 1] + "' is not set:rate");
+        if (+q[0] < 0 || +q[0] > 360 || +q[1] < 0 || +q[1] > 15)
+          return err('streams= pair ' + i + " '" + ps[i - 1] + "' is out of range (set 0 to 360, rate 0 to 15)");
+        gs[i] = nrm360(+q[0]); gr[i] = +q[1];
+      }
+      from = num('from', '-6', '-6', '6', 'the atlas page of the first pair, hours from HW');
+      foul = num('foul', '0', '0', '10', 'the foul stream she will accept, kn');
+      if (S.err !== '') return 0;
+      if (from !== trunc(from)) return err('from=' + S.a.from + ' should be a whole page, -6 to 6');
+      if (from + ns - 1 > 6) return err(sprintf('streams= runs past HW +6: %d pairs from page %s', ns, gpage(from)));
+      full = (ns === 13);
+    } else {
+      opens = num('opens', '', '-6.5', '6.5', 'hours from HW when the fair stream begins');
+      shuts = num('shuts', '', '-6.5', '6.5', 'hours from HW when the fair stream ends');
+      if (S.err !== '') return 0;
+      if (opens === shuts) return err('opens= and shuts= are the same hour: the gate would never be open, or never shut');
+    }
+    var hast = false, dist = 0, sog = 0;
+    if (has('dist') || has('sog')) {
+      if (!has('dist') || !has('sog')) return err('dist= and sog= go together: the miles to the gate and her speed over the ground');
+      dist = num('dist', '', '0', '1000', 'distance to the gate, nm');
+      sog = num('sog', '', '0', '60', 'her speed over the ground on the way, kn');
+      if (S.err !== '') return 0;
+      if (sog <= 0) return err('sog= must be more than 0');
+    }
+    // ---- the high waters: this one, and those either side
+    var srcm = 'mean', src1 = 'mean', hw, h2, iv, tm = 0, GH = {};
+    if (man) {
+      hw = time('hw', 'high water at the standard port');
+      if (S.err !== '') return 0;
+      GH[0] = hw; GH[-1] = hw - 745; GH[1] = hw + 745;
+      if (has('hw2')) {
+        h2 = time('hw2', 'the next high water there');
+        if (S.err !== '') return 0;
+        while (h2 <= hw) h2 += 1440;
+        iv = h2 - hw;
+        if (iv < 600 || iv > 900) return err('hw2= should be the high water after hw=, about twelve and a half hours later');
+        GH[1] = h2; src1 = 'given';
+      }
+      if (has('t')) {
+        tm = hmOf(S.a.t);
+        if (tm < 0) return err('t=' + S.a.t + ' is not a time (HH:MM)');
+        while (tm - hw > 720) tm -= 1440;
+        while (tm - hw < -720) tm += 1440;
+        hast = true;
+      }
+    } else {
+      if (!station()) return 0;
+      var TU = ST.turns, ihw = -1, best = 1e9;
+      for (i = 0; i < TU.length; i++) if (TU[i].k === 'H' && fabs(TU[i].m - ST.t) < best) { best = fabs(TU[i].m - ST.t); ihw = i; }
+      if (ihw < 0) return err('no high water near that time at this station');
+      hw = TU[ihw].m; GH[0] = hw; GH[-1] = hw - 745; GH[1] = hw + 745;
+      for (i = ihw - 1; i >= 0; i--) if (TU[i].k === 'H') { GH[-1] = TU[i].m; srcm = 'pred'; break; }
+      for (i = ihw + 1; i < TU.length; i++) if (TU[i].k === 'H') { GH[1] = TU[i].m; src1 = 'pred'; break; }
+      tm = ST.t; hast = true;
+    }
+    GH[2] = GH[1] + 745; GH[3] = GH[2] + 745; GH[-2] = GH[-1] - 745;
+    // ---- the heading and the high waters
+    if (atl) head('TIDAL GATE, FROM THE STREAM ATLAS');
+    else head("TIDAL GATE, FROM THE PILOT BOOK'S HOURS");
+    if (!man) { sthead(); wl(''); }
+    wl(sprintf('  1  High water at the standard port: %s', hhmm(hw)));
+    if (plt || full) {
+      wl(sprintf('     the one before it %s, the one after it %s', gclk(GH[-1]), gclk(GH[1])));
+      if (srcm === 'mean') wl('     the one before is taken as 12 h 25 min earlier, the mean');
+      else wl('     the one before is as predicted');
+      if (src1 === 'mean') wl('     the one after is taken as 12 h 25 min later, the mean');
+      else if (src1 === 'given') wl('     the one after is as given');
+      else wl('     the one after is as predicted');
+    }
+    wl('');
+    //  the samples (1-indexed, as in the awk) and the windows
+    var ST_ = [0], SK = [0], SP = [0], SA = [0], N = 0, W = [], c = 0, x, bi = 0, lo, hi, step, a1, a2, inw, gap, w;
+    function gsamp(n) { return gpage(SP[n]) + gtide(SK[n]) + ' (' + hhmm(ST_[n]) + ')'; }
+    function gwin(v) {
+      if (v.ok && v.sk) return gclk(v.o) + ' to ' + gclk(v.s);
+      if (v.sk) return 'until ' + gclk(v.s);
+      if (v.ok) return 'from ' + gclk(v.o);
+      return 'on every page given';
+    }
+    var pages = [];
+    if (atl) {
+      c = 0 - foul;
+      wl(sprintf('  2  The stream at the gate, along her track of %s T', deg(Tk)));
+      wl('     rate x cos(set - track): with her is +, against her is -');
+      wl('     page     time    set   rate   along');
+      for (k = (full ? -1 : 0); k <= (full ? 1 : 0); k++) for (i = 1; i <= ns; i++) {
+        x = GH[k] + (from + i - 1) * 60;
+        if (N > 0 && x <= ST_[N]) continue;
+        N++;
+        ST_[N] = x; SK[N] = k; SP[N] = from + i - 1;
+        SA[N] = r2(gr[i] * cosd(gs[i] - Tk));
+        if (k === 0) {
+          wl(sprintf('     %-7s  %s   %s   %4s   %s', gpage(from + i - 1), hhmm(x), deg(gs[i]), wf(gr[i], 1), wfs(SA[N], 2)));
+          pages.push({ p: from + i - 1, m: x, a: SA[N] });
+          if (!bi || SA[N] > SA[bi]) bi = N;
+        }
+      }
+      wl('');
+      if (foul === 0) wl('  3  The gate is open while the stream is with her');
+      else wl(sprintf('  3  The gate is open while the stream is no more than %s kn against her', wf(foul, 1)));
+      inw = false;
+      if (SA[1] >= c) { W.push({ o: ST_[1], ok: 0, oi: 0, sk: 0, s: 0, si: 0 }); inw = true; }
+      for (i = 1; i < N; i++) {
+        a1 = SA[i] - c; a2 = SA[i + 1] - c;
+        if (a1 < 0 && a2 >= 0) {
+          W.push({ o: ffloor(ST_[i] + (ST_[i + 1] - ST_[i]) * (0 - a1) / (a2 - a1) + 0.5), ok: 1, oi: i, sk: 0, s: 0, si: 0 });
+          inw = true;
+        } else if (a1 >= 0 && a2 < 0) {
+          w = W[W.length - 1];
+          w.s = ffloor(ST_[i] + (ST_[i + 1] - ST_[i]) * a1 / (a1 - a2) + 0.5);
+          w.sk = 1; w.si = i; inw = false;
+        }
+      }
+      if (inw) { w = W[W.length - 1]; w.s = ST_[N]; w.sk = 0; }
+      lo = full ? hw - 360 : ST_[1] - 1;
+      hi = full ? hw + 360 : ST_[N] + 1;
+      step = 4;
+    } else {
+      wl(sprintf('  2  The pilot book: the gate opens at %s and shuts at %s', gpage(opens), gpage(shuts)));
+      if (shuts > opens) wl('     so it opens and shuts on the same tide');
+      else wl('     so it opens on one tide and shuts on the next');
+      wl('');
+      for (k = -2; k <= 2; k++) {
+        W.push({ o: ffloor(GH[k] + opens * 60 + 0.5), ok: 1, sk: 1, k: k,
+                 s: ffloor(((shuts > opens) ? GH[k] : GH[k + 1]) + shuts * 60 + 0.5) });
+      }
+      lo = hw - 360; hi = hw + 360;
+      step = 3;
+    }
+    // ---- which windows are this high water's
+    var R = [], nr;
+    for (j = 0; j < W.length; j++) if (W[j].s > lo && W[j].o < hi) R.push(W[j]);
+    nr = R.length;
+    if (atl) {
+      if (nr === 0) {
+        if (foul === 0) wl('     on every page the stream is against her');
+        else wl('     on every page the stream is against her by more than that');
+      }
+      for (k = 0; k < nr; k++) {
+        w = R[k];
+        if (w.ok) {
+          i = w.oi; gap = ST_[i + 1] - ST_[i];
+          wl(sprintf('     it opens between %s and %s:', gsamp(i), gsamp(i + 1)));
+          wl(sprintf('       from %s to %s kn, passing %s:', wfs(SA[i], 2), wfs(SA[i + 1], 2), wf(c, 2)));
+          wl(sprintf('       %s min x %s / %s = %s min after %s, at %s', wg(gap), wf(fabs(c - SA[i]), 2), wf(fabs(SA[i + 1] - SA[i]), 2),
+             wf(w.o - ST_[i], 0), hhmm(ST_[i]), gclk(w.o)));
+        } else if (w.sk) {
+          wl(sprintf('     it is already open on %s, the first page given:', gsamp(1)));
+          wl('       when it opened is on an earlier page');
+        }
+        if (w.sk) {
+          i = w.si; gap = ST_[i + 1] - ST_[i];
+          wl(sprintf('     it shuts between %s and %s:', gsamp(i), gsamp(i + 1)));
+          wl(sprintf('       from %s to %s kn, passing %s:', wfs(SA[i], 2), wfs(SA[i + 1], 2), wf(c, 2)));
+          wl(sprintf('       %s min x %s / %s = %s min after %s, at %s', wg(gap), wf(fabs(SA[i] - c), 2), wf(fabs(SA[i] - SA[i + 1]), 2),
+             wf(w.s - ST_[i], 0), hhmm(ST_[i]), gclk(w.s)));
+        } else if (w.ok) {
+          wl(sprintf('     it is still open on %s, the last page given:', gsamp(N)));
+          wl('       when it shuts is on a later page');
+        } else {
+          if (foul === 0) wl('     on every page the stream is with her');
+          else wl('     on every page the stream is within that');
+        }
+      }
+      wl('');
+    }
+    if (full || plt) wl(sprintf('  %d  The gate, around this high water', step));
+    else wl(sprintf('  %d  The gate, on the pages given', step));
+    if (nr === 0) wl('       SHUT throughout');
+    for (k = 0; k < nr; k++) {
+      w = R[k];
+      if (plt) {
+        var o = w.k, s2 = (shuts > opens) ? o : o + 1;
+        wl(sprintf('       opens  HW %s%s %s %s = %s', hhmm(GH[o]), gtide(o), (opens < 0) ? '-' : '+', dur(fabs(opens) * 60), gclk(w.o)));
+        wl(sprintf('       shuts  HW %s%s %s %s = %s', hhmm(GH[s2]), gtide(s2), (shuts < 0) ? '-' : '+', dur(fabs(shuts) * 60), gclk(w.s)));
+      }
+      if (w.ok && w.sk) wl(sprintf('       %s  %s, for %s', 'OPEN', gwin(w), dur(w.s - w.o)));
+      else wl(sprintf('       %s  %s', 'OPEN', gwin(w)));
+      S.res['o' + (k + 1)] = w.o; S.res['s' + (k + 1)] = w.s; S.res['ok' + (k + 1)] = w.ok; S.res['sk' + (k + 1)] = w.sk;
+    }
+    if (atl && bi) {
+      if (SA[bi] > 0.005) wl(sprintf('     the best of it: %s kn with her on page %s (%s)', wf(SA[bi], 2), gpage(SP[bi]), hhmm(ST_[bi])));
+      else if (SA[bi] < -0.005) wl(sprintf('     the least against her: %s kn on page %s (%s)', wf(0 - SA[bi], 2), gpage(SP[bi]), hhmm(ST_[bi])));
+      else wl(sprintf('     at best it is slack, on page %s (%s)', gpage(SP[bi]), hhmm(ST_[bi])));
+      S.res.best = SA[bi]; S.res.bestpage = SP[bi];
+    }
+    S.res.n = nr; S.res.hw = hw; S.res.hwnext = GH[1]; S.res.form = atl ? 'atlas' : 'pilot';
+    // ---- when she is there
+    var st = '', al, aok, p = 0;
+    if (hast) {
+      step++;
+      w = null;
+      for (i = 0; i < W.length; i++) if (tm >= W[i].o && tm < W[i].s) { w = W[i]; break; }
+      st = w ? 'OPEN' : 'SHUT';
+      wl('');
+      if (atl && !full && (tm < ST_[1] || tm > ST_[N])) {
+        wl(sprintf('  %d  At %s she is at the gate', step, gclk(tm)));
+        wl('     that is outside the pages given: whether it is open then is not known');
+        st = ''; S.res.state = 'unknown'; S.res.t = tm;
+      } else {
+        wl(sprintf('  %d  At %s she is at the gate: %s', step, gclk(tm), st));
+        if (atl) {
+          aok = false; al = 0;
+          for (i = 1; i < N; i++) if (tm >= ST_[i] && tm <= ST_[i + 1]) {
+            aok = true;
+            al = (ST_[i + 1] === ST_[i]) ? SA[i] : SA[i] + (SA[i + 1] - SA[i]) * (tm - ST_[i]) / (ST_[i + 1] - ST_[i]);
+            break;
+          }
+          if (aok) {
+            if (al > 0.005) wl(sprintf('     the stream then: %s kn with her', wf(al, 2)));
+            else if (al < -0.005) wl(sprintf('     the stream then: %s kn against her', wf(0 - al, 2)));
+            else wl('     the stream then: slack');
+            S.res.along = al;
+          } else wl('     that time is outside the pages given, so the stream then is not known');
+        }
+        if (w) {
+          if (w.sk) { wl(sprintf('     it shuts in %s, at %s', dur(w.s - tm), gclk(w.s))); S.res.left = w.s - tm; }
+          else wl('     when it shuts is on a later page');
+        } else {
+          var nx = null;
+          for (i = 0; i < W.length; i++) if (W[i].ok && W[i].o > tm) { nx = W[i]; break; }
+          if (nx) { wl(sprintf('     it opens in %s, at %s', dur(nx.o - tm), gclk(nx.o))); S.res.left = nx.o - tm; }
+          else wl('     it does not open again within the tides worked here');
+        }
+        S.res.state = w ? 'open' : 'shut'; S.res.t = tm;
+      }
+    }
+    // ---- when to leave
+    if (sog > 0) {
+      step++;
+      p = ffloor(dist / sog * 60 + 0.5);
+      wl('');
+      wl(sprintf('  %d  The passage to the gate: %s nm at %s kn is %s', step, wg(dist), wf(sog, 1), dur(p)));
+      if (nr === 0) wl('       there is no time to leave for: the gate does not open');
+      for (k = 0; k < nr; k++) {
+        w = R[k];
+        if (w.ok && w.sk) wl(sprintf('       open %s: leave between %s and %s', gwin(w), gclk(w.o - p), gclk(w.s - p)));
+        else if (w.sk) wl(sprintf('       open %s: leave by %s', gwin(w), gclk(w.s - p)));
+        else if (w.ok) wl(sprintf('       open %s: leave from %s', gwin(w), gclk(w.o - p)));
+        else wl('       open on every page given: leave when she likes');
+        if (w.ok) S.res['lv' + (k + 1)] = w.o - p;
+        if (w.sk) S.res['lb' + (k + 1)] = w.s - p;
+      }
+      S.res.p = p;
+    }
+    S.fig = { kind: 'gate', hw: hw, t: hast ? tm : null, atl: atl, c: c, pages: pages,
+              wins: W.map(function (v) { return [v.o, v.s, v.ok, v.sk]; }),
+              first: nr ? [R[0].o, R[0].s, R[0].ok, R[0].sk] : null,
+              lo: (atl && !full) ? ST_[1] : null, hi: (atl && !full) ? ST_[N] : null };
+    wl('@@FIG');
+    var ans;
+    if (nr === 0) ans = 'shut throughout';
+    else {
+      ans = 'open ' + gwin(R[0]);
+      for (k = 1; k < nr; k++) ans = ans + ', and ' + gwin(R[k]);
+    }
+    if (hast && st !== '') ans = ans + sprintf('      at %s: %s', hhmm(tm), st);
+    wl('  ANSWER   ' + ans);
+    wl(RULE);
+    return 1;
+  }
+
+  /* =================================================================
      The entry point, the twin of wk_run().
 
        params  [[key, value], ...] in the order given (a URL's order)
@@ -785,7 +1093,8 @@ var WORK = (function () {
       else if (name === 'atlas') ok = atlas();
       else if (name === 'cts') ok = cts();
       else if (name === 'setdrift') ok = setdrift();
-      else err("there is no calculator called '" + name + "' (twelfths secondary stream atlas cts setdrift)");
+      else if (name === 'tidal_gate') ok = gate();
+      else err("there is no calculator called '" + name + "' (twelfths secondary stream atlas cts setdrift tidal_gate)");
     }
     if (S.err !== '') return { ok: false, err: S.err, msg: '  work ' + name + ': ' + S.err, lines: [], res: S.res, fig: null };
     return { ok: !!ok, err: '', lines: S.lines, res: S.res, fig: S.fig };
@@ -817,7 +1126,14 @@ var WORK = (function () {
       ['dev', 'Deviation, deg (E +)'], ['dist', 'Distance, nm']] },
     setdrift: { title: 'Set and drift', sub: 'from a DR and a fix', fields: [
       ['start', 'Start, lat,lon'], ['co', 'Course steered, deg T'], ['stw', 'Speed through water, kn'],
-      ['hours', 'Hours run'], ['fix', 'Fix, lat,lon'], ['leeway', 'Leeway, deg'], ['wind', 'Wind side', 'port or stbd']] }
+      ['hours', 'Hours run'], ['fix', 'Fix, lat,lon'], ['leeway', 'Leeway, deg'], ['wind', 'Wind side', 'port or stbd']] },
+    tidal_gate: { title: 'Tidal gate', sub: 'when a headland opens and shuts', fields: [
+      ['hw', 'HW at the standard port', 'HH:MM'], ['hw2', 'The next HW there', 'HH:MM'],
+      ['station', 'or a station id'], ['date', 'with a date', 'YYYY-MM-DD'],
+      ['track', 'Atlas: her track, deg T'], ['streams', 'Atlas: set:rate per page'],
+      ['from', 'Atlas: first page (-6)'], ['foul', 'Atlas: foul stream accepted, kn'],
+      ['opens', 'Pilot book: opens, hours from HW'], ['shuts', 'Pilot book: shuts, hours from HW'],
+      ['t', 'When she is there', 'HH:MM'], ['dist', 'Miles to the gate'], ['sog', 'Speed over the ground, kn']] }
   };
   /*  The same six examples `tides work help` prints. */
   var EXAMPLES = {
@@ -826,7 +1142,8 @@ var WORK = (function () {
     stream: 'spr=2.6 nps=1.4 range=4.1 sprange=5.9 nprange=3.1',
     atlas: 'station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00',
     cts: 'track=045 stw=6 streams=135:1.5,150:2.0 leeway=5 wind=port var=-2 dev=1 dist=12',
-    setdrift: 'start=50.10,-1.50 co=090 stw=6 hours=3 fix=50.05,-1.20'
+    setdrift: 'start=50.10,-1.50 co=090 stw=6 hours=3 fix=50.05,-1.20',
+    tidal_gate: 'hw=14:32 track=255 streams=075:2.2,078:2.6,080:2.0,085:0.9,250:0.4,255:1.5,258:2.4,260:2.7,258:2.1,255:1.0,080:0.3,078:1.4,076:2.1 t=17:00 dist=22 sog=7'
   };
 
   /*  A LESSON NAME, AND THE PAGE IT IS ON.  Larry's decision of
@@ -985,6 +1302,64 @@ var WORK = (function () {
       s += text(W - mm.r, H - 8, 'range at the reference port, m', 'lab', 'end');
       s += text(SX(x0), H - mm.b + 16, wf(x0, 1), 'lab', 'middle') + text(SX(x1), H - mm.b + 16, wf(x1, 1), 'lab', 'end');
       s += '</svg>';
+      return s;
+    }
+    if (F.kind === 'gate') {
+      //  Seven hours either side of high water.  The strip is the gate:
+      //  open or shut.  In the atlas form the bars above it are the stream
+      //  along her track on each page, up with her and down against her.
+      var gm = { l: 14, r: 14 }, bars = F.atl && F.pages.length > 0;
+      H = bars ? 250 : 112;
+      var t0 = F.hw - 420, GX = function (v) { return gm.l + (v - t0) / 840 * (W - gm.l - gm.r); };
+      var sy = bars ? 186 : 40, sh = 18, x0g = GX(t0), x1g = GX(t0 + 840);
+      var clip = function (v) { return Math.max(t0, Math.min(t0 + 840, v)); };
+      s = svgOpen(W, H, 'The tidal gate, seven hours either side of high water: open and shut' +
+                        (bars ? ', and the stream along her track on each page of the atlas' : ''));
+      if (bars) {
+        var zy = 96, amax = 0.5;
+        F.pages.forEach(function (pg) { amax = Math.max(amax, Math.abs(pg.a)); });
+        var AY = function (v) { return zy - v / amax * 66; }, bw = 60 / 840 * (W - gm.l - gm.r) * 0.62;
+        F.pages.forEach(function (pg) {
+          if (pg.m < t0 || pg.m > t0 + 840) return;
+          var y = AY(pg.a), top = Math.min(y, zy), ht = Math.max(Math.abs(y - zy), 1);
+          s += '<rect class="' + (pg.a >= F.c ? 'g-fair' : 'g-foul') + '" x="' + n2(GX(pg.m) - bw / 2) + '" y="' + n2(top) +
+               '" width="' + n2(bw) + '" height="' + n2(ht) + '"/>';
+        });
+        s += '<line class="axis" x1="' + n2(x0g) + '" y1="' + zy + '" x2="' + n2(x1g) + '" y2="' + zy + '"/>';
+        if (F.c < 0) s += '<line class="c-cos" x1="' + n2(x0g) + '" y1="' + n2(AY(F.c)) + '" x2="' + n2(x1g) + '" y2="' + n2(AY(F.c)) + '"/>';
+        s += text(x0g, 22, 'with her, ' + wf(amax, 1) + ' kn', 'lab') + text(x0g, 174, 'against her', 'lab');
+      }
+      //  shut is drawn only where the gate is known: all of the strip, or
+      //  between the first and last page when only some were given
+      var k0 = F.lo !== null ? clip(F.lo) : t0, k1 = F.hi !== null ? clip(F.hi) : t0 + 840;
+      if (k1 > k0) s += '<rect class="g-shut" x="' + n2(GX(k0)) + '" y="' + sy + '" width="' + n2(GX(k1) - GX(k0)) + '" height="' + sh + '"/>';
+      F.wins.forEach(function (w) {
+        var a = clip(w[0]), b = clip(w[1]);
+        if (b <= a) return;
+        s += '<rect class="g-open" x="' + n2(GX(a)) + '" y="' + sy + '" width="' + n2(GX(b) - GX(a)) + '" height="' + sh + '"/>';
+        //  a time is written only under an end that was found
+        if (w[2] && w[0] > t0 && w[0] < t0 + 840) s += text(GX(w[0]), sy + sh + 14, hhmm(w[0]), 'lab', 'middle');
+        if (w[3] && w[1] > t0 && w[1] < t0 + 840) s += text(GX(w[1]), sy + sh + 14, hhmm(w[1]), 'lab', 'middle');
+      });
+      if (F.lo !== null) {
+        //  only some pages were given: beyond them the gate is not known
+        [[t0, clip(F.lo)], [clip(F.hi), t0 + 840]].forEach(function (u) {
+          if (u[1] > u[0]) s += '<rect class="g-unk" x="' + n2(GX(u[0])) + '" y="' + sy + '" width="' + n2(GX(u[1]) - GX(u[0])) + '" height="' + sh + '"/>';
+        });
+      }
+      s += '<line class="axis" x1="' + n2(GX(F.hw)) + '" y1="' + (bars ? 14 : sy - 12) + '" x2="' + n2(GX(F.hw)) + '" y2="' + (sy + sh) + '"/>';
+      s += text(GX(F.hw), sy + sh + 30, 'HW ' + hhmm(F.hw), 'lab', 'middle');
+      s += text(x0g, sy + sh + 30, hhmm(t0), 'lab') + text(x1g, sy + sh + 30, hhmm(t0 + 840), 'lab', 'end');
+      s += dot(GX(F.hw), sy + sh / 2, 'hw');
+      if (F.first && F.first[2] && F.first[3]) s += dot(GX(F.first[0]), sy + sh / 2, 'open') + dot(GX(F.first[1]), sy + sh / 2, 'shut');
+      if (F.t !== null) {
+        s += '<line class="now" x1="' + n2(GX(F.t)) + '" y1="' + (bars ? 14 : sy - 12) + '" x2="' + n2(GX(F.t)) + '" y2="' + (sy + sh + 4) + '"/>';
+        s += dot(GX(F.t), sy + sh / 2, 'now', 'pt acc') + text(GX(F.t) + 6, (bars ? 26 : sy - 4), hhmm(F.t), 'lab acc');
+      }
+      s += '</svg><p class="wkey"><span class="k12">open' + (bars ? ', and the stream with her' : '') + '</span>' +
+           (bars ? ' <span class="kharm">against her</span>' : '') +
+           (F.t !== null ? ' <span class="know">when she is there</span>' : '') +
+           (F.lo !== null ? ' <span class="kcos">dashed: not on the pages given</span>' : '') + '</p>';
       return s;
     }
     if (F.kind === 'cts' && F.ok) {

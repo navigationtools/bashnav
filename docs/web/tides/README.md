@@ -8,7 +8,7 @@ browser with no network. It is the same engine as the POSIX `awk` tool in
     engine.js         the port: astronomy, nodal factors, synthesis
     tables.js         the UTide constituent tables  (generated)
     tides.js          the app
-    work.js           the six coastal calculators: a port of src/tides/work.awk
+    work.js           the seven coastal calculators: a port of src/tides/work.awk
     WORK.md           the URL contract the coastal course links with
     tides.css         two modes, dark and night
     stations.idx      the search index, with byte offsets  (generated)
@@ -35,11 +35,12 @@ separately labelled on the screen.
 
 ## Coastal work
 
-Six calculators, each showing its working step by step, because the point is
+Seven calculators, each showing its working step by step, because the point is
 teaching: the rule of twelfths (with the cosine method and, at a station, the
 harmonic height beside it), a secondary port from its standard port, a stream
 rate between neaps and springs, which page of the tidal stream atlas you are
-on, the course to steer, and set and drift from a DR and a fix. They are on
+on, the course to steer, set and drift from a DR and a fix, and a tidal gate:
+when a headland's stream turns, and the window to get round. They are on
 the day screen and the station picker, and a URL opens one directly:
 
     ?work=cts&track=045&stw=6&streams=135:1.5,150:2.0&lesson=l3-2025-4

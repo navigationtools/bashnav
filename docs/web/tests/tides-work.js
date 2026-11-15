@@ -166,6 +166,29 @@ CASES.forEach(function (c, i) {
     //  the cosine answer as the numbers say
     if (Math.abs(P.twelfths[0] - P.cosine[0]) > 0.01) { ok = false; why = 'the two answers are not at the same time'; }
     if ((R.t12 - R.tcos) * (P.cosine[1] - P.twelfths[1]) < -1e-9) { ok = false; why = 'twelfths and cosine drawn the wrong way up'; }
+  } else if (F.kind === 'gate') {
+    //  the strip is a time line: high water, the turn of the gate and her
+    //  own time must all sit on it at ONE scale, read from the answer
+    if (!P.hw) { ok = false; why = 'high water is not marked'; }
+    else if (Math.abs(P.hw[0] - 320) > 0.6) { ok = false; why = 'high water is not in the middle of the strip'; }
+    else if (R.n > 0 && R.ok1 && R.sk1) {
+      if (!(P.open && P.shut)) { ok = false; why = 'the gate\'s opening or shutting is not marked'; }
+      else {
+        var ppm = (P.shut[0] - P.open[0]) / (R.s1 - R.o1);
+        if (!(ppm > 0)) { ok = false; why = 'the gate is drawn shutting before it opens'; }
+        if (Math.abs(P.open[0] - (P.hw[0] + ppm * (R.o1 - R.hw))) > 0.6) { ok = false; why = 'the opening is not where its time puts it'; }
+        if (R.t !== undefined && Math.abs(P.now[0] - (P.hw[0] + ppm * (R.t - R.hw))) > 0.6) { ok = false; why = 'her time is not where the clock puts it'; }
+        if (Math.abs(ppm - (640 - 28) / 840) > 0.001) { ok = false; why = 'the strip is not seven hours either side of high water'; }
+      }
+    }
+    if (R.t !== undefined && !P.now) { ok = false; why = 'her time is not marked'; }
+    //  an open rectangle for every window in view, and none when it is shut throughout
+    var nopen = (svg.match(/class="g-open"/g) || []).length;
+    if (R.n === 0 && nopen !== 0) { ok = false; why = 'a gate that is shut throughout is drawn open'; }
+    if (R.n > 0 && nopen < R.n) { ok = false; why = 'a window the answer gives is not drawn'; }
+    if (F.atl && (svg.match(/class="g-(fair|foul)"/g) || []).length !== F.pages.filter(function (p) { return p.m >= F.hw - 420 && p.m <= F.hw + 420; }).length) {
+      ok = false; why = 'the bars are not one for each page';
+    }
   } else if (F.kind === 'stream') {
     if (!(P.today && P.neaps && P.springs)) { ok = false; why = 'a point is missing'; }
     else {

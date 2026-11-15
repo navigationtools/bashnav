@@ -1,5 +1,60 @@
 # Changelog
 
+## A seventh work calculator: the tidal gate (B15)
+
+**What.** `tides work tidal_gate`, and `?work=tidal_gate` in the browser:
+when the stream at a headland turns, whether the gate is open when she is
+there, and when to leave to arrive while it is. It is the first of the three
+calculators PILOT's Level 4 pages need (board items B15, B16, B11).
+
+**It takes both forms a navigator uses** (Larry, 15 November 2026: "both"):
+
+- **the atlas form:** her track past the headland and the set and rate there
+  on each atlas page. The stream is resolved along her track, rate x cos(set
+  - track), and the turn is found between two pages by a straight line;
+- **the pilot-book form:** `opens=` and `shuts=`, hours from high water, as
+  a pilot book prints them.
+
+The high water is typed (`hw`, with `hw2` if the tables give the next one) or
+predicted at a station. `foul=` lets the gate stay open against a small foul
+stream. `t=` asks about one time; `dist=` and `sog=` give when to leave.
+
+**Why it is worked from the printed figures.** The stream along her track is
+rounded to a hundredth of a knot and a turn to the whole minute, and every
+later step uses the rounded figure. A student who follows the working with a
+pencil reaches the same minute; worked from the unrounded figures, the answer
+could differ from the working shown by a minute.
+
+**Why it does not guess.** With all thirteen pages the pages are run round
+into the tide before and after, so a window open across low water is found
+whole. With fewer pages, an end that is not on them is reported as not on
+the pages given, the strip is drawn unknown there, and a time off the pages
+is answered "unknown", never "shut".
+
+**What it affects.**
+
+- `src/tides/work.awk` (the reference), `docs/web/tides/work.js` (the port
+  and the figure), `tides.css`, `tides.js`, `index.html`. `bin/tides` and the
+  iPad installer are rebuilt. The tides cache is `tides-v11`, so an installed
+  copy fetches the new files.
+- **The surface the course calls has grown:** `WORK_SHARED`'s `NAMES` and
+  `SPEC` gain `tidal_gate`, and `WORK_PURE_WORK` gains it for the typed-`hw`
+  form. No existing name or parameter changed. The note to the course's
+  inbox travels in the same queue run, as CLAUDE.md requires.
+- `docs/web/tides/WORK.md` section 7 is the contract; the manual gains
+  section 5.7 and Figure 6, and the quick reference a row and two checked
+  answers.
+
+**How it is held.** Sixteen worked cases and seventeen refusals in
+`tests/tides-work.dat`, from an independent working in
+`tests/tides-work-ref.py` (a dot product for the stream along her track,
+bisection for the turn). The port is compared with the awk line for line,
+and the figure's geometry is read back. Two browser cases open it as a lesson
+will. Thirty-four faults were planted (twenty-seven in the awk, seven in the
+port) and all are caught; three were missed at first and each became a case.
+
+**Not changed.** `TIDES_VERSION` stays 1.2 until Larry rules on it.
+
 ## The 2025 race on the Copernicus stream: B3 and B21 move together
 
 **What.** The real-race check (`docs/web/tests/race-2025.js`, board item B3)

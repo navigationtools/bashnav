@@ -12,7 +12,7 @@
 #
 #   1  the engine     every number the JS computes, against the number the
 #                     awk computes, over thousands of station-days
-#   2  the work       the six coastal calculators: work.js's working,
+#   2  the work       the seven coastal calculators: work.js's working,
 #                     line for line, against `tides work`, every figure
 #                     read back against its geometry, and the lesson
 #                     link.  Needs only node, so it runs before the

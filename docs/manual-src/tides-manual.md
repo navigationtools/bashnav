@@ -2,7 +2,7 @@
 ## Harmonic tide prediction, offline, for 8,334 stations
 
 **Version {{VERSION}}** — no network, no subscription, nothing that expires.
-With six coastal work calculators that show every step.
+With seven coastal work calculators that show every step.
 
 ---
 
@@ -127,7 +127,7 @@ directly — see section 6.
 
 ---
 
-## 5. The six coastal calculators
+## 5. The seven coastal calculators
 
 Each shows its working step by step, because the point is teaching. They are on
 the day screen and the station picker in the browser, and are `tides work
@@ -224,6 +224,63 @@ sailing at the mean latitude, which is right for coastal distances — it is
 
 With no leeway given, the set and drift found **includes any leeway too**, and
 the working says so.
+
+### 5.7 `tidal_gate` — when a headland opens and shuts
+
+A headland where the stream runs hard is a gate: open while the stream is with
+her, shut while it is against her. A navigator finds the times in one of two
+ways, and this takes both.
+
+**From the stream atlas.** Give her track past the headland and the set and
+rate there on each atlas page, `HW -6` to `HW +6`. On each page the stream is
+resolved along her track,
+
+        along = rate x cos(set - track)        with her +, against her -
+
+and the gate turns where that passes zero, found between two pages by a
+straight line, as it is done with a pencil. `foul=0.5` keeps the gate open
+while the stream is no more than half a knot against her.
+
+**From the pilot book.** "The west-going stream begins at HW Portsmouth +5"
+is `opens=5`; give `shuts` the same way. When `shuts` is not after `opens`
+the gate opens on one tide and shuts on the next.
+
+1. **The high water** is typed (`hw`, and `hw2` for the next one if the tables
+   give it) or predicted at a station. Without `hw2` the tides are taken as
+   12 h 25 min apart, the mean, and the working says so.
+2. With all thirteen pages the pages are run round into the tide before and
+   the tide after, so a window that is open across low water is found whole.
+   With fewer, an end that is not on the pages given is reported as **not on
+   the pages given** rather than guessed.
+3. `t` is when she expects to be there: the answer says OPEN or SHUT, how
+   hard the stream is running, and how long until it turns.
+4. `dist` and `sog` together give the passage to the gate, and from that
+   **when to leave** to arrive while it is open.
+5. **It is worked from the figures as printed.** The stream along her track is
+   taken to a hundredth of a knot and a turn to the whole minute, and every
+   later step uses the printed figure, so a student with the working and a
+   pencil gets the same minute.
+
+The two forms, for the same headland. The first is one command: each `\`
+only carries it on to the next line of this page.
+
+```
+tides work tidal_gate hw=14:32 track=255 t=17:00 dist=22 sog=7 \
+streams=075:2.2,078:2.6,080:2.0,085:0.9,250:0.4,255:1.5,258:2.4,\
+260:2.7,258:2.1,255:1.0,080:0.3,078:1.4,076:2.1
+
+tides work tidal_gate hw=14:32 opens=5 shuts=-1 t=17:00 dist=22 sog=7
+```
+
+![**Figure 6** - the first example worked. The bars are the stream along her
+track on each atlas page, above the line with her and below it against her, so
+the two are told apart with no colour at all; the strip beneath is the gate by
+the clock, with high water and the time she is there marked on
+it.](fig/tides-gate.png)
+
+*When* the stream turns does not depend on springs and neaps; how hard it runs
+does, and `stream` (5.3) gives the day's rate. And a gate here is a place and
+a time, not a passage of miles through it.
 
 ---
 
