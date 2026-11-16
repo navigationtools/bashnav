@@ -138,6 +138,26 @@ refuses('an area of two points', AREAS.replace('  49.68000 -2.42000\n', ''), C.a
 refuses('a layer name with a space', AREAS.replace('layer tss-casquets', 'layer tss casquets'),
         C.areas, 'one word with no spaces');
 
+//  BOUNDS (Larry, AIF, 16 November 2026): where a file cut to a box says
+//  its knowledge ends.  The router keeps her inside; here, only the line.
+var BOUNDED = AREAS.replace(/^source.*$/m, function (m) { return m + '\nbounds 49.50 -5.00 to 51.00 -0.50'; });
+(function () {
+  var a = C.areas(BOUNDED), b = C.areas(AREAS);
+  ok('a bounds line is read: south-west corner, then north-east',
+     a.ok && a.bounds && a.bounds.s === 49.5 && a.bounds.w === -5 && a.bounds.n === 51 && a.bounds.e === -0.5, a.err);
+  ok('a file with no bounds line is read as before, with none', b.ok && b.bounds === null);
+})();
+refuses('two bounds lines', BOUNDED.replace('bounds 49.50 -5.00 to 51.00 -0.50', 'bounds 49.50 -5.00 to 51.00 -0.50\nbounds 49.50 -5.00 to 51.00 -0.50'),
+        C.areas, 'one bounds line');
+refuses('bounds without "to"', BOUNDED.replace(' to 51.00', ' 51.00'), C.areas, 'bounds is "bounds');
+refuses('bounds with the corners the wrong way round', BOUNDED.replace('49.50 -5.00 to 51.00 -0.50', '51.00 -0.50 to 49.50 -5.00'),
+        C.areas, 'south and west of the second');
+refuses('bounds with no width', BOUNDED.replace('49.50 -5.00 to 51.00 -0.50', '49.50 -1.00 to 51.00 -1.00'),
+        C.areas, 'south and west of the second');
+refuses('bounds with a latitude past the pole', BOUNDED.replace('to 51.00', 'to 91.00'), C.areas, 'not between -90 and 90');
+refuses('a shape that reaches outside the bounds', BOUNDED.replace('to 51.00 -0.50', 'to 51.00 -1.945'),
+        C.areas, 'is outside the bounds');
+
 // ------------------------------------------------------------------- RUN
 var RUN = [
   'RUN 1',

@@ -213,7 +213,7 @@ var COURSE = (function () {
 
   // ---- AREAS 1 ------------------------------------------------------
   function parseAreas(text) {
-    var L = lines(text), i, a = { source: null, shapes: [] };
+    var L = lines(text), i, a = { source: null, shapes: [], bounds: null };
     if (!L.length) return bad(0, 'the file is empty');
     if (L[0].s !== 'AREAS 1') return bad(L[0].n, 'the first line must be "AREAS 1"');
 
@@ -244,6 +244,28 @@ var COURSE = (function () {
       }
 
       if (k === 'source') { a.source = L[i].s.slice(7).trim(); continue; }
+      //  WHERE THE FILE'S KNOWLEDGE ENDS (Larry, AIF, 16 November 2026).
+      //
+      //      bounds 49.50 -5.00 to 51.00 -0.50
+      //
+      //  The south-west corner, then the north-east.  A coastline cut
+      //  out of a bigger one stops at the edge of the box it was cut to,
+      //  and a line that stops can be sailed round: past its end and in
+      //  behind it, onto the land, where nothing else stops her.  PILOT
+      //  found the search doing exactly that, round the end of the
+      //  coast at Littlehampton and on overland to Lyme Bay.  So a file
+      //  that was cut to a box says so, and the router keeps her inside
+      //  it whenever one of the file's layers is switched on.  A file
+      //  with no `bounds` line is read as before.
+      if (k === 'bounds') {
+        if (a.bounds) return bad(ln, 'an areas file has one bounds line');
+        if (w.length !== 6 || w[3] !== 'to') return bad(ln, 'bounds is "bounds <south-west lat lon> to <north-east lat lon>"');
+        var b1 = pos(w, 1, ln); if (!b1.ok) return b1;
+        var b2 = pos(w, 4, ln); if (!b2.ok) return b2;
+        if (!(b1.lat < b2.lat) || !(b1.lon < b2.lon)) return bad(ln, 'the first corner of the bounds must be south and west of the second');
+        a.bounds = { s: b1.lat, w: b1.lon, n: b2.lat, e: b2.lon, line: ln };
+        continue;
+      }
       if (k === 'layer') {
         if (w.length !== 2) return bad(ln, 'a layer name is one word with no spaces');
         layer = w[1]; continue;
@@ -261,6 +283,18 @@ var COURSE = (function () {
     if (!ended) return bad(L[L.length - 1].n, 'the file does not end with "end" -- it may have been cut short');
     if (!a.source) return bad(0, 'an areas file must say where its shapes came from: source <...>');
     if (!a.shapes.length) return bad(0, 'the file holds no shapes');
+    //  every position of every shape inside the bounds: a file that says
+    //  it was cut to a box and holds a point outside it is saying two
+    //  things.  A millionth of a degree is allowed for the cut itself.
+    if (a.bounds) {
+      var B = a.bounds, e = 1e-6, s2, p2;
+      for (s2 = 0; s2 < a.shapes.length; s2++) for (p2 = 0; p2 < a.shapes[s2].points.length; p2++) {
+        var P = a.shapes[s2].points[p2];
+        if (P[0] < B.s - e || P[0] > B.n + e || P[1] < B.w - e || P[1] > B.e + e) {
+          return bad(B.line, 'a position of layer ' + a.shapes[s2].layer + ', ' + P[0] + ' ' + P[1] + ', is outside the bounds');
+        }
+      }
+    }
 
     a.ok = true;
     a.layers = (function () {

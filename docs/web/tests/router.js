@@ -234,6 +234,65 @@ var unwalled = sail({ areas: [WALL] });
 ok('a layer the run does not name is not in the water',
    unwalled.ok && Math.abs(unwalled.summary.hours - reach.summary.hours) < 1e-9);
 
+//  ---- THE BOUNDS (Larry, AIF, 16 November 2026) ----------------------
+//  A coastline cut out of a bigger one stops at the edge of its box, and
+//  a line that stops can be sailed round: past its end and in behind it,
+//  onto the land.  Here the land is everything north of a line two miles
+//  north of the course, and the line stops a mile west of the start.
+//  Without bounds the search goes round that end and fills the land
+//  behind it.  With the bounds the file was cut to, it cannot: no
+//  position is ever held outside them, and the route is the same.
+function landFile(withBounds) {
+  return COURSE.areas(['AREAS 1', 'source Invented for this test.']
+    .concat(withBounds ? ['bounds ' + d(-12) + ' ' + d(-1) + ' to ' + d(2) + ' ' + d(24)] : [])
+    .concat(['layer coast', 'line', '  ' + d(2) + ' ' + d(-1), '  ' + d(2) + ' ' + d(24), 'end line', 'end']).join('\n'));
+}
+var COASTED = runFile([], ['layers coast', 'clear coast 0.1']);
+function behind(r) {             //  positions north of the line: on the land
+  var n = 0;
+  r.isochrones.lines.forEach(function (h) { h.at.forEach(function (p) { if (p[0] * 60 > 2) n++; }); });
+  return n;
+}
+function outsideB(r) {
+  var n = 0;
+  r.isochrones.lines.forEach(function (h) { h.at.forEach(function (p) {
+    if (p[0] * 60 < -12 - 1e-6 || p[0] * 60 > 2 + 1e-6 || p[1] * 60 < -1 - 1e-6 || p[1] * 60 > 24 + 1e-6) n++; }); });
+  return n;
+}
+var leaked = sail({ areas: [landFile(false)], run: COASTED });
+var held = sail({ areas: [landFile(true)], run: COASTED });
+ok('without bounds the search goes round the end of a line and onto the land behind it',
+   leaked.ok && behind(leaked) > 0, leaked.ok ? behind(leaked) + ' positions behind the line' : leaked.why);
+ok('with the bounds the file was cut to, nothing is ever held behind it, or outside them',
+   held.ok && behind(held) === 0 && outsideB(held) === 0 && held.stats.outside > 0,
+   held.ok ? behind(held) + ' behind, ' + outsideB(held) + ' outside, ' + held.stats.outside + ' steps refused' : held.why);
+ok('and the route is the same, row for row',
+   held.ok && leaked.ok && JSON.stringify(held.rows) === JSON.stringify(leaked.rows));
+//  the bounds hold only while one of the file's layers is switched on
+var off = sail({ areas: [landFile(true)] });
+ok('a file whose layers the run leaves off keeps her in nothing', off.ok && off.stats.outside === 0 && behind(off) > 0,
+   off.ok ? off.stats.outside + ' steps refused' : off.why);
+//  two files cut to two boxes: she is kept inside both
+var narrow = COURSE.areas(['AREAS 1', 'source Invented for this test.', 'bounds ' + d(-0.5) + ' ' + d(-0.5) + ' to ' + d(0.5) + ' ' + d(24),
+  'layer strip', 'line', '  ' + d(0.4) + ' ' + d(5), '  ' + d(0.45) + ' ' + d(5), 'end line', 'end'].join('\n'));
+var both = sail({ areas: [landFile(true), narrow], run: runFile([], ['layers coast strip', 'clear coast 0.1 strip 0']) });
+var wide = 0;
+if (both.ok) both.isochrones.lines.forEach(function (h) { h.at.forEach(function (p) { if (Math.abs(p[0] * 60) > 0.5 + 1e-6) wide++; }); });
+ok('with two files cut to two boxes she is kept inside both', both.ok && wide === 0 &&
+   Math.abs(both.summary.hours - reach.summary.hours) < 1e-9, both.ok ? wide + ' positions outside the narrower box' : both.why);
+//  a course with a part outside the bounds cannot be sailed, and says why
+var tight = COURSE.areas(['AREAS 1', 'source Invented for this test.', 'bounds ' + d(-12) + ' ' + d(-1) + ' to ' + d(2) + ' ' + d(15),
+  'layer coast', 'line', '  ' + d(2) + ' ' + d(-1), '  ' + d(2) + ' ' + d(15), 'end line', 'end'].join('\n'));
+var past = sail({ areas: [tight], run: COASTED });
+ok('a finish outside the bounds is refused by name', !past.ok && /^the finish line is outside the bounds/.test(past.why), past.why);
+var late = COURSE.areas(['AREAS 1', 'source Invented for this test.', 'bounds ' + d(-12) + ' ' + d(1) + ' to ' + d(2) + ' ' + d(24),
+  'layer coast', 'line', '  ' + d(2) + ' ' + d(1), '  ' + d(2) + ' ' + d(24), 'end line', 'end'].join('\n'));
+var early = sail({ areas: [late], run: COASTED });
+ok('and so is a start outside them', !early.ok && /^the start line is outside the bounds/.test(early.why), early.why);
+var shut = sail({ areas: [landFile(true), COURSE.areas(['AREAS 1', 'source Invented for this test.', 'bounds ' + d(5) + ' ' + d(-1) + ' to ' + d(8) + ' ' + d(24),
+  'layer far', 'line', '  ' + d(6) + ' ' + d(0), '  ' + d(6) + ' ' + d(1), 'end line', 'end'].join('\n'))], run: runFile([], ['layers coast far', 'clear coast 0.1 far 0']) });
+ok('and two boxes that do not overlap', !shut.ok && /do not overlap/.test(shut.why), shut.why);
+
 //  a point to stay a mile off, on the direct line
 var avoided = sail({ run: runFile(['avoid The Rock 0 ' + d(10) + ' off 1.0']) });
 ok('a route is found round an "avoid"', avoided.ok, avoided.why);

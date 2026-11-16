@@ -1,5 +1,46 @@
 # Changelog
 
+## The router keeps her inside the box a coastline was cut to (`bounds`)
+
+**What.** An areas file may now say the box it was cut to:
+`bounds 49.50 -5.00 to 51.00 -0.50`, the south-west corner and then the
+north-east. While any of the file's layers is switched on, the router does not
+take a step that ends outside the box. A start, a finish or a mark outside it
+is refused by name, and two files' boxes are both kept.
+
+**Why.** PILOT found isochrone positions on land: north of Portsmouth Harbour,
+across the Start Point peninsula, inland of Lyme Bay. The cause was in the
+search, not the isochrones. The 2025 coast is cut to 49.5 to 51.0 N and 5.0 to
+0.5 W, so its lines stop at the box's edge. The search sailed east past the
+end at Littlehampton, went round it, and was then behind the coast, where
+nothing stopped it, and it spread west overland. Those boats could only rejoin
+the sea by crossing a coastline, which is refused, so no route ever used one.
+But about a third of the search was spent on them, Level 3 would have drawn
+them, and a gap in a coastline would have let a route through. Larry chose to
+have the coast file say where its knowledge ends (AIF, 16 November 2026), so
+that every run using it is held, with nothing to remember in each run.
+
+**What it affects.**
+
+1. **No route changes.** All thirteen sailings of the 2025 race, with the box
+   added to a copy of the coast file, give the same rows and the same report,
+   to the letter.
+2. **The search holds about a third fewer positions** (the as-sailed run:
+   22,655 where it held 35,215) and runs in about two thirds of the time.
+3. **The isochrones hold no position outside the box.**
+4. **It takes effect when PILOT adds the line** to
+   `data/2025/areas_coast_emodnet_2025.txt` through his generator. A note
+   travels with this. Until then the file is routed as before.
+5. **A file with no `bounds` line is read as before.** An older reader refuses
+   the new line rather than misreading the file.
+
+**Checked.** `tests/course.js` (185): the line read, and six refusals.
+`tests/router.js` (168): a coast that stops a mile west of the start is gone
+round without bounds and is not with them, the route the same row for row; a
+file whose layers are off holds nothing; two boxes are both kept; a start, a
+finish and two boxes that do not meet are refused. Eight faults put in, each
+caught.
+
 ## tides 1.5.1: depth, the ninth calculator (B11)
 
 **What.** `tides work depth` and `?work=depth`: the depth over a shoal at a

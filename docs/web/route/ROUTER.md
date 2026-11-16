@@ -386,10 +386,43 @@ is one day and a generic boat: a thing to show, not a rule to teach.
 | a passing mark | nothing: it is a place to go, not water to keep off |
 | a layer the run does not name | is not in the water at all |
 | the start line, on the first leg | is a wall behind her |
+| `bounds` in an areas file with a live layer | she is kept inside the box; a step that ends outside is not taken |
 
 A place on the start line that is already inside a clearance — one end of the
 2025 line is a flagstaff ashore — is not a place a boat can start from, and is
 left out and counted.
+
+**The bounds (Larry, AIF, 16 November 2026).** A coastline cut to a box stops
+at the box's edge, and the end of a line can be sailed round: past it and in
+behind the coast, where nothing stops her. In the 2025 race the search went
+round the end at 0.5 W off Littlehampton and spread west overland. No route
+ever used such a boat, because she could only return to the sea by crossing a
+coastline, but about a third of everything the search held was such a boat,
+and the course's isochrones showed them as positions on land. PILOT found it
+drawing the isochrones.
+
+```
+   bounds 49.50 -5.00 to 51.00 -0.50          her step from A
+                                               ends at B
+   +--------------------------------------+
+   |                                      |  B   outside: not taken
+   |   sea                         A -----+->
+   |                                      |
+   +--------------------------------------+
+```
+
+An areas file cut to a box now says so (`COURSE.md`, "`bounds`"). While any
+of its layers is switched on, a step that ends outside the box is not taken,
+and is counted in `stats.outside`. A step is tested at its end only: a box has
+no dents, so a step whose two ends are inside it is inside it all the way.
+With two such files she is kept inside both. A start line, a finish line or a
+mark outside the box is refused by name, because no route could reach it.
+
+**The routes are the same.** All thirteen sailings of the 2025 race, with the
+coast file's box added, give the same rows and the same report to the letter.
+The search holds about a third fewer positions (22,655 for the as-sailed run,
+where it held 35,215), none of them outside the box, and the run takes 11
+seconds where it took 16.
 
 ## The cost of a tack
 
@@ -562,27 +595,31 @@ place is made, then 1, and so on.
 
 1. **The first is one hour after the start, and there is none after she
    finishes.** A passage of 23 hours 30 minutes has 23.
-2. **After a mark is rounded, the line starts again from the mark.** A leg is
+2. **Every position is inside the bounds** of the areas files the run
+   switches on ("The water she may not cross"). Before the bounds, a third of
+   them had gone round the end of the coast and lay on land.
+3. **After a mark is rounded, the line starts again from the mark.** A leg is
    not searched for long once the first boat has completed it, so the boats
    still coming up to the mark are dropped a step later. The line for the hour
    after a rounding holds the boats that have rounded, and is short. In the
    2025 race the Eddystone was rounded at 01:08; the line at 01:00 holds 1,576
    positions, all on leg 0, and the line at 02:00 holds 669, all on leg 1.
-3. **The same water can be in two lines on two legs.** She sails out past
+4. **The same water can be in two lines on two legs.** She sails out past
    Start Point and back past it. A page should draw one leg at a time, or tell
    them apart, which is what the leg in every position is for.
-4. **A step that does not divide an hour.** The line kept is the first that
+5. **A step that does not divide an hour.** The line kept is the first that
    ends on or after each whole hour, and it says its own time. At a step of
    ten minutes that is exactly the hour. At seven minutes the first line is at
    63 minutes and says `"hours": 1.05`.
-5. **The positions are in no order.** They are as the search holds them, which
+6. **The positions are in no order.** They are as the search holds them, which
    is not along the line.
 
 **How big.** The 2025 race, as sailed, on the Copernicus stream: 23 lines,
 35,215 positions, from 83 at the first hour to 3,230 at the nineteenth. The
 route file goes from 107 KB to 875 KB. So that it stays under a megabyte, each
 isochrone is one line of the file; the summary, the log and the rows are still
-laid out a figure to a line, to be read.
+laid out a figure to a line, to be read. With the coast file's `bounds` the
+same race holds 22,655 positions, and the file is smaller in proportion.
 
 **The search is not changed.** It reads none of this. The 2025 race, on both
 streams, gives the same report and the same rows to the letter as before, the
@@ -1153,6 +1190,13 @@ leg wrong, positions thinned or left out, a line every step, a line after the
 finish, only the steps that land on the hour, the isochrones left out of the
 file or written a figure to a line. Each is caught. One got past at first, the
 last three positions left out, and the pinned counts were added for it.
+
+The bounds are checked on a coast of their own: a line two miles north of the
+course that stops a mile west of the start. Without bounds the search goes
+round its end and holds positions on the land behind it; with them it holds
+none, the route is the same row for row, and a start, a finish or two boxes
+that do not meet are refused by name. Eight faults were put in, in the reader
+and the router, and each is caught.
 
 The passage log is checked on rows written by hand, in round numbers: six
 ten-minute rows at nine knots are an hour and nine miles, and 242 less 233 is

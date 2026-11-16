@@ -157,6 +157,7 @@ and the race still readable against its own authority.
 
     AREAS 1
     source Invented for this document; a real file names its own source
+    bounds 49.50 -5.00 to 51.00 -0.50
     layer coast-example-mhw
     line
       50.60000 -1.95000
@@ -191,6 +192,50 @@ coastline is a crossing test anyway.
 
 A traffic separation scheme is an area because the rule is about being inside
 it, not about crossing a particular edge of it.
+
+## `bounds`: where a file cut to a box says its knowledge ends
+
+    bounds 49.50 -5.00 to 51.00 -0.50
+
+The south-west corner, then the north-east. One line, optional, before the
+first layer.
+
+**Why it exists (Larry, AIF, 16 November 2026).** A coastline cut out of a
+bigger one stops at the edge of the box it was cut to. Kept as open lines, the
+coast is a set of walls with ends, and a wall with an end can be sailed round:
+
+```
+              land
+               ^   she spreads west overland, behind the coast,
+               |   where nothing stops her
+  - - - - - - -+- - - - - - - - - - - - - -+  <- the line ends here, at the
+  coast  ===================================     edge of the box it was cut to
+              sea                           |
+                                            |
+                 the search sails east past the end, and round it
+```
+
+PILOT found the search doing exactly that with the 2025 coast, round its end
+at 0.5 W off Littlehampton and on overland as far as Lyme Bay. Those boats
+could only rejoin the sea by crossing a coastline, which is refused, so no
+route ever used one. But a third of the search was spent on them, they showed
+on the course's isochrones as positions on land, and a gap in a coastline
+would have let a route through. A file that was cut to a box says so, and
+while any of its layers is switched on the router keeps her inside it: a step
+that ends outside is not taken.
+
+**What it refuses.** Two `bounds` lines; a line not in that shape; corners
+the wrong way round or with no width; and a shape with a position outside the
+box, beyond a millionth of a degree. A file that says it was cut to a box and
+holds a point outside it is saying two things.
+
+**What the router does with it** is in `ROUTER.md`, "The water she may not
+cross": the start, the finish and every mark must lie inside, and two files'
+boxes are both kept, so she sails in their overlap.
+
+**A file with no `bounds` line is read and routed as before.** An older
+reader refuses the line rather than ignoring it, as it refuses every word it
+does not know, so the file cannot be read wrongly by a tool that predates it.
 
 ## Layers, so a lesson can switch one off
 
@@ -833,7 +878,8 @@ does not become an error, it becomes a *route*.
    course does not list** — all refused, each with one plain sentence and the
    line number.
 4. **A `clear` for a layer not in `layers`** is refused: it means somebody
-   expected a margin on water the run is not looking at.
+   expected a margin on water the run is not looking at. So is an areas file
+   with two `bounds` lines, or with a shape outside its own `bounds`.
 5. **A crew line whose shares do not add to 100, a level with no gybe line,
    a run that asks for a level its crew file does not give** — all refused,
    the last naming the levels the file does have.

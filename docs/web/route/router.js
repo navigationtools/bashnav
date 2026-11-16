@@ -371,6 +371,30 @@ var ROUTER = (function () {
     });
     g.water = w; g.segments = nseg;
 
+    //  THE BOUNDS (Larry, AIF, 16 November 2026).  An areas file cut to a
+    //  box says so, and while any of its layers is switched on she is
+    //  kept inside that box: a step that ends outside it is not taken.
+    //  With two such files she is kept inside both.  The box is in
+    //  degrees, and a step is tested at its end only: both ends of a
+    //  step inside a box mean the whole of it is.
+    g.bounds = null;
+    (env.areas || []).forEach(function (a) {
+      if (!a || !a.ok || !a.bounds) return;
+      if (!a.layers.some(function (l) { return live[l]; })) return;
+      var b = a.bounds, o = g.bounds;
+      g.bounds = o ? { s: Math.max(o.s, b.s), w: Math.max(o.w, b.w), n: Math.min(o.n, b.n), e: Math.min(o.e, b.e) }
+                   : { s: b.s, w: b.w, n: b.n, e: b.e };
+    });
+    if (g.bounds) {
+      var GB = g.bounds;
+      g.inside = function (lat, lon) { return lat >= GB.s && lat <= GB.n && lon >= GB.w && lon <= GB.e; };
+      if (!(GB.s < GB.n && GB.w < GB.e)) return no('the bounds of the areas files the run switches on do not overlap');
+      var bw = 'the bounds of the areas files (' + GB.s + ' ' + GB.w + ' to ' + GB.n + ' ' + GB.e + ')';
+      if (!g.inside(c.start.a.lat, c.start.a.lon) || !g.inside(c.start.b.lat, c.start.b.lon)) return no('the start line is outside ' + bw);
+      if (!g.inside(c.finish.a.lat, c.finish.a.lon) || !g.inside(c.finish.b.lat, c.finish.b.lon)) return no('the finish line is outside ' + bw);
+      for (j = 0; j < c.marks.length; j++) if (!g.inside(c.marks[j].lat, c.marks[j].lon)) return no(c.marks[j].name + ' is outside ' + bw);
+    } else g.inside = function () { return true; };
+
     //  when she starts
     if (run.start.by === 'class') {
       var cl2 = c.classOf(run.start.name);
@@ -398,7 +422,7 @@ var ROUTER = (function () {
     var cell = opt.cell || 0.5, reach = opt.reach || 1.6;
     var dt = rn.step.time * 1000, dh = rn.step.heading;
     var nleg = g.stations.length + 1;
-    var stats = { expanded: 0, tried: 0, stopped: {}, kept: 0, startPoints: 0, startDropped: 0 };
+    var stats = { expanded: 0, tried: 0, stopped: {}, kept: 0, startPoints: 0, startDropped: 0, outside: 0 };
 
     //  THE ISOCHRONES (Larry, AGE, AGL and AGO, 16 November 2026).  An
     //  isochrone is every place she could have reached by one time.  The
@@ -525,7 +549,7 @@ var ROUTER = (function () {
       var off = R.advance(lat, lon, env.course.start.cross, 0.01, 60);
       var sx = g.X(off.lon), sy = g.Y(off.lat);
       stats.startPoints++;
-      if (g.water.tooNear(sx, sy)) { stats.startDropped++; continue; }
+      if (g.water.tooNear(sx, sy) || !g.inside(off.lat, off.lon)) { stats.startDropped++; continue; }
       var pre = [], leg0 = already(0, sx, sy, pre);
       frontier.push({ lat: off.lat, lon: off.lon, x: sx, y: sy, ms: g.t0, leg: leg0, parent: null, row: null, along: f,
                         tack: null, heading: null, owed: 0, via: null, pre: pre });
@@ -649,6 +673,8 @@ var ROUTER = (function () {
     //  the heading she had before it, which manoeuvre it is, and the
     //  time owed as the row begins.
     function consider(node, row, Tn, next, queue, st) {
+      //  outside the bounds: see THE BOUNDS
+      if (!g.inside(row.lat2, row.lon2)) { stats.outside++; return; }
       var ax = node.x, ay = node.y, bx = g.X(row.lon2), by = g.Y(row.lat2);
       var leg = node.leg, f = 1, ev = null, t;
       if (leg < g.stations.length) {
