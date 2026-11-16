@@ -699,8 +699,9 @@ without the run file beside it.
 but 17 found" is no use without knowing which of them it was said about.
 
 **The checks before sailing are the ones that would otherwise route.** A
-current handed in as the wind, or a wind from 925 hPa, does not fail: it
-sails, wrongly. Both are refused before anything is sailed.
+current handed in as the wind, a wind from 925 hPa, or a wind worked out from
+the isobars does not fail: it sails, wrongly. All three are refused before
+anything is sailed.
 
 **It adds nothing to the router and takes nothing away.** The route is the
 one `ROUTER.run` returns for the same files, row for row, and a check holds it

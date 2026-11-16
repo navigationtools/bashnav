@@ -193,6 +193,23 @@ level: GRID 1 *is* the surface format, and says so in its own version line.
 `COURSE.checkGrids()` refuses a wind grid whose level is not `surface`, by
 name, because the boat sails in the surface wind. Upper winds are for reading.
 
+It refuses a wind whose method is not `model` in the same way, for the same
+reason. A wind worked out from the isobars says `level surface`, and
+truthfully: it is the geostrophic wind at the surface. It has no friction and
+no curvature in it, so it reads stronger than the wind she sails in and veered
+from it. The level alone would let it by, which is why the method is a line of
+its own and why the check reads both:
+
+| `level` | `method` | named in a run as the wind |
+|---|---|---|
+| `surface` | `model` | sailed in |
+| `925hPa` | `model` | refused: an upper wind |
+| `surface` | `geostrophic` | refused: worked out from the isobars |
+| anything else | anything else | refused |
+
+The three winds a lesson compares are the first three rows. All of them are for
+the chart and the lesson; only the first is for a run.
+
 ## The unit belongs to the field
 
 `units kt` cannot carry metres, seconds and degrees, so in GRID 2 **`units` is

@@ -326,7 +326,10 @@ RUN 2, and `course.js` keeps reading RUN 1.
 **The kind is checked against the grid, not against the filename.** A filename
 is not evidence. `COURSE.checkGrids(run, grids)` compares each loaded grid's
 own `kind` header with the line that named it, so a current grid handed in as
-the wind is refused. It is a separate call because parsing text and loading
+the wind is refused. It reads a wind's `level` and `method` too: a run is
+sailed only in a wind that says `surface` and `model`, and a wind from 925 hPa
+or one worked out from the isobars is refused by name (`GRID.md`, "The level,
+and how the field was arrived at"). It is a separate call because parsing text and loading
 files are different jobs, and the reader never opens a file.
 
 ## A gate said two opposite things, so RUN 2 gives it two words

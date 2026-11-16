@@ -120,6 +120,21 @@ r = refusal(function (f) { f['w.grid'] = f['w.grid'].replace('rows 18', 'rows 17
 ok('a grid that will not read is refused in the grid reader\'s words, with its name',
    !r.ok && r.stage === 'wind' && /^w\.grid: /.test(r.err) &&
    r.err === 'w.grid: ' + GRID.parse(field('wind', 0, -10).replace('rows 18', 'rows 17')).err, r.err);
+//  THE WINDS THAT WOULD ROUTE, AND WRONGLY.  The same wind file, said to
+//  be from 925 hPa and then said to be worked out from the isobars: each
+//  reads, each would sail, and each is refused by name before anything is
+//  sailed.  The second got by until PILOT asked (16 November 2026).
+function grid2(text, level, method) {
+  return text.replace('GRID 1\nkind wind\nunits kt', 'GRID 2\nkind wind\nlevel ' + level + '\nmethod ' + method + '\nunits kt kt');
+}
+r = refusal(function (f) { f['w.grid'] = grid2(f['w.grid'], 'surface', 'model'); });
+ok('a GRID 2 surface wind from a model is sailed', r.ok && Math.abs(r.route.summary.hours - s.route.summary.hours) < 1e-9, r.err);
+r = refusal(function (f) { f['w.grid'] = grid2(f['w.grid'], '925hPa', 'model'); });
+ok('a wind from 925 hPa is refused by name, and nothing is sailed',
+   !r.ok && r.stage === 'check' && /^run\.txt: w\.grid is a 925hPa wind/.test(r.err), r.err);
+r = refusal(function (f) { f['w.grid'] = grid2(f['w.grid'], 'surface', 'geostrophic'); });
+ok('a wind worked out from the isobars is refused by name, and nothing is sailed',
+   !r.ok && r.stage === 'check' && /^run\.txt: w\.grid is a geostrophic wind/.test(r.err) && /not for routing$/.test(r.err), r.err);
 r = refusal(function (f) { f['c.txt'] = f['c.txt'].replace('COURSE 1', 'COURSE 9'); });
 ok('a course that will not read', !r.ok && r.stage === 'course' && /^c\.txt: /.test(r.err), r.err);
 r = refusal(function (f) { f['p.txt'] = 'not a polar\n'; });

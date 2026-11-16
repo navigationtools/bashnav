@@ -240,6 +240,26 @@ refuses('a first line that is none of the versions', RUN.replace('RUN 1', 'RUN 4
   ok('an upper wind handed in as the surface wind is refused',
      !vu.ok && vu.err.indexOf('925hPa wind') >= 0, vu.err);
 
+  //  ... and the one the method exists for (PILOT, 16 November 2026).  A
+  //  wind worked out from the isobars is at the surface by its level, so
+  //  the check above lets it by; it reads stronger than the wind she
+  //  sails in and veered from it, and would be routed all the same.
+  var geo = { ok: true, meta: { kind: 'wind', version: 2, level: 'surface', method: 'geostrophic' } };
+  var vg = C.checkGrids(r, { wind: geo, current: current });
+  ok('a wind worked out from the isobars is refused, though its level is the surface',
+     !vg.ok && vg.err.indexOf('is a geostrophic wind') >= 0 && vg.err.indexOf('not for routing') >= 0, vg.err);
+  var both = { ok: true, meta: { kind: 'wind', version: 2, level: '925hPa', method: 'geostrophic' } };
+  ok('one that is both upper and geostrophic is refused too',
+     !C.checkGrids(r, { wind: both, current: current }).ok);
+  var odd = { ok: true, meta: { kind: 'wind', version: 2, level: 'surface', method: 'guessed' } };
+  var vo = C.checkGrids(r, { wind: odd, current: current });
+  ok('and so is any method that is not a model\'s, until somebody decides it may be routed',
+     !vo.ok && vo.err.indexOf('says method guessed') >= 0, vo.err);
+  var geoStream = { ok: true, meta: { kind: 'current', version: 2, method: 'geostrophic' } };
+  ok('the method is a fact about a wind: a current is not asked for one',
+     C.checkGrids(r, { wind: wind, current: { ok: true, meta: { kind: 'current', version: 2 } } }).ok &&
+     C.checkGrids(r, { wind: wind, current: geoStream }).ok);
+
   var surf = { ok: true, meta: { kind: 'wind', version: 2, level: 'surface', method: 'model' } };
   ok('and a GRID 2 surface wind is accepted',
      C.checkGrids(r, { wind: surf, current: current }).ok);

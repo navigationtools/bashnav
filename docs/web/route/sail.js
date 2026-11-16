@@ -124,8 +124,9 @@ var SAIL = (function () {
     //  the run against the course and the water it names ...
     var chk = C.check(run, course, areas);
     if (!chk.ok) return no('check', runName + ': ' + chk.err);
-    //  ... and against the grids: a current handed in as the wind, or a
-    //  wind from 925 hPa, would route without complaint and be wrong
+    //  ... and against the grids: a current handed in as the wind, a
+    //  wind from 925 hPa, or one worked out from the isobars, would
+    //  route without complaint and be wrong
     chk = C.checkGrids(run, { wind: wind, current: current });
     if (!chk.ok) return no('check', runName + ': ' + chk.err);
     //  ... and against its crew file: the level it asks for is in it

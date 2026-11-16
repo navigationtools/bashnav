@@ -571,6 +571,21 @@ var COURSE = (function () {
         return { ok: false, err: run[k] + ' is a ' + g.meta.level + ' wind, and a route is sailed ' +
                  'in the surface wind: upper winds are for reading, not for routing' };
       }
+      //  ... AND THE METHOD (PILOT, 16 November 2026).  A wind worked
+      //  out from the isobars says `level surface`, truthfully: it is
+      //  the geostrophic wind at the surface.  It is still not the
+      //  wind she sails in, for the reason above, and the check above
+      //  only read the level, so it would have been routed.  Only a
+      //  wind that says `method model` is sailed in.  Anything else is
+      //  refused, so a method added to GRID one day is refused here
+      //  until somebody decides it may be routed.
+      if (k === 'wind' && g.meta.version >= 2 && g.meta.method !== 'model') {
+        return { ok: false, err: run[k] + (g.meta.method === 'geostrophic'
+                 ? ' is a geostrophic wind, worked out from the isobars, and a route is sailed in the ' +
+                   'surface wind a model gives: a geostrophic wind is for reading, not for routing'
+                 : ' says method ' + (g.meta.method || 'nothing') + ', and a route is sailed only in a ' +
+                   'wind that says method model') };
+      }
     }
     return { ok: true };
   }

@@ -1,5 +1,41 @@
 # Changelog
 
+## A wind worked out from the isobars is refused for a run
+
+**What.** `COURSE.checkGrids()` now reads a wind grid's `method` as well as its
+`level`. A run is sailed only in a wind that says `level surface` and `method
+model`. A wind that says `method geostrophic` is refused by name before
+anything is sailed, as a wind from 925 hPa already was; so is any other
+method.
+
+**Why.** PILOT found it before building on it. The course's chart shows three
+winds side by side: the model's surface wind, the wind at 925 hPa, and the wind
+worked out from the isobars. The third says `level surface`, and truthfully: it
+is the geostrophic wind at the surface. It has no friction and no curvature in
+it, so it reads stronger than the wind she sails in and veered from it. The
+check only read the level, so that file, named in a run, was routed. With
+PILOT's own file for 24 May 2025 in place of the model's wind, the 2025 race
+was sailed in 21.93 hours where the model's wind gives 23.50: an hour and a
+half too fast, and nothing said so. The comment above the check already named
+a geostrophic wind as one that must not route; the check now does what the
+comment says.
+
+**What it affects.**
+
+1. **No run in use changes.** No run named that file. Every run that sailed
+   before sails the same; the 2025 race is 23.50 hours as before.
+2. **A run that names a geostrophic wind is refused,** with the file's name and
+   the reason. It is the same kind of refusal as the upper wind, and is made
+   at the same place, before the router starts.
+3. **A method added to GRID later is refused too,** until somebody decides it
+   may be routed. Only `model` is let by.
+4. **The three wind files stay where they are** for the chart and the lesson.
+   `GRID.md` has a table of which is for a run and which is for reading.
+
+**Checked.** `tests/course.js` (177 checks) and `tests/sail.js` (82), and
+PILOT's real file end to end. Six faults were put in one at a time and each is
+caught.
+
 ## The router writes its isochrones (B2, for the course's Level 3)
 
 **What.** `ROUTER.run` returns a third piece beside `rows` and `summary`:
