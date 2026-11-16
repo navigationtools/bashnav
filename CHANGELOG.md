@@ -1,5 +1,31 @@
 # Changelog
 
+## tides 1.5: verified with the Practical Navigator course (rule 13)
+
+**What.** `tides`' version line moves from 1.4.2 to 1.5. No code, data or
+wording changes: this is the same tool as 1.4.2, bashnav `f4e2aa9`.
+
+**Why.** Under rule 13 a set of tools that depend on each other shares its
+first two numbers, and the middle number moves only when the whole set has
+been verified together. `tides` and the course are the first such set. The
+verification passed on 16 November 2026 and Larry accepted it (AGC):
+
+1. **bashnav's full suite** on 1.4.2: passing.
+2. **PILOT's re-run of the tide check,** six ports over 10 May to 9 June 2025:
+   every port moved by the chart-datum correction to the centimetre, leaving
+   the gauge +0.05 to +0.14 m above the tool; times, turns, surge and
+   residuals unchanged.
+3. **All nine lesson links that call a calculator** (two `lunar`, seven
+   `tidal_gate`) give the answer their lesson prints.
+
+The record is `spec/contracts/manifests/tides-and-course.md`.
+
+**What it affects.** The number `tides version` prints, the name of the engine
+an installed copy unpacks (`engine-1.5.awk`), and the manual and quick
+reference, which are rebuilt and say 1.5. The next change to `tides` takes a
+third number (1.5.1) until the set is verified again. Cherbourg is still
+checked two ways, not four, until the almanac gives its published mean level.
+
 ## tides 1.4.2: bridge clearance takes in the level the chart measures it above
 
 Released together with 1.4.1 below, in one commit (Larry, AFT). Under rule 13
