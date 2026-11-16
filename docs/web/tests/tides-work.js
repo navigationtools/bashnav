@@ -166,6 +166,63 @@ CASES.forEach(function (c, i) {
     //  the cosine answer as the numbers say
     if (Math.abs(P.twelfths[0] - P.cosine[0]) > 0.01) { ok = false; why = 'the two answers are not at the same time'; }
     if ((R.t12 - R.tcos) * (P.cosine[1] - P.twelfths[1]) < -1e-9) { ok = false; why = 'twelfths and cosine drawn the wrong way up'; }
+  } else if (F.kind === 'depth') {
+    //  ONE HEIGHT SCALE THROUGH ALL THREE DRAWINGS (Larry, AHP and AID).
+    //  The scale is read from the twelfths' own dots at the first two
+    //  turns, and then everything else must sit on it: the line of the
+    //  height she needs, the circle (as wide as the range is high, with
+    //  its point on that line), the edges of the window at their times,
+    //  her keel a draught below the line, and the bank or the sea bed.
+    var hr = {}, reh = /data-pt="hr([0-9]+)" cx="([-0-9.]+)" cy="([-0-9.]+)"/g, mh;
+    while ((mh = reh.exec(svg))) hr[+mh[1]] = [+mh[2], +mh[3]];
+    var TNs = F.turns, nh = Object.keys(hr).length;
+    if (nh !== (TNs.length === 3 ? 13 : 7)) { ok = false; why = nh + ' twelfths dots, not one for each tidal hour'; }
+    else {
+      var ya = hr[0][1], yb = hr[6][1], sy = (ya - yb) / (TNs[1].h - TNs[0].h);
+      var Hof = function (y) { return TNs[0].h + (ya - y) / sy; };
+      var Tof = function (x) { return TNs[0].t + (x - hr[0][0]) / (hr[6][0] - hr[0][0]) * (TNs[1].t - TNs[0].t); };
+      var rng = Math.abs(TNs[1].h - TNs[0].h), tolh = 0.004 * Math.max(rng, 1), CUMS = [0, 1, 3, 6, 9, 11, 12], kk;
+      for (kk = 0; kk <= 6; kk++) if (Math.abs(Hof(hr[kk][1]) - (TNs[0].h + (TNs[1].h - TNs[0].h) * CUMS[kk] / 12)) > tolh ||
+                                      Math.abs(Tof(hr[kk][0]) - (TNs[0].t + kk * (TNs[1].t - TNs[0].t) / 6)) > 0.3) { ok = false; why = 'the twelfths dot of hour ' + kk + ' is not at its height and time'; }
+      if (TNs.length === 3 && (Math.abs(Hof(hr[12][1]) - TNs[2].h) > tolh || Math.abs(Tof(hr[12][0]) - TNs[2].t) > 0.3)) { ok = false; why = 'the second low water is not on the same two scales'; }
+      var mn = svg.match(/data-pt="need" x1="[-0-9.]+" y1="([-0-9.]+)"/), yn = mn ? +mn[1] : null;
+      var mc = svg.match(/class="d-circ" cx="([-0-9.]+)" cy="([-0-9.]+)" r="([-0-9.]+)"/);
+      if (!mc) { ok = false; why = 'no circle'; }
+      else if (Math.abs(2 * +mc[3] - rng * Math.abs(sy)) > 0.6) { ok = false; why = 'the circle is not as wide as the range is high: another scale'; }
+      else if (Math.abs(Hof(+mc[2]) - (TNs[0].h + TNs[1].h) / 2) > tolh) { ok = false; why = 'the circle is not centred at half tide'; }
+      if (yn !== null && Math.abs(Hof(yn) - R.need) > tolh) { ok = false; why = 'the line of the height she needs is at ' + Hof(yn).toFixed(3) + ' m'; }
+      if (P.circle) {
+        if (yn === null || Math.abs(P.circle[1] - yn) > 0.6) { ok = false; why = 'the point on the circle is not on the line of the height she needs'; }
+        if (mc && Math.abs(len(P.circle, [+mc[1], +mc[2]]) - +mc[3]) > 0.6) { ok = false; why = 'the point is not on the circle'; }
+        //  ... and it is on the side she is going round: up the right, down the left
+        if (mc && F.edges[0].A > 180.5 && F.edges[0].A < 359.5 && (P.circle[0] > +mc[1]) !== (TNs[1].h > TNs[0].h)) { ok = false; why = 'the point is on the wrong side of the circle'; }
+      } else if (F.edges[0].st === 'edge') { ok = false; why = 'the height is reached on the first tide and the circle has no point'; }
+      ['open', 'shut'].forEach(function (w) {
+        if (R[w] === undefined) { if (P[w]) { ok = false; why = 'an edge is drawn that the answer does not have: ' + w; } return; }
+        if (!P[w]) { ok = false; why = 'the window ' + w + 's and no dot marks it'; return; }
+        if (Math.abs(Tof(P[w][0]) - R[w]) > 0.6) { ok = false; why = 'the window ' + w + 's at ' + Tof(P[w][0]).toFixed(1) + ' min on the drawing, ' + R[w].toFixed(1) + ' in the answer'; }
+        if (yn === null || Math.abs(P[w][1] - yn) > 0.6) { ok = false; why = 'the ' + w + ' dot is not on the line'; }
+      });
+      var mw = svg.match(/data-pt="window" x="([-0-9.]+)" y="[-0-9.]+" width="([-0-9.]+)"/);
+      if (R.never && mw) { ok = false; why = 'a window is shaded where there is never enough water'; }
+      if (!R.never && yn !== null) {
+        if (!mw) { ok = false; why = 'no window shaded'; }
+        else {
+          var w0 = R.open === undefined ? TNs[0].t : R.open, w1 = R.shut === undefined ? TNs[TNs.length - 1].t : R.shut;
+          if (Math.abs(Tof(+mw[1]) - w0) > 0.6 || Math.abs(Tof(+mw[1] + +mw[2]) - w1) > 0.6) { ok = false; why = 'the shaded window is not the window of the answer'; }
+        }
+      }
+      var mhull = svg.match(/data-pt="hull" d="([^"]+)"/), mbed = svg.match(/data-pt="bed" x="[-0-9.]+" y="([-0-9.]+)"/);
+      var bedh = F.dry ? F.v : -F.v;
+      if (mbed && Math.abs(Hof(+mbed[1]) - bedh) > tolh) { ok = false; why = 'the bank or sea bed is drawn at ' + Hof(+mbed[1]).toFixed(3) + ' m'; }
+      if (mhull && mbed) {
+        var ysH = mhull[1].split(/[ML Z]+/).filter(function (q) { return q !== ''; }).map(Number).filter(function (q, n) { return n % 2 === 1; });
+        var keel = Hof(Math.max.apply(null, ysH));
+        if (Math.abs(keel - (R.need - F.draught)) > tolh) { ok = false; why = 'her keel is drawn down to ' + keel.toFixed(3) + ' m, not a draught below the surface'; }
+        if (Math.abs((keel - bedh) - F.clear) > 2 * tolh) { ok = false; why = 'the gap under her keel is not the clearance'; }
+      }
+      if (yn !== null && !mhull) { ok = false; why = 'the height she needs is drawn and her keel is not'; }
+    }
   } else if (F.kind === 'gate') {
     //  the strip is a time line: high water, the turn of the gate and her
     //  own time must all sit on it at ONE scale, read from the answer

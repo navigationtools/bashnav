@@ -8,7 +8,7 @@ browser with no network. It is the same engine as the POSIX `awk` tool in
     engine.js         the port: astronomy, nodal factors, synthesis
     tables.js         the UTide constituent tables  (generated)
     tides.js          the app
-    work.js           the eight coastal calculators: a port of src/tides/work.awk
+    work.js           the nine coastal calculators: a port of src/tides/work.awk
     WORK.md           the URL contract the coastal course links with
     tides.css         two modes, dark and night
     stations.idx      the search index, with byte offsets  (generated)

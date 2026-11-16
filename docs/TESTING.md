@@ -1028,6 +1028,26 @@ so `tides-ui.js` checks that every word of every figure it draws lies inside
 the drawing; a station's label set on one line ran past the edge, and that
 check names it.
 
+**Depth, the ninth calculator.** Its reference finds every time by bisection
+on the height each rule gives at a time, where the tool turns the rule round:
+the twelfths by a proportion inside the tidal hour, the cosine by an arcsine.
+The two cannot share a mistake in the turning. Seventeen worked cases: both
+edges, one tide rising and falling, never, always, a tide across midnight, a
+height reached exactly at high water, low water below the datum, and a
+crossing in every tidal hour of the staircase both ways. At a station the two
+rules are held to the turns the day's table prints, and the prediction's own
+edges to a walk along the same curve a minute at a time. The page prints the
+same working as the shell for all of them, and its figure is read back on one
+height scale: the twelfths' dots give the scale, and the line of the height
+she needs, the circle and its point, the edges of the window, her keel and the
+bank must all sit on it. Thirty faults were put in one at a time, seventeen in
+the shell and thirteen in the page and its figure, and each is caught. One got
+past at first and found a fault that had not been seen: the height she needs
+is a sum of figures typed to the centimetre, and such a sum can come out a
+hair over (0.1 + 0.2 is 0.30000000000000004), so a tide that reached it
+exactly was called "never". The comparison now allows the hair, and two cases
+hold it.
+
 **What lunar's reference does not cover, and what does.** The Sun's and
 Moon's longitudes are the engine's own short series in both, because that
 series is the definition here; the reference checks the working built on it.

@@ -1055,7 +1055,7 @@ function saveOffline() {
 
 
 /* =====================================================================
-   Coastal work: the eight calculators.
+   Coastal work: the nine calculators.
 
    The arithmetic and every line of the working are in work.js, which is
    held to `tides work` character for character.  This part is only the
@@ -1087,6 +1087,8 @@ function workNeedsStation(name, a) {
   //  lunar uses a station only when nothing is typed from a tide table,
   //  so a link that carries heights reads the same for every visitor
   if (name === 'lunar') return !(a.hwh || a.lwh || a.range || a.sprange || a.nprange || a.brhwh || a.brlwh);
+  //  depth takes its turns from a station unless any of them is typed
+  if (name === 'depth') return !(a.lw || a.hw || a.lwh || a.hwh || a.lw2 || a.lw2h);
   if (name !== 'twelfths') return false;
   return !(a.lw || a.hw || a.lwh || a.hwh);
 }
@@ -1289,7 +1291,7 @@ window.addEventListener('DOMContentLoaded', function () {
   $('w-clear').addEventListener('click', function () { drawWorkForm({}); $('w-result').hidden = true; });
 
   /*  ?work=... opens the calculator straight away -- before the station
-      index has loaded, because four of the eight never need it.  The
+      index has loaded, because four of the nine never need it.  The
       ones that do (the atlas page always; twelfths and the tidal gate
       when they are given a station) wait for it below. */
   var WQ = WORK.fromQuery(location.search), wq = asObj(WQ);

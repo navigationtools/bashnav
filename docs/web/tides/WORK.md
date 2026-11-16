@@ -1,6 +1,6 @@
 # tides — the coastal work calculators: the URL contract
 
-This file is **the authoritative contract** for linking into the eight coastal
+This file is **the authoritative contract** for linking into the nine coastal
 navigation calculators in the browser build of `tides`. The coastal navigation
 course deep-links here from its lessons, so the parameter names below are
 fixed: a name is never renamed or given a new meaning. New parameters may be
@@ -61,18 +61,18 @@ it as four lists at the top:
 | `WORK_SHARED` | `NAMES`, `SPEC`, `run`, `figure` — the surface a lesson may call. Changing one of the four travels with a note to the course's inbox |
 | `WORK_HOST` | everything else exposed: the tides page's and the tests'. It may change without warning |
 | `WORK_PURE_CALLS` | `sind`, `cosd`, `asind` — the only tide-engine calls the pure calculators make |
-| `WORK_PURE_WORK` | `twelfths` (typed times), `secondary`, `stream`, `cts`, `setdrift`, `tidal_gate` (typed `hw`) — the six that stay inside that boundary |
+| `WORK_PURE_WORK` | `twelfths` (typed times), `secondary`, `stream`, `cts`, `setdrift`, `tidal_gate` (typed `hw`), `depth` (typed turns) — the seven that stay inside that boundary |
 | `WORK_MOON_CALLS` | `jdate`, `jd2cal`, `sunLon`, `moonLon`, `moonPhase` — the calendar and the Moon: five more engine calls, for `lunar` alone (Larry, 16 November 2026) |
 | `WORK_MOON_WORK` | `lunar` (its typed forms) — may make the three calls above and these five, and nothing else |
 
-**What the boundary buys a lesson:** those six can be worked without the
+**What the boundary buys a lesson:** those seven can be worked without the
 2.9 MB of station data, which would otherwise have to be downloaded before a
-student could see twelfths done. `atlas`, and `twelfths` or `tidal_gate` with
-`station=`, need the real engine and stay links into the full app.
+student could see twelfths done. `atlas`, and `twelfths`, `tidal_gate` or
+`depth` with `station=`, need the real engine and stay links into the full app.
 
 **`lunar` on a lesson's page.** Its typed forms need the calendar and the Moon
 as well as the three trig calls. None of the five touches station data, and a
-lesson gets them all by loading `engine.js`, which is 22 KB of code. The six
+lesson gets them all by loading `engine.js`, which is 22 KB of code. The seven
 calculators above are still held to the three calls alone, so a page that
 supplies only those runs them exactly as before. `lunar` with `station=`
 stays a link into the full app.
@@ -96,7 +96,7 @@ watching by showing that `atlas` does reach past them.
 | dates | `YYYY-MM-DD` |
 | variation, deviation | degrees, **east positive, west negative** (`var=-2` is 2° W) |
 | `lesson` | optional, on every calculator: see below |
-| `work` | which calculator: `twelfths secondary stream atlas cts setdrift tidal_gate lunar` |
+| `work` | which calculator: `twelfths secondary stream atlas cts setdrift tidal_gate lunar depth` |
 
 **A `+` in a query string is a space.** Browsers decode `tdhw2=+5` as
 `tdhw2= 5`. Write positive values unsigned (`tdhw2=5`) or as `%2B5`; an
@@ -107,7 +107,7 @@ unsigned number is positive, and a leading space is trimmed, so both work.
 `_ . / -`. A `/` may be written as-is or as `%2F`.
 
 **Times at a station** (`t` and `date` for `atlas` and the station forms of
-`twelfths`, `tidal_gate` and `lunar`) are the station's own **standard time** — GMT for the UK, with no
+`twelfths`, `tidal_gate`, `lunar` and `depth`) are the station's own **standard time** — GMT for the UK, with no
 summer time — exactly as every other `tides` screen and a printed tide table.
 
 **Every value is checked.** An unknown parameter, a value that is not a
@@ -378,9 +378,35 @@ shuts in one of two ways, and this takes both (Larry, 15 November 2026).
 **The atlas form** resolves the stream on each page along her track, rate ×
 cos(set − track): with her is +, against her is −. The gate turns where that
 passes zero (or minus `foul`), found between two pages by a straight line, as
-it is done with a pencil. With all thirteen pages the pages are run round into
-the tide before and the tide after, so a window open across low water is found
-whole. With fewer, the working says which end is not on the pages given.
+it is done with a pencil.
+
+**A window that runs across low water.** Many gates open late on one tide and
+shut early on the next. On one tide's pages alone that window is in two
+pieces, its end on the first pages and its start on the last:
+
+```
+ the tide before      this tide                              the next tide
+ +3 +4 +5 +6    -6 -5 -4 -3 -2 -1 HW +1 +2 +3 +4 +5 +6    -6 -5 -4 -3
+  .  =  =  =     =  =  =  .  .  .  .  .  .  .  =  =  =     =  =  =  .
+     |<-- one window -->|                      |<-- the next window -->|
+
+ = with her, the gate open        . against her, the gate shut
+```
+
+An atlas page gives the stream at so many hours from high water, whichever
+high water that is. With all thirteen pages given, the same thirteen are laid
+down three times, against the high water before, this one and the one after,
+so the opening is found on one tide's pages and the shutting on the next's,
+and the window is given whole. The working names the tide a page belongs to
+(`HW -3 of the next tide`). A page that would fall at or before the one
+already laid down is left out, which happens only when two high waters are
+twelve hours apart or less.
+
+With fewer than thirteen pages nothing is laid down again, because what the
+missing pages say is not known. The working then says which end is not on the
+pages given (`it is already open on HW -6, the first page given`), the answer
+is `open until ...` or `open from ...`, and the figure marks the times outside
+the pages with `?`. An end is never guessed.
 
 **The pilot-book form** adds the hours to the high water. When `shuts` is not
 after `opens`, the gate opens on one tide and shuts on the next.
@@ -514,9 +540,94 @@ other than Brest. Correct for the weather.
 
 ---
 
+## 9. `depth` — the depth over a shoal, and the window to cross it
+
+Two questions in one working (Larry, AGT, 16 November 2026): how much water is
+there at a given time, and between what times is there enough.
+
+```
+   surface  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                 ^              |  |
+   height of     |      draught |  |
+   tide          |              v  |  depth of water
+   chart datum - + - - - - - - -   |  = charted depth + height of tide
+                 |      clearance  |    (over a drying bank:
+   charted depth |      under keel |     height of tide - drying height)
+                 v                 v
+   sea bed  ___________________________________
+
+   the height of tide she needs = draught + clearance - charted depth
+                              or = draught + clearance + drying height
+```
+
+| parameter | | meaning |
+|---|---|---|
+| `depth` or `dries` | exactly one of the two | `depth` is the charted depth, m; `dries` is the drying height, m, the underlined figure on the chart. Both are written as the chart prints them, never with a minus sign |
+| `draught` | required | her draught, m |
+| `clear` | required | the clearance wanted under the keel, m. Never defaulted; `clear=0` is the moment she touches |
+| `lw` `lwh` `hw` `hwh` | typed form | the low water and the high water, time and height, as `twelfths` takes them. HW before LW is a falling tide |
+| `lw2` `lw2h` | typed form, optional | the low water after high water. With it `lw` must be the low water before |
+| `t` | optional when typed | the time she wants the depth for; it must lie between the turns given |
+| `station` | station form | a station id; in the shell, defaults to the station chosen with `tides use` |
+| `date`, `t` | station form, default now | in the station's standard time |
+
+**Exactly one of `depth` and `dries` (Larry, AGV).** A chart prints a drying
+height as a plain underlined figure. Typing it under its own name means the
+sign is never hers to remember, and a forgotten minus cannot put a metre of
+water over a bank that has none.
+
+**One tide gives one edge of the window; the low water either side of high
+water gives both (AHF).** With `lw lwh hw hwh` the answer is when the window
+opens on a rising tide, or when it shuts on a falling one. Add `lw2 lw2h` and it
+is the whole window. At a station the tool takes the low water, the high water
+and the low water round `t` itself.
+
+**Two rules side by side, and the prediction as a third at a station (AHI).**
+Each tide is worked by the twelfths, with the hour-by-hour table and a
+straight line inside the hour that holds the height, and by the cosine curve
+turned round to give the time: (cos A + 1)/2 is the fraction of the range, and
+A/180 − 1 the fraction of the time. Both assume a regular tide of about six
+hours. Where it stands or has a double high water, as in the Solent, they are
+wrong, the typed form says so, and the station form shows by how much: at
+Portsmouth on 24 May 2025 the rules open the window 13 minutes before the
+prediction and shut it 25 minutes early.
+
+**The answer is what every method agrees on (AHK):** the latest opening, the
+earliest shutting, and the least depth at her time. Each method's own times
+are printed above it. All methods start from the same turns, so they always
+agree on whether there is enough water at all.
+
+**At a station whose heights are not above chart datum** the working carries
+the same two-line caution as the tide screen's depth sum ("The zero a
+station's heights are from", below).
+
+**The figure (AHP, AID).** Three drawings on one height scale, so that the
+height she needs is a single line through all of them. On the left, the circle
+the cosine curve comes from: a point going round it, half a turn from one turn
+of the tide to the next, and how far round it is when the height is reached.
+In the middle, the tide against the clock: the cosine curve, the twelfths as
+dots joined by straight lines, the prediction at a station, and the window
+shaded. On the right, her keel: draught, clearance and the bank or sea bed,
+stacked from chart datum. A sea bed far below the tide is left off the foot of
+the drawing, and the figure says so. The shell draws the curve and the keel in
+characters.
+
+**What it does not do.** Allow for the weather, a swell, or squat. Know the
+chart: the depth and the clearance are hers to choose. Give more than one
+window in a day; ask again for the next tide.
+
+    ?work=depth&dries=0.3&draught=1.8&clear=0.5&lw=05:12&lwh=0.8&hw=11:24&hwh=4.2&lw2=17:40&lw2h=0.9&t=09:00
+    ?work=depth&depth=0.6&draught=1.8&clear=0.5&lw=05:12&lwh=0.8&hw=11:24&hwh=4.2
+    ?work=depth&depth=1.0&draught=1.8&clear=0.5&station=ticon/dover-dov-gbr-bodc&date=2026-11-07&t=10:00
+    tides work depth dries=0.3 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9 t=09:00
+    tides work depth depth=0.6 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2
+    tides work depth depth=1.0 draught=1.8 clear=0.5 station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00
+
+---
+
 ## The zero a station's heights are from
 
-Every station form (`twelfths`, `atlas`, `tidal_gate`, `lunar`) prints, under
+Every station form (`twelfths`, `atlas`, `tidal_gate`, `lunar`, `depth`) prints, under
 the station's name and the time, one line saying what its heights are measured
 from: `heights above chart datum`, `heights above MLLW, the chart datum`,
 `heights above a computed LAT, not chart datum` or `heights above mean sea

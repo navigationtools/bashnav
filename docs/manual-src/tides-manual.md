@@ -2,7 +2,7 @@
 ## Harmonic tide prediction, offline, for 8,334 stations
 
 **Version {{VERSION}}** — no network, no subscription, nothing that expires.
-With eight coastal work calculators that show every step.
+With nine coastal work calculators that show every step.
 
 ---
 
@@ -170,7 +170,7 @@ directly — see section 6.
 
 ---
 
-## 5. The eight coastal calculators
+## 5. The nine coastal calculators
 
 Each shows its working step by step, because the point is teaching. They are on
 the day screen and the station picker in the browser, and are `tides work
@@ -291,10 +291,46 @@ the gate opens on one tide and shuts on the next.
 1. **The high water** is typed (`hw`, and `hw2` for the next one if the tables
    give it) or predicted at a station. Without `hw2` the tides are taken as
    12 h 25 min apart, the mean, and the working says so.
-2. With all thirteen pages the pages are run round into the tide before and
-   the tide after, so a window that is open across low water is found whole.
-   With fewer, an end that is not on the pages given is reported as **not on
-   the pages given** rather than guessed.
+2. **A window that runs across low water, and why all thirteen pages
+   matter.** Many gates open late on one tide and shut early on the next:
+   open from about HW +3, through low water, to about HW -3 of the tide that
+   follows. On one tide's pages alone that window is in two pieces, its end on
+   the first pages and its start on the last:
+
+   ```
+    the tide before      this tide                              the next tide
+    +3 +4 +5 +6    -6 -5 -4 -3 -2 -1 HW +1 +2 +3 +4 +5 +6    -6 -5 -4 -3
+     .  =  =  =     =  =  =  .  .  .  .  .  .  .  =  =  =     =  =  =  .
+        |<-- one window -->|                      |<-- the next window -->|
+        opens on the       shuts on               opens on            shuts on
+        tide before        this tide              this tide      the next tide
+
+    = with her, the gate open        . against her, the gate shut
+   ```
+
+   An atlas page gives the stream at so many hours from high water, whichever
+   high water that is. So when all thirteen pages are given, the same thirteen
+   are laid down three times: against the high water before, against this one,
+   and against the one after. The opening is then found between two pages of
+   one tide and the shutting between two pages of the next, and the window is
+   given whole, as `OPEN  18:18 to 00:39 next day`. The working names the tide
+   each page belongs to: `HW -3 of the next tide (23:57)`.
+
+   The high waters either side are the ones from step 1: typed, predicted, or
+   taken as 12 h 25 min away. HW +6 of one tide and HW -6 of the next are then
+   25 minutes apart, and both are used. If two high waters are twelve hours
+   apart or less, a page that would fall at or before the one already laid
+   down is left out.
+
+   **With fewer than thirteen pages nothing is laid down again,** because what
+   the missing pages say is not known. If the stream is already with her on
+   the first page given, the working says `it is already open on HW -6, the
+   first page given: when it opened is on an earlier page`, the answer is
+   `open until 14:18`, and the strip marks every time outside the pages with
+   `?`. The other end is treated the same way: `it is still open on HW, the
+   last page given: when it shuts is on a later page`, and the answer is `open
+   from 13:24`. An end that cannot be seen is reported as **not on the pages
+   given**. It is never guessed.
 3. `t` is when she expects to be there: the answer says OPEN or SHUT, how
    hard the stream is running, and how long until it turns.
 4. `dist` and `sog` together give the passage to the gate, and from that
@@ -389,6 +425,66 @@ day's label carries its working, not a bare number.](fig/tides-lunar.png)
 `coef=`, the coefficient an almanac prints, may be carried in a link: it is
 checked and noted, and not used yet.
 
+### 5.9 `depth` — the depth over a shoal, and the window to cross it
+
+A bar, a sill or a bank lies on her way. Two things are wanted: how much water
+there is over it at a given time, and between what times there is enough. This
+works both, and shows the arithmetic a navigator does on the chart table.
+
+**The height of tide she needs** is a sum:
+
+        over a charted depth    draught + clearance - charted depth
+        over a drying bank      draught + clearance + drying height
+
+A chart prints a drying height as an underlined figure, so the shoal is given
+by one of two names, `depth` or `dries`, exactly one, each as the chart prints
+it. No minus sign is ever typed. `clear`, the clearance under the keel, is hers
+to choose and must be given; `clear=0` is the moment she touches.
+
+**When the tide reaches that height** is worked by two rules, side by side:
+
+1. **The twelfths.** The hour-by-hour table, then a straight line inside the
+   tidal hour that holds the height.
+2. **The cosine curve,** turned round to give the time. The curve is a point
+   going round a circle, half a turn from one turn of the tide to the next.
+   The height tells how far round it is, and that fraction of the half turn is
+   the fraction of the time.
+
+One low water and one high water give one edge of the window: when it opens on
+a rising tide, or shuts on a falling one. Give the low water after as well
+(`lw2`, `lw2h`) and the window has both its edges. Give a time (`t`) and the
+depth then is worked too.
+
+**The answer is what both rules agree on:** the later opening, the earlier
+shutting and the lesser depth. Each rule's own figures are printed above it.
+
+**At a station** the tool takes the low water, high water and low water round
+the time asked, works the two rules on them, and adds its own prediction as a
+third. The prediction carries the shape a real tide has. Both rules assume a
+regular tide of about six hours, and where it stands or has a double high
+water, as in the Solent, they are wrong: at Portsmouth on 24 May 2025 they
+open the window 13 minutes before the prediction does and shut it 25 minutes
+early. The answer takes the latest opening and the earliest shutting of the
+three. Where a station's heights are not above chart datum the working says
+so, as section 3 explains.
+
+```
+tides work depth dries=0.3 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9 t=09:00
+tides work depth depth=0.6 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2
+tides work depth depth=1.0 draught=1.8 clear=0.5 station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00
+```
+
+![**Figure 9** - the first example. Three drawings on one height scale, so the
+height she needs, 2.60 m, is a single line through all of them. On the left,
+the circle the cosine curve comes from: the point has gone 93 of the 180
+degrees round, so 0.519 of the time from low water to high. In the middle, the
+tide against the clock, the twelfths as dots joined by straight lines, with
+the window shaded. On the right, her keel: draught, clearance and the bank,
+stacked from chart datum.](fig/tides-depth.png)
+
+It does not allow for the weather, a swell or squat, and it does not know the
+chart: the depth and the clearance are hers.
+
 ---
 
 ## 6. Linking into a calculator, and the parameter contract
@@ -452,9 +548,10 @@ bad input.**
 
 ## 8. Offline, and how the station data is shipped
 
-![**Figure 5** - the About screen, which says what is actually in the cache
-rather than what should be. On a first visit it says so plainly: not installed,
-served from the network.](fig/tides-about.png)
+![**Figure 5** - the foot of the About screen: where the data comes from, and
+the Offline panel, which says what is actually in the cache rather than what
+should be. On a first visit it says so plainly: not yet cached, and on the
+last line, not installed, served from the network.](fig/tides-about.png)
 
 The station file is 2.9 MB, which is not something to download before the app
 will draw anything. So an index of every station — name, region, country,

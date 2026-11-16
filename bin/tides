@@ -107,7 +107,7 @@ bn_unpack() {
 #  Part of Bash Navigation Software.  https://github.com/navigationtools/bashnav
 #  Copyright 2026 M. Larry Sherman.  Apache License 2.0.
 # =====================================================================
-TIDES_VERSION=1.5
+TIDES_VERSION=1.5.1
 TIDES_HOME=${TIDES_HOME:-$(bn_home .tides)}
 CONF="$TIDES_HOME/config"
 ENGINE="$TIDES_HOME/engine-$TIDES_VERSION.awk"
@@ -281,7 +281,7 @@ do_work() {
   eng -v cmd=work -v wname="$wn" -v wargs="$wa" -v defstation="$station" \
       -v nowdate="$(utctoday)" -v nowtime="$(date -u '+%H:%M')" -v nofig="${NOFIG:-0}"
 }
-#  From the menu: show the eight with an example each, take a name and a
+#  From the menu: show the nine with an example each, take a name and a
 #  line of parameters, and go round again until return.  The parameter
 #  line is split on spaces with globbing off, so a value is never taken
 #  for a file pattern.
@@ -3426,6 +3426,346 @@ function wk_figlunar(   n,i,k,c,m,ph,rl,fd,dy,a,b,d,e){
 #  The list, with an example of each.  WORK.md carries the same six
 #  examples and tests/run-tests.sh checks that it still does.
 # =====================================================================
+# =====================================================================
+#  9.  DEPTH OVER A SHOAL, AND THE WINDOW TO CROSS IT  (board item B11)
+# =====================================================================
+#  Larry's rulings, 16 November 2026:
+#    AGT  both questions in one working: the depth at a time, and the
+#         window with enough water
+#    AGV  the shoal is depth= (a charted depth) or dries= (a drying
+#         height), exactly one, so no minus sign can be forgotten
+#    AHC  two forms, typed turns and a station
+#    AHF  typed: lw lwh hw hwh give one edge of the window; lw2 lw2h as
+#         well give both
+#    AHI  the twelfths and the cosine curve side by side, and at a
+#         station the prediction itself as the third
+#    AHK  the answer is what every method agrees on: the latest opening,
+#         the earliest shutting, the least depth
+#
+#  The turns are DT_T[] (minutes), DT_H[], DT_K[], DT_N of them: two for
+#  one tide, three for low water, high water, low water.
+#  The height she needs is a sum of figures typed to the centimetre, and
+#  such a sum can come out a hair over: 0.1 + 0.2 is 0.30000000000000004.
+#  Without the hair's allowance a tide that reaches 0.30 m exactly would
+#  be called "never".  Found by a planted fault the checks did not catch.
+function wk_dstate(h1,h2,need){
+  if(h2>=h1){ if(need<=h1+1e-9) return "always"; if(need>h2+1e-9) return "never" }
+  else      { if(need<=h2+1e-9) return "always"; if(need>h1+1e-9) return "never" }
+  return "edge"
+}
+#  One tide, turn to turn: when the height wanted is reached, by the
+#  twelfths and by the cosine curve.  Fills DE_ST[n], DE_12[n], DE_C[n].
+function wk_dedge(n,step,t1,h1,k1,t2,h2,k2,need,   D,R,st,p,c,i,ix,fr,cum,stp,hA,hB,tA,tB,rise,ca,A,f){
+  D=t2-t1; R=h2-h1; rise=(R>=0)
+  split("1 2 3 3 2 1",stp," "); split("0 1 3 6 9 11 12",cum," ")
+  wl("")
+  wl(sprintf("  %d  The %s tide, %s %s to %s %s: when it %s %s m", step, rise?"rising":"falling",
+     wk_kname(k1), wk_hhmm(t1), wk_kname(k2), wk_hhmm(t2), rise?"reaches":"falls to", wk_f(need,2)))
+  st=wk_dstate(h1,h2,need); DE_ST[n]=st
+  if(st=="never"){
+    wl(sprintf("     HW is %s m and she needs %s m: never enough water on this tide", wk_f(rise?h2:h1,2), wk_f(need,2)))
+    return st
+  }
+  if(st=="always"){
+    wl(sprintf("     LW is %s m and she needs %s m: enough water all through this tide", wk_f(rise?h1:h2,2), wk_f(need,2)))
+    return st
+  }
+  wl(sprintf("     range %s m over %s, so a tidal hour here is %s", wk_f(fabs(R),2), wk_dur(D), wk_dur(D/6)))
+  if(D<240 || D>480) wl("     " cwd(sprintf("the rule assumes about six hours from turn to turn; this one is %s", wk_dur(D))))
+  wl("")
+  wl("     By the twelfths")
+  wl("       hour  time     so far    height")
+  for(i=0;i<=6;i++) wl(sprintf("         %d   %s    %2d/12   %6s m", i, wk_hhmm(t1+i*D/6.0), cum[i+1], wk_f(h1+R*cum[i+1]/12.0,2)))
+  p=(need-h1)/R; if(p<0) p=0; if(p>1) p=1
+  c=12*p
+  for(i=1;i<=6;i++) if(c<=cum[i+1]+1e-9) break
+  if(i>6) i=6
+  ix=i-1; fr=(c-cum[i])/stp[i]
+  hA=h1+R*cum[i]/12.0; hB=h1+R*cum[i+1]/12.0; tA=t1+ix*D/6.0; tB=t1+i*D/6.0
+  DE_12[n]=tA+fr*D/6.0
+  wl(sprintf("       %s m comes in hour %d, between %s m at %s and %s m at %s",
+     wk_f(need,2), i, wk_f(hA,2), wk_hhmm(tA), wk_f(hB,2), wk_hhmm(tB)))
+  if(rise) wl(sprintf("       (%s - %s) / (%s - %s) = %s of the hour = %s, so %s",
+     wk_f(need,2), wk_f(hA,2), wk_f(hB,2), wk_f(hA,2), wk_f(fr,2), wk_dur(fr*D/6.0), cw(wk_hhmm(DE_12[n]), C_ACC)))
+  else     wl(sprintf("       (%s - %s) / (%s - %s) = %s of the hour = %s, so %s",
+     wk_f(hA,2), wk_f(need,2), wk_f(hA,2), wk_f(hB,2), wk_f(fr,2), wk_dur(fr*D/6.0), cw(wk_hhmm(DE_12[n]), C_ACC)))
+  ca=2*p-1; A=270+asind(ca); f=A/180.0-1
+  DE_C[n]=t1+f*D
+  wl("")
+  wl("     By the cosine curve, turned round to give the time")
+  wl(sprintf("       (cos A + 1)/2 = (%s - %s) / (%s) = %s of the way from %s to %s",
+     wk_f(need,2), wk_f(h1,2), wk_f(R,2), wk_f(p,3), wk_kname(k1), wk_kname(k2)))
+  wl(sprintf("       cos A = %s, A = %s deg, fraction of the time = A/180 - 1 = %s", wk_f(ca,3), wk_f(A,1), wk_f(f,3)))
+  wl(sprintf("       %s of %s = %s after %s, so %s", wk_f(f,3), wk_dur(D), wk_dur(f*D), wk_kname(k1), cw(wk_hhmm(DE_C[n]), C_ACC)))
+  return st
+}
+#  the height at a time between two turns, by both rules
+function wk_dh(t1,h1,t2,h2,t,   D,R,x,ix,fr,cum,stp){
+  D=t2-t1; R=h2-h1
+  split("1 2 3 3 2 1",stp," "); split("0 1 3 6 9 11 12",cum," ")
+  x=(t-t1)/(D/6.0); ix=int(x); if(ix>5) ix=5; fr=x-ix
+  DH_12=h1+R*(cum[ix+1]+fr*stp[ix+1])/12.0
+  DH_C=h1+R*(cosd(180.0*((t-t1)/D+1))+1)/2.0
+  return 0
+}
+#  the prediction's own crossing of a height between two turns
+function wk_dharm(n,ja,jb,need,   ha,hb,i,jm,hm){
+  ha=tide_height(ja); hb=tide_height(jb)
+  DE_ST[n]=wk_dstate(ha,hb,need)
+  if(DE_ST[n]!="edge") return 0
+  for(i=0;i<40;i++){
+    jm=(ja+jb)/2; hm=tide_height(jm)
+    if((hm>=need)==(ha>=need)){ ja=jm; ha=hm } else jb=jm
+  }
+  DE_H[n]=((ja+jb)/2-WS_JDA)*1440
+  return 1
+}
+#  the water over the shoal for a height of tide, and what to call it
+function wk_dwater(h){ return DZ_DRY ? h-DZ_V : h+DZ_V }
+function wk_dline(lab,h,   w,u,s){
+  w=wk_dwater(h); u=w-DZ_DG
+  s=sprintf("     %-10s height %s m %s %s m = ", lab, wk_f(h,2), DZ_DRY?"-":"+", wk_f(DZ_V,2))
+  if(w<0) return s sprintf("%s m: the bank stands %s m out of the water", wk_f(w,2), wk_f(-w,2))
+  if(u<0) return s sprintf("%s m of water: she is aground by %s m", wk_f(w,2), wk_f(-u,2))
+  return s sprintf("%s m of water, %s m under the keel", wk_f(w,2), wk_f(u,2))
+}
+function wk_depth(   manual,six,lwm,lwh,hwm,hwh,l2m,l2h,d,d2,tt,hast,need,i,ip,inx,iL,st,step,nm,
+                     o,s,never,oa,sa,ot,stt,m,lab,least,w,u,what,hv,ans,ans2){
+  manual = wk_has("lw") || wk_has("hw") || wk_has("lwh") || wk_has("hwh") || wk_has("lw2") || wk_has("lw2h")
+  if(manual) wk_allow("depth", "depth dries draught clear lw lwh hw hwh lw2 lw2h t")
+  else       wk_allow("depth", "depth dries draught clear station date t")
+  if(W_ERR!="") return 0
+  if(wk_has("depth") && wk_has("dries")) return wk_err("give depth= (a charted depth) or dries= (a drying height), not both")
+  if(!wk_has("depth") && !wk_has("dries")) return wk_err("depth= or dries= is needed (the charted depth, or the drying height, m)")
+  DZ_DRY = wk_has("dries")
+  if(DZ_DRY) DZ_V=wk_num("dries","","0","15","the drying height, m: the underlined figure on the chart")
+  else       DZ_V=wk_num("depth","","0","100","the charted depth, m")
+  DZ_DG=wk_num("draught","","0.1","20","her draught, m")
+  DZ_CL=wk_num("clear","","0","20","the clearance wanted under the keel, m; 0 for the moment she touches")
+  if(W_ERR!="") return 0
+  need = DZ_DRY ? DZ_DG+DZ_CL+DZ_V : DZ_DG+DZ_CL-DZ_V
+  hast=0
+  if(manual){
+    lwm=wk_time("lw","time of low water"); lwh=wk_num("lwh","","-20","30","height of low water, m")
+    hwm=wk_time("hw","time of high water"); hwh=wk_num("hwh","","-20","30","height of high water, m")
+    six = wk_has("lw2") || wk_has("lw2h")
+    if(six){ l2m=wk_time("lw2","time of the low water after high water"); l2h=wk_num("lw2h","","-20","30","height of the low water after high water, m") }
+    if(wk_has("t")){ tt=wk_time("t","the time you want the depth for"); hast=1 }
+    if(W_ERR!="") return 0
+    if(hwh<=lwh) return wk_err("hwh= must be higher than lwh=")
+    if(lwm==hwm) return wk_err("lw= and hw= are the same time")
+    d = wk_mod(hwm-lwm,1440)
+    if(six){
+      if(d>720) return wk_err("with lw2=, lw= is the low water before high water and lw2= the one after")
+      if(hwh<=l2h) return wk_err("hwh= must be higher than lw2h=")
+      d2 = wk_mod(l2m-hwm,1440)
+      if(d2==0 || d2>720) return wk_err("lw2= must be the low water after hw=, less than twelve hours on")
+      DT_N=3; DT_T[1]=lwm; DT_H[1]=lwh; DT_K[1]="L"; DT_T[2]=lwm+d; DT_H[2]=hwh; DT_K[2]="H"
+      DT_T[3]=lwm+d+d2; DT_H[3]=l2h; DT_K[3]="L"
+    } else if(d<=720){
+      DT_N=2; DT_T[1]=lwm; DT_H[1]=lwh; DT_K[1]="L"; DT_T[2]=lwm+d; DT_H[2]=hwh; DT_K[2]="H"
+    } else {
+      DT_N=2; DT_T[1]=hwm; DT_H[1]=hwh; DT_K[1]="H"; DT_T[2]=hwm+(1440-d); DT_H[2]=lwh; DT_K[2]="L"
+    }
+    if(hast){
+      tt = DT_T[1] + wk_mod(tt-DT_T[1],1440)
+      if(tt>DT_T[DT_N]) return wk_err(sprintf("t=%s is not between the turns given (%s and %s)", WA["t"], wk_hhmm(DT_T[1]), wk_hhmm(DT_T[DT_N])))
+    }
+    nm=2
+    wk_head("DEPTH OVER A SHOAL, AND THE WINDOW TO CROSS IT")
+  } else {
+    if(!wk_station()) return 0
+    ip=0; inx=0
+    for(i=1;i<=WT_N;i++){ if(WT_JD[i]<=WS_JDT) ip=i; else if(!inx) inx=i }
+    if(!ip || !inx) return wk_err("no turn of the tide either side of that time")
+    iL = (WT_K[ip]=="L") ? ip : ip-1
+    if(iL<1 || iL+2>WT_N || WT_K[iL]!="L" || WT_K[iL+1]!="H" || WT_K[iL+2]!="L")
+      return wk_err(sprintf("no low water, high water and low water in turn round %s", wk_hhmm(WS_T)))
+    DT_N=3
+    for(i=1;i<=3;i++){ DT_T[i]=WT_M[iL+i-1]; DT_H[i]=WT_H[iL+i-1]; DT_K[i]=WT_K[iL+i-1]; DT_JD[i]=WT_JD[iL+i-1] }
+    tt=WS_T; hast=1
+    if(tt<DT_T[1]) tt=DT_T[1]
+    if(tt>DT_T[3]) tt=DT_T[3]
+    nm=3
+    wk_head("DEPTH OVER A SHOAL, AND THE WINDOW TO CROSS IT")
+    wk_sthead()
+    st=zero_kind(TD_ZID,TD_DATUM)
+    if(st=="msl"){
+      wl("  " cwd("heights here are above mean sea level, not chart datum: this sum"))
+      wl("  " cwd("leaves out the mean level above chart datum, so it is not a depth"))
+    } else if(st!="chart"){
+      wl("  " cwd("the zero here is computed, not chart datum: against the chart this"))
+      wl("  " cwd("sum can be more than half a metre out, either way"))
+    }
+    wl("")
+  }
+  if(DZ_DRY) wl(sprintf("  a bank that dries %s m: it stands %s m above chart datum", wk_f(DZ_V,2), wk_f(DZ_V,2)))
+  else       wl(sprintf("  charted depth %s m: the sea bed is %s m below chart datum", wk_f(DZ_V,2), wk_f(DZ_V,2)))
+  wl(sprintf("  her draught %s m, and %s m wanted under the keel", wk_f(DZ_DG,2), wk_f(DZ_CL,2)))
+  wl("")
+  wl("  1  The height of tide she needs")
+  if(DZ_DRY) wl(sprintf("     draught %s + clearance %s + drying height %s = %s m",
+                wk_f(DZ_DG,2), wk_f(DZ_CL,2), wk_f(DZ_V,2), cw(wk_f(need,2), C_ACC)))
+  else       wl(sprintf("     draught %s + clearance %s - charted depth %s = %s m",
+                wk_f(DZ_DG,2), wk_f(DZ_CL,2), wk_f(DZ_V,2), cw(wk_f(need,2), C_ACC)))
+  wl("")
+  wl("  2  The tide" (manual ? "" : ", from the prediction: the turns either side of " wk_hhmm(WS_T)))
+  s="    "
+  for(i=1;i<=DT_N;i++) s = s sprintf(" %s %s  %s m  ", wk_kname(DT_K[i]), wk_hhmm(DT_T[i]), wk_f(DT_H[i],2))
+  wl(s)
+  step=2
+  for(i=1;i<DT_N;i++){ step++; wk_dedge(i,step,DT_T[i],DT_H[i],DT_K[i],DT_T[i+1],DT_H[i+1],DT_K[i+1],need) }
+  #  the methods, each with its own state and time for each tide
+  for(i=1;i<DT_N;i++){
+    DM_ST[1,i]=DE_ST[i]; DM_T[1,i]=DE_12[i]
+    DM_ST[2,i]=DE_ST[i]; DM_T[2,i]=DE_C[i]
+  }
+  DM_NAME[1]="twelfths"; DM_NAME[2]="cosine"; DM_NAME[3]="prediction"
+  if(!manual){
+    step++
+    wl("")
+    wl(sprintf("  %d  The prediction itself, the sum of every constituent", step))
+    for(i=1;i<DT_N;i++){
+      wk_dharm(i,DT_JD[i],DT_JD[i+1],need)
+      DM_ST[3,i]=DE_ST[i]; DM_T[3,i]=DE_H[i]
+      if(DE_ST[i]=="edge") wl(sprintf("     %s %s m at %s", (DT_K[i]=="L")?"reaches":"falls to", wk_f(need,2), cw(wk_hhmm(DE_H[i]), C_ACC)))
+      else if(DE_ST[i]=="never") wl("     never reaches it on this tide")
+      else wl(sprintf("     is at or above it all through the %s tide", (DT_K[i]=="L")?"rising":"falling"))
+    }
+    wl("     " cwd("It carries the shape a real tide has: a stand, a fast flood, a double"))
+    wl("     " cwd("high water. The two rules cannot, and are furthest out where it does."))
+  }
+  #  the depth at her time
+  if(hast){
+    step++
+    i = (DT_N==3 && tt>DT_T[2]) ? 2 : 1
+    wk_dh(DT_T[i],DT_H[i],DT_T[i+1],DT_H[i+1],tt)
+    wl("")
+    wl(sprintf("  %d  The depth at %s", step, wk_hhmm(manual?tt:WS_T)))
+    wl(wk_dline("twelfths", DH_12))
+    wl(wk_dline("cosine", DH_C))
+    least = (DH_12<DH_C) ? DH_12 : DH_C
+    if(!manual){ hv=tide_height(WS_JDT); wl(wk_dline("prediction", hv)); if(hv<least) least=hv; WR["hharm"]=hv }
+    WR["h12"]=DH_12; WR["hcos"]=DH_C
+  }
+  if(manual){
+    wl("")
+    wl("  " cwd("Both rules assume a regular tide, about six hours from turn to turn. Where"))
+    wl("  " cwd("it stands or has a double high water, as in the Solent, work it at a"))
+    wl("  " cwd("station (station=) or from the port's own curve."))
+  }
+  #  what every method agrees on (AHK)
+  never=0
+  for(m=1;m<=nm;m++) for(i=1;i<DT_N;i++) if(DM_ST[m,i]=="never") never=1
+  WR["need"]=need; WR["never"]=never
+  DF_NEED=need; DF_HASO=0; DF_HASS=0; DF_ST=!manual; DF_HAST=hast; DF_T=tt
+  what = (nm==3) ? "by all three methods" : "by both methods"
+  if(never) ans = "never enough water on this tide: high water is below the " wk_f(need,2) " m she needs"
+  else {
+    #  the opening is on a rising tide, the shutting on a falling one
+    o=0; s=0
+    for(i=1;i<DT_N;i++){ if(DT_K[i]=="L") o=i; else s=i }
+    oa=1; ot=-1e9; sa=1; stt=1e9
+    for(m=1;m<=nm;m++){
+      if(o && DM_ST[m,o]=="edge"){ oa=0; if(DM_T[m,o]>ot) ot=DM_T[m,o] }
+      if(s && DM_ST[m,s]=="edge"){ sa=0; if(DM_T[m,s]<stt) stt=DM_T[m,s] }
+    }
+    #  each method's own times, above the answer
+    step++
+    wl("")
+    wl(sprintf("  %d  The window, method by method", step))
+    for(m=1;m<=nm;m++){
+      lab=sprintf("     %-10s", DM_NAME[m])
+      if(o) lab = lab ((DM_ST[m,o]=="edge") ? "  opens " wk_hhmm(DM_T[m,o]) : "  open from low water")
+      if(s) lab = lab ((DM_ST[m,s]=="edge") ? "  shuts " wk_hhmm(DM_T[m,s]) : "  open to low water")
+      wl(lab)
+    }
+    if(o && !oa){ WR["open"]=ot; DF_HASO=1; DF_O=ot }
+    if(s && !sa){ WR["shut"]=stt; DF_HASS=1; DF_S=stt }
+    #  each method's own edge, for the checks
+    if(o && DM_ST[1,o]=="edge"){ WR["o12"]=DM_T[1,o]; WR["oc"]=DM_T[2,o] }
+    if(s && DM_ST[1,s]=="edge"){ WR["s12"]=DM_T[1,s]; WR["sc"]=DM_T[2,s] }
+    if(nm==3 && o && DM_ST[3,o]=="edge") WR["oh"]=DM_T[3,o]
+    if(nm==3 && s && DM_ST[3,s]=="edge") WR["sh"]=DM_T[3,s]
+    if(o && s){
+      if(oa && sa) ans=sprintf("%s, enough water all through, LW %s to LW %s", what, wk_hhmm(DT_T[1]), wk_hhmm(DT_T[3]))
+      else if(oa)  ans=sprintf("%s, enough water from LW %s until %s", what, wk_hhmm(DT_T[1]), wk_hhmm(stt))
+      else if(sa)  ans=sprintf("%s, enough water from %s, and still at LW %s", what, wk_hhmm(ot), wk_hhmm(DT_T[3]))
+      else         ans=sprintf("%s, enough water from %s to %s", what, wk_hhmm(ot), wk_hhmm(stt))
+    } else if(o){
+      if(oa) ans=sprintf("%s, enough water all through this rising tide", what)
+      else   ans=sprintf("%s, enough water from %s, through HW %s", what, wk_hhmm(ot), wk_hhmm(DT_T[2]))
+      ans2="when it shuts is on the falling tide: give lw2= and lw2h= for that"
+    } else {
+      if(sa) ans=sprintf("%s, enough water all through this falling tide", what)
+      else   ans=sprintf("%s, enough water from HW %s until %s", what, wk_hhmm(DT_T[1]), wk_hhmm(stt))
+    }
+  }
+  wl("@@FIG")
+  wl("  ANSWER   " ans)
+  if(ans2!="") wl("           " ans2)
+  if(hast){
+    w=wk_dwater(least); u=w-DZ_DG
+    WR["water"]=w; WR["under"]=u
+    if(w<0)      wl(sprintf("           at %s the bank stands at least %s m out of the water", wk_hhmm(manual?tt:WS_T), wk_f(-w,2)))
+    else if(u<0) wl(sprintf("           at %s, %s m of water at least: she is aground by %s m", wk_hhmm(manual?tt:WS_T), wk_f(w,2), wk_f(-u,2)))
+    else         wl(sprintf("           at %s, at least %s m of water: %s m under the keel%s", wk_hhmm(manual?tt:WS_T), wk_f(w,2), wk_f(u,2),
+                    (u<DZ_CL-1e-9) ? sprintf(", less than the %s m wanted", wk_f(DZ_CL,2)) : ""))
+  }
+  wk_rule()
+  return 1
+}
+#  The figure, in characters: the curve against the clock with the height
+#  she needs drawn across it, and on the right, to the same heights, her
+#  keel over the bank (Larry, AHP).  The circle the cosine curve comes
+#  from is in the browser's figure (AID); it does not read in characters.
+function wk_dr(v){ return (DR_H-1)-(v-DR_LO)/(DR_HI-DR_LO)*(DR_H-1) }
+function wk_figdepth(   w,cwd_,i,j,tt,v,lo,hi,bed,kb,seg,T1,T2,c,off,r0,r1){
+  w=70; DR_H=15; cwd_=50
+  T1=DT_T[1]; T2=DT_T[DT_N]
+  bed = DZ_DRY ? DZ_V : -DZ_V; kb = DF_NEED-DZ_DG
+  hi=DT_H[1]; lo=DT_H[1]
+  for(i=2;i<=DT_N;i++){ if(DT_H[i]>hi) hi=DT_H[i]; if(DT_H[i]<lo) lo=DT_H[i] }
+  if(DF_NEED>hi) hi=DF_NEED
+  if(lo>0) lo=0
+  off=0
+  #  a sea bed far below the tide would squeeze the curve flat: it is
+  #  left off the foot of the drawing, and the legend says so
+  if(bed < lo-(hi-lo)) off=1; else if(bed<lo) lo=bed
+  if(hi-lo<0.2){ hi+=0.1; lo-=0.1 }
+  DR_LO=lo; DR_HI=hi
+  gclear(w,DR_H)
+  if(DF_NEED>=lo) for(i=0;i<w;i+=2) gputwc(wk_dr(DF_NEED), i, "-", C_DIM)
+  for(i=0;i<cwd_;i++){
+    tt=T1+(T2-T1)*i/(cwd_-1.0)
+    seg=(DT_N==3 && tt>DT_T[2]) ? 2 : 1
+    wk_dh(DT_T[seg],DT_H[seg],DT_T[seg+1],DT_H[seg+1],tt)
+    gputc(wk_dr(DH_C), i, ".", C_DIM)
+    gputc(wk_dr(DH_12), i, "#", "")
+    if(DF_ST){ v=tide_height(WS_JDA+tt/1440.0); if(v>=lo && v<=hi) gputc(wk_dr(v), i, "h", C_ACC) }
+  }
+  if(DF_HASO){ c=(DF_O-T1)/(T2-T1)*(cwd_-1); for(j=int(wk_dr(DF_NEED)+0.5);j<DR_H;j++) gputwc(j,c,"|",C_HDR) }
+  if(DF_HASS){ c=(DF_S-T1)/(T2-T1)*(cwd_-1); for(j=int(wk_dr(DF_NEED)+0.5);j<DR_H;j++) gputwc(j,c,"|",C_HDR) }
+  if(DF_HAST && DF_T>=T1 && DF_T<=T2) gputc(DR_H-1, (DF_T-T1)/(T2-T1)*(cwd_-1), "t", C_HDR)
+  #  her keel, to the same heights
+  if(0>=lo) for(i=54;i<=68;i+=2) gputc(wk_dr(0), i, ":", C_DIM)
+  if(!off) for(i=54;i<=68;i++) gputc(wk_dr(bed), i, "=", "")
+  if(DF_NEED>=lo){
+    r0=int(wk_dr(DF_NEED)+0.5); r1=int(wk_dr(kb)+0.5)
+    for(i=54;i<=68;i++) gputc(r0, i, "~", C_ACC)
+    gputsc(r0, 58, "\\___/", C_HDR)
+    if(kb>=lo) for(j=r0+1;j<=r1;j++) gputc(j, 60, "H", C_HDR)
+  }
+  print ""
+  gshow()
+  printf "  %s\n", cwd(sprintf("%s %s on the left, %s %s on the right; %s m at the top, %s m at the foot",
+     wk_kname(DT_K[1]), wk_hhmm(T1), wk_kname(DT_K[DT_N]), wk_hhmm(T2), wk_f(hi,2), wk_f(lo,2)))
+  printf "  %s\n", cwd((DF_ST ? "# twelfths   . cosine   h prediction" : "# twelfths   . cosine") "   - - the height she needs   | the window opens, shuts" (DF_HAST ? "   t her time" : ""))
+  printf "  %s\n", cwd("on the right, to the same heights:  ~ the surface at that height   H her keel")
+  printf "  %s\n", cwd(sprintf("   = %s   : chart datum", DZ_DRY ? "the bank" : "the sea bed"))
+  if(off) printf "  %s\n", cwd(sprintf("the sea bed, %s m below chart datum, is off the foot of the drawing", wk_f(DZ_V,2)))
+  return 0
+}
 function wk_help(){
   print ""
   printf "  %s\n", cw("TIDES WORK -- coastal navigation, with the working shown", C_HDR)
@@ -3453,6 +3793,10 @@ function wk_help(){
   print "    tides work lunar date=2025-05-24 brhwh=6.07 brlwh=1.26"
   print "    tides work lunar date=2025-05-24 hwh=4.3 lwh=1.1 sprange=3.9 nprange=1.9"
   print "    tides work lunar station=ticon/brest-3-fra-refmar date=2025-05-24 t=14:00"
+  print "  depth      the depth over a shoal, and the window with enough water to cross it"
+  print "    tides work depth dries=0.3 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9 t=09:00"
+  print "    tides work depth depth=0.6 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2"
+  print "    tides work depth depth=1.0 draught=1.8 clear=0.5 station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00"
   print ""
   print "  station= defaults to the station chosen with 'tides use'; date= and t="
   print "  default to now, in the station's standard time.  The same names work in"
@@ -3477,7 +3821,8 @@ function wk_run(name,args,   ok){
   else if(name=="setdrift") ok=wk_setdrift()
   else if(name=="tidal_gate") ok=wk_gate()
   else if(name=="lunar") ok=wk_lunar()
-  else return wk_err(sprintf("there is no calculator called '%s' (twelfths secondary stream atlas cts setdrift tidal_gate lunar)", name))
+  else if(name=="depth") ok=wk_depth()
+  else return wk_err(sprintf("there is no calculator called '%s' (twelfths secondary stream atlas cts setdrift tidal_gate lunar depth)", name))
   if(W_ERR!="") return 0
   return ok
 }
@@ -3491,6 +3836,7 @@ function wk_print(name,   i){
     else if(name=="setdrift") wk_figsd()
     else if(name=="tidal_gate") wk_figgate()
     else if(name=="lunar") wk_figlunar()
+    else if(name=="depth") wk_figdepth()
   }
   print ""
   return 0

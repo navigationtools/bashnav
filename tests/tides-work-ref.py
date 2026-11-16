@@ -22,6 +22,12 @@ available it is the one used, so the two cannot share a mistake:
              turns is found by BISECTION on the straight line between two
              pages, not by the proportion; and the high waters of the
              station form are copied from `tides today`, as for atlas
+  depth      the height she needs is the sum itself; the time the tide
+             reaches it is found by BISECTION on the height each rule
+             gives at a time (the staircase integrated, the cosine as
+             written), never by turning the rule round as the tool
+             does; the window every method agrees on is the later of
+             the openings and the earlier of the shuttings
   lunar      the Moon's phases are found by BISECTION on the elongation,
              bracketed by a scan, not by stepping at the mean rate; the
              calendar is Python's own, not the Julian Date formula; and
@@ -350,6 +356,56 @@ def month_end_phase(y0, y1):
             return a, b, q
     return None
 
+# ---- depth -------------------------------------------------------------
+def depth_need(draught, clear, depth=None, dries=None):
+    return draught + clear + dries if dries is not None else draught + clear - depth
+
+
+def depth_edge(t1, h1, t2, h2, need, which):
+    """the time one rule (0 twelfths, 1 cosine) reaches `need` between two
+    turns, by bisection; None if it is above or below the whole tide"""
+    lo, hi = (h1, h2) if h2 >= h1 else (h2, h1)
+    need = round(need, 6)                  # figures typed to the centimetre
+    if need <= lo or need > hi:
+        return None
+    if need == hi:
+        return float(t2 if h2 >= h1 else t1)
+    a, b = float(t1), float(t2)
+    fa = twelfths(t1, h1, t2, h2, a)[which] >= need
+    for _ in range(80):
+        m = (a + b) / 2
+        if (twelfths(t1, h1, t2, h2, m)[which] >= need) == fa:
+            a = m
+        else:
+            b = m
+    return (a + b) / 2
+
+
+def depth(turns, draught, clear, depth=None, dries=None, t=None):
+    """turns: [(minutes, height), ...] two or three of them, in order"""
+    need = depth_need(draught, clear, depth, dries)
+    out = dict(need=need)
+    top = max(h for _, h in turns)
+    out['never'] = 1 if round(need, 6) > top else 0
+    if not out['never']:
+        for k in range(len(turns) - 1):
+            (t1, h1), (t2, h2) = turns[k], turns[k + 1]
+            e = [depth_edge(t1, h1, t2, h2, need, w) for w in (0, 1)]
+            if e[0] is None:
+                continue
+            if h2 >= h1:
+                out['o12'], out['oc'], out['open'] = e[0], e[1], max(e)
+            else:
+                out['s12'], out['sc'], out['shut'] = e[0], e[1], min(e)
+    if t is not None:
+        k = 1 if len(turns) == 3 and t > turns[1][0] else 0
+        tw, co = twelfths(turns[k][0], turns[k][1], turns[k + 1][0], turns[k + 1][1], t)
+        least = min(tw, co)
+        w = least - dries if dries is not None else least + depth
+        out.update(h12=tw, hcos=co, water=w, under=w - draught)
+    return out
+
+
 def show(name, d):
     print(name, ' '.join('%s=%.6f' % kv if isinstance(kv[1], float) else '%s=%s' % kv
                          for kv in d.items()))
@@ -369,6 +425,26 @@ if __name__ == '__main__':
                   ('T7 Dover 13:00', (hm('09:45'), 6.61, hm('16:54'), 0.93, hm('13:00')))]:
         tw, co = twelfths(*a)
         show(nm, dict(t12=tw, tcos=co))
+    T = [(hm('05:12'), 0.8), (hm('11:24'), 4.2), (hm('17:40'), 0.9)]
+    show('DEP1 two edges, a bank that dries', depth(T, 1.8, 0.5, dries=0.3, t=hm('09:00')))
+    show('DEP2 one tide rising, a charted depth', depth(T[:2], 1.8, 0.5, depth=0.6))
+    show('DEP3 one tide falling, aground at her time', depth([(hm('11:24'), 4.2), (hm('17:40'), 0.9)], 1.8, 0.5, dries=1.0, t=hm('16:30')))
+    show('DEP4 never', depth(T, 1.8, 0.5, dries=2.5))
+    show('DEP5 always', depth(T, 1.8, 0.5, depth=5, t=hm('06:00')))
+    show('DEP6 over midnight', depth([(hm('22:10'), 1.1), (hm('04:20') + 1440, 5.3), (hm('10:35') + 1440, 0.7)], 2.4, 1.0, depth=1.5, t=hm('02:00') + 1440))
+    show('DEP7 reached exactly at high water', depth(T[:2], 1.8, 0.5, dries=1.9))
+    show('DEP8 the moment she touches, on the datum', depth(T, 1.8, 0, dries=0, t=hm('14:00')))
+    show('DEP9 low water below the datum', depth([(0, -0.3), (370, 2.9), (745, -0.1)], 1.2, 0.3, depth=1.3))
+    show('DEP10 open from low water, shut on the fall', depth([(hm('05:12'), 0.8), (hm('11:24'), 4.2), (hm('17:40'), 0.2)], 1.0, 0.2, depth=0.6, t=hm('17:00')))
+    #  0.1 + 0.2 is a hair over 0.3: a tide that reaches 0.30 m exactly opens at high water,
+    #  and one whose low water is 0.30 m has enough water all through
+    show('DEP13 a hair over, at high water', depth([(hm('05:12'), 0.0), (hm('11:24'), 0.3)], 0.1, 0.2, dries=0.0))
+    show('DEP14 a hair over, at low water', depth([(hm('05:12'), 0.3), (hm('11:24'), 1.5), (hm('17:40'), 0.3)], 0.1, 0.2, dries=0.0))
+    #  every tidal hour of the staircase holds a crossing in some case, both ways
+    for n, need in enumerate([1.1, 1.3, 1.8, 2.3, 2.8, 2.95]):
+        show('DEP11 hour %d' % (n + 1), depth([(0, 1.0), (360, 3.0), (720, 1.0)], need - 0.5, 0.5, depth=0.0))
+    #  Portsmouth (BODC) 2025-05-24, as the day's table prints it: low 02:00 1.26, HIGH 08:41 4.36, low 14:20 1.04
+    show('DEP12 Portsmouth, the two rules on the printed turns', depth([(hm('02:00'), 1.26), (hm('08:41'), 4.36), (hm('14:20'), 1.04)], 1.8, 0.5, dries=0.3, t=hm('09:00')))
     print('S1 HW', secondary('05:36', 6.4, 6.8, 5.3, -0.4, -0.3, '0000', -10, '0600', 5))
     print('S1 LW', secondary('11:51', 1.1, 0.8, 2.1, 0.1, 0.0, '0100', -5, '0700', 10))
     print('S2 HW beyond springs, second arc', secondary('20:15', 7.2, 6.8, 5.3, -0.4, -0.3, '0000', -10, '0600', 5))
@@ -381,8 +457,8 @@ if __name__ == '__main__':
     print('C4 across', cts(355, 5, [(90, 6.0)]))
     print('C5 along', cts(5, 5, [(180, 6.0)]))
     show('D1', setdrift(50.10, -1.50, 90, 6, 3, 50.05, -1.20))
-    show('D2 stbd leeway', setdrift(50.80, -1.10, 200, 5, 2, 50.65, -1.20, 6, 'stbd'))
-    show('D3 antimeridian', setdrift(-10.0, 179.9, 90, 6, 2, -10.05, -179.85))
+    show('DEP2 stbd leeway', setdrift(50.80, -1.10, 200, 5, 2, 50.65, -1.20, 6, 'stbd'))
+    show('DEP3 antimeridian', setdrift(-10.0, 179.9, 90, 6, 2, -10.05, -179.85))
     #  the coastal course's own chapter examples
     show('K1', dict(zip(('t12', 'tcos'), twelfths(hm('04:30'), 1.50, hm('10:52'), 4.39, hm('07:00')))))
     print('K2', stream(4.2, 2.0, 2.61, 3.9, 1.9))

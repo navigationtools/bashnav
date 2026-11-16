@@ -1,5 +1,71 @@
 # Changelog
 
+## tides 1.5.1: depth, the ninth calculator (B11)
+
+**What.** `tides work depth` and `?work=depth`: the depth over a shoal at a
+given time, and the window with enough water to cross it, with the working
+shown. Typed turns or a station.
+
+```
+   the height of tide she needs = draught + clearance - charted depth
+                              or = draught + clearance + drying height
+
+   height
+     |              HW 11:24  4.2 m
+     |               .-'''-.
+   --+---------- x ----------- x --------  the height she needs, 2.60 m
+     |         .'  opens         '.  shuts
+     |      .-'    08:25           '-.  14:28
+     |  LW 05:12  0.8 m               LW 17:40  0.9 m
+     +------------------------------------------------>  time
+```
+
+**Why.** It is the sum a navigator does before a bar, a sill or a drying bank,
+and the course's Level 4 teaches the tide under an inshore choice. The tide
+screen already gave a depth and the day's windows at a station; it showed no
+working, took no typed turns, and a lesson could not link to it.
+
+**Larry's rulings, 16 November 2026, one at a time.**
+
+| | the choice | what was ruled |
+|---|---|---|
+| AGT | what it answers | both in one working: the depth at a time, and the window |
+| AGV | a place that dries | `depth=` or `dries=`, exactly one, each as the chart prints it: no minus sign to forget |
+| AHC | the forms | typed turns and a station, as `twelfths`, `tidal_gate` and `lunar` |
+| AHF | what the typed form takes | `lw lwh hw hwh` for one edge of the window; `lw2 lw2h` as well for both |
+| AHI | the method shown | the twelfths and the cosine curve side by side; at a station the prediction as a third |
+| AHK | the answer when they differ | what every method agrees on: the latest opening, the earliest shutting, the least depth |
+| AHP, AID | the figure | the circle the cosine curve comes from, the tide against the clock, and her keel, on one height scale |
+
+`clear`, the clearance under the keel, is required and never defaulted (Larry):
+a depth sum should not quietly assume none.
+
+**What it affects.**
+
+1. **A ninth name on the list a lesson may call.** `NAMES` and `SPEC` in
+   `work.js` gain `depth`; `run` and `figure` are unchanged in shape. The
+   typed form stays inside the three trig calls, so a lesson can run it on its
+   own page. The note to the course's inbox travels with this.
+2. **`tides` is 1.5.1** (rule 13): a change to one tool of a set, not yet
+   verified with the course. An installed copy unpacks `engine-1.5.1.awk`.
+3. **Nothing else changes.** The other eight calculators print what they
+   printed; the tide screen's depth sum is as it was.
+4. **The service worker's cache is `tides-v16`,** so a device picks up the new
+   page.
+5. **In the Solent the two rules are wrong, and it says so.** The typed form
+   prints that both assume a regular tide. At Portsmouth on 24 May 2025 they
+   open the window 13 minutes before the prediction and shut it 25 minutes
+   early; the station form shows all three and takes the cautious edge of each.
+
+**Checked.** Seventeen worked cases and twenty-one refusals, each number from
+an independent working that finds its times by bisection
+(`tests/tides-work-ref.py`); the page prints the same working as the shell for
+all of them; the figure is read back on its one height scale. Thirty faults
+were put in one at a time and each is caught. One got past at first and found
+a fault before it was ever committed: a sum of typed figures can come out a
+hair over (0.1 + 0.2), so a tide that reached the height exactly was called
+"never". `docs/TESTING.md` has the account.
+
 ## A wind worked out from the isobars is refused for a run
 
 **What.** `COURSE.checkGrids()` now reads a wind grid's `method` as well as its

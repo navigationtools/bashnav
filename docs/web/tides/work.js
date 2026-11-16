@@ -59,7 +59,7 @@ var WORK_SHARED     = ['NAMES', 'SPEC', 'run', 'figure'];
 var WORK_HOST       = ['EXAMPLES', 'lessonHref', 'fromQuery', 'stationId',
                        'useTide', 'fx', 'sprintf', 'brestId'];
 var WORK_PURE_CALLS = ['sind', 'cosd', 'asind'];
-var WORK_PURE_WORK  = ['twelfths', 'secondary', 'stream', 'cts', 'setdrift', 'tidal_gate'];
+var WORK_PURE_WORK  = ['twelfths', 'secondary', 'stream', 'cts', 'setdrift', 'tidal_gate', 'depth'];
 /*  lunar's typed forms need the calendar and the Moon as well: five more
     calls, for lunar alone (Larry's ruling ACU, 16 November 2026).  The
     six above are still held to the three, so a page that supplies only
@@ -72,7 +72,7 @@ var WORK = (function () {
   var T = (typeof TIDE !== 'undefined') ? TIDE : null;
   function useTide(t) { T = t; }
 
-  var NAMES = ['twelfths', 'secondary', 'stream', 'atlas', 'cts', 'setdrift', 'tidal_gate', 'lunar'];
+  var NAMES = ['twelfths', 'secondary', 'stream', 'atlas', 'cts', 'setdrift', 'tidal_gate', 'lunar', 'depth'];
 
   /* ---- formatting, each the twin of a wk_ helper ------------------- */
   function trunc(x) { return Math.trunc(x); }
@@ -1427,6 +1427,282 @@ var WORK = (function () {
     return 1;
   }
 
+  /* =================================================================
+     9.  Depth over a shoal, and the window to cross it  (board item B11)
+
+     Larry's rulings, 16 November 2026:
+       AGT  both questions in one working: the depth at a time, and
+            the window with enough water
+       AGV  the shoal is depth= (a charted depth) or dries= (a drying
+            height), exactly one, so no minus sign can be forgotten
+       AHC  two forms, typed turns and a station
+       AHF  typed: lw lwh hw hwh give one edge of the window; lw2 lw2h
+            as well give both
+       AHI  the twelfths and the cosine curve side by side, and at a
+            station the prediction itself as the third
+       AHK  the answer is what every method agrees on: the latest
+            opening, the earliest shutting, the least depth
+       AID  the figure: the circle the cosine curve comes from, the
+            curve against the clock and her keel, on one height scale
+
+     The typed form stays inside WORK_PURE_CALLS: cosd and asind.
+     ================================================================= */
+  //  The height she needs is a sum of figures typed to the centimetre,
+  //  and such a sum can come out a hair over: 0.1 + 0.2 is
+  //  0.30000000000000004.  Without the hair's allowance a tide that
+  //  reaches 0.30 m exactly would be called "never".
+  function dstate(h1, h2, need) {
+    if (h2 >= h1) { if (need <= h1 + 1e-9) return 'always'; if (need > h2 + 1e-9) return 'never'; }
+    else { if (need <= h2 + 1e-9) return 'always'; if (need > h1 + 1e-9) return 'never'; }
+    return 'edge';
+  }
+  //  one tide, turn to turn: when the height wanted is reached, by the
+  //  twelfths and by the cosine curve
+  function dedge(step, a, b, need) {
+    var t1 = a.t, h1 = a.h, k1 = a.k, t2 = b.t, h2 = b.h, k2 = b.k;
+    var D = t2 - t1, R = h2 - h1, rise = R >= 0, i, E = { st: dstate(h1, h2, need) };
+    wl('');
+    wl(sprintf('  %d  The %s tide, %s %s to %s %s: when it %s %s m', step, rise ? 'rising' : 'falling',
+       kname(k1), hhmm(t1), kname(k2), hhmm(t2), rise ? 'reaches' : 'falls to', wf(need, 2)));
+    if (E.st === 'never') {
+      wl(sprintf('     HW is %s m and she needs %s m: never enough water on this tide', wf(rise ? h2 : h1, 2), wf(need, 2)));
+      return E;
+    }
+    if (E.st === 'always') {
+      wl(sprintf('     LW is %s m and she needs %s m: enough water all through this tide', wf(rise ? h1 : h2, 2), wf(need, 2)));
+      return E;
+    }
+    wl(sprintf('     range %s m over %s, so a tidal hour here is %s', wf(fabs(R), 2), dur(D), dur(D / 6)));
+    if (D < 240 || D > 480) wl('     ' + sprintf('the rule assumes about six hours from turn to turn; this one is %s', dur(D)));
+    wl('');
+    wl('     By the twelfths');
+    wl('       hour  time     so far    height');
+    for (i = 0; i <= 6; i++) wl(sprintf('         %d   %s    %2d/12   %6s m', i, hhmm(t1 + i * D / 6.0), CUM[i + 1], wf(h1 + R * CUM[i + 1] / 12.0, 2)));
+    var p = (need - h1) / R;
+    if (p < 0) p = 0;
+    if (p > 1) p = 1;
+    var c = 12 * p;
+    for (i = 1; i <= 6; i++) if (c <= CUM[i + 1] + 1e-9) break;
+    if (i > 6) i = 6;
+    var ix = i - 1, fr = (c - CUM[i]) / STP[i];
+    var hA = h1 + R * CUM[i] / 12.0, hB = h1 + R * CUM[i + 1] / 12.0, tA = t1 + ix * D / 6.0, tB = t1 + i * D / 6.0;
+    E.t12 = tA + fr * D / 6.0;
+    E.hour = i; E.hA = hA; E.hB = hB; E.tA = tA; E.tB = tB; E.fr = fr;
+    wl(sprintf('       %s m comes in hour %d, between %s m at %s and %s m at %s',
+       wf(need, 2), i, wf(hA, 2), hhmm(tA), wf(hB, 2), hhmm(tB)));
+    if (rise) wl(sprintf('       (%s - %s) / (%s - %s) = %s of the hour = %s, so %s',
+       wf(need, 2), wf(hA, 2), wf(hB, 2), wf(hA, 2), wf(fr, 2), dur(fr * D / 6.0), hhmm(E.t12)));
+    else wl(sprintf('       (%s - %s) / (%s - %s) = %s of the hour = %s, so %s',
+       wf(hA, 2), wf(need, 2), wf(hA, 2), wf(hB, 2), wf(fr, 2), dur(fr * D / 6.0), hhmm(E.t12)));
+    var ca = 2 * p - 1, A = 270 + T.asind(ca), f = A / 180.0 - 1;
+    E.tc = t1 + f * D; E.A = A; E.f = f;
+    wl('');
+    wl('     By the cosine curve, turned round to give the time');
+    wl(sprintf('       (cos A + 1)/2 = (%s - %s) / (%s) = %s of the way from %s to %s',
+       wf(need, 2), wf(h1, 2), wf(R, 2), wf(p, 3), kname(k1), kname(k2)));
+    wl(sprintf('       cos A = %s, A = %s deg, fraction of the time = A/180 - 1 = %s', wf(ca, 3), wf(A, 1), wf(f, 3)));
+    wl(sprintf('       %s of %s = %s after %s, so %s', wf(f, 3), dur(D), dur(f * D), kname(k1), hhmm(E.tc)));
+    return E;
+  }
+  //  the height at a time between two turns, by both rules
+  function dheights(a, b, t) {
+    var D = b.t - a.t, R = b.h - a.h, x = (t - a.t) / (D / 6.0), ix = trunc(x);
+    if (ix > 5) ix = 5;
+    var fr = x - ix;
+    return { h12: a.h + R * (CUM[ix + 1] + fr * STP[ix + 1]) / 12.0,
+             hc: a.h + R * (cosd(180.0 * ((t - a.t) / D + 1)) + 1) / 2.0 };
+  }
+  //  the prediction's own crossing of a height between two turns
+  function dharm(P, jdA, ja, jb, need) {
+    var ha = P.height(ja), hb = P.height(jb), i, jm, hm, E = { st: dstate(ha, hb, need) };
+    if (E.st !== 'edge') return E;
+    for (i = 0; i < 40; i++) {
+      jm = (ja + jb) / 2; hm = P.height(jm);
+      if ((hm >= need) === (ha >= need)) { ja = jm; ha = hm; } else jb = jm;
+    }
+    E.t = ((ja + jb) / 2 - jdA) * 1440;
+    return E;
+  }
+  function depth() {
+    var manual = has('lw') || has('hw') || has('lwh') || has('hwh') || has('lw2') || has('lw2h');
+    if (manual) allow('depth', 'depth dries draught clear lw lwh hw hwh lw2 lw2h t');
+    else allow('depth', 'depth dries draught clear station date t');
+    if (S.err !== '') return 0;
+    if (has('depth') && has('dries')) return err('give depth= (a charted depth) or dries= (a drying height), not both');
+    if (!has('depth') && !has('dries')) return err('depth= or dries= is needed (the charted depth, or the drying height, m)');
+    var dry = has('dries'), V, dg, cl, i;
+    if (dry) V = num('dries', '', '0', '15', 'the drying height, m: the underlined figure on the chart');
+    else V = num('depth', '', '0', '100', 'the charted depth, m');
+    dg = num('draught', '', '0.1', '20', 'her draught, m');
+    cl = num('clear', '', '0', '20', 'the clearance wanted under the keel, m; 0 for the moment she touches');
+    if (S.err !== '') return 0;
+    var need = dry ? dg + cl + V : dg + cl - V;
+    var hast = false, tt = 0, TN = [], nm, P = null;
+    function water(h) { return dry ? h - V : h + V; }
+    function dline(lab, h) {
+      var w = water(h), u = w - dg;
+      var s = sprintf('     %-10s height %s m %s %s m = ', lab, wf(h, 2), dry ? '-' : '+', wf(V, 2));
+      if (w < 0) return s + sprintf('%s m: the bank stands %s m out of the water', wf(w, 2), wf(-w, 2));
+      if (u < 0) return s + sprintf('%s m of water: she is aground by %s m', wf(w, 2), wf(-u, 2));
+      return s + sprintf('%s m of water, %s m under the keel', wf(w, 2), wf(u, 2));
+    }
+    if (manual) {
+      var lwm = time('lw', 'time of low water'), lwh = num('lwh', '', '-20', '30', 'height of low water, m');
+      var hwm = time('hw', 'time of high water'), hwh = num('hwh', '', '-20', '30', 'height of high water, m');
+      var six = has('lw2') || has('lw2h'), l2m = 0, l2h = 0;
+      if (six) { l2m = time('lw2', 'time of the low water after high water'); l2h = num('lw2h', '', '-20', '30', 'height of the low water after high water, m'); }
+      if (has('t')) { tt = time('t', 'the time you want the depth for'); hast = true; }
+      if (S.err !== '') return 0;
+      if (hwh <= lwh) return err('hwh= must be higher than lwh=');
+      if (lwm === hwm) return err('lw= and hw= are the same time');
+      var d = wmod(hwm - lwm, 1440);
+      if (six) {
+        if (d > 720) return err('with lw2=, lw= is the low water before high water and lw2= the one after');
+        if (hwh <= l2h) return err('hwh= must be higher than lw2h=');
+        var d2 = wmod(l2m - hwm, 1440);
+        if (d2 === 0 || d2 > 720) return err('lw2= must be the low water after hw=, less than twelve hours on');
+        TN = [{ t: lwm, h: lwh, k: 'L' }, { t: lwm + d, h: hwh, k: 'H' }, { t: lwm + d + d2, h: l2h, k: 'L' }];
+      } else if (d <= 720) TN = [{ t: lwm, h: lwh, k: 'L' }, { t: lwm + d, h: hwh, k: 'H' }];
+      else TN = [{ t: hwm, h: hwh, k: 'H' }, { t: hwm + (1440 - d), h: lwh, k: 'L' }];
+      if (hast) {
+        tt = TN[0].t + wmod(tt - TN[0].t, 1440);
+        if (tt > TN[TN.length - 1].t) return err('t=' + S.a.t + ' is not between the turns given (' + hhmm(TN[0].t) + ' and ' + hhmm(TN[TN.length - 1].t) + ')');
+      }
+      nm = 2;
+      head('DEPTH OVER A SHOAL, AND THE WINDOW TO CROSS IT');
+    } else {
+      if (!station()) return 0;
+      P = ST.P;
+      var W = ST.turns, ip = -1, inx = -1;
+      for (i = 0; i < W.length; i++) { if (W[i].jd <= ST.jdT) ip = i; else if (inx < 0) inx = i; }
+      if (ip < 0 || inx < 0) return err('no turn of the tide either side of that time');
+      var iL = W[ip].k === 'L' ? ip : ip - 1;
+      if (iL < 0 || iL + 2 >= W.length || W[iL].k !== 'L' || W[iL + 1].k !== 'H' || W[iL + 2].k !== 'L')
+        return err('no low water, high water and low water in turn round ' + hhmm(ST.t));
+      for (i = 0; i < 3; i++) TN.push({ t: W[iL + i].m, h: W[iL + i].h, k: W[iL + i].k, jd: W[iL + i].jd });
+      tt = ST.t; hast = true;
+      if (tt < TN[0].t) tt = TN[0].t;
+      if (tt > TN[2].t) tt = TN[2].t;
+      nm = 3;
+      head('DEPTH OVER A SHOAL, AND THE WINDOW TO CROSS IT');
+      sthead();
+      P.zeroCaution.forEach(function (l) { wl('  ' + l); });
+      wl('');
+    }
+    if (dry) wl(sprintf('  a bank that dries %s m: it stands %s m above chart datum', wf(V, 2), wf(V, 2)));
+    else wl(sprintf('  charted depth %s m: the sea bed is %s m below chart datum', wf(V, 2), wf(V, 2)));
+    wl(sprintf('  her draught %s m, and %s m wanted under the keel', wf(dg, 2), wf(cl, 2)));
+    wl('');
+    wl('  1  The height of tide she needs');
+    if (dry) wl(sprintf('     draught %s + clearance %s + drying height %s = %s m', wf(dg, 2), wf(cl, 2), wf(V, 2), wf(need, 2)));
+    else wl(sprintf('     draught %s + clearance %s - charted depth %s = %s m', wf(dg, 2), wf(cl, 2), wf(V, 2), wf(need, 2)));
+    wl('');
+    wl('  2  The tide' + (manual ? '' : ', from the prediction: the turns either side of ' + hhmm(ST.t)));
+    var s = '    ';
+    for (i = 0; i < TN.length; i++) s += sprintf(' %s %s  %s m  ', kname(TN[i].k), hhmm(TN[i].t), wf(TN[i].h, 2));
+    wl(s);
+    var step = 2, E = [], M = [[], []], m;
+    for (i = 0; i + 1 < TN.length; i++) {
+      step++;
+      E[i] = dedge(step, TN[i], TN[i + 1], need);
+      M[0][i] = { st: E[i].st, t: E[i].t12 }; M[1][i] = { st: E[i].st, t: E[i].tc };
+    }
+    var NAME = ['twelfths', 'cosine', 'prediction'];
+    if (!manual) {
+      step++;
+      M[2] = [];
+      wl('');
+      wl(sprintf('  %d  The prediction itself, the sum of every constituent', step));
+      for (i = 0; i + 1 < TN.length; i++) {
+        M[2][i] = dharm(P, ST.jdA, TN[i].jd, TN[i + 1].jd, need);
+        if (M[2][i].st === 'edge') wl(sprintf('     %s %s m at %s', TN[i].k === 'L' ? 'reaches' : 'falls to', wf(need, 2), hhmm(M[2][i].t)));
+        else if (M[2][i].st === 'never') wl('     never reaches it on this tide');
+        else wl(sprintf('     is at or above it all through the %s tide', TN[i].k === 'L' ? 'rising' : 'falling'));
+      }
+      wl('     It carries the shape a real tide has: a stand, a fast flood, a double');
+      wl('     high water. The two rules cannot, and are furthest out where it does.');
+    }
+    var least = 0, hq = null;
+    if (hast) {
+      step++;
+      i = (TN.length === 3 && tt > TN[1].t) ? 1 : 0;
+      hq = dheights(TN[i], TN[i + 1], tt);
+      wl('');
+      wl(sprintf('  %d  The depth at %s', step, hhmm(manual ? tt : ST.t)));
+      wl(dline('twelfths', hq.h12));
+      wl(dline('cosine', hq.hc));
+      least = hq.h12 < hq.hc ? hq.h12 : hq.hc;
+      if (!manual) { hq.hv = P.height(ST.jdT); wl(dline('prediction', hq.hv)); if (hq.hv < least) least = hq.hv; S.res.hharm = hq.hv; }
+      S.res.h12 = hq.h12; S.res.hcos = hq.hc;
+    }
+    if (manual) {
+      wl('');
+      wl('  Both rules assume a regular tide, about six hours from turn to turn. Where');
+      wl('  it stands or has a double high water, as in the Solent, work it at a');
+      wl("  station (station=) or from the port's own curve.");
+    }
+    //  what every method agrees on (AHK)
+    var never = 0, o = -1, sh = -1, oa = true, sa = true, ot = -1e9, stt = 1e9, ans, ans2 = '';
+    for (m = 0; m < nm; m++) for (i = 0; i + 1 < TN.length; i++) if (M[m][i].st === 'never') never = 1;
+    S.res.need = need; S.res.never = never;
+    var what = nm === 3 ? 'by all three methods' : 'by both methods';
+    if (never) ans = 'never enough water on this tide: high water is below the ' + wf(need, 2) + ' m she needs';
+    else {
+      for (i = 0; i + 1 < TN.length; i++) { if (TN[i].k === 'L') o = i; else sh = i; }
+      for (m = 0; m < nm; m++) {
+        if (o >= 0 && M[m][o].st === 'edge') { oa = false; if (M[m][o].t > ot) ot = M[m][o].t; }
+        if (sh >= 0 && M[m][sh].st === 'edge') { sa = false; if (M[m][sh].t < stt) stt = M[m][sh].t; }
+      }
+      step++;
+      wl('');
+      wl(sprintf('  %d  The window, method by method', step));
+      for (m = 0; m < nm; m++) {
+        var lab = sprintf('     %-10s', NAME[m]);
+        if (o >= 0) lab += M[m][o].st === 'edge' ? '  opens ' + hhmm(M[m][o].t) : '  open from low water';
+        if (sh >= 0) lab += M[m][sh].st === 'edge' ? '  shuts ' + hhmm(M[m][sh].t) : '  open to low water';
+        wl(lab);
+      }
+      if (o >= 0 && !oa) S.res.open = ot;
+      if (sh >= 0 && !sa) S.res.shut = stt;
+      //  each method's own edge, for the checks
+      if (o >= 0 && M[0][o].st === 'edge') { S.res.o12 = M[0][o].t; S.res.oc = M[1][o].t; }
+      if (sh >= 0 && M[0][sh].st === 'edge') { S.res.s12 = M[0][sh].t; S.res.sc = M[1][sh].t; }
+      if (nm === 3 && o >= 0 && M[2][o].st === 'edge') S.res.oh = M[2][o].t;
+      if (nm === 3 && sh >= 0 && M[2][sh].st === 'edge') S.res.sh = M[2][sh].t;
+      if (o >= 0 && sh >= 0) {
+        if (oa && sa) ans = sprintf('%s, enough water all through, LW %s to LW %s', what, hhmm(TN[0].t), hhmm(TN[2].t));
+        else if (oa) ans = sprintf('%s, enough water from LW %s until %s', what, hhmm(TN[0].t), hhmm(stt));
+        else if (sa) ans = sprintf('%s, enough water from %s, and still at LW %s', what, hhmm(ot), hhmm(TN[2].t));
+        else ans = sprintf('%s, enough water from %s to %s', what, hhmm(ot), hhmm(stt));
+      } else if (o >= 0) {
+        if (oa) ans = sprintf('%s, enough water all through this rising tide', what);
+        else ans = sprintf('%s, enough water from %s, through HW %s', what, hhmm(ot), hhmm(TN[1].t));
+        ans2 = 'when it shuts is on the falling tide: give lw2= and lw2h= for that';
+      } else {
+        if (sa) ans = sprintf('%s, enough water all through this falling tide', what);
+        else ans = sprintf('%s, enough water from HW %s until %s', what, hhmm(TN[0].t), hhmm(stt));
+      }
+    }
+    wl('@@FIG');
+    wl('  ANSWER   ' + ans);
+    if (ans2 !== '') wl('           ' + ans2);
+    if (hast) {
+      var w = water(least), u = w - dg, at = hhmm(manual ? tt : ST.t);
+      S.res.water = w; S.res.under = u;
+      if (w < 0) wl(sprintf('           at %s the bank stands at least %s m out of the water', at, wf(-w, 2)));
+      else if (u < 0) wl(sprintf('           at %s, %s m of water at least: she is aground by %s m', at, wf(w, 2), wf(-u, 2)));
+      else wl(sprintf('           at %s, at least %s m of water: %s m under the keel%s', at, wf(w, 2), wf(u, 2),
+                 (u < cl - 1e-9) ? sprintf(', less than the %s m wanted', wf(cl, 2)) : ''));
+    }
+    wl(RULE);
+    var jdA = manual ? 0 : ST.jdA;
+    S.fig = { kind: 'depth', turns: TN, need: need, dry: dry, v: V, draught: dg, clear: cl, never: !!never,
+              open: (!never && o >= 0 && !oa) ? ot : null, shut: (!never && sh >= 0 && !sa) ? stt : null,
+              t: hast ? tt : null, edges: E,
+              harm: manual ? null : function (mm) { return P.height(jdA + mm / 1440.0); } };
+    return 1;
+  }
+
   function run(name, params, ctx) {
     S = { err: '', lines: [], res: {}, fig: null, a: {}, keys: [], ctx: ctx || {} };
     ST = null;
@@ -1440,7 +1716,8 @@ var WORK = (function () {
       else if (name === 'setdrift') ok = setdrift();
       else if (name === 'tidal_gate') ok = gate();
       else if (name === 'lunar') ok = lunar();
-      else err("there is no calculator called '" + name + "' (twelfths secondary stream atlas cts setdrift tidal_gate lunar)");
+      else if (name === 'depth') ok = depth();
+      else err("there is no calculator called '" + name + "' (twelfths secondary stream atlas cts setdrift tidal_gate lunar depth)");
     }
     if (S.err !== '') return { ok: false, err: S.err, msg: '  work ' + name + ': ' + S.err, lines: [], res: S.res, fig: null };
     return { ok: !!ok, err: '', lines: S.lines, res: S.res, fig: S.fig };
@@ -1487,7 +1764,12 @@ var WORK = (function () {
       ['hwh', 'Tide table: HW height, m'], ['lwh', 'Tide table: LW height, m'], ['range', "or today's range, m"],
       ['sprange', 'Mean spring range, m'], ['nprange', 'Mean neap range, m'],
       ['brhwh', 'Brest: HW height, m'], ['brlwh', 'Brest: LW height, m'],
-      ['station', 'or a station id']] }
+      ['station', 'or a station id']] },
+    depth: { title: 'Depth over a shoal', sub: 'the depth at a time, and the window to cross', fields: [
+      ['depth', 'Charted depth, m'], ['dries', 'or drying height, m'], ['draught', 'Her draught, m'], ['clear', 'Wanted under the keel, m'],
+      ['lw', 'LW time', 'HH:MM'], ['lwh', 'LW height, m'], ['hw', 'HW time', 'HH:MM'], ['hwh', 'HW height, m'],
+      ['lw2', 'Next LW time', 'HH:MM'], ['lw2h', 'Next LW height, m'], ['t', 'Time wanted', 'HH:MM'],
+      ['station', 'or a station id'], ['date', 'with a date', 'YYYY-MM-DD']] }
   };
   /*  One example of each, as `tides work help` prints them. */
   var EXAMPLES = {
@@ -1498,7 +1780,8 @@ var WORK = (function () {
     cts: 'track=045 stw=6 streams=135:1.5,150:2.0 leeway=5 wind=port var=-2 dev=1 dist=12',
     setdrift: 'start=50.10,-1.50 co=090 stw=6 hours=3 fix=50.05,-1.20',
     tidal_gate: 'hw=14:32 track=255 streams=075:2.2,078:2.6,080:2.0,085:0.9,250:0.4,255:1.5,258:2.4,260:2.7,258:2.1,255:1.0,080:0.3,078:1.4,076:2.1 t=17:00 dist=22 sog=7',
-    lunar: 'date=2025-05-24 brhwh=6.07 brlwh=1.26'
+    lunar: 'date=2025-05-24 brhwh=6.07 brlwh=1.26',
+    depth: 'dries=0.3 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9 t=09:00'
   };
 
   /*  A LESSON NAME, AND THE PAGE IT IS ON.  Larry's decision of
@@ -1633,6 +1916,154 @@ var WORK = (function () {
       s += '</svg>';
       s += '<p class="wkey"><span class="k12">twelfths</span> <span class="kcos">cosine</span>' +
         (F.harm ? ' <span class="kharm">harmonic</span>' : '') + ' <span class="know">the time asked</span></p>';
+      return s;
+    }
+    if (F.kind === 'depth') {
+      /*  THE DEPTH FIGURE (Larry, AHP and AID, 16 November 2026).
+          Three drawings on ONE height scale, so that the height she
+          needs is a single line through all of them:
+            left    the circle the cosine curve comes from: a point going
+                    round it, half a turn from one turn of the tide to the
+                    next, and how far round it is when the height is reached
+            middle  the tide against the clock: the cosine curve, the
+                    twelfths as dots joined by straight lines, the
+                    prediction at a station, and the window shaded
+            right   her keel: draught, clearance and the bank or the sea
+                    bed, stacked from chart datum
+          A sea bed far below the tide would squeeze the curve flat, so it
+          is left off the foot of the drawing and the figure says so.  */
+      var DW = 880, DH = 342, dm = { t: 34, b: 58 };
+      var TN = F.turns, T1 = TN[0].t, T2 = TN[TN.length - 1].t;
+      var bed = F.dry ? F.v : -F.v, kb = F.need - F.draught;
+      var dlo = TN[0].h, dhi = TN[0].h, off = false, DN = 150, hs = [];
+      TN.forEach(function (q) { dlo = Math.min(dlo, q.h); dhi = Math.max(dhi, q.h); });
+      if (F.harm) for (i = 0; i <= DN; i++) hs.push(F.harm(T1 + (T2 - T1) * i / DN));
+      hs.forEach(function (v) { dlo = Math.min(dlo, v); dhi = Math.max(dhi, v); });
+      if (F.need > dhi) dhi = F.need;
+      if (dlo > 0) dlo = 0;
+      if (bed < dlo - 2.5 * (dhi - dlo)) off = true; else if (bed < dlo) dlo = bed;
+      if (dhi - dlo < 0.2) { dhi += 0.1; dlo -= 0.1; }
+      //  room above the surface for her hull, when the height she needs
+      //  is at the top of the drawing
+      if (F.need > dhi - (dhi - dlo) * 0.06) dhi = F.need + (dhi - dlo) * 0.07;
+      var py0 = dm.t, py1 = DH - dm.b, sy = (py1 - py0) / (dhi - dlo);
+      var DY = function (v) { return py0 + (dhi - v) * sy; };
+      var cx1 = 133, x2a = 306, x2b = 654, x3a = 674, x3b = 880;
+      var DX = function (t) { return x2a + (t - T1) / (T2 - T1) * (x2b - x2a); };
+      var seg = function (t) { return (TN.length === 3 && t > TN[1].t) ? 1 : 0; };
+      var at12 = function (t) { var k = seg(t); return twelfthsAt({ t1: TN[k].t, t2: TN[k + 1].t, h1: TN[k].h, h2: TN[k + 1].h }, t); };
+      var atC = function (t) { var k = seg(t); return cosineAt({ t1: TN[k].t, t2: TN[k + 1].t, h1: TN[k].h, h2: TN[k + 1].h }, t); };
+      var shown = F.need >= dlo && F.need <= dhi;
+      s = svgOpen(DW, DH, 'The circle the cosine curve comes from, the tide against the clock with the window to cross, and her keel over the ' +
+                          (F.dry ? 'bank' : 'sea bed') + ', on one height scale');
+      //  ---- the window, under everything
+      var wx0 = null, wx1 = null;
+      if (!F.never) { wx0 = DX(F.open === null ? T1 : F.open); wx1 = DX(F.shut === null ? T2 : F.shut); }
+      if (wx0 !== null && shown) s += '<rect class="d-win" data-pt="window" x="' + n2(wx0) + '" y="' + n2(py0) + '" width="' + n2(Math.max(0, wx1 - wx0)) +
+                                      '" height="' + n2(DY(F.need) - py0) + '"/>';
+      //  ---- right: her keel, to the same heights
+      if (shown) s += '<rect class="d-water" x="' + x3a + '" y="' + n2(DY(F.need)) + '" width="' + (x3b - x3a) + '" height="' +
+                      n2((off ? py1 : DY(bed)) - DY(F.need)) + '"/>';
+      if (!off) s += '<rect class="d-bank" data-pt="bed" x="' + x3a + '" y="' + n2(DY(bed)) + '" width="' + (x3b - x3a) + '" height="' + n2(py1 - DY(bed)) + '"/>';
+      if (0 >= dlo && 0 <= dhi) s += '<line class="d-datum" x1="' + x3a + '" y1="' + n2(DY(0)) + '" x2="' + x3b + '" y2="' + n2(DY(0)) + '"/>';
+      //  ---- the height she needs, through all three
+      if (shown) s += '<line class="d-need" data-pt="need" x1="8" y1="' + n2(DY(F.need)) + '" x2="' + x3b + '" y2="' + n2(DY(F.need)) + '"/>';
+      //  ---- left: the circle, for the first tide given
+      var a0 = TN[0], a1 = TN[1], R0 = a1.h - a0.h, rr = Math.abs(R0) * sy / 2, cy1 = DY((a0.h + a1.h) / 2), E0 = F.edges[0];
+      s += '<circle class="d-circ" cx="' + cx1 + '" cy="' + n2(cy1) + '" r="' + n2(rr) + '"/>';
+      var up = R0 >= 0, sgn = up ? 1 : -1;
+      s += text(cx1, DY(Math.max(a0.h, a1.h)) - 6, 'HW ' + hhmm(up ? a1.t : a0.t), 'lab', 'middle');
+      s += text(cx1, DY(Math.min(a0.h, a1.h)) + 15, 'LW ' + hhmm(up ? a0.t : a1.t), 'lab', 'middle');
+      if (E0 && E0.st === 'edge') {
+        var th = (E0.A - 180) * Math.PI / 180, qx = cx1 + sgn * rr * Math.sin(th), qy = cy1 + sgn * rr * Math.cos(th);
+        s += '<path class="d-arc" d="M ' + n2(cx1) + ' ' + n2(cy1 + sgn * rr) + ' A ' + n2(rr) + ' ' + n2(rr) + ' 0 0 0 ' + n2(qx) + ' ' + n2(qy) + '"/>';
+        s += '<line class="d-rad" x1="' + cx1 + '" y1="' + n2(cy1) + '" x2="' + n2(qx) + '" y2="' + n2(qy) + '"/>';
+        s += '<line class="d-rad" x1="' + cx1 + '" y1="' + n2(cy1) + '" x2="' + cx1 + '" y2="' + n2(cy1 + sgn * rr) + '"/>';
+        s += dot(qx, qy, 'circle', 'pt need');
+        //  how far round, in words, under the circle and clear of it
+        s += text(cx1, py1 + 34, wf(E0.A - 180, 0) + ' of 180 degrees round', 'lab need', 'middle');
+        s += text(cx1, py1 + 50, 'is ' + wf(E0.f, 3) + ' of the time from ' + kname(a0.k) + ' to ' + kname(a1.k), 'lab', 'middle');
+      }
+      //  ---- middle: the tide against the clock
+      s += '<line class="axis" x1="' + x2a + '" y1="' + py1 + '" x2="' + x2b + '" y2="' + py1 + '"/>';
+      TN.forEach(function (q, k) {
+        s += '<line class="grid" x1="' + n2(DX(q.t)) + '" y1="' + py0 + '" x2="' + n2(DX(q.t)) + '" y2="' + py1 + '"/>';
+        s += text(k === 0 ? x2a : k === TN.length - 1 ? x2b : DX(q.t), py1 + 16, kname(q.k) + ' ' + hhmm(q.t), 'lab',
+                  k === 0 ? 'start' : k === TN.length - 1 ? 'end' : 'middle');
+      });
+      s += text(x2a - 6, DY(dhi) + 4, wf(dhi, 1) + ' m', 'lab', 'end');
+      s += text(x2a - 6, DY(dlo) + 4, wf(dlo, 1) + ' m', 'lab', 'end');
+      var dc = [], dt12 = [];
+      for (i = 0; i <= DN; i++) { var tq = T1 + (T2 - T1) * i / DN; dc.push([DX(tq), DY(atC(tq))]); }
+      for (i = 0; i + 1 < TN.length; i++) for (var hr = (i ? 1 : 0); hr <= 6; hr++) {
+        var th2 = TN[i].t + hr * (TN[i + 1].t - TN[i].t) / 6;
+        dt12.push([DX(th2), DY(TN[i].h + (TN[i + 1].h - TN[i].h) * CUM[hr + 1] / 12)]);
+      }
+      if (hs.length) s += poly(hs.map(function (v, k) { return [DX(T1 + (T2 - T1) * k / DN), DY(v)]; }), 'c-harm');
+      s += poly(dc, 'c-cos') + poly(dt12, 'c-12');
+      dt12.forEach(function (q, k) { s += '<circle class="d-hr" data-pt="hr' + k + '" cx="' + n2(q[0]) + '" cy="' + n2(q[1]) + '" r="3"/>'; });
+      if (F.t !== null) s += '<line class="now" x1="' + n2(DX(F.t)) + '" y1="' + py0 + '" x2="' + n2(DX(F.t)) + '" y2="' + py1 + '"/>';
+      var wlab = '', wxc = 0;
+      if (F.never) { wlab = 'never enough water on this tide'; wxc = (x2a + x2b) / 2; }
+      else if (F.open !== null && F.shut !== null) { wlab = 'enough water ' + hhmm(F.open) + ' to ' + hhmm(F.shut); wxc = (wx0 + wx1) / 2; }
+      else if (F.open !== null) { wlab = 'opens ' + hhmm(F.open); wxc = wx0; }
+      else if (F.shut !== null) { wlab = 'shuts ' + hhmm(F.shut); wxc = wx1; }
+      else { wlab = 'enough water all through'; wxc = (x2a + x2b) / 2; }
+      if (shown && F.open !== null) s += '<line class="d-edge" x1="' + n2(wx0) + '" y1="' + n2(DY(F.need)) + '" x2="' + n2(wx0) + '" y2="' + py1 + '"/>' + dot(wx0, DY(F.need), 'open', 'pt good');
+      if (shown && F.shut !== null) s += '<line class="d-edge" x1="' + n2(wx1) + '" y1="' + n2(DY(F.need)) + '" x2="' + n2(wx1) + '" y2="' + py1 + '"/>' + dot(wx1, DY(F.need), 'shut', 'pt good');
+      var half = wlab.length * 3.6;                       //  a 12px label is about 7.2 a letter in bold
+      wxc = Math.max(x2a + half, Math.min(x2b - half, wxc));
+      s += text(wxc, py1 + 34, wlab, F.never ? 'lab need' : 'lab good', 'middle');
+      if (F.t !== null) s += text(Math.max(x2a + 20, Math.min(x2b - 20, DX(F.t))), py1 + 50, 'at ' + hhmm(F.t), 'lab', 'middle');
+      //  ---- her keel
+      //  The three lengths stand to the right of her keel, each with its
+      //  figure, and the longest of them must end inside the drawing: a
+      //  draught of 10.75 m is a longer word than one of 1.80.  So her
+      //  keel is moved left to make the room, and when it has moved "chart
+      //  datum" is not written to its left, where it would be under her.
+      var dlab = ['draught ' + wf(F.draught, 2), 'clear ' + wf(F.clear, 2), (F.dry ? 'dries ' : 'depth ') + wf(F.v, 2)];
+      var dlen = Math.max(dlab[0].length, dlab[1].length, dlab[2].length);
+      var bx = Math.min(x3a + 124, x3b - 11 - dlen * 6.8), hx = Math.max(x3a + 46, bx - 44);
+      var datumRoom = hx >= x3a + 80;
+      if (shown) {
+        var ys = DY(F.need), yk = Math.min(off && kb < dlo ? py1 : DY(kb), py1);
+        if (yk - ys >= 30) s += '<path class="d-hull" data-pt="hull" d="M ' + (hx - 40) + ' ' + n2(ys - 11) + ' L ' + (hx + 40) + ' ' + n2(ys - 11) +
+          ' L ' + (hx + 31) + ' ' + n2(ys + 10) + ' L ' + (hx + 6) + ' ' + n2(ys + 18) + ' L ' + (hx + 6) + ' ' + n2(yk) + ' L ' + (hx - 6) + ' ' + n2(yk) +
+          ' L ' + (hx - 6) + ' ' + n2(ys + 18) + ' L ' + (hx - 31) + ' ' + n2(ys + 10) + ' Z"/>';
+        else s += '<path class="d-hull" data-pt="hull" d="M ' + (hx - 40) + ' ' + n2(ys - 11) + ' L ' + (hx + 40) + ' ' + n2(ys - 11) +
+          ' L ' + (hx + 6) + ' ' + n2(yk) + ' L ' + (hx - 6) + ' ' + n2(yk) + ' Z"/>';
+        //  the three lengths, each with its figure; the figures are moved
+        //  apart where two would sit on one another
+        var parts = [[dlab[0], ys, yk]];
+        if (!off) {
+          parts.push([dlab[1], DY(kb), DY(bed)]);
+          parts.push([dlab[2], Math.min(DY(bed), DY(0)), Math.max(DY(bed), DY(0))]);
+        }
+        var ly = parts.map(function (q) { return (q[1] + q[2]) / 2 + 4; });
+        for (i = 1; i < ly.length; i++) if (ly[i] < ly[i - 1] + 14) ly[i] = ly[i - 1] + 14;
+        var over = ly[ly.length - 1] - (DH - 6);
+        if (over > 0) for (i = ly.length - 1; i >= 0; i--) { ly[i] -= over; if (i > 0 && ly[i - 1] <= ly[i] - 14) break; over = ly[i - 1] - (ly[i] - 14); }
+        parts.forEach(function (q, k) {
+          s += '<line class="d-dim" x1="' + bx + '" y1="' + n2(q[1]) + '" x2="' + bx + '" y2="' + n2(q[2]) + '"/>' +
+               '<line class="d-dim" x1="' + (bx - 4) + '" y1="' + n2(q[1]) + '" x2="' + (bx + 4) + '" y2="' + n2(q[1]) + '"/>' +
+               '<line class="d-dim" x1="' + (bx - 4) + '" y1="' + n2(q[2]) + '" x2="' + (bx + 4) + '" y2="' + n2(q[2]) + '"/>';
+          s += text(bx + 8, ly[k], q[0], 'lab', 'start');
+        });
+      }
+      //  ---- what each drawing is, along the top
+      s += text(cx1, 13, 'the circle the cosine curve comes from', 'lab', 'middle');
+      s += text((x2a + x2b) / 2, 13, 'the tide against the clock', 'lab', 'middle');
+      s += text(x3b - 3, 13, wf(F.draught, 2) + ' + ' + wf(F.clear, 2) + (F.dry ? ' + ' : ' - ') + wf(F.v, 2) + ' = ' + wf(F.need, 2) + ' m', 'lab need', 'end');
+      if (off) s += text(x3b - 3, DH - 6, 'the sea bed is off the foot', 'lab', 'end');
+      else if (0 >= dlo && 0 <= dhi) {
+        //  left of her keel, and not where her hull is
+        var cdy = DY(0) + (F.dry ? 13 : -4);
+        if (datumRoom && (!shown || cdy + 3 < DY(F.need) - 11 || cdy - 10 > DY(F.need) + 18)) s += text(x3a + 3, cdy, 'chart datum', 'lab', 'start');
+      }
+      s += '</svg>';
+      s += '<p class="wkey"><span class="k12">twelfths</span> <span class="kcos">cosine</span>' +
+        (F.harm ? ' <span class="kharm">prediction</span>' : '') + ' <span class="kneed">the height she needs</span>' +
+        (F.never ? '' : ' <span class="kgood">enough water</span>') + (F.t !== null ? ' <span class="know">her time</span>' : '') + '</p>';
       return s;
     }
     if (F.kind === 'stream') {

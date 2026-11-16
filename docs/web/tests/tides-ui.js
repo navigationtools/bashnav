@@ -266,7 +266,23 @@ const CASES = [
     ['lunar', 'date=2025-05-24 brhwh=6.07 brlwh=1.26 coef=79', 'l3-2025-3'],
     ['lunar', 'station=ticon/portsmouth-ptm-gbr-bodc date=2025-05-24 t=14:00', ''],
     //  a port where mean springs and mean neaps lie close: two labels in the margin
-    ['lunar', 'station=ticon/kaikoura-kait-nzl-ttw date=2025-05-24 t=12:00', '']
+    ['lunar', 'station=ticon/kaikoura-kait-nzl-ttw date=2025-05-24 t=12:00', ''],
+    //  depth (B11): three drawings in one figure, so every case here is one
+    //  where a word could run past the edge or the drawing change shape:
+    //  both edges of the window, as a lesson links it; one edge, rising and
+    //  falling; at a station, with the prediction as the third curve
+    ['depth', 'dries=0.3 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9 t=09:00', 'l4-2025-2'],
+    ['depth', 'depth=0.6 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2', ''],
+    ['depth', 'dries=1.0 draught=1.8 clear=0.5 hw=11:24 hwh=4.2 lw=17:40 lwh=0.9 t=16:30', ''],
+    ['depth', 'dries=0.3 draught=1.8 clear=0.5 station=ticon/portsmouth-ptm-gbr-bodc date=2025-05-24 t=09:00', ''],
+    //  a sea bed left off the foot; never enough water; three short lengths
+    //  whose figures must be moved apart; a window a few minutes wide at
+    //  high water, whose label would run off the right; and a long figure
+    ['depth', 'depth=25 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9 t=06:00', ''],
+    ['depth', 'dries=2.5 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9', ''],
+    ['depth', 'dries=0.1 draught=0.4 clear=0 lw=05:12 lwh=0.2 hw=11:24 hwh=5.9 lw2=17:40 lw2h=0.3 t=05:20', ''],
+    ['depth', 'dries=2.35 draught=1.8 clear=0 lw=11:10 lwh=0.8 hw=17:24 hwh=4.2 t=17:20', ''],
+    ['depth', 'depth=12.25 draught=10.75 clear=12.5 lw=05:12 lwh=10.8 hw=11:24 hwh=14.25 lw2=17:40 lw2h=10.9 t=17:39', '']
   ];
   for (const [name, args, lesson] of WCASES) {
     const q = 'work=' + name + '&' + args.split(' ').map(kv => {
