@@ -62,19 +62,20 @@ function ok(msg) { console.log('  ok   ' + msg); }
 })();
 
 /* ---- the shim: three calls, and a record of anything else asked for -- */
-function shim() {
-  var reached = [];
+function shim(calls) {
+  calls = calls || M.PURE_CALLS;
+  var reached = [], used = [];
   var base = {};
-  M.PURE_CALLS.forEach(function (k) { base[k] = TIDE[k]; });
+  calls.forEach(function (k) { base[k] = TIDE[k]; });
   var p = new Proxy(base, {
     get: function (t, k) {
       if (typeof k !== 'string') return t[k];
-      if (M.PURE_CALLS.indexOf(k) >= 0) return t[k];
+      if (calls.indexOf(k) >= 0) { if (used.indexOf(k) < 0) used.push(k); return t[k]; }
       if (reached.indexOf(k) < 0) reached.push(k);
       return undefined;
     }
   });
-  return { tide: p, reached: reached };
+  return { tide: p, reached: reached, used: used };
 }
 
 /* ---- the cases: every pure case the sameness test runs --------------
@@ -142,6 +143,53 @@ function run(c) {
     fail('WORK_PURE_WORK names ' + untested.join(', ') + ' but no case exercises ' +
          (untested.length === 1 ? 'it' : 'them') + ': the promise is untested for ' + untested.join(', '));
   else ok('every calculator in WORK_PURE_WORK is exercised by at least one case');
+})();
+
+/* ---- 2b. lunar: the three calls and the five for the Moon ----------
+   Larry's ruling ACU, 16 November 2026.  lunar's typed forms need the
+   calendar and the Moon, which touch no station data, so they are
+   allowed five more calls -- named in WORK_MOON_CALLS, and for the
+   calculators in WORK_MOON_WORK alone.  The six above were just held
+   to the three; here lunar is held to the eight, and shown to need
+   more than the three, so the second list is not an open door. */
+(function () {
+  var MC = [];
+  fs.readFileSync(path.join(REPO, 'tests', 'tides-work.dat'), 'utf8').split('\n').forEach(function (L) {
+    if (!L || L[0] === '#') return;
+    var f = L.split('|');
+    if (M.MOON_WORK.indexOf(f[0]) < 0 || /station=/.test(f[1] || '')) return;
+    MC.push({ name: f[0], args: f[1] });
+  });
+  if (!MC.length) { fail('no typed lunar cases found in tests/tides-work.dat'); return; }
+  var both = M.PURE_CALLS.concat(M.MOON_CALLS);
+  var dup = M.MOON_CALLS.filter(function (k) { return M.PURE_CALLS.indexOf(k) >= 0; });
+  if (dup.length) fail('WORK_MOON_CALLS repeats ' + dup.join(', ') + ' from WORK_PURE_CALLS');
+  var clash = M.MOON_WORK.filter(function (n) { return M.PURE_WORK.indexOf(n) >= 0; });
+  if (clash.length) fail(clash.join(', ') + ' is in both WORK_PURE_WORK and WORK_MOON_WORK');
+  WORK.useTide(TIDE);
+  var full = MC.map(run);
+  var sh = shim(both);
+  WORK.useTide(sh.tide);
+  var thin = MC.map(run);
+  var three = shim(M.PURE_CALLS);
+  WORK.useTide(three.tide);
+  var starved = MC.map(run);
+  WORK.useTide(TIDE);
+  var differ = 0, first = null, i;
+  for (i = 0; i < MC.length; i++) if (full[i] !== thin[i]) { differ++; if (!first) first = MC[i]; }
+  if (differ) fail(differ + ' of ' + MC.length + ' typed lunar cases print something different with the eight calls; first: ' + first.name + ' ' + first.args);
+  else ok('all ' + MC.length + ' typed lunar cases print the same working with eight engine calls as with the whole engine');
+  if (sh.reached.length) fail('lunar reached the engine for ' + sh.reached.join(', ') + ' -- past WORK_MOON_CALLS');
+  else ok('and lunar reached nothing past ' + M.MOON_CALLS.join(', '));
+  //  with the three alone a worked case must NOT come out the same: if it
+  //  did, the five would be a list of things nobody needs
+  var worked = 0, survived = 0;
+  for (i = 0; i < MC.length; i++) if (full[i].indexOf('REFUSED') !== 0) { worked++; if (starved[i] === full[i]) survived++; }
+  if (!worked) fail('no typed lunar case is worked, so the five calls are untested');
+  else if (survived) fail(survived + ' worked lunar cases come out the same on three calls: WORK_MOON_CALLS names calls lunar does not need');
+  else ok('and lunar does need them: no worked case survives on the three calls alone (it asks for ' + three.reached.join(', ') + ')');
+  var unused = M.MOON_CALLS.filter(function (k) { return sh.used.indexOf(k) < 0; });
+  if (unused.length) fail('WORK_MOON_CALLS names ' + unused.join(', ') + ', which no lunar case asked for');
 })();
 
 /* ---- 3. and the shim really can tell -------------------------------

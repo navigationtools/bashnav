@@ -57,15 +57,22 @@ var COURSE_BASE = 'https://bashnav.navigationtools.org/practical-navigator/coast
    ===================================================================== */
 var WORK_SHARED     = ['NAMES', 'SPEC', 'run', 'figure'];
 var WORK_HOST       = ['EXAMPLES', 'lessonHref', 'fromQuery', 'stationId',
-                       'useTide', 'fx', 'sprintf'];
+                       'useTide', 'fx', 'sprintf', 'brestId'];
 var WORK_PURE_CALLS = ['sind', 'cosd', 'asind'];
 var WORK_PURE_WORK  = ['twelfths', 'secondary', 'stream', 'cts', 'setdrift', 'tidal_gate'];
+/*  lunar's typed forms need the calendar and the Moon as well: five more
+    calls, for lunar alone (Larry's ruling ACU, 16 November 2026).  The
+    six above are still held to the three, so a page that supplies only
+    those runs them exactly as before.  A lesson gets these five by
+    loading engine.js, which is code and carries no station data.  */
+var WORK_MOON_CALLS = ['jdate', 'jd2cal', 'sunLon', 'moonLon', 'moonPhase'];
+var WORK_MOON_WORK  = ['lunar'];
 
 var WORK = (function () {
   var T = (typeof TIDE !== 'undefined') ? TIDE : null;
   function useTide(t) { T = t; }
 
-  var NAMES = ['twelfths', 'secondary', 'stream', 'atlas', 'cts', 'setdrift', 'tidal_gate'];
+  var NAMES = ['twelfths', 'secondary', 'stream', 'atlas', 'cts', 'setdrift', 'tidal_gate', 'lunar'];
 
   /* ---- formatting, each the twin of a wk_ helper ------------------- */
   function trunc(x) { return Math.trunc(x); }
@@ -556,7 +563,8 @@ var WORK = (function () {
       if (ST.raw.c[i] === tb.idx.K1) aK1 = ST.raw.a[i];
       if (ST.raw.c[i] === tb.idx.O1) aO1 = ST.raw.a[i];
     }
-    if (aM2 + aS2 <= 0) {
+    //  both are needed: see wk_atlas()
+    if (aM2 <= 0 || aS2 <= 0) {
       wl('  4  Mean ranges are not available: this station has no M2 or S2.');
       wl('@@FIG');
       wl(sprintf('  ANSWER   atlas page %s    range %s m', lab, wf(rg, 2)));
@@ -1082,6 +1090,341 @@ var WORK = (function () {
        ctx     { defStation, nowdate 'YYYY-MM-DD' UT, nowtime 'HH:MM' UT,
                  load(id) -> { st, ref } or { err } }
      ================================================================= */
+  /* =================================================================
+     8. LUNAR: springs and neaps.  The twin of wk_lunar() in work.awk,
+     where the rulings behind its shape are set out (Larry, 16 November
+     2026: ABY, ACC, ACG, ACM and ACO, ACS, ACU).
+
+     THE TYPED FORMS REACH THE ENGINE FOR THE CALENDAR AND THE MOON, and
+     for nothing else: the five calls named in WORK_MOON_CALLS, beside
+     the three every pure calculator may make.  A lesson that loads
+     engine.js has them all, with no station data.
+     ================================================================= */
+  var BREST = 'ticon/brest-3-fra-refmar';
+  var MON = 'JanFebMarAprMayJunJulAugSepOctNovDec';
+  function sgn180(a) { a = nrm360(a); return a > 180 ? a - 360 : a; }
+  function lel(jd) { return nrm360(T.moonLon(jd) - T.sunLon(jd)); }
+  function lsolve(jd, q) {
+    for (var i = 0; i < 12; i++) jd -= sgn180(lel(jd) - q) / 12.190749;
+    return jd;
+  }
+  function levents(jdA, jdB) {
+    var e = lel(jdA), q = (trunc(e / 90) + 1) * 90, out = [];
+    var t = lsolve(jdA + (q - e) / 12.190749, q % 360);
+    while (t <= jdB && out.length < 12) {
+      out.push({ t: t, q: q % 360 });
+      q += 90; t = lsolve(t + 7.3826, q % 360);
+    }
+    return out;
+  }
+  function lname(q) { return q === 0 ? 'new moon' : q === 90 ? 'first quarter' : q === 180 ? 'full moon' : 'last quarter'; }
+  function lkind(q) { return (q === 0 || q === 180) ? 'springs' : 'neaps'; }
+  function lM(jd) { return ffloor(jd * 1440 + 0.5); }
+  function lmon(m) { return MON.substr(m * 3 - 3, 3); }
+  function ldate(jd) { var c = T.jd2cal((lM(jd) + 0.5) / 1440); return c.d + ' ' + lmon(c.m); }
+  function lclk(jd) { return hhmm(wmod(lM(jd) + 720, 1440)); }
+  function lH(jd) { return ffloor(jd * 24 + 0.5); }
+  function lhdate(jd) { var c = T.jd2cal((lH(jd) + 0.5) / 24); return c.d + ' ' + lmon(c.m); }
+  function lhclk(jd) { return sprintf('%02d:00', wmod(lH(jd) + 12, 24)); }
+  function lband(jd) {
+    var a = ldate(jd + 1), b = ldate(jd + 2);
+    return (a.split(' ')[1] === b.split(' ')[1]) ? a.split(' ')[0] + ' to ' + b : a + ' to ' + b;
+  }
+  function lplace(rg, np, sp, f) {
+    wl(sprintf('     from neaps to springs: (%s - %s) / (%s - %s) = %s', wf(rg, 2), wf(np, 2), wf(sp, 2), wf(np, 2), wf(f, 2)));
+    var gauge = '', pos = trunc(f * 20 + 0.5), j;
+    for (j = 0; j <= 20; j++) gauge += (j === pos) ? '*' : '-';
+    if (pos < 0) gauge = '<' + gauge.substr(1);
+    if (pos > 20) gauge = gauge.substr(0, 20) + '>';
+    wl('     neaps |' + gauge + '| springs');
+    if (f < 0) wl('     below mean neaps');
+    if (f > 1) wl('     above mean springs');
+  }
+  /*  LR: one entry for each high water with a low water either side,
+      1-based to keep the indices the awk's.  t the time, r the range
+      unrounded (for choosing), p the range as printed. */
+  function lfound(LR, te, kind) {
+    var bj = 0, bs = 0, j, s;
+    for (j = 2; j < LR.length; j++) {
+      s = (LR[j].t + LR[j - 1].t) / 2;
+      if (s < te - 1.5 || s > te + 5.5) continue;
+      s = LR[j].r + LR[j - 1].r;
+      if (!bj || (kind === 'springs' ? s > bs : s < bs)) { bj = j; bs = s; }
+    }
+    if (!bj) return 0;
+    if (kind === 'springs') return LR[bj - 1].r > LR[bj].r ? bj - 1 : bj;
+    return LR[bj - 1].r < LR[bj].r ? bj - 1 : bj;
+  }
+  function triples(hl) {
+    //  hl: turns in order, 0-based; the awk's loop is for(i=2;i<n;i++)
+    var out = [null], i;
+    for (i = 1; i < hl.length - 1; i++) if (hl[i].k === 'H' && hl[i - 1].k === 'L' && hl[i + 1].k === 'L') {
+      out.push({ t: hl[i].t, r: hl[i].h - (hl[i - 1].h + hl[i + 1].h) / 2,
+                 p: r2(r2(hl[i].h) - (r2(hl[i - 1].h) + r2(hl[i + 1].h)) / 2), i: i });
+    }
+    return out;
+  }
+  function lunar() {
+    allow('lunar', 'date t hwh lwh range sprange nprange brhwh brlwh coef station');
+    if (S.err !== '') return 0;
+    var tab = has('hwh') || has('lwh') || has('range') || has('sprange') || has('nprange');
+    var brs = has('brhwh') || has('brlwh');
+    var typed = tab || brs;
+    if (typed && has('station')) return err('give the heights from the tide table, or station=, not both');
+    var rg, hwh, lwh, sp, np, bh, bl, rb, cf;
+    if (tab) {
+      if (has('range')) {
+        if (has('hwh') || has('lwh')) return err('give range=, or hwh= and lwh=, not both');
+        rg = num('range', '', '0', '20', "today's range at the standard port, m");
+      } else {
+        hwh = num('hwh', '', '-5', '20', "today's high water height at the standard port, m");
+        lwh = num('lwh', '', '-5', '20', "today's low water height there, m");
+        if (S.err === '' && hwh <= lwh) return err('hwh= must be above lwh=');
+        rg = hwh - lwh;
+      }
+      sp = num('sprange', '', '0', '20', "the port's mean spring range, m");
+      np = num('nprange', '', '0', '20', "the port's mean neap range, m");
+      if (S.err === '' && sp <= np) return err('sprange= must be larger than nprange=');
+    }
+    if (brs) {
+      bh = num('brhwh', '', '-5', '20', "Brest's high water height, m");
+      bl = num('brlwh', '', '-5', '20', "Brest's low water height, m");
+      if (S.err === '' && bh <= bl) return err('brhwh= must be above brlwh=');
+    }
+    var hasc = has('coef');
+    if (hasc) cf = num('coef', '', '20', '120', 'the coefficient an almanac prints');
+    if (S.err !== '') return 0;
+
+    var C0 = S.ctx, id = has('station') ? S.a.station : (typed ? '' : (C0.defStation || ''));
+    var st = id !== '', tz, jdt, jdm, tm;
+    if (st) {
+      if (!has('t') && has('date')) S.a.t = '12:00';
+      if (!station()) return 0;
+      tz = ST.P.tz / 1440.0; jdt = ST.jdT; tm = ST.t; jdm = T.jdate(WD.y, WD.m, WD.d);
+      head('SPRINGS AND NEAPS, AT A STATION');
+      sthead();
+    } else {
+      if (has('date')) {
+        if (!dateOf(S.a.date)) return err('date=' + S.a.date + ' is not a date (YYYY-MM-DD)');
+      } else if (!C0.nowdate || !dateOf(C0.nowdate)) return err('date= is needed (YYYY-MM-DD)');
+      if (has('t')) {
+        tm = hmOf(S.a.t);
+        if (tm < 0) return err('t=' + S.a.t + ' is not a time (HH:MM)');
+      } else if (!has('date') && C0.nowtime) {
+        var nt = C0.nowtime.split(':'); tm = (+nt[0] || 0) * 60 + (+nt[1] || 0);
+      } else tm = 720;
+      tz = 0; jdm = T.jdate(WD.y, WD.m, WD.d); jdt = jdm + tm / 1440.0;
+      head(typed ? 'SPRINGS AND NEAPS, FROM THE MOON AND THE TIDE TABLES' : 'SPRINGS AND NEAPS, FROM THE MOON');
+      wl('  ' + sprintf('%04d-%02d-%02d at %s UT', WD.y, WD.m, WD.d, hhmm(tm)));
+    }
+
+    // ---- 1. the Moon
+    var mp = T.moonPhase(jdt), EV = levents(jdt - 17.5, jdt + 16.5), i, j, k, ip = -1;
+    for (i = 0; i < EV.length; i++) if (EV[i].t <= jdt) ip = i;
+    var inx = ip + 1;
+    if (ip < 1 || inx >= EV.length) return err("the Moon's phases could not be found round that date");
+    var day = ldate(jdt + tz), P0 = EV[ip], N0 = EV[inx];
+    wl('');
+    wl(sprintf('  1  The Moon: %s days old (%s)', wf(mp.age, 1), mp.name));
+    wl(sprintf('     %-14s %s, about %s, %s days ago', lname(P0.q), lhdate(P0.t + tz), lhclk(P0.t + tz), wf(jdt - P0.t, 1)));
+    wl(sprintf('     %-14s %s, about %s, in %s days', lname(N0.q), lhdate(N0.t + tz), lhclk(N0.t + tz), wf(N0.t - jdt, 1)));
+
+    // ---- 2. the rule of thumb
+    wl('');
+    wl('  2  The rule of thumb: springs follow new and full moon by a day or two,');
+    wl('     and neaps follow the quarters the same way');
+    wl(sprintf('     %-8s about %s   (%s + 1 to 2 days)', lkind(P0.q), lband(P0.t + tz), lname(P0.q)));
+    wl(sprintf('     %-8s about %s   (%s + 1 to 2 days)', lkind(N0.q), lband(N0.t + tz), lname(N0.q)));
+    var dp = jdt - P0.t, state, stxt, ka, kb;
+    if (dp >= 1 && dp <= 2) {
+      state = lkind(P0.q); stxt = 'at ' + state + ' by the rule';
+      wl(sprintf('     %s is at %s by the rule', day, state));
+    } else {
+      if (dp < 1) { ka = lkind(EV[ip - 1].q); kb = lkind(P0.q); }
+      else { ka = lkind(P0.q); kb = lkind(N0.q); }
+      if (kb === 'springs') { state = 'making'; stxt = 'making'; } else { state = 'takingoff'; stxt = 'taking off'; }
+      wl(sprintf('     %s is after %s and before %s: the tides are %s', day, ka, kb, stxt));
+    }
+    wl('     a rule of thumb: any one spring can come two or three days off it');
+    var R = S.res;
+    R.age = mp.age; R.pq = P0.q; R.nq = N0.q;
+    R.ph = lH(P0.t + tz) - lH(jdm); R.nh = lH(N0.t + tz) - lH(jdm);
+    R.rstate = state; R.tmin = tm;
+    var step = 2, havef = 0, hasC = 0, hasA = 0, f, C, CA, cfr;
+    var F = { kind: 'lunar', jd: jdt, tz: tz, st: st, ev: EV, found: [], bars: [], lines: [],
+              day: day, label: day, dates: [ldate(jdt - 15 + tz), ldate(jdt + 15 + tz)] };
+
+    // ---- the tide tables, typed
+    if (tab) {
+      step++;
+      wl('');
+      if (has('range')) wl(sprintf("  %d  The tide tables: today's range %s m", step, wf(rg, 2)));
+      else wl(sprintf('  %d  The tide tables: HW %s m - LW %s m = %s m of range', step, wf(hwh, 2), wf(lwh, 2), wf(rg, 2)));
+      wl(sprintf("     the port's mean ranges: springs %s m, neaps %s m", wf(sp, 2), wf(np, 2)));
+      f = (rg - np) / (sp - np);
+      lplace(rg, np, sp, f);
+      wl("     the rate of a stream today, with the atlas's two figures for spr= and nps=:");
+      wl(sprintf('       tides work stream spr=.. nps=.. range=%s sprange=%s nprange=%s', wf(rg, 2), wf(sp, 2), wf(np, 2)));
+      R.range = rg; R.f = f; havef = 1;
+      F.label = day + ': range ' + wf(rg, 2) + ' m' + (has('range') ? '' : ' = ' + wf(hwh, 2) + ' \u2212 ' + wf(lwh, 2));
+    }
+    // ---- the coefficient, from typed Brest heights
+    if (brs) {
+      step++;
+      rb = r2(bh - bl); C = trunc(100 * rb / 6.10 + 0.5); cfr = (C - 45) / 50; hasC = 1;
+      wl('');
+      wl(sprintf("  %d  The coefficient, from Brest's heights: HW %s m - LW %s m = %s m", step, wf(bh, 2), wf(bl, 2), wf(rb, 2)));
+      wl(sprintf('     coefficient = 100 x %s / 6.10 = %s', wf(rb, 2), C));
+      wl(sprintf('     45 is mean neaps and 95 mean springs: (%d - 45) / 50 = %s of the way', C, wf(cfr, 2)));
+      wl("     worked from the tide table's heights. An almanac's printed figure can");
+      wl('     differ by a few points: it leaves out the part of the tide that comes');
+      wl('     once a day');
+      R.coef = C; R.cf = cfr; R.brange = rb;
+      F.label = day + ': coefficient ' + C + ' = 100 \u00d7 ' + wf(rb, 2) + ' \u00f7 6.10';
+    }
+
+    if (st) {
+      // ---- 3. the tide here
+      var W = ST.turns, ihw = -1, best = 1e9, il1 = -1, il2 = -1;
+      for (i = 0; i < W.length; i++) if (W[i].k === 'H' && fabs(W[i].m - ST.t) < best) { best = fabs(W[i].m - ST.t); ihw = i; }
+      if (ihw >= 0) {
+        for (i = ihw - 1; i >= 0; i--) if (W[i].k === 'L') { il1 = i; break; }
+        for (i = ihw + 1; i < W.length; i++) if (W[i].k === 'L') { il2 = i; break; }
+      }
+      if (ihw < 0 || il1 < 0 || il2 < 0) return err('no high water with a low water either side of it near that time at this station');
+      rg = r2(W[ihw].h - (W[il1].h + W[il2].h) / 2);
+      step++;
+      wl('');
+      wl(sprintf('  %d  The tide here: HW %s  %s m, the high water nearest %s', step, hhmm(W[ihw].m), wf(W[ihw].h, 2), hhmm(ST.t)));
+      wl(sprintf('     LW %s  %s m before it, LW %s  %s m after it', hhmm(W[il1].m), wf(W[il1].h, 2), hhmm(W[il2].m), wf(W[il2].h, 2)));
+      wl(sprintf('     range = %s - (%s + %s) / 2 = %s m', wf(W[ihw].h, 2), wf(W[il1].h, 2), wf(W[il2].h, 2), wf(rg, 2)));
+      var P = ST.P, why = '', aM2 = 0, aS2 = 0, aK1 = 0, aO1 = 0, ff;
+      if (P.kind === 'S') why = 'a secondary port carries no constants of its own';
+      else {
+        var tb = T.tablesInit();
+        for (i = 1; i <= ST.raw.n; i++) {
+          if (ST.raw.c[i] === tb.idx.M2) aM2 = ST.raw.a[i];
+          if (ST.raw.c[i] === tb.idx.S2) aS2 = ST.raw.a[i];
+          if (ST.raw.c[i] === tb.idx.K1) aK1 = ST.raw.a[i];
+          if (ST.raw.c[i] === tb.idx.O1) aO1 = ST.raw.a[i];
+        }
+        if (aM2 <= 0 || aS2 <= 0) why = 'this station has no M2 or no S2';
+        else {
+          ff = (aK1 + aO1) / (aM2 + aS2);
+          if (ff > 0.25) why = sprintf('the tide is mixed or diurnal (form factor %s)', wf(ff, 2));
+        }
+      }
+      R.range = rg;
+      F.label = day + ': range ' + wf(rg, 2) + ' m = ' + wf(W[ihw].h, 2) + ' \u2212 (' + wf(W[il1].h, 2) + ' + ' + wf(W[il2].h, 2) + ') \u00f7 2';
+      if (why !== '') {
+        wl('     mean ranges are not available here: ' + why);
+        R.means = 0;
+      } else {
+        sp = 2 * (aM2 + aS2); np = 2 * (aM2 - aS2);
+        wl(sprintf('     mean ranges from the constants: springs 2 x (M2 + S2) = %s m,', wf(sp, 2)));
+        wl(sprintf('     neaps 2 x (M2 - S2) = %s m', wf(np, 2)));
+        f = (rg - np) / (sp - np);
+        lplace(rg, np, sp, f);
+        havef = 1; R.means = 1; R.f = f; R.sprange = sp; R.nprange = np;
+        F.lines = [[np, 'mean neaps ' + wf(np, 2) + ' m'], [sp, 'mean springs ' + wf(sp, 2) + ' m']];
+      }
+
+      // ---- 4. found, in the prediction
+      var LR = triples(P.hilo(jdt - 17.5, jdt + 17.5)), fi, lag, tag;
+      step++;
+      wl('');
+      wl(sprintf('  %d  Found here, in the prediction: the tides either side of the day', step));
+      for (k = 0; k < EV.length; k++) {
+        fi = lfound(LR, EV[k].t, lkind(EV[k].q));
+        if (fi) F.found.push({ t: LR[fi].t, kind: lkind(EV[k].q) });
+        if (k !== ip && k !== inx) continue;
+        tag = (k === ip) ? 'p' : 'n';
+        if (!fi) {
+          wl(sprintf('     %-8s not found near the %s', lkind(EV[k].q), lname(EV[k].q)));
+          continue;
+        }
+        lag = LR[fi].t - EV[k].t;
+        wl(sprintf('     %-8s %s %s   range %s m, %s days %s the %s', lkind(EV[k].q), ldate(LR[fi].t + tz), lclk(LR[fi].t + tz),
+           wf(LR[fi].p, 2), wf(fabs(lag), 1), lag < 0 ? 'before' : 'after', lname(EV[k].q)));
+        if (lag < 0.95) wl(sprintf("              %s days before the rule's %s", wf(1 - lag, 1), lband(EV[k].t + tz)));
+        else if (lag > 2.05) wl(sprintf("              %s days after the rule's %s", wf(lag - 2, 1), lband(EV[k].t + tz)));
+        else wl(sprintf("              inside the rule's %s", lband(EV[k].t + tz)));
+        R['f' + tag + 'm'] = lM(LR[fi].t + tz) - lM(jdm); R['f' + tag + 'r'] = LR[fi].p; R['f' + tag + 'lag'] = lag;
+      }
+      var j0 = 0;
+      best = 1e9;
+      for (j = 1; j < LR.length; j++) if (fabs(LR[j].t - W[ihw].jd) < best) { best = fabs(LR[j].t - W[ihw].jd); j0 = j; }
+      if (j0 && j0 + 2 < LR.length) {
+        if (LR[j0 + 2].p > rg) { state = 'making'; stxt = 'making'; }
+        else if (LR[j0 + 2].p < rg) { state = 'takingoff'; stxt = 'taking off'; }
+        else { state = 'level'; stxt = 'neither making nor taking off'; }
+        wl(sprintf('     here the tides are %s: %s m today, %s m two tides on', stxt, wf(rg, 2), wf(LR[j0 + 2].p, 2)));
+      }
+      for (j = 1; j < LR.length; j++) if (LR[j].t >= jdt - 15 && LR[j].t <= jdt + 15) F.bars.push({ t: LR[j].t, r: LR[j].p, day: j === j0 });
+
+      // ---- 5. the coefficient, which is Brest's
+      step++;
+      wl('');
+      wl(sprintf("  %d  The coefficient. It is Brest's by definition, so Brest is predicted", step));
+      var gb = C0.load ? C0.load(BREST) : null, PB = null;
+      if (gb && !gb.err && gb.st && gb.st.id === BREST) PB = T.open(gb.st, gb.ref, jdt);
+      if (!PB || PB.err) wl("     Brest's record is not in this station file, so there is no coefficient");
+      else {
+        var btz = PB.tz / 1440.0, hl = PB.rawHilo(jdt - 1.5, jdt + 1.5), bi = -1, ai = -1, bt, b1, b2, ra;
+        best = 1e9;
+        for (i = 1; i < hl.length - 1; i++) if (hl[i].k === 'H' && hl[i - 1].k === 'L' && hl[i + 1].k === 'L' && fabs(hl[i].t - jdt) < best) { best = fabs(hl[i].t - jdt); bi = i; }
+        if (bi < 0) wl('     no high water was found at Brest near that time');
+        else {
+          bt = hl[bi].t; bh = r2(hl[bi].h); b1 = r2(hl[bi - 1].h); b2 = r2(hl[bi + 1].h);
+          rb = r2(bh - (b1 + b2) / 2); C = trunc(100 * rb / 6.10 + 0.5); cfr = (C - 45) / 50; hasC = 1;
+          wl(sprintf("     HW Brest %s %s  %s m, in Brest's standard time", ldate(bt + btz), lclk(bt + btz), wf(bh, 2)));
+          wl(sprintf('     LW %s m before it, LW %s m after it', wf(b1, 2), wf(b2, 2)));
+          wl(sprintf('     range = %s - (%s + %s) / 2 = %s m', wf(bh, 2), wf(b1, 2), wf(b2, 2), wf(rb, 2)));
+          wl(sprintf('     by pencil:      100 x %s / 6.10 = %s', wf(rb, 2), C));
+          for (i = 1; i <= PB._n; i++) if (PB._w[PB._c[i]] < 1.7 || PB._w[PB._c[i]] > 2.2) PB._amp[i] = 0;
+          hl = PB.rawHilo(jdt - 1.5, jdt + 1.5);
+          best = 1e9;
+          for (i = 1; i < hl.length - 1; i++) if (hl[i].k === 'H' && hl[i - 1].k === 'L' && hl[i + 1].k === 'L' && fabs(hl[i].t - bt) < best) { best = fabs(hl[i].t - bt); ai = i; }
+          if (ai >= 0) {
+            ra = r2(r2(hl[ai].h) - (r2(hl[ai - 1].h) + r2(hl[ai + 1].h)) / 2); CA = trunc(100 * ra / 6.10 + 0.5); hasA = 1;
+            wl(sprintf("     the almanac's:  100 x %s / 6.10 = %d", wf(ra, 2), CA));
+            wl('                     (the twice-a-day part of the tide alone)');
+            wl('     that figure matched the published one to within 2 on the month it was');
+            wl('     checked. The two differ because the part of the tide that comes once a');
+            wl('     day makes one tide of each day bigger than the other, and the almanac');
+            wl('     leaves it out');
+            R.acoef = CA; R.arange = ra;
+          }
+          wl(sprintf('     45 is mean neaps and 95 mean springs: (%d - 45) / 50 = %s of the way', C, wf(cfr, 2)));
+          R.coef = C; R.cf = cfr; R.brange = rb;
+          if (id === BREST) {
+            F.label = day + ': coefficient ' + C + ' = 100 \u00d7 ' + wf(rb, 2) + ' \u00f7 6.10';
+            F.lines = [[2.745, '45 mean neaps'], [5.795, '95 mean springs']];
+          }
+        }
+      }
+    }
+    R.state = state;
+    if (hasc) {
+      wl('');
+      wl('  ' + sprintf('coef=%s is noted. lunar does not use it yet', S.a.coef));
+      R.coefin = cf;
+    }
+    S.fig = F;
+    wl('@@FIG');
+    var ans = 'ANSWER   ' + stxt;
+    if (!st && !typed) ans += ': ' + lkind(P0.q) + ' about ' + lband(P0.t + tz) + ', ' + lkind(N0.q) + ' about ' + lband(N0.t + tz);
+    if (st || tab) {
+      ans += '    range ' + wf(rg, 2) + ' m';
+      if (havef) ans += ', ' + wf(f, 2) + ' from neaps to springs';
+    }
+    if (hasC) ans += '    coefficient ' + C;
+    if (hasA) ans += ', almanac ' + CA;
+    wl('  ' + ans);
+    wl(RULE);
+    return 1;
+  }
+
   function run(name, params, ctx) {
     S = { err: '', lines: [], res: {}, fig: null, a: {}, keys: [], ctx: ctx || {} };
     ST = null;
@@ -1094,7 +1437,8 @@ var WORK = (function () {
       else if (name === 'cts') ok = cts();
       else if (name === 'setdrift') ok = setdrift();
       else if (name === 'tidal_gate') ok = gate();
-      else err("there is no calculator called '" + name + "' (twelfths secondary stream atlas cts setdrift tidal_gate)");
+      else if (name === 'lunar') ok = lunar();
+      else err("there is no calculator called '" + name + "' (twelfths secondary stream atlas cts setdrift tidal_gate lunar)");
     }
     if (S.err !== '') return { ok: false, err: S.err, msg: '  work ' + name + ': ' + S.err, lines: [], res: S.res, fig: null };
     return { ok: !!ok, err: '', lines: S.lines, res: S.res, fig: S.fig };
@@ -1133,9 +1477,17 @@ var WORK = (function () {
       ['track', 'Atlas: her track, deg T'], ['streams', 'Atlas: set:rate per page'],
       ['from', 'Atlas: first page (-6)'], ['foul', 'Atlas: foul stream accepted, kn'],
       ['opens', 'Pilot book: opens, hours from HW'], ['shuts', 'Pilot book: shuts, hours from HW'],
-      ['t', 'When she is there', 'HH:MM'], ['dist', 'Miles to the gate'], ['sog', 'Speed over the ground, kn']] }
+      ['t', 'When she is there', 'HH:MM'], ['dist', 'Miles to the gate'], ['sog', 'Speed over the ground, kn']] },
+    //  coef= is carried by the contract and has no field here yet: its
+    //  working and its entry field are on the backlog (Larry, ACM, ACO)
+    lunar: { title: 'Springs and neaps', sub: 'the Moon, the range, the coefficient', fields: [
+      ['date', 'Date', 'YYYY-MM-DD'], ['t', 'Time', 'HH:MM'],
+      ['hwh', 'Tide table: HW height, m'], ['lwh', 'Tide table: LW height, m'], ['range', "or today's range, m"],
+      ['sprange', 'Mean spring range, m'], ['nprange', 'Mean neap range, m'],
+      ['brhwh', 'Brest: HW height, m'], ['brlwh', 'Brest: LW height, m'],
+      ['station', 'or a station id']] }
   };
-  /*  The same six examples `tides work help` prints. */
+  /*  One example of each, as `tides work help` prints them. */
   var EXAMPLES = {
     twelfths: 'lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 t=08:30',
     secondary: 'hw=05:36 hwh=6.4 mhws=6.8 mhwn=5.3 dhws=-0.4 dhwn=-0.3 thw1=0000 tdhw1=-10 thw2=0600 tdhw2=5 lw=11:51 lwh=1.1 mlwn=2.1 mlws=0.8 dlwn=0.0 dlws=0.1 tlw1=0100 tdlw1=-5 tlw2=0700 tdlw2=10',
@@ -1143,7 +1495,8 @@ var WORK = (function () {
     atlas: 'station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00',
     cts: 'track=045 stw=6 streams=135:1.5,150:2.0 leeway=5 wind=port var=-2 dev=1 dist=12',
     setdrift: 'start=50.10,-1.50 co=090 stw=6 hours=3 fix=50.05,-1.20',
-    tidal_gate: 'hw=14:32 track=255 streams=075:2.2,078:2.6,080:2.0,085:0.9,250:0.4,255:1.5,258:2.4,260:2.7,258:2.1,255:1.0,080:0.3,078:1.4,076:2.1 t=17:00 dist=22 sog=7'
+    tidal_gate: 'hw=14:32 track=255 streams=075:2.2,078:2.6,080:2.0,085:0.9,250:0.4,255:1.5,258:2.4,260:2.7,258:2.1,255:1.0,080:0.3,078:1.4,076:2.1 t=17:00 dist=22 sog=7',
+    lunar: 'date=2025-05-24 brhwh=6.07 brlwh=1.26'
   };
 
   /*  A LESSON NAME, AND THE PAGE IT IS ON.  Larry's decision of
@@ -1396,13 +1749,74 @@ var WORK = (function () {
       s += '</svg><p class="wkey"><span class="kwater">DR, through the water</span> <span class="ktide">set and drift</span> <span class="k12">made good</span></p>';
       return s;
     }
+    if (F.kind === 'lunar') {
+      //  Thirty days with the day in the middle.  The strip is the Moon's
+      //  month: her four phases, and a band where the rule of thumb puts
+      //  springs and neaps.  With a station, a bar for every tide stands
+      //  above it and a dot marks each biggest and smallest tide found.
+      var lm = { l: 14, r: 14 }, lb = F.bars.length > 0;
+      H = lb ? 300 : 126;
+      var d0 = F.jd - 15, LX = function (v) { return lm.l + (v - d0) / 30 * (W - lm.l - lm.r); };
+      var ly = lb ? 212 : 56, lh = 18, lx0 = LX(d0), lx1 = LX(d0 + 30);
+      s = svgOpen(W, H, "The Moon's month, fifteen days either side of the day: her phases, and springs and neaps by the rule" +
+                        (lb ? ', with the range of every tide above it' : ''));
+      if (lb) {
+        var by = 176, bmax = 0.5;
+        F.bars.forEach(function (b) { bmax = Math.max(bmax, b.r); });
+        F.lines.forEach(function (g) { bmax = Math.max(bmax, g[0]); });
+        var BY = function (v) { return by - v / bmax * 128; }, lbw = (W - lm.l - lm.r) / 30 * 0.3;
+        F.bars.forEach(function (b) {
+          var y = BY(Math.max(b.r, 0));
+          s += '<rect class="l-bar' + (b.day ? ' l-day' : '') + '" x="' + n2(LX(b.t) - lbw / 2) + '" y="' + n2(y) +
+               '" width="' + n2(lbw) + '" height="' + n2(Math.max(by - y, 1)) + '"/>';
+        });
+        s += '<line class="axis" x1="' + n2(lx0) + '" y1="' + by + '" x2="' + n2(lx1) + '" y2="' + by + '"/>';
+        F.lines.forEach(function (g) {
+          s += '<line class="c-cos" x1="' + n2(lx0) + '" y1="' + n2(BY(g[0])) + '" x2="' + n2(lx1) + '" y2="' + n2(BY(g[0])) + '"/>';
+          //  the label stands on the bars, so it carries a halo of the panel's colour
+          s += text(lx1, BY(g[0]) - 4, g[1], 'lab halo', 'end');
+        });
+      }
+      s += '<rect class="l-base" x="' + n2(lx0) + '" y="' + ly + '" width="' + n2(lx1 - lx0) + '" height="' + lh + '"/>';
+      F.ev.forEach(function (e) {
+        var a = Math.max(d0, e.t + 1), b = Math.min(d0 + 30, e.t + 2), spr = (e.q === 0 || e.q === 180);
+        if (b > a) {
+          s += '<rect class="' + (spr ? 'l-spr' : 'l-np') + '" x="' + n2(LX(a)) + '" y="' + ly + '" width="' + n2(LX(b) - LX(a)) + '" height="' + lh + '"/>';
+          s += text((LX(a) + LX(b)) / 2, ly + lh + 14, spr ? 'springs' : 'neaps', 'lab', 'middle');
+        }
+        if (e.t < d0 || e.t > d0 + 30) return;
+        var cx = LX(e.t), cy = ly - 14, r = 7;
+        s += '<line class="axis" x1="' + n2(cx) + '" y1="' + ly + '" x2="' + n2(cx) + '" y2="' + (ly + lh) + '"/>';
+        if (e.q === 0) s += '<circle class="l-dark" data-pt="new" cx="' + n2(cx) + '" cy="' + cy + '" r="' + r + '"/>';
+        else {
+          s += '<circle class="l-moon" data-pt="' + (e.q === 180 ? 'full' : 'quarter') + '" cx="' + n2(cx) + '" cy="' + cy + '" r="' + r + '"/>';
+          //  the dark half: on the left at first quarter, on the right at last
+          if (e.q !== 180) s += '<path class="l-dark" d="M ' + n2(cx) + ' ' + (cy - r) + ' A ' + r + ' ' + r + ' 0 0 ' +
+                                (e.q === 270 ? 1 : 0) + ' ' + n2(cx) + ' ' + (cy + r) + ' Z"/>';
+        }
+      });
+      F.found.forEach(function (g) {
+        if (g.t < d0 || g.t > d0 + 30) return;
+        s += dot(LX(g.t), ly + lh / 2, g.kind === 'springs' ? 'biggest' : 'smallest');
+      });
+      s += '<line class="now" x1="' + n2(LX(F.jd)) + '" y1="28" x2="' + n2(LX(F.jd)) + '" y2="' + (ly + lh + 4) + '"/>';
+      s += dot(LX(F.jd), ly + lh / 2, 'day', 'pt acc');
+      //  the day's label carries its working, not a bare number (Larry, ACS)
+      s += text(lm.l, 18, F.label, 'lab acc');
+      s += text(lx0, ly + lh + 30, F.dates[0], 'lab') + text(LX(F.jd), ly + lh + 30, F.day, 'lab', 'middle') +
+           text(lx1, ly + lh + 30, F.dates[1], 'lab', 'end');
+      s += '</svg><p class="wkey"><span class="k12">springs by the rule' + (lb ? ', and the range of each tide' : '') + '</span>' +
+           '<span class="ktide">neaps by the rule</span><span class="know">the day</span>' +
+           (F.found.length ? '<span class="kdot">a dot: the biggest or smallest tide found</span>' : '') + '</p>';
+      return s;
+    }
     return '';
   }
 
   return {
     NAMES: NAMES, SPEC: SPEC, EXAMPLES: EXAMPLES, run: run, figure: figure,
     lessonHref: lessonHref, fromQuery: fromQuery, stationId: stationId, useTide: useTide,
-    fx: fx, sprintf: sprintf
+    fx: fx, sprintf: sprintf, brestId: BREST
   };
 })();
 
@@ -1412,5 +1826,6 @@ var WORK = (function () {
 if (typeof module !== 'undefined') module.exports = {
   WORK: WORK, COURSE_BASE: COURSE_BASE,
   SHARED: WORK_SHARED, HOST: WORK_HOST,
-  PURE_CALLS: WORK_PURE_CALLS, PURE_WORK: WORK_PURE_WORK
+  PURE_CALLS: WORK_PURE_CALLS, PURE_WORK: WORK_PURE_WORK,
+  MOON_CALLS: WORK_MOON_CALLS, MOON_WORK: WORK_MOON_WORK
 };

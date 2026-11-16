@@ -22,6 +22,13 @@ available it is the one used, so the two cannot share a mistake:
              turns is found by BISECTION on the straight line between two
              pages, not by the proportion; and the high waters of the
              station form are copied from `tides today`, as for atlas
+  lunar      the Moon's phases are found by BISECTION on the elongation,
+             bracketed by a scan, not by stepping at the mean rate; the
+             calendar is Python's own, not the Julian Date formula; and
+             the coefficient is rounded with half_up().  The Sun's and
+             Moon's longitudes are the same short series the engine
+             uses, because that series IS the definition here: this
+             checks the working built on it, not the series
   atlas      only the arithmetic on the predicted turns: the turns come
              from the harmonic engine, which is checked against NOAA's
              published tables by tests/tides-check.awk, and are copied
@@ -256,6 +263,93 @@ def near(m, hw):
     return m
 
 
+
+# ---- lunar ------------------------------------------------------------
+import datetime
+
+def jd0(y, m, d):
+    """JD at 0h UT, from Python's own calendar."""
+    return datetime.date(y, m, d).toordinal() + 1721424.5
+
+def sun_lon(jd):
+    n = jd - 2451545.0
+    L = (280.460 + 0.9856474 * n) % 360
+    g = math.radians((357.528 + 0.9856003 * n) % 360)
+    return (L + 1.915 * math.sin(g) + 0.020 * math.sin(2 * g)) % 360
+
+def moon_lon(jd):
+    T = (jd - 2451545.0) / 36525.0
+    r = math.radians
+    L = 218.316 + 481267.881 * T
+    M = r(357.529 + 35999.050 * T)
+    Mm = r(134.963 + 477198.867 * T)
+    D = r(297.850 + 445267.115 * T)
+    F = r(93.272 + 483202.018 * T)
+    return (L + 6.289 * math.sin(Mm) - 1.274 * math.sin(Mm - 2 * D) - 0.658 * math.sin(2 * D)
+            - 0.214 * math.sin(2 * Mm) - 0.186 * math.sin(M) - 0.114 * math.sin(2 * F)) % 360
+
+def elong(jd):
+    return (moon_lon(jd) - sun_lon(jd)) % 360
+
+def phases(a, b):
+    """Every new, quarter and full between a and b: (jd, angle)."""
+    out, step, t = [], 0.125, a
+    q0 = int(elong(t) // 90)
+    while t < b:
+        q1 = int(elong(t + step) // 90)
+        if q1 != q0:
+            ang = (q1 * 90) % 360
+            lo, hi = t, t + step
+            for _ in range(60):
+                mid = (lo + hi) / 2
+                if ((elong(mid) - ang + 180) % 360) - 180 < 0:
+                    lo = mid
+                else:
+                    hi = mid
+            out.append(((lo + hi) / 2, ang))
+        q0, t = q1, t + step
+    return out
+
+def lunar(y, m, d, tm=720, hwh=None, lwh=None, rng=None, sp=None, np_=None, brhwh=None, brlwh=None):
+    kind = lambda q: 'springs' if q in (0, 180) else 'neaps'
+    jm = jd0(y, m, d)
+    jt = jm + tm / 1440.0
+    ev = phases(jt - 20, jt + 20)
+    before = [e for e in ev if e[0] <= jt]
+    after = [e for e in ev if e[0] > jt]
+    p, n, pp = before[-1], after[0], before[-2]
+    hours = lambda jd: math.floor(jd * 24 + 0.5)
+    r = dict(age=elong(jt) / 360.0 * 29.530589, pq=p[1], nq=n[1],
+             ph=hours(p[0]) - hours(jm), nh=hours(n[0]) - hours(jm))
+    dp = jt - p[0]
+    if 1 <= dp <= 2:
+        r['rstate'] = kind(p[1])
+    else:
+        nxt = kind(p[1]) if dp < 1 else kind(n[1])
+        r['rstate'] = 'making' if nxt == 'springs' else 'takingoff'
+    r['state'] = r['rstate']
+    if rng is None and hwh is not None:
+        rng = hwh - lwh
+    if rng is not None:
+        r['range'] = rng
+        r['f'] = (rng - np_) / (sp - np_)
+    if brhwh is not None:
+        rb = hundredth(brhwh - brlwh)
+        r['brange'] = rb
+        r['coef'] = half_up(100 * rb / 6.10)
+        r['cf'] = (r['coef'] - 45) / 50.0
+    return r
+
+def month_end_phase(y0, y1):
+    """A phase whose rule days straddle a month's end, well clear of midnight."""
+    for jd, q in phases(jd0(y0, 1, 1), jd0(y1, 1, 1)):
+        a = datetime.date.fromordinal(int(jd + 1 - 1721424.5))
+        b = datetime.date.fromordinal(int(jd + 2 - 1721424.5))
+        frac = (jd + 0.5) % 1
+        if a.month != b.month and 0.2 < frac < 0.8:
+            return a, b, q
+    return None
+
 def show(name, d):
     print(name, ' '.join('%s=%.6f' % kv if isinstance(kv[1], float) else '%s=%s' % kv
                          for kv in d.items()))
@@ -339,3 +433,23 @@ if __name__ == '__main__':
     sp, np_ = 2 * (2.253 + 0.708), 2 * (2.253 - 0.708)
     show('A1 Dover', dict(page=0, range=6.61 - 0.93, sprange=sp, nprange=np_,
                           f=(6.61 - 0.93 - np_) / (sp - np_)))
+
+    #  ---- lunar
+    show('L1 race day, the Moon alone', lunar(2025, 5, 24))
+    show('L2 Brest by pencil', lunar(2025, 5, 24, brhwh=6.07, brlwh=1.26))
+    show('L3 the tide tables', lunar(2025, 5, 24, hwh=4.3, lwh=1.1, sp=3.9, np_=1.9))
+    show('L4 above mean springs, a range typed', lunar(2025, 5, 24, rng=5.2, sp=3.9, np_=1.9))
+    show('L5 below mean neaps', lunar(2025, 5, 24, rng=1.5, sp=3.9, np_=1.9))
+    show('L6 inside the rule for springs', lunar(2025, 5, 28))
+    show('L7 the day of the new moon, after it', lunar(2025, 5, 27))
+    show('L8 taking off', lunar(2025, 5, 31))
+    show('L9 a time given, late', lunar(2025, 5, 26, tm=hm('23:30')))
+    show('L10 both, with a coefficient at mean neaps', lunar(2026, 11, 16, tm=hm('09:00'), hwh=5.24, lwh=2.52, sp=5.6, np_=2.6, brhwh=5.24, brlwh=2.50))
+    show('L11 at neaps by the rule', lunar(2025, 5, 21, tm=hm('18:00')))
+    #  a first quarter whose two rule days straddle a month's end: 30 Jun to 1 Jul 2028
+    print('month-end phase:', month_end_phase(2025, 2031))
+    show('L12 the rule across a month end', lunar(2028, 7, 3))
+    #  Brest and Portsmouth on 2025-05-24, as `tides today` prints the turns:
+    #  the range is the high water less the mean of the low waters either side
+    show('LS1 Brest 14:00', dict(range=hundredth(6.07 - (1.32 + 1.26) / 2), coef=half_up(100 * hundredth(6.07 - (1.32 + 1.26) / 2) / 6.10)))
+    show('LS2 Portsmouth 14:00', dict(range=hundredth(4.02 - (0.95 + 0.73) / 2)))

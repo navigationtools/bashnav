@@ -37,7 +37,7 @@ BEGIN{
       if(want ~ /^[a-z]+$/){ if(got!=want){ printf "  %s %s: %s is %s, wanted %s\n", fld[1], fld[2], key, got, want; nbad++ }; continue }
       #  whole minutes and whole degrees exactly; everything else to 0.006
       tol=0.006
-      if(key ~ /^(Htime|Ltime|cts|mag|comp|page|dt|ok|x|Hx|Lx|clamp|means)$/) tol=0
+      if(key ~ /^(Htime|Ltime|cts|mag|comp|page|dt|ok|x|Hx|Lx|clamp|means|pq|nq|ph|nh|coef|acoef|coefin)$/) tol=0
       d=got-want; if(d<0) d=-d
       if(d>tol){ printf "  %s %s: %s is %.6f, wanted %s\n", fld[1], fld[2], key, got, want; nbad++ }
     }

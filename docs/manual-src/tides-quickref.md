@@ -1,5 +1,5 @@
 # TIDES quick reference
-**Version {{VERSION}}** — harmonic prediction and the seven coastal calculators.
+**Version {{VERSION}}** — harmonic prediction and the eight coastal calculators.
 
 ## Commands
 
@@ -40,7 +40,7 @@ tide subtracts. Reversing that pair is how a mast meets a bridge.
 
 A `+` in a URL is a space: write `tdhw2=5`, not `tdhw2=+5`.
 
-## The seven calculators
+## The eight calculators
 
 | name | what it gives | the parameters it must have |
 |---|---|---|
@@ -51,6 +51,7 @@ A `+` in a URL is a space: write `tdhw2=5`, not `tdhw2=+5`.
 | `cts` | course to steer | `track stw streams` |
 | `setdrift` | set and drift from a DR and a fix | `start co stw hours fix` |
 | `tidal_gate` | when a headland opens and shuts, and when to leave | `hw` (or `station t`), then `track streams`, or `opens shuts` |
+| `lunar` | springs and neaps: the Moon, the rule, today's range, the coefficient | `date`; and `hwh lwh sprange nprange`, or `brhwh brlwh`, or `station` |
 
 `streams` is `set:rate` per hour, comma separated — `135:1.5,150:2.0` is two
 hours. Vectors are summed and the triangle solved **once**, not hour by hour.
@@ -64,6 +65,10 @@ side; **exactly half past goes to the later page**.
 A tidal gate is **open while the stream is with her**: rate × cos(set − track)
 on each atlas page, the turn found between two pages by a straight line. Or
 from the pilot book: `opens=5 shuts=-1` is HW +5 to an hour before the next.
+
+**Springs follow new and full moon by a day or two; neaps follow the quarters.**
+A rule of thumb: any one spring can come two or three days off it. The
+coefficient is 100 × the range at Brest ÷ 6.10 m: 45 mean neaps, 95 mean springs.
 
 ## What it says when it will not guess
 
@@ -87,6 +92,8 @@ from the pilot book: `opens=5 shuts=-1` is HW +5 to an hour before the next.
 | `setdrift start=50.4630,-2.4550 co=250 stw=6.5 hours=2 fix=50.3660,-2.8260` | set 235 T, drift 2.4 nm, 1.2 kn |
 | `tidal_gate hw=14:32 track=255 from=-3 streams=085:0.9,250:0.4 foul=0.5` | opens 11:50 |
 | `tidal_gate hw=14:32 opens=5 shuts=-1 t=17:00` | open 07:07 to 13:32 and 19:32 to 01:57; at 17:00 shut, opens in 2 h 32 min |
+| `lunar date=2025-05-24 brhwh=6.07 brlwh=1.26` | new moon 27 May; springs by the rule 28 to 29 May; making; coefficient 79 |
+| `lunar date=2025-05-24 hwh=4.3 lwh=1.1 sprange=3.9 nprange=1.9` | range 3.20 m, 0.65 of the way from neaps to springs |
 
 ## Rules of thumb
 

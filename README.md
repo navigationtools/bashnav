@@ -509,7 +509,7 @@ app are rebuilt from the built program by `capture.sh`.
 |---|---|---|---|---|
 | `celnav` | 1.6 | `docs/celnav-manual.pdf` | `docs/celnav-quickref.pdf` | owed |
 | `colregs` | 1.15 | `docs/colregs-manual.pdf` | `docs/colregs-quickref.pdf` | owed |
-| `tides` | 1.3 | `docs/tides-manual.pdf` | `docs/tides-quickref.pdf` | owed |
+| `tides` | 1.4 | `docs/tides-manual.pdf` | `docs/tides-quickref.pdf` | owed |
 | `deck-log` | 1.1 | `docs/deck-log-manual.pdf` | `docs/deck-log-quickref.pdf` | owed |
 | `weather` | 1.0 | `docs/weather-manual.pdf` | `docs/weather-quickref.pdf` | owed |
 | `bashnav` (launcher) | 1.0 | `docs/bashnav-manual.pdf` | `docs/bashnav-quickref.pdf` | owed |

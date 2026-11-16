@@ -7,6 +7,8 @@
 #    tides work atlas      which page of a tidal-stream atlas you are on
 #    tides work cts        course to steer across a stream
 #    tides work setdrift   set and drift, from a DR and a fix
+#    tides work tidal_gate when a headland's stream turns, and the window
+#    tides work lunar      springs and neaps: the Moon, the range, the coefficient
 #
 #  Each one SHOWS ITS WORKING, step by step, because the point is
 #  teaching: a navigator who has watched the arithmetic once can do it on
@@ -602,7 +604,11 @@ function wk_atlas(   i,ihw,best,dt,pg,lab,il,rg,iM2,iS2,iK1,iO1,aM2,aS2,aK1,aO1,
     if(ST_C[i]==iK1) aK1=ST_A[i]
     if(ST_C[i]==iO1) aO1=ST_A[i]
   }
-  if(aM2+aS2<=0){
+  #  BOTH are needed: with M2 and no S2 the two mean ranges are equal and
+  #  the place between them is a division by nothing.  One station has it
+  #  (a lake gauge with a millimetre of M2), and there this stopped the
+  #  tool with awk's own error.
+  if(aM2<=0 || aS2<=0){
     wl("  4  Mean ranges are not available: this station has no M2 or S2.")
     wl("@@FIG")
     wl(sprintf("  ANSWER   atlas page %s    range %s m", lab, wk_f(rg,2)))
@@ -1280,6 +1286,414 @@ function wk_figgate(   i,j,m,row,mk,lab,n,c,o){
 }
 
 # =====================================================================
+#  8. LUNAR: SPRINGS AND NEAPS
+#
+#  Where the day sits in the Moon's month, when springs and neaps fall,
+#  how big today's tide is, and the coefficient.  Larry ruled its design
+#  one decision at a time on 16 November 2026, and each ruling is a
+#  shape in this code:
+#
+#    ABY  it works from the Moon AND from the tide tables, with
+#         whichever part it is given; a station supplies both.
+#    ACC  the coefficient is shown two ways: by pencil from the day's
+#         heights (100 x the Brest range / 6.10 m), and, when Brest's
+#         constants are to hand, as an almanac prints it.
+#    ACG  springs and neaps by the rule of thumb, always; and, with a
+#         station, as they are found in the prediction, beside it.
+#    ACM, ACO  coef= is carried: checked, noted in one line, not used.
+#    ACS  the figure is a strip of the Moon's month.
+#
+#  WHY THE ALMANAC'S FIGURE IS THE TWICE-A-DAY TIDE ALONE.  Measured on
+#  the 57 high waters of November 2026 at Brest, the pencil form on the
+#  whole tide is 2 points from the published coefficient on average and
+#  up to 6, and the error alternates: one tide of each day agrees, the
+#  other is 2 to 5 high.  Worked on the semi-diurnal constituents alone
+#  it is 1 point out on average and never more than 2.  Shom's sheet
+#  gives C = (H - N0) / U x 100 and does not say this; it is a finding
+#  from the published figures.
+#
+#  The coefficient is Brest's by definition (Shom: "calcule pour Brest
+#  uniquement"), so at any other port this gives the place between that
+#  port's own mean neaps and springs, and predicts Brest for the
+#  coefficient.
+# =====================================================================
+function wk_lbrest(){ return "ticon/brest-3-fra-refmar" }
+#  the Moon's elongation from the Sun: 0 new, 90 first quarter, 180 full
+function wk_lel(jd){ return nrm360(moon_lon(jd) - sun_lon(jd)) }
+#  the time the elongation is q, near jd: twelve steps at the mean rate.
+#  The true rate is within a sixth of it, so each step leaves at most a
+#  sixth of the error and twelve leave less than a tenth of a second.
+function wk_lsolve(jd,q,   i){
+  for(i=0;i<12;i++) jd -= sgn180(wk_lel(jd)-q)/12.190749
+  return jd
+}
+#  the four phases in order from jdA to jdB: LE_T (jd, UT) and LE_Q
+function wk_levents(jdA,jdB,   e,q,t){
+  e=wk_lel(jdA); q=(int(e/90)+1)*90
+  t=wk_lsolve(jdA+(q-e)/12.190749, q%360)
+  LE_N=0
+  while(t<=jdB && LE_N<12){
+    LE_N++; LE_T[LE_N]=t; LE_Q[LE_N]=q%360
+    q+=90; t=wk_lsolve(t+7.3826, q%360)
+  }
+  return LE_N
+}
+function wk_lname(q){
+  if(q==0) return "new moon"
+  if(q==90) return "first quarter"
+  if(q==180) return "full moon"
+  return "last quarter"
+}
+function wk_lkind(q){ return (q==0 || q==180) ? "springs" : "neaps" }
+#  a time as a count of whole minutes, so a date and a clock time taken
+#  from it can never disagree across midnight
+function wk_lM(jd){ return ffloor(jd*1440+0.5) }
+function wk_lmon(m){ return substr("JanFebMarAprMayJunJulAugSepOctNovDec", m*3-2, 3) }
+function wk_ldate(jd){ jd2cal((wk_lM(jd)+0.5)/1440); return CAL_D " " wk_lmon(CAL_M) }
+function wk_lclk(jd){ return wk_hhmm(wk_mod(wk_lM(jd)+720, 1440)) }
+#  THE MOON'S PHASES ARE GIVEN TO THE HOUR, NOT THE MINUTE.  The engine's
+#  series for the Sun and Moon is a short one, right for a rising and a
+#  setting; it puts a phase within about an hour of the almanac (the
+#  last quarter of 20 May 2025 at 10:53 for 11:59, the new moon of 27 May
+#  at 03:23 for 03:02).  A minute would claim more than it knows.
+function wk_lH(jd){ return ffloor(jd*24+0.5) }
+function wk_lhdate(jd){ jd2cal((wk_lH(jd)+0.5)/24); return CAL_D " " wk_lmon(CAL_M) }
+function wk_lhclk(jd){ return sprintf("%02d:00", wk_mod(wk_lH(jd)+12, 24)) }
+#  the rule's two days: "28 to 29 May", or "31 May to 1 Jun"
+function wk_lband(jd,   a,b,pa,pb){
+  a=wk_ldate(jd+1); b=wk_ldate(jd+2)
+  split(a,pa," "); split(b,pb," ")
+  if(pa[2]==pb[2]) return pa[1] " to " b
+  return a " to " b
+}
+function wk_lplace(rg,np,sp,f,   gauge,pos,j){
+  wl(sprintf("     from neaps to springs: (%s - %s) / (%s - %s) = %s",
+     wk_f(rg,2), wk_f(np,2), wk_f(sp,2), wk_f(np,2), wk_f(f,2)))
+  gauge=""
+  pos=int(f*20+0.5)
+  for(j=0;j<=20;j++){ if(j==pos) gauge=gauge "*"; else gauge=gauge "-" }
+  if(pos<0) gauge="<" substr(gauge,2)
+  if(pos>20) gauge=substr(gauge,1,20) ">"
+  wl("     neaps |" gauge "| springs")
+  if(f<0) wl("     " cwd("below mean neaps"))
+  if(f>1) wl("     " cwd("above mean springs"))
+  return 0
+}
+#  the biggest (or smallest) tide near a phase of the Moon.  The pair of
+#  tides is taken first, because one tide of each day is the bigger at
+#  most ports and a single tide would follow that, not the Moon; then
+#  the bigger (or smaller) of the pair.
+function wk_lfound(te,kind,   j,s,bj,bs){
+  bj=0
+  for(j=2;j<=LR_N;j++){
+    s=(LR_T[j]+LR_T[j-1])/2
+    if(s<te-1.5 || s>te+5.5) continue
+    s=LR_R[j]+LR_R[j-1]
+    if(!bj || ((kind=="springs") ? (s>bs) : (s<bs))){ bj=j; bs=s }
+  }
+  if(!bj) return 0
+  if(kind=="springs") return (LR_R[bj-1]>LR_R[bj]) ? bj-1 : bj
+  return (LR_R[bj-1]<LR_R[bj]) ? bj-1 : bj
+}
+function wk_lunar(   tab,brs,typed,id,st,rg,hwh,lwh,sp,np,bh,bl,rb,hasc,cf,tm,jdt,jdm,tz,i,j,k,n,ip,inx,step,dp,ka,kb,state,stxt,rstate,f,havef,C,hasC,CA,hasA,cfr,day,ihw,best,il1,il2,why,iM2,iS2,iK1,iO1,aM2,aS2,aK1,aO1,ff,fi,lag,j0,bi,ai,bt,b1,b2,btz,ra,ans,tag){
+  wk_allow("lunar", "date t hwh lwh range sprange nprange brhwh brlwh coef station")
+  if(W_ERR!="") return 0
+  tab = (wk_has("hwh") || wk_has("lwh") || wk_has("range") || wk_has("sprange") || wk_has("nprange"))
+  brs = (wk_has("brhwh") || wk_has("brlwh"))
+  typed = (tab || brs)
+  if(typed && wk_has("station")) return wk_err("give the heights from the tide table, or station=, not both")
+  if(tab){
+    if(wk_has("range")){
+      if(wk_has("hwh") || wk_has("lwh")) return wk_err("give range=, or hwh= and lwh=, not both")
+      rg=wk_num("range","","0","20","today's range at the standard port, m")
+    } else {
+      hwh=wk_num("hwh","","-5","20","today's high water height at the standard port, m")
+      lwh=wk_num("lwh","","-5","20","today's low water height there, m")
+      if(W_ERR=="" && hwh<=lwh) return wk_err("hwh= must be above lwh=")
+      rg=hwh-lwh
+    }
+    sp=wk_num("sprange","","0","20","the port's mean spring range, m")
+    np=wk_num("nprange","","0","20","the port's mean neap range, m")
+    if(W_ERR=="" && sp<=np) return wk_err("sprange= must be larger than nprange=")
+  }
+  if(brs){
+    bh=wk_num("brhwh","","-5","20","Brest's high water height, m")
+    bl=wk_num("brlwh","","-5","20","Brest's low water height, m")
+    if(W_ERR=="" && bh<=bl) return wk_err("brhwh= must be above brlwh=")
+  }
+  hasc=wk_has("coef")
+  if(hasc) cf=wk_num("coef","","20","120","the coefficient an almanac prints")
+  if(W_ERR!="") return 0
+
+  #  A station is used when one is named, or when nothing is typed from
+  #  a tide table and one is chosen.  Typed heights never use the chosen
+  #  station, so a link that carries them reads the same for everyone.
+  id = wk_has("station") ? WA["station"] : (typed ? "" : defstation)
+  st = (id!="")
+  if(st){
+    #  t defaults to noon on a named date, and to now when none is named
+    if(!wk_has("t") && wk_has("date")) WA["t"]="12:00"
+    if(!wk_station()) return 0
+    tz=TD_TZ/1440.0; jdt=WS_JDT; tm=WS_T; jdm=WS_JD0
+    wk_head("SPRINGS AND NEAPS, AT A STATION")
+    wk_sthead()
+  } else {
+    if(wk_has("date")){
+      if(!wk_date(WA["date"])) return wk_err(sprintf("date=%s is not a date (YYYY-MM-DD)", WA["date"]))
+    } else if(nowdate=="" || !wk_date(nowdate)) return wk_err("date= is needed (YYYY-MM-DD)")
+    if(wk_has("t")){
+      tm=wk_hm(WA["t"])
+      if(tm<0) return wk_err(sprintf("t=%s is not a time (HH:MM)", WA["t"]))
+    } else if(!wk_has("date") && nowtime!=""){
+      split(nowtime,NT_,":"); tm=(NT_[1]+0)*60+(NT_[2]+0)
+    } else tm=720
+    tz=0; jdm=jdate(WD_Y,WD_M,WD_D); jdt=jdm+tm/1440.0
+    wk_head(typed ? "SPRINGS AND NEAPS, FROM THE MOON AND THE TIDE TABLES" : "SPRINGS AND NEAPS, FROM THE MOON")
+    wl("  " cwd(sprintf("%04d-%02d-%02d at %s UT", WD_Y, WD_M, WD_D, wk_hhmm(tm))))
+  }
+
+  # ---- 1. the Moon ---------------------------------------------------
+  moon_phase(jdt)
+  wk_levents(jdt-17.5, jdt+16.5)
+  ip=0
+  for(i=1;i<=LE_N;i++) if(LE_T[i]<=jdt) ip=i
+  inx=ip+1
+  if(ip<2 || inx>LE_N) return wk_err("the Moon's phases could not be found round that date")
+  day=wk_ldate(jdt+tz)
+  wl("")
+  wl(sprintf("  1  The Moon: %s days old (%s)", wk_f(MP_AGE,1), MP_NAME))
+  wl(sprintf("     %-14s %s, about %s, %s days ago", wk_lname(LE_Q[ip]), wk_lhdate(LE_T[ip]+tz), wk_lhclk(LE_T[ip]+tz), wk_f(jdt-LE_T[ip],1)))
+  wl(sprintf("     %-14s %s, about %s, in %s days", wk_lname(LE_Q[inx]), wk_lhdate(LE_T[inx]+tz), wk_lhclk(LE_T[inx]+tz), wk_f(LE_T[inx]-jdt,1)))
+
+  # ---- 2. the rule of thumb ------------------------------------------
+  wl("")
+  wl("  2  The rule of thumb: springs follow new and full moon by a day or two,")
+  wl("     and neaps follow the quarters the same way")
+  wl(sprintf("     %-8s about %s   (%s + 1 to 2 days)", wk_lkind(LE_Q[ip]), wk_lband(LE_T[ip]+tz), wk_lname(LE_Q[ip])))
+  wl(sprintf("     %-8s about %s   (%s + 1 to 2 days)", wk_lkind(LE_Q[inx]), wk_lband(LE_T[inx]+tz), wk_lname(LE_Q[inx])))
+  dp=jdt-LE_T[ip]
+  if(dp>=1 && dp<=2){
+    state=wk_lkind(LE_Q[ip]); stxt="at " state " by the rule"
+    wl(sprintf("     %s is at %s by the rule", day, state))
+  } else {
+    if(dp<1){ ka=wk_lkind(LE_Q[ip-1]); kb=wk_lkind(LE_Q[ip]) }
+    else    { ka=wk_lkind(LE_Q[ip]);   kb=wk_lkind(LE_Q[inx]) }
+    if(kb=="springs"){ state="making"; stxt="making" } else { state="takingoff"; stxt="taking off" }
+    wl(sprintf("     %s is after %s and before %s: the tides are %s", day, ka, kb, stxt))
+  }
+  wl("     " cwd("a rule of thumb: any one spring can come two or three days off it"))
+  rstate=state
+  WR["age"]=MP_AGE; WR["pq"]=LE_Q[ip]; WR["nq"]=LE_Q[inx]
+  WR["ph"]=wk_lH(LE_T[ip]+tz)-wk_lH(jdm); WR["nh"]=wk_lH(LE_T[inx]+tz)-wk_lH(jdm)
+  WR["rstate"]=rstate; WR["tmin"]=tm
+  step=2; havef=0; hasC=0; hasA=0
+  for(k=1;k<=LE_N;k++) LG_F[k]=0
+
+  # ---- the tide tables, typed ------------------------------------------
+  if(tab){
+    step++
+    wl("")
+    if(wk_has("range")) wl(sprintf("  %d  The tide tables: today's range %s m", step, wk_f(rg,2)))
+    else wl(sprintf("  %d  The tide tables: HW %s m - LW %s m = %s m of range", step, wk_f(hwh,2), wk_f(lwh,2), wk_f(rg,2)))
+    wl(sprintf("     the port's mean ranges: springs %s m, neaps %s m", wk_f(sp,2), wk_f(np,2)))
+    f=(rg-np)/(sp-np)
+    wk_lplace(rg,np,sp,f)
+    wl("     " cwd("the rate of a stream today, with the atlas's two figures for spr= and nps=:"))
+    wl("     " cwd(sprintf("  tides work stream spr=.. nps=.. range=%s sprange=%s nprange=%s", wk_f(rg,2), wk_f(sp,2), wk_f(np,2))))
+    WR["range"]=rg; WR["f"]=f; havef=1
+  }
+  # ---- the coefficient, from typed Brest heights --------------------
+  if(brs){
+    step++
+    rb=wk_r2(bh-bl); C=int(100*rb/6.10+0.5); cfr=(C-45)/50; hasC=1
+    wl("")
+    wl(sprintf("  %d  The coefficient, from Brest's heights: HW %s m - LW %s m = %s m", step, wk_f(bh,2), wk_f(bl,2), wk_f(rb,2)))
+    wl(sprintf("     coefficient = 100 x %s / 6.10 = %s", wk_f(rb,2), cw(C "", C_ACC)))
+    wl(sprintf("     45 is mean neaps and 95 mean springs: (%d - 45) / 50 = %s of the way", C, wk_f(cfr,2)))
+    wl("     " cwd("worked from the tide table's heights. An almanac's printed figure can"))
+    wl("     " cwd("differ by a few points: it leaves out the part of the tide that comes"))
+    wl("     " cwd("once a day"))
+    WR["coef"]=C; WR["cf"]=cfr; WR["brange"]=rb
+  }
+
+  if(st){
+    # ---- 3. the tide here -----------------------------------------------
+    ihw=0; best=1e9
+    for(i=1;i<=WT_N;i++) if(WT_K[i]=="H" && fabs(WT_M[i]-WS_T)<best){ best=fabs(WT_M[i]-WS_T); ihw=i }
+    il1=0; il2=0
+    if(ihw){
+      for(i=ihw-1;i>=1;i--) if(WT_K[i]=="L"){ il1=i; break }
+      for(i=ihw+1;i<=WT_N;i++) if(WT_K[i]=="L"){ il2=i; break }
+    }
+    if(!ihw || !il1 || !il2) return wk_err("no high water with a low water either side of it near that time at this station")
+    rg=wk_r2(WT_H[ihw]-(WT_H[il1]+WT_H[il2])/2)
+    step++
+    wl("")
+    wl(sprintf("  %d  The tide here: HW %s  %s m, the high water nearest %s", step, wk_hhmm(WT_M[ihw]), wk_f(WT_H[ihw],2), wk_hhmm(WS_T)))
+    wl(sprintf("     LW %s  %s m before it, LW %s  %s m after it", wk_hhmm(WT_M[il1]), wk_f(WT_H[il1],2), wk_hhmm(WT_M[il2]), wk_f(WT_H[il2],2)))
+    wl(sprintf("     range = %s - (%s + %s) / 2 = %s m", wk_f(WT_H[ihw],2), wk_f(WT_H[il1],2), wk_f(WT_H[il2],2), cw(wk_f(rg,2), C_ACC)))
+    why=""
+    if(TD_KIND=="S") why="a secondary port carries no constants of its own"
+    else {
+      iM2=CIDX["M2"]; iS2=CIDX["S2"]; iK1=CIDX["K1"]; iO1=CIDX["O1"]
+      aM2=0; aS2=0; aK1=0; aO1=0
+      for(i=1;i<=ST_N;i++){
+        if(ST_C[i]==iM2) aM2=ST_A[i]
+        if(ST_C[i]==iS2) aS2=ST_A[i]
+        if(ST_C[i]==iK1) aK1=ST_A[i]
+        if(ST_C[i]==iO1) aO1=ST_A[i]
+      }
+      if(aM2<=0 || aS2<=0) why="this station has no M2 or no S2"
+      else {
+        ff=(aK1+aO1)/(aM2+aS2)
+        if(ff>0.25) why=sprintf("the tide is mixed or diurnal (form factor %s)", wk_f(ff,2))
+      }
+    }
+    WR["range"]=rg
+    if(why!=""){
+      wl("     mean ranges are not available here: " why)
+      WR["means"]=0
+    } else {
+      sp=2*(aM2+aS2); np=2*(aM2-aS2)
+      wl(sprintf("     mean ranges from the constants: springs 2 x (M2 + S2) = %s m,", wk_f(sp,2)))
+      wl(sprintf("     neaps 2 x (M2 - S2) = %s m", wk_f(np,2)))
+      f=(rg-np)/(sp-np)
+      wk_lplace(rg,np,sp,f)
+      havef=1; WR["means"]=1; WR["f"]=f; WR["sprange"]=sp; WR["nprange"]=np
+    }
+
+    # ---- 4. found, in the prediction -------------------------------------
+    n=tide_table(jdt-17.5, jdt+17.5)
+    LR_N=0
+    for(i=2;i<n;i++) if(HL_K[i]=="H" && HL_K[i-1]=="L" && HL_K[i+1]=="L"){
+      LR_N++; LR_T[LR_N]=HL_T[i]
+      LR_R[LR_N]=HL_H[i]-(HL_H[i-1]+HL_H[i+1])/2
+      LR_P[LR_N]=wk_r2(wk_r2(HL_H[i])-(wk_r2(HL_H[i-1])+wk_r2(HL_H[i+1]))/2)
+    }
+    step++
+    wl("")
+    wl(sprintf("  %d  Found here, in the prediction: the tides either side of the day", step))
+    for(k=1;k<=LE_N;k++){
+      fi=wk_lfound(LE_T[k], wk_lkind(LE_Q[k]))
+      if(fi) LG_F[k]=LR_T[fi]
+      if(k!=ip && k!=inx) continue
+      tag=(k==ip) ? "p" : "n"
+      if(!fi){
+        wl(sprintf("     %-8s not found near the %s", wk_lkind(LE_Q[k]), wk_lname(LE_Q[k])))
+        continue
+      }
+      lag=LR_T[fi]-LE_T[k]
+      wl(sprintf("     %-8s %s %s   range %s m, %s days %s the %s", wk_lkind(LE_Q[k]), wk_ldate(LR_T[fi]+tz), wk_lclk(LR_T[fi]+tz),
+         wk_f(LR_P[fi],2), wk_f(fabs(lag),1), (lag<0) ? "before" : "after", wk_lname(LE_Q[k])))
+      if(lag<0.95) wl(sprintf("              %s days before the rule's %s", wk_f(1-lag,1), wk_lband(LE_T[k]+tz)))
+      else if(lag>2.05) wl(sprintf("              %s days after the rule's %s", wk_f(lag-2,1), wk_lband(LE_T[k]+tz)))
+      else wl(sprintf("              inside the rule's %s", wk_lband(LE_T[k]+tz)))
+      WR["f" tag "m"]=wk_lM(LR_T[fi]+tz)-wk_lM(jdm); WR["f" tag "r"]=LR_P[fi]; WR["f" tag "lag"]=lag
+    }
+    #  which way the tides are going here: the tide of the day against
+    #  the one two tides on, which is the same tide of the next day
+    j0=0; best=1e9
+    for(j=1;j<=LR_N;j++) if(fabs(LR_T[j]-WT_JD[ihw])<best){ best=fabs(LR_T[j]-WT_JD[ihw]); j0=j }
+    if(j0 && j0+2<=LR_N){
+      if(LR_P[j0+2]>rg){ state="making"; stxt="making" }
+      else if(LR_P[j0+2]<rg){ state="takingoff"; stxt="taking off" }
+      else { state="level"; stxt="neither making nor taking off" }
+      wl(sprintf("     here the tides are %s: %s m today, %s m two tides on", stxt, wk_f(rg,2), wk_f(LR_P[j0+2],2)))
+    }
+
+    # ---- 5. the coefficient, which is Brest's -----------------------------
+    step++
+    wl("")
+    wl(sprintf("  %d  The coefficient. It is Brest's by definition, so Brest is predicted", step))
+    if(!tide_open(SF, wk_lbrest(), jdt)) wl("     Brest's record is not in this station file, so there is no coefficient")
+    else {
+      btz=TD_TZ/1440.0
+      n=tide_hilo(jdt-1.5, jdt+1.5)
+      bi=0; best=1e9
+      for(i=2;i<n;i++) if(HL_K[i]=="H" && HL_K[i-1]=="L" && HL_K[i+1]=="L" && fabs(HL_T[i]-jdt)<best){ best=fabs(HL_T[i]-jdt); bi=i }
+      if(!bi) wl("     no high water was found at Brest near that time")
+      else {
+        bt=HL_T[bi]; bh=wk_r2(HL_H[bi]); b1=wk_r2(HL_H[bi-1]); b2=wk_r2(HL_H[bi+1])
+        rb=wk_r2(bh-(b1+b2)/2); C=int(100*rb/6.10+0.5); cfr=(C-45)/50; hasC=1
+        wl(sprintf("     HW Brest %s %s  %s m, in Brest's standard time", wk_ldate(bt+btz), wk_lclk(bt+btz), wk_f(bh,2)))
+        wl(sprintf("     LW %s m before it, LW %s m after it", wk_f(b1,2), wk_f(b2,2)))
+        wl(sprintf("     range = %s - (%s + %s) / 2 = %s m", wk_f(bh,2), wk_f(b1,2), wk_f(b2,2), wk_f(rb,2)))
+        wl(sprintf("     by pencil:      100 x %s / 6.10 = %s", wk_f(rb,2), cw(C "", C_ACC)))
+        #  the twice-a-day part alone: every constituent whose speed is
+        #  not between 1.7 and 2.2 cycles a day is left out
+        for(i=1;i<=ST_N;i++) if(CW_[ST_C[i]]<1.7 || CW_[ST_C[i]]>2.2) ST_F[i]=0
+        n=tide_hilo(jdt-1.5, jdt+1.5)
+        ai=0; best=1e9
+        for(i=2;i<n;i++) if(HL_K[i]=="H" && HL_K[i-1]=="L" && HL_K[i+1]=="L" && fabs(HL_T[i]-bt)<best){ best=fabs(HL_T[i]-bt); ai=i }
+        if(ai){
+          ra=wk_r2(wk_r2(HL_H[ai])-(wk_r2(HL_H[ai-1])+wk_r2(HL_H[ai+1]))/2); CA=int(100*ra/6.10+0.5); hasA=1
+          wl(sprintf("     the almanac's:  100 x %s / 6.10 = %d", wk_f(ra,2), CA))
+          wl("                     (the twice-a-day part of the tide alone)")
+          wl("     " cwd("that figure matched the published one to within 2 on the month it was"))
+          wl("     " cwd("checked. The two differ because the part of the tide that comes once a"))
+          wl("     " cwd("day makes one tide of each day bigger than the other, and the almanac"))
+          wl("     " cwd("leaves it out"))
+          WR["acoef"]=CA; WR["arange"]=ra
+        }
+        wl(sprintf("     45 is mean neaps and 95 mean springs: (%d - 45) / 50 = %s of the way", C, wk_f(cfr,2)))
+        WR["coef"]=C; WR["cf"]=cfr; WR["brange"]=rb
+      }
+    }
+  }
+  WR["state"]=state
+  if(hasc){
+    wl("")
+    wl("  " cwd(sprintf("coef=%s is noted. lunar does not use it yet", WA["coef"])))
+    WR["coefin"]=cf
+  }
+  LG_JD=jdt; LG_TZ=tz; LG_ST=st
+  wl("@@FIG")
+  ans="ANSWER   " stxt
+  if(!st && !typed) ans=ans ": " wk_lkind(LE_Q[ip]) " about " wk_lband(LE_T[ip]+tz) ", " wk_lkind(LE_Q[inx]) " about " wk_lband(LE_T[inx]+tz)
+  if(st || tab){
+    ans=ans "    range " wk_f(rg,2) " m"
+    if(havef) ans=ans ", " wk_f(f,2) " from neaps to springs"
+  }
+  if(hasC) ans=ans "    coefficient " C
+  if(hasA) ans=ans ", almanac " CA
+  wl("  " ans)
+  wk_rule()
+  return 1
+}
+#  The Moon's month as a strip, thirty days with the day in the middle.
+function wk_lcol(jd,   c){
+  if(jd<LG_JD-15) return -1
+  c=int((jd-(LG_JD-15))/30*56)
+  return (c>55) ? -1 : c
+}
+function wk_figlunar(   n,i,k,c,m,ph,rl,fd,dy,a,b,d,e){
+  n=56
+  for(i=0;i<n;i++){ ph[i]=" "; rl[i]="."; fd[i]=" "; dy[i]=" " }
+  for(k=1;k<=LE_N;k++){
+    c=wk_lcol(LE_T[k])
+    if(c>=0) ph[c]=(LE_Q[k]==0) ? "N" : ((LE_Q[k]==180) ? "F" : "Q")
+    for(i=0;i<n;i++){
+      m=LG_JD-15+(i+0.5)*30/n
+      if(m>=LE_T[k]+1 && m<LE_T[k]+2) rl[i]=(wk_lkind(LE_Q[k])=="springs") ? "=" : "-"
+    }
+    if(LG_F[k]>0){ c=wk_lcol(LG_F[k]); if(c>=0) fd[c]=(wk_lkind(LE_Q[k])=="springs") ? "S" : "n" }
+  }
+  dy[28]="t"
+  a=""; b=""; d=""; e=""
+  for(i=0;i<n;i++){ a=a ph[i]; b=b rl[i]; d=d fd[i]; e=e dy[i] }
+  print ""
+  printf "     %s\n", cw(a, C_HDR)
+  printf "     %s\n", cw(b, C_ACC)
+  if(LG_ST) printf "     %s\n", cw(d, C_HDR)
+  printf "     %s\n", cw(e, C_HDR)
+  printf "     %-25s%-6s%25s\n", wk_ldate(LG_JD-15+LG_TZ), wk_ldate(LG_JD+LG_TZ), wk_ldate(LG_JD+15+LG_TZ)
+  printf "  %s\n", cwd("N new moon   F full moon   Q a quarter   t the day")
+  printf "  %s\n", cwd("= springs by the rule   - neaps by the rule")
+  if(LG_ST) printf "  %s\n", cwd("S the biggest tide found   n the smallest")
+  return 0
+}
+
+# =====================================================================
 #  The list, with an example of each.  WORK.md carries the same six
 #  examples and tests/run-tests.sh checks that it still does.
 # =====================================================================
@@ -1306,6 +1720,10 @@ function wk_help(){
   print "  tidal_gate when a headland's stream turns, and the window to get round"
   print "    tides work tidal_gate hw=14:32 track=255 streams=075:2.2,078:2.6,080:2.0,085:0.9,250:0.4,255:1.5,258:2.4,260:2.7,258:2.1,255:1.0,080:0.3,078:1.4,076:2.1 t=17:00 dist=22 sog=7"
   print "    tides work tidal_gate hw=14:32 opens=5 shuts=-1 t=17:00 dist=22 sog=7"
+  print "  lunar      springs and neaps: the Moon, the rule, today's range, the coefficient"
+  print "    tides work lunar date=2025-05-24 brhwh=6.07 brlwh=1.26"
+  print "    tides work lunar date=2025-05-24 hwh=4.3 lwh=1.1 sprange=3.9 nprange=1.9"
+  print "    tides work lunar station=ticon/brest-3-fra-refmar date=2025-05-24 t=14:00"
   print ""
   print "  station= defaults to the station chosen with 'tides use'; date= and t="
   print "  default to now, in the station's standard time.  The same names work in"
@@ -1329,7 +1747,8 @@ function wk_run(name,args,   ok){
   else if(name=="cts") ok=wk_cts()
   else if(name=="setdrift") ok=wk_setdrift()
   else if(name=="tidal_gate") ok=wk_gate()
-  else return wk_err(sprintf("there is no calculator called '%s' (twelfths secondary stream atlas cts setdrift tidal_gate)", name))
+  else if(name=="lunar") ok=wk_lunar()
+  else return wk_err(sprintf("there is no calculator called '%s' (twelfths secondary stream atlas cts setdrift tidal_gate lunar)", name))
   if(W_ERR!="") return 0
   return ok
 }
@@ -1342,6 +1761,7 @@ function wk_print(name,   i){
     else if(name=="cts" && WF_OK) wk_figcts()
     else if(name=="setdrift") wk_figsd()
     else if(name=="tidal_gate") wk_figgate()
+    else if(name=="lunar") wk_figlunar()
   }
   print ""
   return 0

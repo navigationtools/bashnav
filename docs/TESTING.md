@@ -982,7 +982,10 @@ machine. Two things about how that check is built:
    the course to steer is found by bisection on the ground track rather than
    the asin of the cross-track part; the tidal gate's stream along the track
    is a dot product of two vectors rather than rate x cos, and its turn is
-   found by bisection on the straight line rather than by the proportion.
+   found by bisection on the straight line rather than by the proportion;
+   lunar's phases of the Moon are found by bisection on the elongation,
+   bracketed by a scan, rather than by stepping at the mean rate, and its
+   calendar is Python's own rather than the Julian Date formula.
    The coastal course's own chapter
    examples are in there too. One expected value was first typed by hand and
    was wrong; the script caught it — which is the rule above, again.
@@ -1003,7 +1006,22 @@ round, the foul limit applied with the wrong sign, a turn worked from the
 unrounded stream, the mean interval used when `hw2` is given, a time across
 midnight read on the wrong tide, and high water drawn off the middle of the
 strip. Three were not caught at first and each became a case (rounding, a
-time across midnight, tides eleven and a half hours apart).
+time across midnight, tides eleven and a half hours apart). For lunar,
+twenty-five in the awk and eleven in the port, all caught: among them the
+elongation taken the wrong way, springs put at the quarters, the rule a day
+early, the coefficient truncated or worked on the half range, the almanac's
+figure taken from the whole tide, the day drawn off the middle of the strip,
+a bare number on the day's label, and a call lunar does not need added to
+its list.
+
+**What lunar's reference does not cover, and what does.** The Sun's and
+Moon's longitudes are the engine's own short series in both, because that
+series is the definition here; the reference checks the working built on it.
+The predicted parts (the tide at a station, the tides found, Brest's
+coefficient both ways) have no second working: they rest on the harmonic
+engine, which is held to NOAA's tables, and on the browser and shell agreeing
+line for line. The almanac's figure was measured once against the published
+coefficients for Brest, November 2026: within 2 at all 56 high waters.
 
 ## Golden files
 

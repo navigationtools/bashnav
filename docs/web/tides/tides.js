@@ -1012,7 +1012,7 @@ function saveOffline() {
 
 
 /* =====================================================================
-   Coastal work: the seven calculators.
+   Coastal work: the eight calculators.
 
    The arithmetic and every line of the working are in work.js, which is
    held to `tides work` character for character.  This part is only the
@@ -1041,6 +1041,9 @@ function workNeedsStation(name, a) {
   if (name === 'atlas') return true;
   //  the tidal gate predicts its high water at a station unless hw= is typed
   if (name === 'tidal_gate') return !a.hw;
+  //  lunar uses a station only when nothing is typed from a tide table,
+  //  so a link that carries heights reads the same for every visitor
+  if (name === 'lunar') return !(a.hwh || a.lwh || a.range || a.sprange || a.nprange || a.brhwh || a.brlwh);
   if (name !== 'twelfths') return false;
   return !(a.lw || a.hw || a.lwh || a.hwh);
 }
@@ -1157,8 +1160,14 @@ function workRun(params) {
   }
   $('w-result').hidden = false;
   $('w-out').textContent = 'Loading the station…';
-  openStation(id).then(function (p) {
-    ctx.load = function () { return p; };
+  //  lunar's coefficient is Brest's by definition, so its station form
+  //  needs Brest's record beside the station's own.  If Brest cannot be
+  //  had the working says so and gives the rest.
+  var brest = (WNAME === 'lunar' && IDX.byId[WORK.brestId] !== undefined)
+    ? openStation(WORK.brestId).catch(function () { return null; }) : Promise.resolve(null);
+  Promise.all([openStation(id), brest]).then(function (got) {
+    var p = got[0], b = got[1];
+    ctx.load = function (q) { return (b && q === WORK.brestId) ? b : p; };
     workShow(WORK.run(WNAME, params, ctx));
   }).catch(function (e) {
     ctx.load = function () { return { err: e.message }; };
@@ -1237,7 +1246,7 @@ window.addEventListener('DOMContentLoaded', function () {
   $('w-clear').addEventListener('click', function () { drawWorkForm({}); $('w-result').hidden = true; });
 
   /*  ?work=... opens the calculator straight away -- before the station
-      index has loaded, because four of the seven never need it.  The
+      index has loaded, because four of the eight never need it.  The
       ones that do (the atlas page always; twelfths and the tidal gate
       when they are given a station) wait for it below. */
   var WQ = WORK.fromQuery(location.search), wq = asObj(WQ);

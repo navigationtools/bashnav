@@ -161,6 +161,11 @@ promised to it, and both are stated in the file as lists and held by
    2.9 MB of station data. `atlas`, and `twelfths` and `tidal_gate` with
    `station=`, are outside that boundary on purpose and stay links into the
    full app.
+3. **`WORK_MOON_CALLS` is a second, wider boundary for `lunar` alone** —
+   `jdate`, `jd2cal`, `sunLon`, `moonLon`, `moonPhase`: the calendar and the
+   Moon, which touch no station data (Larry's ruling ACU, 16 November 2026).
+   Only the calculators in `WORK_MOON_WORK` may make them, and the six above
+   stay held to the three. A lesson gets the five by loading `engine.js`.
 
 **Everything else the file exposes is `WORK_HOST`** and belongs to the tides
 page and the tests; it may change freely.

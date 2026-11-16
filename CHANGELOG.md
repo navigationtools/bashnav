@@ -1,5 +1,85 @@
 # Changelog
 
+## tides 1.4: an eighth work calculator, lunar (B16)
+
+**What.** `tides work lunar`, and `?work=lunar` in the browser: springs and
+neaps. Where the day sits in the Moon's month, when springs and neaps fall,
+how big today's tide is, and the tide coefficient. It is the second of the
+three calculators PILOT's Level 4 pages need. `tides` is version 1.4 with it,
+as Larry ruled on 15 November (a new number with each calculator).
+
+**Larry ruled the design one decision at a time (16 November 2026),** and
+each ruling is a shape in the code:
+
+| Ruling | Decision | What it means in the tool |
+|---|---|---|
+| ABY | what it works from | the Moon AND the tide tables, with whichever part it is given; a station supplies both |
+| ACC | the coefficient | by pencil from the day's heights (100 x the Brest range / 6.10 m), and beside it, at a station, as an almanac prints it |
+| ACG | when springs and neaps fall | the rule of thumb always ("a day or two after"); with a station, the tides actually found beside it |
+| ACM, ACO | the names | `date t hwh lwh range sprange nprange brhwh brlwh station`; `coef` is carried: checked, noted in one line, not used yet |
+| ACS | the figure | a strip of the Moon's month always; a bar for every tide above it with a station; the day's label carries its working |
+| ACU | on a lesson's page | five more engine calls, for lunar alone |
+
+**Why the coefficient is shown two ways.** Measured against the published
+coefficients for Brest, November 2026 (57 high waters): the pencil form on
+the whole tide is 2 points out on average and up to 6, and the error
+alternates between the two tides of a day. Worked on the twice-a-day
+constituents alone it is 1 point out on average and never more than 2. So the
+published figure behaves as the twice-a-day tide alone. Shom's sheet gives
+C = (H - N0) / U x 100 and does not say this; it is a finding from the
+figures. A student gets the method she can do with a pencil and the number
+she can check against an almanac, with the difference explained.
+
+**Why the rule is shown beside what is found.** Over 2025 and 2026 springs
+followed new and full moon by 1.4 days on average at Brest and 2.1 at
+Portsmouth, but any one case ran from the day of the Moon to three or more
+days after. Race week is the example: new moon 27 May 2025, the biggest tide
+at Brest that evening and at Portsmouth the evening before.
+
+**Why the Moon's phases are given to the hour.** The engine's series for the
+Sun and Moon is a short one, right for a rising and a setting. It puts a
+phase within about an hour of the almanac, so a minute would claim more than
+it knows.
+
+**What it affects.**
+
+- `src/tides/work.awk` section 8 (the reference); `docs/web/tides/work.js`
+  (the port and the figure); `tides.css`; `tides.js`, which now fetches
+  Brest's record beside the station's own for lunar's station form;
+  `index.html`. `bin/tides` and the iPad installer are rebuilt. The engine an
+  installed copy unpacks is `engine-1.4.awk`. The tides cache is `tides-v12`.
+- **The surface the course calls has grown:** `NAMES` and `SPEC` gain
+  `lunar`. **And the engine boundary has a second list:** `WORK_MOON_CALLS`
+  (`jdate`, `jd2cal`, `sunLon`, `moonLon`, `moonPhase`) for the calculators in
+  `WORK_MOON_WORK` (`lunar`). The six calculators in `WORK_PURE_WORK` are
+  still held to the three trig calls, so a page that supplies only those runs
+  them exactly as before. The note to the course's inbox travels in the same
+  queue run, as CLAUDE.md requires.
+- `docs/web/tides/WORK.md` section 8 is the contract. The manual gains
+  section 5.8 and Figure 7; the quick reference a row, the rule and two
+  checked answers. Both PDFs are rebuilt and say 1.4.
+- `coef`'s working and its entry field are on the XO's backlog (Larry).
+
+**A fault mended on the way, in `atlas`.** At a station with M2 and no S2
+the two mean ranges are equal, and placing the day between them divided by
+nothing: the shell tool stopped with awk's own error. One station in the file
+has it (Gamebridge, Ontario, a lake gauge with a millimetre of M2). `atlas`
+now says the mean ranges are not available there, as it does where there is
+no M2, and `lunar` was built the same way. Found while checking lunar's own
+division; a case holds both.
+
+**How it is held.** Fourteen worked cases, three at a station and sixteen
+refusals in `tests/tides-work.dat`; the typed ones from an independent
+working in `tests/tides-work-ref.py` (the Moon's phases by bisection, the
+calendar Python's own). The port is compared with the awk line for line over
+every case, the station forms included, and the figure's geometry is read
+back: the day in the middle, each phase where its time puts it, the rule's
+band a day after its phase and a day wide, a bar for every tide.
+`docs/web/tests/work-engine.js` holds lunar to its eight calls, and shows it
+needs more than the three. Two browser cases, one of them the station form,
+which proves the page fetches Brest. Thirty-six faults were planted
+(twenty-five in the awk, eleven in the port) and all are caught.
+
 ## A drafts folder, and the Level 1 gates draft kept in it
 
 **What.** `drafts/example_run_level1_gates.txt` is new: a draft run file of

@@ -189,6 +189,42 @@ CASES.forEach(function (c, i) {
     if (F.atl && (svg.match(/class="g-(fair|foul)"/g) || []).length !== F.pages.filter(function (p) { return p.m >= F.hw - 420 && p.m <= F.hw + 420; }).length) {
       ok = false; why = 'the bars are not one for each page';
     }
+  } else if (F.kind === 'lunar') {
+    //  the strip is thirty days at one scale, the day in the middle; every
+    //  mark is placed from the answer, not from the figure's own numbers
+    var ppd = (640 - 28) / 30;
+    var all = function (name) {
+      var o = [], re = new RegExp('data-pt="' + name + '" cx="([-0-9.]+)"', 'g'), m;
+      while ((m = re.exec(svg))) o.push(+m[1]);
+      return o;
+    };
+    var pname = function (q) { return q === 0 ? 'new' : q === 180 ? 'full' : 'quarter'; };
+    var hasAt = function (list, x, tol) { return list.some(function (v) { return Math.abs(v - x) <= tol; }); };
+    var xOfHour = function (h) { return 320 + (h * 60 - R.tmin) / 1440 * ppd; };
+    if (!P.day) { ok = false; why = 'the day is not marked'; }
+    else if (Math.abs(P.day[0] - 320) > 0.6) { ok = false; why = 'the day is not in the middle of the strip'; }
+    //  a phase is given to the hour, so its mark may sit half an hour off
+    else if (!hasAt(all(pname(R.pq)), xOfHour(R.ph), 1.1)) { ok = false; why = 'the last phase of the Moon is not where its time puts it'; }
+    else if (!hasAt(all(pname(R.nq)), xOfHour(R.nh), 1.1)) { ok = false; why = 'the next phase of the Moon is not where its time puts it'; }
+    else {
+      //  the rule's band starts a day after its phase and is a day wide
+      var bands = [], reb = /class="l-(spr|np)" x="([-0-9.]+)" y="[0-9.]+" width="([-0-9.]+)"/g, mb;
+      while ((mb = reb.exec(svg))) bands.push([mb[1], +mb[2], +mb[3]]);
+      var want = (R.pq === 0 || R.pq === 180) ? 'spr' : 'np';
+      if (!bands.some(function (b) { return b[0] === want && Math.abs(b[1] - (xOfHour(R.ph) + ppd)) <= 1.1 && Math.abs(b[2] - ppd) <= 0.1; })) {
+        ok = false; why = 'the rule\'s band for the last phase is not a day after it and a day wide';
+      }
+    }
+    if (ok && svg.indexOf(F.label.replace(/&/g, '&amp;')) < 0) { ok = false; why = 'the day\'s label is not drawn'; }
+    if (ok && R.coef !== undefined && (/brhwh=/.test(c.args) || /brest-3-fra-refmar/.test(c.args)) &&
+        F.label.indexOf('coefficient ' + R.coef + ' = 100') < 0) { ok = false; why = 'the day\'s label does not carry the coefficient\'s working'; }
+    var nbar = (svg.match(/class="l-bar( l-day)?"/g) || []).length, nday = (svg.match(/class="l-bar l-day"/g) || []).length;
+    if (ok && nbar !== F.bars.length) { ok = false; why = 'the bars are not one for each tide'; }
+    if (ok && F.st && (F.bars.length < 50 || nday !== 1)) { ok = false; why = 'a month of tides is not drawn, or the day\'s tide is not marked'; }
+    if (ok && !F.st && nbar !== 0) { ok = false; why = 'bars are drawn with no station to predict them'; }
+    if (ok && R.fpm !== undefined && !hasAt(all((R.pq === 0 || R.pq === 180) ? 'biggest' : 'smallest'), 320 + (R.fpm - R.tmin) / 1440 * ppd, 0.6)) {
+      ok = false; why = 'the tide found near the last phase is not where its time puts it';
+    }
   } else if (F.kind === 'stream') {
     if (!(P.today && P.neaps && P.springs)) { ok = false; why = 'a point is missing'; }
     else {

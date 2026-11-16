@@ -2,7 +2,7 @@
 ## Harmonic tide prediction, offline, for 8,334 stations
 
 **Version {{VERSION}}** — no network, no subscription, nothing that expires.
-With seven coastal work calculators that show every step.
+With eight coastal work calculators that show every step.
 
 ---
 
@@ -127,7 +127,7 @@ directly — see section 6.
 
 ---
 
-## 5. The seven coastal calculators
+## 5. The eight coastal calculators
 
 Each shows its working step by step, because the point is teaching. They are on
 the day screen and the station picker in the browser, and are `tides work
@@ -281,6 +281,69 @@ it.](fig/tides-gate.png)
 *When* the stream turns does not depend on springs and neaps; how hard it runs
 does, and `stream` (5.3) gives the day's rate. And a gate here is a place and
 a time, not a passage of miles through it.
+
+### 5.8 `lunar` — springs and neaps
+
+Where the day sits in the Moon's month, when springs and neaps fall, how big
+today's tide is, and the tide coefficient. It works from the Moon and from the
+tide tables, with whichever part it is given; a station supplies both.
+
+**From the Moon.** Give a `date`. It gives her age, the last and the next of
+her four phases, and the rule of thumb:
+
+        springs follow new and full moon by a day or two
+        neaps follow the quarters the same way
+
+with the dates that gives, and whether the tides are **making** (growing
+toward springs) or **taking off** (falling toward neaps). The phases are given
+to the hour: the engine's series for the Moon is a short one.
+
+**From the tide tables.** Give today's `hwh` and `lwh` at the standard port
+(or the `range`), and the port's `sprange` and `nprange`. It places the day
+between mean neaps and mean springs, with the same figures `stream` (5.3)
+takes for the rate.
+
+**The coefficient.** Give Brest's heights, `brhwh` and `brlwh`:
+
+        coefficient = 100 x the range at Brest / 6.10 m
+
+45 is mean neaps and 95 mean springs. The coefficient is Brest's by
+definition, and French almanacs print it for every tide.
+
+**At a station** everything is predicted, and two things are added beside the
+pencil work:
+
+1. **Springs and neaps as they are found.** The biggest and smallest tides
+   round the day are found in the prediction and set beside the rule, with how
+   far they fell from it. The rule is right on average and can be two or three
+   days out for any one Moon. Round the new moon of 27 May 2025 the biggest
+   tide at Brest came that same evening, and at Portsmouth the evening before;
+   the rule says the 28th to the 29th.
+2. **The coefficient both ways.** By pencil, from the heights a tide table
+   prints; and as an almanac prints it, which is the same sum on the part of
+   the tide that comes twice a day. The two can differ by up to 6 points,
+   because the once-a-day part makes one tide of each day bigger than the
+   other and the almanac leaves it out. Brest is predicted for this whatever
+   the station.
+
+The range of a tide at a station is its high water less the mean of the low
+waters either side of it.
+
+```
+tides work lunar date=2025-05-24 brhwh=6.07 brlwh=1.26
+tides work lunar date=2025-05-24 hwh=4.3 lwh=1.1 sprange=3.9 nprange=1.9
+tides work lunar station=ticon/brest-3-fra-refmar date=2025-05-24 t=14:00
+```
+
+![**Figure 7** - the third example. The strip is the Moon's month, thirty days
+with the day in the middle: her four phases, and a band where the rule of
+thumb puts springs and neaps. The bars above it are the range of every tide,
+and a dot marks each biggest and smallest tide found: round the new moon the
+dot sits ahead of the rule's band. The day's label carries its working, not a
+bare number.](fig/tides-lunar.png)
+
+`coef=`, the coefficient an almanac prints, may be carried in a link: it is
+checked and noted, and not used yet.
 
 ---
 

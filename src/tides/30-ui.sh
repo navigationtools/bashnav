@@ -93,7 +93,7 @@ do_work() {
   eng -v cmd=work -v wname="$wn" -v wargs="$wa" -v defstation="$station" \
       -v nowdate="$(utctoday)" -v nowtime="$(date -u '+%H:%M')" -v nofig="${NOFIG:-0}"
 }
-#  From the menu: show the seven with an example each, take a name and a
+#  From the menu: show the eight with an example each, take a name and a
 #  line of parameters, and go round again until return.  The parameter
 #  line is split on spaces with globbing off, so a value is never taken
 #  for a file pattern.

@@ -1,6 +1,6 @@
 # tides — the coastal work calculators: the URL contract
 
-This file is **the authoritative contract** for linking into the seven coastal
+This file is **the authoritative contract** for linking into the eight coastal
 navigation calculators in the browser build of `tides`. The coastal navigation
 course deep-links here from its lessons, so the parameter names below are
 fixed: a name is never renamed or given a new meaning. New parameters may be
@@ -62,11 +62,20 @@ it as four lists at the top:
 | `WORK_HOST` | everything else exposed: the tides page's and the tests'. It may change without warning |
 | `WORK_PURE_CALLS` | `sind`, `cosd`, `asind` — the only tide-engine calls the pure calculators make |
 | `WORK_PURE_WORK` | `twelfths` (typed times), `secondary`, `stream`, `cts`, `setdrift`, `tidal_gate` (typed `hw`) — the six that stay inside that boundary |
+| `WORK_MOON_CALLS` | `jdate`, `jd2cal`, `sunLon`, `moonLon`, `moonPhase` — the calendar and the Moon: five more engine calls, for `lunar` alone (Larry, 16 November 2026) |
+| `WORK_MOON_WORK` | `lunar` (its typed forms) — may make the three calls above and these five, and nothing else |
 
 **What the boundary buys a lesson:** those six can be worked without the
 2.9 MB of station data, which would otherwise have to be downloaded before a
 student could see twelfths done. `atlas`, and `twelfths` or `tidal_gate` with
 `station=`, need the real engine and stay links into the full app.
+
+**`lunar` on a lesson's page.** Its typed forms need the calendar and the Moon
+as well as the three trig calls. None of the five touches station data, and a
+lesson gets them all by loading `engine.js`, which is 22 KB of code. The six
+calculators above are still held to the three calls alone, so a page that
+supplies only those runs them exactly as before. `lunar` with `station=`
+stays a link into the full app.
 
 **It is checked by running, not by reading.** `docs/web/tests/work-engine.js`
 runs every pure case against a tide engine that answers those three calls and
@@ -87,7 +96,7 @@ watching by showing that `atlas` does reach past them.
 | dates | `YYYY-MM-DD` |
 | variation, deviation | degrees, **east positive, west negative** (`var=-2` is 2° W) |
 | `lesson` | optional, on every calculator: see below |
-| `work` | which calculator: `twelfths secondary stream atlas cts setdrift tidal_gate` |
+| `work` | which calculator: `twelfths secondary stream atlas cts setdrift tidal_gate lunar` |
 
 **A `+` in a query string is a space.** Browsers decode `tdhw2=+5` as
 `tdhw2= 5`. Write positive values unsigned (`tdhw2=5`) or as `%2B5`; an
@@ -98,7 +107,7 @@ unsigned number is positive, and a leading space is trimmed, so both work.
 `_ . / -`. A `/` may be written as-is or as `%2F`.
 
 **Times at a station** (`t` and `date` for `atlas` and the station forms of
-`twelfths` and `tidal_gate`) are the station's own **standard time** — GMT for the UK, with no
+`twelfths`, `tidal_gate` and `lunar`) are the station's own **standard time** — GMT for the UK, with no
 summer time — exactly as every other `tides` screen and a printed tide table.
 
 **Every value is checked.** An unknown parameter, a value that is not a
@@ -392,6 +401,107 @@ a gate here is a place and a time, not a passage of miles through it.
 
 ---
 
+## 8. `lunar` — springs and neaps: the Moon, the rule, today's range, the coefficient
+
+Where the day sits in the Moon's month, when springs and neaps fall, how big
+today's tide is, and the tide coefficient. It works from the Moon and from the
+tide tables, with whichever part it is given, and a station supplies both.
+Larry ruled its design one decision at a time on 16 November 2026.
+
+```
+   what she gives                      what it works
+   --------------                      -------------
+   date=  (t=)                 --->    1  the Moon: her age, the last and
+                                          the next phase
+                                       2  the rule of thumb: springs a day or
+                                          two after new and full moon, neaps
+                                          after the quarters
+   hwh= lwh=  (or range=)      --->    3  today's range, and its place between
+   sprange= nprange=                      the port's mean neaps and springs
+   brhwh= brlwh=               --->    4  the coefficient, by pencil:
+                                          100 x the Brest range / 6.10 m
+   station=                    --->    all of it, predicted: the tide there,
+                                       the biggest and smallest tides FOUND
+                                       beside the rule, and the coefficient
+                                       both by pencil and as an almanac
+                                       prints it
+```
+
+**The Moon:**
+
+| parameter | | meaning |
+|---|---|---|
+| `date` | default today | the day. Without a station, in UT |
+| `t` | default 12:00 (now, when no date is given) | the time. With a station it picks the high water nearest it |
+
+**The tide tables,** for any standard port:
+
+| parameter | | meaning |
+|---|---|---|
+| `hwh`, `lwh` | together | today's high and low water heights there, m |
+| `range` | in place of the two heights | today's range, m |
+| `sprange`, `nprange` | required with either | the port's mean spring and neap ranges, m, as `stream` takes them |
+
+**The coefficient:**
+
+| parameter | | meaning |
+|---|---|---|
+| `brhwh`, `brlwh` | together | Brest's high and low water heights for the day, m |
+| `coef` | carried, not yet used | the coefficient an almanac prints, 20 to 120. Lunar checks it, says in one line that it is noted and not used yet, and works everything else. Its working and its entry field are on the backlog |
+
+**A station:**
+
+| parameter | | meaning |
+|---|---|---|
+| `station` | station form | a station id. Used when it is named, or when nothing is typed from a tide table and one is chosen. Not with typed heights |
+
+**A link that carries typed heights never uses the visitor's chosen station,**
+so it gives every reader the same working. A link with a date alone gives the
+Moon and the rule, and a reader who has chosen a station also sees what was
+found there.
+
+**The Moon's phases are given to the hour.** The engine's series for the Sun
+and Moon is a short one; it puts a phase within about an hour of the almanac.
+
+**The rule of thumb, and what is found.** The rule is always shown: springs a
+day or two after new and full moon, neaps a day or two after the quarters. It
+is right on average and can be two or three days out for any one Moon. With a
+station the biggest and smallest tides are found in the prediction and shown
+beside it, with how far they fell from the rule. Race week is the example:
+new moon on 27 May 2025, the biggest tide at Brest that evening and at
+Portsmouth the evening before.
+
+**The range of a tide at a station** is its high water less the mean of the
+low waters either side of it. Typed, it is the high water less the low water
+she gives.
+
+**The coefficient is Brest's,** by Shom's definition, and is applied to the
+whole of metropolitan France: 45 at mean neaps, 95 at mean springs, 20 to 120
+at the extremes. So at any other port lunar gives the place between that
+port's own mean neaps and springs, and predicts Brest for the coefficient.
+
+**Two coefficients, side by side.** By pencil, from the heights a tide table
+prints: 100 x the range / 6.10 m. And, in the station form, as an almanac
+prints it: the same sum on the part of the tide that comes twice a day, with
+the once-a-day part left out. Measured on the 57 high waters of November 2026
+at Brest against the published figures, the pencil figure is 2 points out on
+average and up to 6, alternating between the two tides of a day; the second is
+1 point out on average and never more than 2. Shom's own sheet does not say
+its figure leaves the once-a-day part out: that is a finding from the
+published figures.
+
+**What it does not do.** Use `coef` (above). Give a coefficient for a port
+other than Brest. Correct for the weather.
+
+    ?work=lunar&date=2025-05-24&brhwh=6.07&brlwh=1.26
+    ?work=lunar&date=2025-05-24&hwh=4.3&lwh=1.1&sprange=3.9&nprange=1.9
+    ?work=lunar&station=ticon/brest-3-fra-refmar&date=2025-05-24&t=14:00
+    tides work lunar date=2025-05-24 brhwh=6.07 brlwh=1.26
+    tides work lunar date=2025-05-24 hwh=4.3 lwh=1.1 sprange=3.9 nprange=1.9
+    tides work lunar station=ticon/brest-3-fra-refmar date=2025-05-24 t=14:00
+
+---
+
 ## Checked answers
 
 The coastal course's own chapter examples are in `tests/tides-work.dat`, each
@@ -408,6 +518,9 @@ confirmed first by `tests/tides-work-ref.py`:
 | `work=secondary&hw=10:52&hwh=4.39&lw=04:30&lwh=1.50&mhws=5.5&mhwn=4.4&mlwn=2.2&mlws=0.8&dhws=-0.2&dhwn=-0.1&dlwn=0.0&dlws=0.1&thw1=0000&tdhw1=20&thw2=0600&tdhw2=10&tlw1=0000&tdlw1=5&tlw2=0600&tdlw2=25` | HW 11:10 4.29 m, LW 04:50 1.55 m |
 | `work=tidal_gate&hw=14:32&track=255&streams=075:2.2,...,076:2.1&t=17:00&dist=22&sog=7` (the example above) | open 12:13 to 18:18; at 17:00 open, shuts in 1 h 18 min; leave between 09:04 and 15:09 |
 | `work=tidal_gate&hw=14:32&opens=5&shuts=-1&t=17:00&dist=22&sog=7` | open 07:07 to 13:32, and 19:32 to 01:57 next day; at 17:00 shut, opens in 2 h 32 min |
+| `work=lunar&date=2025-05-24&brhwh=6.07&brlwh=1.26` | last quarter 20 May, new moon 27 May; springs by the rule about 28 to 29 May; making; coefficient 79 |
+| `work=lunar&date=2025-05-24&hwh=4.3&lwh=1.1&sprange=3.9&nprange=1.9` | range 3.20 m, 0.65 of the way from neaps to springs |
+| `work=lunar&station=ticon/brest-3-fra-refmar&date=2025-05-24&t=14:00` | range 4.78 m; found: neaps 20 May, springs 27 May 17:04 (6.17 m); coefficient 78 by pencil, 79 as an almanac prints it |
 
 **A training and cross-checking aid, not a substitute for judgement.** Where
 this and the almanac, the atlas or the chart differ, they are right.
