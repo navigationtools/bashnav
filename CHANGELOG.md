@@ -1,5 +1,59 @@
 # Changelog
 
+## tides 1.5.2: the minimum safe depth in a sea (W28)
+
+**What.** `tides work depth` and `?work=depth` take the sea: `swell=` and
+`waves=`, the heights a forecast gives. The seas need 2.5 times the combined
+sea of water, so that even the largest wave does not break over the shoal;
+her keel needs draught plus clearance; the greater governs, and the window
+and the figure are worked on it. The working prints both ways of combining the
+sea, each with why, and the words are written once in
+`docs/web/notes/weather-W28.txt`, tagged for the weather app.
+
+```
+   for her keel    draught 1.80 + clearance 0.50          = 2.30 m of water
+   for the seas    2.5 x sqrt(1.00^2 + 1.00^2) = 2.5 x 1.414 = 3.54 m
+                   (added, as the class rule has it: 2.5 x 2.00 = 5.00 m)
+   the seas govern: 3.54 m of water
+```
+
+**Why.** The course's Level 2 crosses the Eddystone, and the weather gap list
+carries the class rule of thumb "about 2.5 x (swell + wind waves)" (W28). It
+was checked against public sources before it shipped, as the gap list
+requires. The 2.5 holds: a wave breaks in water about 1.3 times its height,
+and the largest wave is about twice the significant height, so 2 x 1.3 = 2.6.
+The plain sum does not: NOAA's buoys and the NWS combine swell and wind waves
+as the square root of the sum of the squares.
+
+**Larry's rulings, 16 November 2026.**
+
+| | the choice | what was ruled |
+|---|---|---|
+| AJK | how the swell and wind waves combine | the root of the sum of the squares, as NOAA; and the class rule's sum printed beside it, each with a full explanation, breaking seas included; the words tagged for re-use in the weather app |
+| AJP | how the seas meet the keel | the greater of the two governs |
+
+**What it affects.**
+
+1. **`swell` and `waves` are new names on `depth`** in the contract a lesson
+   may link (`SPEC` gains them); nothing existing changes, and a link without
+   them prints exactly what it printed. A note to the course travels with
+   this.
+2. **`tides` is 1.5.2** under rule 13, not yet verified with the course.
+3. **`docs/web/notes/`** is new: words written once for more than one tool.
+   `NOTES` is on the page's `WORK_HOST` list, for the weather app.
+4. **The service worker's cache is `tides-v17`.**
+
+**Sources** (named at the head of the tagged file too): the Ocean Coach's
+"1.3 rule" and the breaker index (marinespecies.org) for breaking; the Bureau
+of Meteorology's "Ruling the waves" and the NWS Mariners Weather Log, August
+2005, for the largest wave; NOAA NDBC's wave glossary and the NWS glossary's
+"seas" for combining.
+
+**Checked.** Seven worked cases and three refusals from an independent
+working; the page the same as the shell for all 204 cases; the tagged words
+held line for line to their file; the figure read back. Ten faults put in,
+each caught.
+
 ## The router keeps her inside the box a coastline was cut to (`bounds`)
 
 **What.** An areas file may now say the box it was cut to:

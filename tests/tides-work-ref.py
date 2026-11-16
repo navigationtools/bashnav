@@ -357,8 +357,24 @@ def month_end_phase(y0, y1):
     return None
 
 # ---- depth -------------------------------------------------------------
-def depth_need(draught, clear, depth=None, dries=None):
-    return draught + clear + dries if dries is not None else draught + clear - depth
+def depth_need(draught, clear, depth=None, dries=None, water=None):
+    w = draught + clear if water is None else water
+    return w + dries if dries is not None else w - depth
+
+
+def sea_water(draught, clear, swell=None, waves=None):
+    """W28: the water the seas need is 2.5 times the significant height
+    of the combined sea, the swell and the wind waves combined as NOAA
+    combines them, by their energy: the height is the square root of the
+    sum of the squares, worked here as hypot(); the greater of that and
+    the keel's water governs"""
+    keel = draught + clear
+    if swell is None and waves is None:
+        return dict(), keel
+    h = math.hypot(swell or 0.0, waves or 0.0)
+    sea = 2.5 * h
+    return dict(sea=h, seasum=(swell or 0.0) + (waves or 0.0), seawater=sea, keelwater=keel,
+                waterneed=max(sea, keel)), max(sea, keel)
 
 
 def depth_edge(t1, h1, t2, h2, need, which):
@@ -381,10 +397,12 @@ def depth_edge(t1, h1, t2, h2, need, which):
     return (a + b) / 2
 
 
-def depth(turns, draught, clear, depth=None, dries=None, t=None):
+def depth(turns, draught, clear, depth=None, dries=None, t=None, swell=None, waves=None):
     """turns: [(minutes, height), ...] two or three of them, in order"""
-    need = depth_need(draught, clear, depth, dries)
+    extra, water = sea_water(draught, clear, swell, waves)
+    need = depth_need(draught, clear, depth, dries, water)
     out = dict(need=need)
+    out.update(extra)
     top = max(h for _, h in turns)
     out['never'] = 1 if round(need, 6) > top else 0
     if not out['never']:
@@ -436,6 +454,15 @@ if __name__ == '__main__':
     show('DEP8 the moment she touches, on the datum', depth(T, 1.8, 0, dries=0, t=hm('14:00')))
     show('DEP9 low water below the datum', depth([(0, -0.3), (370, 2.9), (745, -0.1)], 1.2, 0.3, depth=1.3))
     show('DEP10 open from low water, shut on the fall', depth([(hm('05:12'), 0.8), (hm('11:24'), 4.2), (hm('17:40'), 0.2)], 1.0, 0.2, depth=0.6, t=hm('17:00')))
+    #  W28, the sea: the seas govern; the keel governs; one height only; over a charted depth;
+    #  a sea that leaves never enough water; and her time in water the seas would break in
+    show('DEP15 the seas govern', depth(T, 1.8, 0.5, dries=0.3, t=hm('09:00'), swell=1.0, waves=1.0))
+    show('DEP16 the keel governs', depth(T, 1.8, 0.5, dries=0.3, swell=0.5, waves=0.4))
+    show('DEP17 swell only', depth(T, 1.8, 0.5, dries=0.3, swell=1.2))
+    show('DEP18 over a charted depth', depth(T, 1.8, 0.5, depth=0.6, swell=1.5, waves=0.8))
+    show('DEP19 never, for the seas', depth(T, 1.8, 0.5, dries=0.3, swell=2.0, waves=1.5))
+    show('DEP20 her time in breaking water', depth(T, 1.2, 0.3, depth=0.5, swell=1.2, waves=0.9, t=hm('06:00')))
+    show('DEP21 Portsmouth, the two rules, with a sea', depth([(hm('02:00'), 1.26), (hm('08:41'), 4.36), (hm('14:20'), 1.04)], 1.8, 0.5, dries=0.3, t=hm('09:00'), swell=0.8, waves=0.6))
     #  0.1 + 0.2 is a hair over 0.3: a tide that reaches 0.30 m exactly opens at high water,
     #  and one whose low water is 0.30 m has enough water all through
     show('DEP13 a hair over, at high water', depth([(hm('05:12'), 0.0), (hm('11:24'), 0.3)], 0.1, 0.2, dries=0.0))

@@ -107,7 +107,7 @@ bn_unpack() {
 #  Part of Bash Navigation Software.  https://github.com/navigationtools/bashnav
 #  Copyright 2026 M. Larry Sherman.  Apache License 2.0.
 # =====================================================================
-TIDES_VERSION=1.5.1
+TIDES_VERSION=1.5.2
 TIDES_HOME=${TIDES_HOME:-$(bn_home .tides)}
 CONF="$TIDES_HOME/config"
 ENGINE="$TIDES_HOME/engine-$TIDES_VERSION.awk"
@@ -3499,6 +3499,36 @@ function wk_dedge(n,step,t1,h1,k1,t2,h2,k2,need,   D,R,st,p,c,i,ix,fr,cum,stp,hA
   wl(sprintf("       %s of %s = %s after %s, so %s", wk_f(f,3), wk_dur(D), wk_dur(f*D), wk_kname(k1), cw(wk_hhmm(DE_C[n]), C_ACC)))
   return st
 }
+#  A block of the words tagged for the weather app, printed line for
+#  line: docs/web/notes/weather-W28.txt is where they are written, and
+#  docs/web/tests/tides-work.js holds these lines to it.
+function wk_dnote(tag){
+  wl("")
+  if(tag=="W28.why"){
+    wl("     Why 2.5 times the sea. A wave breaks when the water under it is")
+    wl("     about 1.3 times its own height. The largest wave in a sea is")
+    wl("     about twice the significant height a forecast gives, so the")
+    wl("     largest needs 2 x 1.3 = 2.6 times that height of water. With")
+    wl("     2.5 times the significant height under her, even that wave runs")
+    wl("     on without breaking. A breaking sea, not the keel, is the danger")
+    wl("     here: it can roll a boat over, or lift her and drop her on the")
+    wl("     bottom. Never judge a shoal by where the surf is breaking: a set")
+    wl("     of bigger waves breaks further out than the ones before it.")
+  } else if(tag=="W28.rss"){
+    wl("     Why the square root of the sum of the squares. Swell and wind")
+    wl("     waves come from different places and ride on one another at")
+    wl("     random, so their crests seldom stack. What adds is their energy,")
+    wl("     and the height goes as the square root of the energy. NOAA's")
+    wl("     buoys and the \"seas\" of a forecast combine them this way.")
+  } else if(tag=="W28.sum"){
+    wl("     Why the class rule adds them. The plain sum is never less than")
+    wl("     the square root of the sum of the squares, so it errs on the")
+    wl("     safe side and is quick in the head. It supposes that every")
+    wl("     swell crest meets a wind-wave crest, which is rare, so it asks")
+    wl("     for more water than the sea is likely to need.")
+  }
+  return 0
+}
 #  the height at a time between two turns, by both rules
 function wk_dh(t1,h1,t2,h2,t,   D,R,x,ix,fr,cum,stp){
   D=t2-t1; R=h2-h1
@@ -3532,8 +3562,8 @@ function wk_dline(lab,h,   w,u,s){
 function wk_depth(   manual,six,lwm,lwh,hwm,hwh,l2m,l2h,d,d2,tt,hast,need,i,ip,inx,iL,st,step,nm,
                      o,s,never,oa,sa,ot,stt,m,lab,least,w,u,what,hv,ans,ans2){
   manual = wk_has("lw") || wk_has("hw") || wk_has("lwh") || wk_has("hwh") || wk_has("lw2") || wk_has("lw2h")
-  if(manual) wk_allow("depth", "depth dries draught clear lw lwh hw hwh lw2 lw2h t")
-  else       wk_allow("depth", "depth dries draught clear station date t")
+  if(manual) wk_allow("depth", "depth dries draught clear swell waves lw lwh hw hwh lw2 lw2h t")
+  else       wk_allow("depth", "depth dries draught clear swell waves station date t")
   if(W_ERR!="") return 0
   if(wk_has("depth") && wk_has("dries")) return wk_err("give depth= (a charted depth) or dries= (a drying height), not both")
   if(!wk_has("depth") && !wk_has("dries")) return wk_err("depth= or dries= is needed (the charted depth, or the drying height, m)")
@@ -3542,8 +3572,22 @@ function wk_depth(   manual,six,lwm,lwh,hwm,hwh,l2m,l2h,d,d2,tt,hast,need,i,ip,i
   else       DZ_V=wk_num("depth","","0","100","the charted depth, m")
   DZ_DG=wk_num("draught","","0.1","20","her draught, m")
   DZ_CL=wk_num("clear","","0","20","the clearance wanted under the keel, m; 0 for the moment she touches")
+  #  THE SEA (W28; Larry, AJK and AJP, 16 November 2026).  swell= and
+  #  waves= are the heights a forecast gives, in metres.  The water she
+  #  needs for the seas is 2.5 times their combined height, combined as
+  #  the root of the sum of their squares (AJK); and of that and the
+  #  water her keel needs, the greater governs (AJP).  The words that
+  #  say why are in docs/web/notes/weather-W28.txt, tagged for the
+  #  weather app, and printed here line for line.
+  DZ_SEA = wk_has("swell") || wk_has("waves")
+  DZ_SW = wk_has("swell") ? wk_num("swell","","0","15","the swell's height, m") : 0
+  DZ_WW = wk_has("waves") ? wk_num("waves","","0","15","the wind waves' height, m") : 0
   if(W_ERR!="") return 0
-  need = DZ_DRY ? DZ_DG+DZ_CL+DZ_V : DZ_DG+DZ_CL-DZ_V
+  DZ_KW = DZ_DG+DZ_CL
+  DZ_RSS = sqrt(DZ_SW*DZ_SW + DZ_WW*DZ_WW); DZ_SUM = DZ_SW+DZ_WW
+  DZ_SEAW = 2.5*DZ_RSS
+  DZ_W = (DZ_SEA && DZ_SEAW > DZ_KW) ? DZ_SEAW : DZ_KW
+  need = DZ_DRY ? DZ_W+DZ_V : DZ_W-DZ_V
   hast=0
   if(manual){
     lwm=wk_time("lw","time of low water"); lwh=wk_num("lwh","","-20","30","height of low water, m")
@@ -3602,18 +3646,50 @@ function wk_depth(   manual,six,lwm,lwh,hwm,hwh,l2m,l2h,d,d2,tt,hast,need,i,ip,i
   if(DZ_DRY) wl(sprintf("  a bank that dries %s m: it stands %s m above chart datum", wk_f(DZ_V,2), wk_f(DZ_V,2)))
   else       wl(sprintf("  charted depth %s m: the sea bed is %s m below chart datum", wk_f(DZ_V,2), wk_f(DZ_V,2)))
   wl(sprintf("  her draught %s m, and %s m wanted under the keel", wk_f(DZ_DG,2), wk_f(DZ_CL,2)))
+  if(DZ_SEA){
+    if(wk_has("swell") && wk_has("waves")) wl(sprintf("  the sea: swell %s m, wind waves %s m", wk_f(DZ_SW,2), wk_f(DZ_WW,2)))
+    else if(wk_has("swell")) wl(sprintf("  the sea: swell %s m", wk_f(DZ_SW,2)))
+    else wl(sprintf("  the sea: wind waves %s m", wk_f(DZ_WW,2)))
+  }
   wl("")
-  wl("  1  The height of tide she needs")
-  if(DZ_DRY) wl(sprintf("     draught %s + clearance %s + drying height %s = %s m",
-                wk_f(DZ_DG,2), wk_f(DZ_CL,2), wk_f(DZ_V,2), cw(wk_f(need,2), C_ACC)))
-  else       wl(sprintf("     draught %s + clearance %s - charted depth %s = %s m",
-                wk_f(DZ_DG,2), wk_f(DZ_CL,2), wk_f(DZ_V,2), cw(wk_f(need,2), C_ACC)))
+  step=1
+  if(DZ_SEA){
+    wl("  1  The water she needs, for her keel and for the seas")
+    wl(sprintf("     for her keel   draught %s + clearance %s = %s m of water", wk_f(DZ_DG,2), wk_f(DZ_CL,2), wk_f(DZ_KW,2)))
+    wl("     for the seas   2.5 x the combined height of the sea")
+    if(wk_has("swell") && wk_has("waves")){
+      #  the combined height to the millimetre, so 2.5 times it gives the
+      #  same centimetre on paper as here
+      wl(sprintf("       combined, as forecasters do: sqrt(%s^2 + %s^2) = %s m", wk_f(DZ_SW,2), wk_f(DZ_WW,2), wk_f(DZ_RSS,3)))
+      wl(sprintf("         2.5 x %s = %s m of water", wk_f(DZ_RSS,3), wk_f(DZ_SEAW,2)))
+      wl(sprintf("       added, as the class rule has it: %s + %s = %s m", wk_f(DZ_SW,2), wk_f(DZ_WW,2), wk_f(DZ_SUM,2)))
+      wl(sprintf("         2.5 x %s = %s m of water, %s m more", wk_f(DZ_SUM,2), wk_f(2.5*DZ_SUM,2), wk_f(2.5*DZ_SUM-DZ_SEAW,2)))
+    } else {
+      wl(sprintf("       one height only, %s m: 2.5 x %s = %s m of water", wk_f(DZ_RSS,2), wk_f(DZ_RSS,2), wk_f(DZ_SEAW,2)))
+    }
+    if(DZ_SEAW > DZ_KW) wl(sprintf("     the seas govern: %s m of water", cw(wk_f(DZ_W,2), C_ACC)))
+    else if(DZ_SEAW < DZ_KW) wl(sprintf("     her keel governs: %s m of water", cw(wk_f(DZ_W,2), C_ACC)))
+    else wl(sprintf("     the two are the same: %s m of water", cw(wk_f(DZ_W,2), C_ACC)))
+    wk_dnote("W28.why")
+    if(wk_has("swell") && wk_has("waves")){ wk_dnote("W28.rss"); wk_dnote("W28.sum") }
+    wl("")
+    step=2
+    wl("  2  The height of tide she needs")
+    if(DZ_DRY) wl(sprintf("     %s m of water + drying height %s = %s m", wk_f(DZ_W,2), wk_f(DZ_V,2), cw(wk_f(need,2), C_ACC)))
+    else       wl(sprintf("     %s m of water - charted depth %s = %s m", wk_f(DZ_W,2), wk_f(DZ_V,2), cw(wk_f(need,2), C_ACC)))
+  } else {
+    wl("  1  The height of tide she needs")
+    if(DZ_DRY) wl(sprintf("     draught %s + clearance %s + drying height %s = %s m",
+                  wk_f(DZ_DG,2), wk_f(DZ_CL,2), wk_f(DZ_V,2), cw(wk_f(need,2), C_ACC)))
+    else       wl(sprintf("     draught %s + clearance %s - charted depth %s = %s m",
+                  wk_f(DZ_DG,2), wk_f(DZ_CL,2), wk_f(DZ_V,2), cw(wk_f(need,2), C_ACC)))
+  }
   wl("")
-  wl("  2  The tide" (manual ? "" : ", from the prediction: the turns either side of " wk_hhmm(WS_T)))
+  step++
+  wl(sprintf("  %d  The tide", step) (manual ? "" : ", from the prediction: the turns either side of " wk_hhmm(WS_T)))
   s="    "
   for(i=1;i<=DT_N;i++) s = s sprintf(" %s %s  %s m  ", wk_kname(DT_K[i]), wk_hhmm(DT_T[i]), wk_f(DT_H[i],2))
   wl(s)
-  step=2
   for(i=1;i<DT_N;i++){ step++; wk_dedge(i,step,DT_T[i],DT_H[i],DT_K[i],DT_T[i+1],DT_H[i+1],DT_K[i+1],need) }
   #  the methods, each with its own state and time for each tide
   for(i=1;i<DT_N;i++){
@@ -3658,6 +3734,7 @@ function wk_depth(   manual,six,lwm,lwh,hwm,hwh,l2m,l2h,d,d2,tt,hast,need,i,ip,i
   never=0
   for(m=1;m<=nm;m++) for(i=1;i<DT_N;i++) if(DM_ST[m,i]=="never") never=1
   WR["need"]=need; WR["never"]=never
+  if(DZ_SEA){ WR["sea"]=DZ_RSS; WR["seasum"]=DZ_SUM; WR["seawater"]=DZ_SEAW; WR["keelwater"]=DZ_KW; WR["waterneed"]=DZ_W }
   DF_NEED=need; DF_HASO=0; DF_HASS=0; DF_ST=!manual; DF_HAST=hast; DF_T=tt
   what = (nm==3) ? "by all three methods" : "by both methods"
   if(never) ans = "never enough water on this tide: high water is below the " wk_f(need,2) " m she needs"
@@ -3711,6 +3788,7 @@ function wk_depth(   manual,six,lwm,lwh,hwm,hwh,l2m,l2h,d,d2,tt,hast,need,i,ip,i
     else if(u<0) wl(sprintf("           at %s, %s m of water at least: she is aground by %s m", wk_hhmm(manual?tt:WS_T), wk_f(w,2), wk_f(-u,2)))
     else         wl(sprintf("           at %s, at least %s m of water: %s m under the keel%s", wk_hhmm(manual?tt:WS_T), wk_f(w,2), wk_f(u,2),
                     (u<DZ_CL-1e-9) ? sprintf(", less than the %s m wanted", wk_f(DZ_CL,2)) : ""))
+    if(DZ_SEA && w>=0 && w<DZ_SEAW-1e-9) wl(sprintf("           the seas need %s m of water there: they may break", wk_f(DZ_SEAW,2)))
   }
   wk_rule()
   return 1

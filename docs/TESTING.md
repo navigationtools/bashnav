@@ -1048,6 +1048,15 @@ hair over (0.1 + 0.2 is 0.30000000000000004), so a tide that reached it
 exactly was called "never". The comparison now allows the hair, and two cases
 hold it.
 
+**Depth in a sea (W28).** The reference combines the swell and wind waves
+with `math.hypot`, where the tool squares and adds; seven cases cover the seas
+governing, the keel governing, one height only, a charted depth, a sea that
+leaves never enough water, her time in water the seas would break in, and a
+station. The three explanations the working prints are held line for line to
+`docs/web/notes/weather-W28.txt`, the text tagged for the weather app. Ten
+faults were put in, five in the shell and five in the page and figure, and
+each is caught.
+
 **What lunar's reference does not cover, and what does.** The Sun's and
 Moon's longitudes are the engine's own short series in both, because that
 series is the definition here; the reference checks the working built on it.

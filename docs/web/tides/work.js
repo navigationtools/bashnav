@@ -57,7 +57,7 @@ var COURSE_BASE = 'https://bashnav.navigationtools.org/practical-navigator/coast
    ===================================================================== */
 var WORK_SHARED     = ['NAMES', 'SPEC', 'run', 'figure'];
 var WORK_HOST       = ['EXAMPLES', 'lessonHref', 'fromQuery', 'stationId',
-                       'useTide', 'fx', 'sprintf', 'brestId'];
+                       'useTide', 'fx', 'sprintf', 'brestId', 'NOTES'];
 var WORK_PURE_CALLS = ['sind', 'cosd', 'asind'];
 var WORK_PURE_WORK  = ['twelfths', 'secondary', 'stream', 'cts', 'setdrift', 'tidal_gate', 'depth'];
 /*  lunar's typed forms need the calendar and the Moon as well: five more
@@ -1504,6 +1504,34 @@ var WORK = (function () {
     wl(sprintf('       %s of %s = %s after %s, so %s', wf(f, 3), dur(D), dur(f * D), kname(k1), hhmm(E.tc)));
     return E;
   }
+  //  A block of the words tagged for the weather app, printed line for
+  //  line: docs/web/notes/weather-W28.txt is where they are written, and
+  //  docs/web/tests/tides-work.js holds these lines to it.
+  var NOTES = {
+    'W28.why': [
+      'Why 2.5 times the sea. A wave breaks when the water under it is',
+      'about 1.3 times its own height. The largest wave in a sea is',
+      'about twice the significant height a forecast gives, so the',
+      'largest needs 2 x 1.3 = 2.6 times that height of water. With',
+      '2.5 times the significant height under her, even that wave runs',
+      'on without breaking. A breaking sea, not the keel, is the danger',
+      'here: it can roll a boat over, or lift her and drop her on the',
+      'bottom. Never judge a shoal by where the surf is breaking: a set',
+      'of bigger waves breaks further out than the ones before it.'],
+    'W28.rss': [
+      'Why the square root of the sum of the squares. Swell and wind',
+      'waves come from different places and ride on one another at',
+      'random, so their crests seldom stack. What adds is their energy,',
+      "and the height goes as the square root of the energy. NOAA's",
+      'buoys and the "seas" of a forecast combine them this way.'],
+    'W28.sum': [
+      'Why the class rule adds them. The plain sum is never less than',
+      'the square root of the sum of the squares, so it errs on the',
+      'safe side and is quick in the head. It supposes that every',
+      'swell crest meets a wind-wave crest, which is rare, so it asks',
+      'for more water than the sea is likely to need.']
+  };
+  function dnote(tag) { wl(''); NOTES[tag].forEach(function (l) { wl('     ' + l); }); }
   //  the height at a time between two turns, by both rules
   function dheights(a, b, t) {
     var D = b.t - a.t, R = b.h - a.h, x = (t - a.t) / (D / 6.0), ix = trunc(x);
@@ -1525,8 +1553,8 @@ var WORK = (function () {
   }
   function depth() {
     var manual = has('lw') || has('hw') || has('lwh') || has('hwh') || has('lw2') || has('lw2h');
-    if (manual) allow('depth', 'depth dries draught clear lw lwh hw hwh lw2 lw2h t');
-    else allow('depth', 'depth dries draught clear station date t');
+    if (manual) allow('depth', 'depth dries draught clear swell waves lw lwh hw hwh lw2 lw2h t');
+    else allow('depth', 'depth dries draught clear swell waves station date t');
     if (S.err !== '') return 0;
     if (has('depth') && has('dries')) return err('give depth= (a charted depth) or dries= (a drying height), not both');
     if (!has('depth') && !has('dries')) return err('depth= or dries= is needed (the charted depth, or the drying height, m)');
@@ -1536,7 +1564,20 @@ var WORK = (function () {
     dg = num('draught', '', '0.1', '20', 'her draught, m');
     cl = num('clear', '', '0', '20', 'the clearance wanted under the keel, m; 0 for the moment she touches');
     if (S.err !== '') return 0;
-    var need = dry ? dg + cl + V : dg + cl - V;
+    //  THE SEA (W28; Larry, AJK and AJP, 16 November 2026).  swell= and
+    //  waves= are the heights a forecast gives, in metres.  The water she
+    //  needs for the seas is 2.5 times their combined height, combined as
+    //  the root of the sum of their squares (AJK); and of that and the
+    //  water her keel needs, the greater governs (AJP).  The words that
+    //  say why are in docs/web/notes/weather-W28.txt, tagged for the
+    //  weather app, and printed here line for line.
+    var sea = has('swell') || has('waves'), both = has('swell') && has('waves');
+    var sw = has('swell') ? num('swell', '', '0', '15', "the swell's height, m") : 0;
+    var ww = has('waves') ? num('waves', '', '0', '15', "the wind waves' height, m") : 0;
+    if (S.err !== '') return 0;
+    var keelW = dg + cl, rss = Math.sqrt(sw * sw + ww * ww), sum = sw + ww, seaW = 2.5 * rss;
+    var waterW = (sea && seaW > keelW) ? seaW : keelW;
+    var need = dry ? waterW + V : waterW - V;
     var hast = false, tt = 0, TN = [], nm, P = null;
     function water(h) { return dry ? h - V : h + V; }
     function dline(lab, h) {
@@ -1592,16 +1633,49 @@ var WORK = (function () {
     if (dry) wl(sprintf('  a bank that dries %s m: it stands %s m above chart datum', wf(V, 2), wf(V, 2)));
     else wl(sprintf('  charted depth %s m: the sea bed is %s m below chart datum', wf(V, 2), wf(V, 2)));
     wl(sprintf('  her draught %s m, and %s m wanted under the keel', wf(dg, 2), wf(cl, 2)));
+    if (sea) {
+      if (both) wl(sprintf('  the sea: swell %s m, wind waves %s m', wf(sw, 2), wf(ww, 2)));
+      else if (has('swell')) wl(sprintf('  the sea: swell %s m', wf(sw, 2)));
+      else wl(sprintf('  the sea: wind waves %s m', wf(ww, 2)));
+    }
     wl('');
-    wl('  1  The height of tide she needs');
-    if (dry) wl(sprintf('     draught %s + clearance %s + drying height %s = %s m', wf(dg, 2), wf(cl, 2), wf(V, 2), wf(need, 2)));
-    else wl(sprintf('     draught %s + clearance %s - charted depth %s = %s m', wf(dg, 2), wf(cl, 2), wf(V, 2), wf(need, 2)));
+    var step = 1;
+    if (sea) {
+      wl('  1  The water she needs, for her keel and for the seas');
+      wl(sprintf('     for her keel   draught %s + clearance %s = %s m of water', wf(dg, 2), wf(cl, 2), wf(keelW, 2)));
+      wl('     for the seas   2.5 x the combined height of the sea');
+      if (both) {
+        //  the combined height to the millimetre, so 2.5 times it gives
+        //  the same centimetre on paper as here
+        wl(sprintf('       combined, as forecasters do: sqrt(%s^2 + %s^2) = %s m', wf(sw, 2), wf(ww, 2), wf(rss, 3)));
+        wl(sprintf('         2.5 x %s = %s m of water', wf(rss, 3), wf(seaW, 2)));
+        wl(sprintf('       added, as the class rule has it: %s + %s = %s m', wf(sw, 2), wf(ww, 2), wf(sum, 2)));
+        wl(sprintf('         2.5 x %s = %s m of water, %s m more', wf(sum, 2), wf(2.5 * sum, 2), wf(2.5 * sum - seaW, 2)));
+      } else {
+        wl(sprintf('       one height only, %s m: 2.5 x %s = %s m of water', wf(rss, 2), wf(rss, 2), wf(seaW, 2)));
+      }
+      if (seaW > keelW) wl(sprintf('     the seas govern: %s m of water', wf(waterW, 2)));
+      else if (seaW < keelW) wl(sprintf('     her keel governs: %s m of water', wf(waterW, 2)));
+      else wl(sprintf('     the two are the same: %s m of water', wf(waterW, 2)));
+      dnote('W28.why');
+      if (both) { dnote('W28.rss'); dnote('W28.sum'); }
+      wl('');
+      step = 2;
+      wl('  2  The height of tide she needs');
+      if (dry) wl(sprintf('     %s m of water + drying height %s = %s m', wf(waterW, 2), wf(V, 2), wf(need, 2)));
+      else wl(sprintf('     %s m of water - charted depth %s = %s m', wf(waterW, 2), wf(V, 2), wf(need, 2)));
+    } else {
+      wl('  1  The height of tide she needs');
+      if (dry) wl(sprintf('     draught %s + clearance %s + drying height %s = %s m', wf(dg, 2), wf(cl, 2), wf(V, 2), wf(need, 2)));
+      else wl(sprintf('     draught %s + clearance %s - charted depth %s = %s m', wf(dg, 2), wf(cl, 2), wf(V, 2), wf(need, 2)));
+    }
     wl('');
-    wl('  2  The tide' + (manual ? '' : ', from the prediction: the turns either side of ' + hhmm(ST.t)));
+    step++;
+    wl(sprintf('  %d  The tide', step) + (manual ? '' : ', from the prediction: the turns either side of ' + hhmm(ST.t)));
     var s = '    ';
     for (i = 0; i < TN.length; i++) s += sprintf(' %s %s  %s m  ', kname(TN[i].k), hhmm(TN[i].t), wf(TN[i].h, 2));
     wl(s);
-    var step = 2, E = [], M = [[], []], m;
+    var E = [], M = [[], []], m;
     for (i = 0; i + 1 < TN.length; i++) {
       step++;
       E[i] = dedge(step, TN[i], TN[i + 1], need);
@@ -1645,6 +1719,7 @@ var WORK = (function () {
     var never = 0, o = -1, sh = -1, oa = true, sa = true, ot = -1e9, stt = 1e9, ans, ans2 = '';
     for (m = 0; m < nm; m++) for (i = 0; i + 1 < TN.length; i++) if (M[m][i].st === 'never') never = 1;
     S.res.need = need; S.res.never = never;
+    if (sea) { S.res.sea = rss; S.res.seasum = sum; S.res.seawater = seaW; S.res.keelwater = keelW; S.res.waterneed = waterW; }
     var what = nm === 3 ? 'by all three methods' : 'by both methods';
     if (never) ans = 'never enough water on this tide: high water is below the ' + wf(need, 2) + ' m she needs';
     else {
@@ -1693,10 +1768,12 @@ var WORK = (function () {
       else if (u < 0) wl(sprintf('           at %s, %s m of water at least: she is aground by %s m', at, wf(w, 2), wf(-u, 2)));
       else wl(sprintf('           at %s, at least %s m of water: %s m under the keel%s', at, wf(w, 2), wf(u, 2),
                  (u < cl - 1e-9) ? sprintf(', less than the %s m wanted', wf(cl, 2)) : ''));
+      if (sea && w >= 0 && w < seaW - 1e-9) wl(sprintf('           the seas need %s m of water there: they may break', wf(seaW, 2)));
     }
     wl(RULE);
     var jdA = manual ? 0 : ST.jdA;
     S.fig = { kind: 'depth', turns: TN, need: need, dry: dry, v: V, draught: dg, clear: cl, never: !!never,
+              water: waterW, sea: sea ? rss : null, seaGoverns: sea && seaW > keelW,
               open: (!never && o >= 0 && !oa) ? ot : null, shut: (!never && sh >= 0 && !sa) ? stt : null,
               t: hast ? tt : null, edges: E,
               harm: manual ? null : function (mm) { return P.height(jdA + mm / 1440.0); } };
@@ -1767,6 +1844,7 @@ var WORK = (function () {
       ['station', 'or a station id']] },
     depth: { title: 'Depth over a shoal', sub: 'the depth at a time, and the window to cross', fields: [
       ['depth', 'Charted depth, m'], ['dries', 'or drying height, m'], ['draught', 'Her draught, m'], ['clear', 'Wanted under the keel, m'],
+      ['swell', 'Swell height, m'], ['waves', 'Wind waves height, m'],
       ['lw', 'LW time', 'HH:MM'], ['lwh', 'LW height, m'], ['hw', 'HW time', 'HH:MM'], ['hwh', 'HW height, m'],
       ['lw2', 'Next LW time', 'HH:MM'], ['lw2h', 'Next LW height, m'], ['t', 'Time wanted', 'HH:MM'],
       ['station', 'or a station id'], ['date', 'with a date', 'YYYY-MM-DD']] }
@@ -2021,7 +2099,10 @@ var WORK = (function () {
       //  draught of 10.75 m is a longer word than one of 1.80.  So her
       //  keel is moved left to make the room, and when it has moved "chart
       //  datum" is not written to its left, where it would be under her.
-      var dlab = ['draught ' + wf(F.draught, 2), 'clear ' + wf(F.clear, 2), (F.dry ? 'dries ' : 'depth ') + wf(F.v, 2)];
+      //  when the seas govern, the water under her keel is more than the
+      //  clearance she asked for, and the drawing says what it is
+      var dlab = ['draught ' + wf(F.draught, 2), F.seaGoverns ? 'under keel ' + wf(F.water - F.draught, 2) : 'clear ' + wf(F.clear, 2),
+                  (F.dry ? 'dries ' : 'depth ') + wf(F.v, 2)];
       var dlen = Math.max(dlab[0].length, dlab[1].length, dlab[2].length);
       var bx = Math.min(x3a + 124, x3b - 11 - dlen * 6.8), hx = Math.max(x3a + 46, bx - 44);
       var datumRoom = hx >= x3a + 80;
@@ -2053,7 +2134,14 @@ var WORK = (function () {
       //  ---- what each drawing is, along the top
       s += text(cx1, 13, 'the circle the cosine curve comes from', 'lab', 'middle');
       s += text((x2a + x2b) / 2, 13, 'the tide against the clock', 'lab', 'middle');
-      s += text(x3b - 3, 13, wf(F.draught, 2) + ' + ' + wf(F.clear, 2) + (F.dry ? ' + ' : ' - ') + wf(F.v, 2) + ' = ' + wf(F.need, 2) + ' m', 'lab need', 'end');
+      s += text(x3b - 3, 13, (F.seaGoverns ? '2.5 x ' + wf(F.sea, 3) : wf(F.draught, 2) + ' + ' + wf(F.clear, 2)) +
+                (F.dry ? ' + ' : ' - ') + wf(F.v, 2) + ' = ' + wf(F.need, 2) + ' m', 'lab need', 'end');
+      //  a sea is drawn as a sea: a swell along the surface over her keel
+      if (F.sea !== null && shown) {
+        var wv = [], wy = DY(F.need);
+        for (i = 0; i <= 40; i++) wv.push([x3a + (x3b - x3a) * i / 40, wy - 3 * Math.sin(i * Math.PI / 5)]);
+        s += poly(wv, 'd-sea');
+      }
       if (off) s += text(x3b - 3, DH - 6, 'the sea bed is off the foot', 'lab', 'end');
       else if (0 >= dlo && 0 <= dhi) {
         //  left of her keel, and not where her hull is
@@ -2264,7 +2352,7 @@ var WORK = (function () {
   }
 
   return {
-    NAMES: NAMES, SPEC: SPEC, EXAMPLES: EXAMPLES, run: run, figure: figure,
+    NAMES: NAMES, SPEC: SPEC, EXAMPLES: EXAMPLES, run: run, figure: figure, NOTES: NOTES,
     lessonHref: lessonHref, fromQuery: fromQuery, stationId: stationId, useTide: useTide,
     fx: fx, sprintf: sprintf, brestId: BREST
   };

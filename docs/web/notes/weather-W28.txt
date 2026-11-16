@@ -1,0 +1,47 @@
+# weather-W28.txt -- minimum safe depth in a sea: breaking seas
+#
+# TAGGED FOR RE-USE (Larry, 16 November 2026).  Gap list subject W28.
+# These words are written once, here.  The depth calculator in tides
+# (`tides work depth` and `?work=depth`, with swell= or waves=) prints
+# them line for line, and docs/web/tests/tides-work.js fails if the two
+# ever differ.  The weather app may take any block by its tag.
+#
+# Our own words.  The numbers are checked against public sources:
+#   a wave breaks in water about 1.3 times its height
+#     https://iris-springtail-lfgs.squarespace.com/articles/the13rule
+#     https://marinespecies.org/traits/wiki/Breaker_index
+#   the largest wave is about twice the significant height
+#     https://media.bom.gov.au/social/blog/870/ruling-the-waves-how-a-
+#     https://vos.noaa.gov/MWL/aug_05/nws.shtml
+#   swell and wind waves combine as the root of the sum of their squares
+#     https://ndbc.noaa.gov/waveobs.shtml
+#     https://forecast.weather.gov/glossary.php?word=SEAS
+#
+# A block starts at [W28.<name>] and runs to the next blank line.
+# Each line is at most 64 characters, to sit in a 70-column working
+# behind its five spaces of indent.
+
+[W28.why]
+Why 2.5 times the sea. A wave breaks when the water under it is
+about 1.3 times its own height. The largest wave in a sea is
+about twice the significant height a forecast gives, so the
+largest needs 2 x 1.3 = 2.6 times that height of water. With
+2.5 times the significant height under her, even that wave runs
+on without breaking. A breaking sea, not the keel, is the danger
+here: it can roll a boat over, or lift her and drop her on the
+bottom. Never judge a shoal by where the surf is breaking: a set
+of bigger waves breaks further out than the ones before it.
+
+[W28.rss]
+Why the square root of the sum of the squares. Swell and wind
+waves come from different places and ride on one another at
+random, so their crests seldom stack. What adds is their energy,
+and the height goes as the square root of the energy. NOAA's
+buoys and the "seas" of a forecast combine them this way.
+
+[W28.sum]
+Why the class rule adds them. The plain sum is never less than
+the square root of the sum of the squares, so it errs on the
+safe side and is quick in the head. It supposes that every
+swell crest meets a wind-wave crest, which is rare, so it asks
+for more water than the sea is likely to need.

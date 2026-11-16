@@ -434,6 +434,7 @@ svg.wfig .d-bank { fill: var(--low); opacity: .55; }
 svg.wfig .d-datum { stroke: var(--dim); stroke-width: 1.2; stroke-dasharray: 6 4; }
 svg.wfig .d-hull { fill: var(--ground); stroke: var(--text); stroke-width: 1.6; }
 svg.wfig .d-dim { stroke: var(--text); stroke-width: 1.1; }
+svg.wfig .d-sea { stroke: var(--accent); stroke-width: 1.6; fill: none; }
 svg.wfig .pt { fill: var(--text); }
 svg.wfig .pt.acc { fill: var(--now); }
 svg.wfig .pt.hv { fill: var(--low); }

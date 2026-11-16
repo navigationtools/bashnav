@@ -565,6 +565,7 @@ there at a given time, and between what times is there enough.
 | `depth` or `dries` | exactly one of the two | `depth` is the charted depth, m; `dries` is the drying height, m, the underlined figure on the chart. Both are written as the chart prints them, never with a minus sign |
 | `draught` | required | her draught, m |
 | `clear` | required | the clearance wanted under the keel, m. Never defaulted; `clear=0` is the moment she touches |
+| `swell`, `waves` | optional, either or both | the swell's height and the wind waves' height, m, as a forecast gives them: the sea (below) |
 | `lw` `lwh` `hw` `hwh` | typed form | the low water and the high water, time and height, as `twelfths` takes them. HW before LW is a falling tide |
 | `lw2` `lw2h` | typed form, optional | the low water after high water. With it `lw` must be the low water before |
 | `t` | optional when typed | the time she wants the depth for; it must lie between the turns given |
@@ -597,6 +598,43 @@ earliest shutting, and the least depth at her time. Each method's own times
 are printed above it. All methods start from the same turns, so they always
 agree on whether there is enough water at all.
 
+**The sea: the minimum safe depth (W28; Larry, AJK and AJP, 16 November
+2026).** Over a shoal in a sea the danger is not only her keel: a wave
+breaks when the water under it is about 1.3 times its height, and a breaking
+sea can roll her or drop her on the bottom. So with `swell` or `waves` given
+there are two depths of water she needs, and the greater governs:
+
+```
+   for her keel    draught + clearance
+   for the seas    2.5 x the combined sea, the swell and the wind waves
+                   combined as forecasters combine them:
+                   sqrt(swell^2 + waves^2)
+
+   the water she needs = the greater of the two
+   the height of tide  = that water - charted depth  (or + drying height)
+```
+
+Why 2.5: the largest wave in a sea is about twice the significant height a
+forecast gives, and 2 x 1.3 = 2.6. With 2.5 times the significant height
+under her, even the largest wave runs on without breaking.
+
+Why the root of the sum of the squares (AJK): swell and wind waves ride on one
+another at random, so what adds is their energy, and height goes as the square
+root of energy. NOAA's buoys and the "seas" of a forecast are combined this
+way. The class rule adds the two heights; the working prints that too, with
+how much more water it asks for, and why it errs safe.
+
+The three explanations the working prints are written once, in
+`docs/web/notes/weather-W28.txt`, tagged `W28.why`, `W28.rss` and `W28.sum`
+for the weather app to take (Larry). The shell and the page print them line
+for line, and `docs/web/tests/tides-work.js` fails if they ever differ from
+the file. Their sources are named at its head.
+
+With no `swell` or `waves` the working is exactly as before. When the seas
+govern, the figure's keel stands in the water the seas need, its gap is
+labelled `under keel`, and a sea is drawn along the surface. If at her time
+the water is less than the seas need, the answer says they may break there.
+
 **At a station whose heights are not above chart datum** the working carries
 the same two-line caution as the tide screen's depth sum ("The zero a
 station's heights are from", below).
@@ -612,7 +650,8 @@ stacked from chart datum. A sea bed far below the tide is left off the foot of
 the drawing, and the figure says so. The shell draws the curve and the keel in
 characters.
 
-**What it does not do.** Allow for the weather, a swell, or squat. Know the
+**What it does not do.** Allow for the weather, squat, or the boat's own
+heave and pitch, beyond the seas' safe depth above. Know the
 chart: the depth and the clearance are hers to choose. Give more than one
 window in a day; ask again for the next tide.
 
@@ -622,6 +661,8 @@ window in a day; ask again for the next tide.
     tides work depth dries=0.3 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9 t=09:00
     tides work depth depth=0.6 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2
     tides work depth depth=1.0 draught=1.8 clear=0.5 station=ticon/dover-dov-gbr-bodc date=2026-11-07 t=10:00
+    ?work=depth&dries=0.3&draught=1.8&clear=0.5&swell=1.0&waves=1.0&lw=05:12&lwh=0.8&hw=11:24&hwh=4.2&lw2=17:40&lw2h=0.9&t=09:00
+    tides work depth dries=0.3 draught=1.8 clear=0.5 swell=1.0 waves=1.0 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9 t=09:00
 
 ---
 

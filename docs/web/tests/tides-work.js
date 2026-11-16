@@ -125,6 +125,38 @@ CASES.forEach(function (c, i) {
 console.log('  ' + same + ' of ' + CASES.length + ' cases print the same working under ' + AWK +
             ' (' + refused + ' of them refusals, ' + nex + ' help examples)');
 
+// ---- THE WORDS TAGGED FOR THE WEATHER APP (W28; Larry, 16 November 2026)
+//  docs/web/notes/weather-W28.txt is where they are written.  The page's
+//  NOTES must be those blocks line for line, and a case with both swell
+//  and wind waves must print every one of them: the shell prints the same
+//  lines, as the comparison above holds.
+(function () {
+  var txt = fs.readFileSync(path.join(REPO, 'docs', 'web', 'notes', 'weather-W28.txt'), 'utf8').split('\n');
+  var blocks = {}, cur = null;
+  txt.forEach(function (L) {
+    if (L.charAt(0) === '#') return;
+    var m = L.match(/^\[(W28\.[a-z]+)\]$/);
+    if (m) { cur = m[1]; blocks[cur] = []; return; }
+    if (L === '') { cur = null; return; }
+    if (cur) blocks[cur].push(L);
+  });
+  var keys = Object.keys(blocks).sort().join(' ');
+  if (keys !== Object.keys(WORK.NOTES).sort().join(' ') || keys !== 'W28.rss W28.sum W28.why') {
+    bad++; console.log('  FAIL the tagged blocks are ' + keys + ', the page has ' + Object.keys(WORK.NOTES).sort().join(' '));
+  }
+  Object.keys(blocks).forEach(function (k) {
+    if (JSON.stringify(blocks[k]) !== JSON.stringify(WORK.NOTES[k] || [])) { bad++; console.log('  FAIL ' + k + ' on the page is not the tagged text'); }
+    blocks[k].forEach(function (L) { if (L.length > 64) { bad++; console.log('  FAIL a line of ' + k + ' is over 64 characters'); } });
+  });
+  var r = WORK.run('depth', [['dries', '0.3'], ['draught', '1.8'], ['clear', '0.5'], ['swell', '1'], ['waves', '1'],
+                             ['lw', '05:12'], ['lwh', '0.8'], ['hw', '11:24'], ['hwh', '4.2']], {});
+  var printed = r.ok ? r.lines.join('\n') : '';
+  Object.keys(blocks).forEach(function (k) {
+    if (printed.indexOf(blocks[k].map(function (L) { return '     ' + L; }).join('\n')) < 0) { bad++; console.log('  FAIL the working does not print ' + k + ' whole'); }
+  });
+  console.log('  the words tagged W28 are the page\'s, line for line, and the working prints them');
+})();
+
 // ---- the drawings, read back -----------------------------------------
 function pts(svg) {
   var o = {}, re = /data-pt="([a-z]+)" cx="([-0-9.]+)" cy="([-0-9.]+)"/g, m;
@@ -219,7 +251,9 @@ CASES.forEach(function (c, i) {
         var ysH = mhull[1].split(/[ML Z]+/).filter(function (q) { return q !== ''; }).map(Number).filter(function (q, n) { return n % 2 === 1; });
         var keel = Hof(Math.max.apply(null, ysH));
         if (Math.abs(keel - (R.need - F.draught)) > tolh) { ok = false; why = 'her keel is drawn down to ' + keel.toFixed(3) + ' m, not a draught below the surface'; }
-        if (Math.abs((keel - bedh) - F.clear) > 2 * tolh) { ok = false; why = 'the gap under her keel is not the clearance'; }
+        //  the gap under her keel is the water she needs less her draught:
+        //  the clearance, unless the seas govern (W28, AJP)
+        if (Math.abs((keel - bedh) - (F.water - F.draught)) > 2 * tolh) { ok = false; why = 'the gap under her keel is not the water she needs less her draught'; }
       }
       if (yn !== null && !mhull) { ok = false; why = 'the height she needs is drawn and her keel is not'; }
     }

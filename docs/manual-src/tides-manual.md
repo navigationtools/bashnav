@@ -482,8 +482,28 @@ tide against the clock, the twelfths as dots joined by straight lines, with
 the window shaded. On the right, her keel: draught, clearance and the bank,
 stacked from chart datum.](fig/tides-depth.png)
 
-It does not allow for the weather, a swell or squat, and it does not know the
-chart: the depth and the clearance are hers.
+**In a sea** (`swell=`, `waves=`, the heights a forecast gives), there is a
+second depth she needs. A wave breaks when the water under it is about 1.3
+times its height, and the largest wave in a sea is about twice the significant
+height a forecast gives, so the seas need 2.5 times the combined sea under
+her. The swell and the wind waves are combined as forecasters combine them,
+by the square root of the sum of their squares; the class rule's plain sum is
+printed beside it, with how much more water it would ask for. Of the water her
+keel needs and the water the seas need, the greater governs, and the working
+says which. The words that explain each step are tagged in
+`docs/web/notes/weather-W28.txt`, for the weather app to use as well.
+
+```
+tides work depth dries=0.3 draught=1.8 clear=0.5 swell=1.0 waves=1.0 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9 t=09:00
+```
+
+With a metre of swell and a metre of wind waves, the seas need
+2.5 x 1.414 = 3.54 m of water, more than the 2.30 m her keel needs, so they
+govern, and the window over the bank narrows from 08:25 to 14:28 to 10:13 to
+12:37.
+
+It does not allow for the weather beyond that, nor for squat, and it does not
+know the chart: the depth, the clearance and the sea are hers.
 
 ---
 

@@ -197,6 +197,18 @@ depth|depth=1.5 draught=2.4 clear=1.0 lw=22:10 lwh=1.1 hw=04:20 hwh=5.3 lw2=10:3
 depth|dries=1.9 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2|need=4.200000 never=0 o12=684.000000 oc=683.999995 open=684.000000
 depth|dries=0 draught=1.8 clear=0 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9 t=14:00|need=1.800000 never=0 o12=446.941176 oc=447.747472 open=447.747472 s12=928.969697 sc=928.474556 shut=928.474556 h12=2.971277 hcos=2.985922 water=2.971277 under=1.171277
 depth|depth=1.3 draught=1.2 clear=0.3 lw=00:00 lwh=-0.3 hw=06:10 hwh=2.9 lw2=12:25 lw2h=-0.1|need=0.200000 never=0 o12=88.645833 oc=95.722008 open=95.722008 s12=676.250000 sc=668.187713 shut=668.187713
+# ---- depth with a sea (W28; Larry, AJK and AJP): 2.5 x the combined sea, combined by the root of
+#  the sum of the squares; the greater of that and her keel's water governs
+depth|dries=0.3 draught=1.8 clear=0.5 swell=1.0 waves=1.0 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9 t=09:00|need=3.835534 sea=1.414214 seasum=2.000000 seawater=3.535534 keelwater=2.300000 waterneed=3.535534 never=0 o12=613.123132 oc=605.005733 open=613.123132 s12=756.860368 sc=765.092132 shut=756.860368 h12=3.075806 hcos=3.090419 water=2.775806 under=0.975806
+depth|dries=0.3 draught=1.8 clear=0.5 swell=0.5 waves=0.4 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9|need=2.600000 sea=0.640312 seasum=0.900000 seawater=1.600781 keelwater=2.300000 waterneed=2.300000 never=0 o12=505.294118 oc=504.969392 open=505.294118 s12=868.202020 sc=868.372641 shut=868.202020
+depth|dries=0.3 draught=1.8 clear=0.5 swell=1.2 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9|need=3.300000 sea=1.200000 seasum=1.200000 seawater=3.000000 keelwater=2.300000 waterneed=3.000000 never=0 o12=556.352941 oc=556.016473 open=556.352941 s12=815.030303 sc=815.525444 shut=815.030303
+depth|depth=0.6 draught=1.8 clear=0.5 swell=1.5 waves=0.8 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9|need=3.650000 sea=1.700000 seasum=2.300000 seawater=4.250000 keelwater=2.300000 waterneed=4.250000 never=0 o12=592.823529 oc=585.974805 open=592.823529 s12=778.000000 sc=784.662898 shut=778.000000
+depth|dries=0.3 draught=1.8 clear=0.5 swell=2.0 waves=1.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9|need=6.550000 sea=2.500000 seasum=3.500000 seawater=6.250000 keelwater=2.300000 waterneed=6.250000 never=1
+depth|depth=0.5 draught=1.2 clear=0.3 swell=1.2 waves=0.9 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9 t=06:00|need=3.250000 sea=1.500000 seasum=2.100000 seawater=3.750000 keelwater=1.500000 waterneed=3.750000 never=0 o12=552.705882 oc=552.103202 open=552.705882 s12=818.828283 sc=819.563206 shut=818.828283 h12=1.019355 hcos=0.937772 water=1.437772 under=0.237772
+depth|dries=0.3 draught=1.8 clear=0.5 swell=0.8 waves=0.6 station=ticon/portsmouth-ptm-gbr-bodc date=2025-05-24 t=09:00|need=2.800000 never=0 o12=319.637634 oc=319.676496 s12=683.692771 sc=683.995637 h12=4.266962 hcos=4.334334 sea=1.000000 seasum=1.400000 seawater=2.500000 keelwater=2.300000 waterneed=2.500000
+depth|dries=0.3 draught=1.8 clear=0.5 swell=-1 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9|err=out of range (0 to 15)
+depth|dries=0.3 draught=1.8 clear=0.5 waves=16 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9|err=out of range (0 to 15)
+depth|dries=0.3 draught=1.8 clear=0.5 waves=rough lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9|err=is not a number
 #  0.1 + 0.2 is a hair over 0.3 in a computer: a tide that reaches 0.30 m exactly opens at high water
 #  and is not called never; one whose low waters are 0.30 m has enough water all through
 depth|dries=0 draught=0.1 clear=0.2 lw=05:12 lwh=0 hw=11:24 hwh=0.3|need=0.3 never=0 o12=684 oc=684 open=684

@@ -58,7 +58,7 @@ A `+` in a URL is a space: write `tdhw2=5`, not `tdhw2=+5`.
 | `setdrift` | set and drift from a DR and a fix | `start co stw hours fix` |
 | `tidal_gate` | when a headland opens and shuts, and when to leave | `hw` (or `station t`), then `track streams`, or `opens shuts` |
 | `lunar` | springs and neaps: the Moon, the rule, today's range, the coefficient | `date`; and `hwh lwh sprange nprange`, or `brhwh brlwh`, or `station` |
-| `depth` | the depth over a shoal at a time, and the window with enough water to cross | `depth` or `dries` (exactly one), `draught`, `clear`; and `lw lwh hw hwh` (+ `lw2 lw2h`, `t`), or `station` (+ `date t`) |
+| `depth` | the depth over a shoal at a time, and the window with enough water to cross | `depth` or `dries` (exactly one), `draught`, `clear`; and `lw lwh hw hwh` (+ `lw2 lw2h`, `t`), or `station` (+ `date t`); in a sea `swell` `waves` |
 
 `streams` is `set:rate` per hour, comma separated — `135:1.5,150:2.0` is two
 hours. Vectors are summed and the triangle solved **once**, not hour by hour.
@@ -76,7 +76,9 @@ from the pilot book: `opens=5 shuts=-1` is HW +5 to an hour before the next.
 **Depth over a shoal:** she needs draught + clearance − charted depth of tide,
 or draught + clearance + drying height over a bank that dries. One tide gives
 one edge of the window; add the next low water (`lw2 lw2h`) for both. The
-answer is what the twelfths and the cosine curve both allow.
+answer is what the twelfths and the cosine curve both allow. **In a sea** the
+seas need 2.5 x sqrt(swell² + waves²) of water so they do not break; the
+greater of that and draught + clearance governs.
 
 **Springs follow new and full moon by a day or two; neaps follow the quarters.**
 A rule of thumb: any one spring can come two or three days off it. The

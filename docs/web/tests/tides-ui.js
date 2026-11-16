@@ -282,7 +282,13 @@ const CASES = [
     ['depth', 'dries=2.5 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9', ''],
     ['depth', 'dries=0.1 draught=0.4 clear=0 lw=05:12 lwh=0.2 hw=11:24 hwh=5.9 lw2=17:40 lw2h=0.3 t=05:20', ''],
     ['depth', 'dries=2.35 draught=1.8 clear=0 lw=11:10 lwh=0.8 hw=17:24 hwh=4.2 t=17:20', ''],
-    ['depth', 'depth=12.25 draught=10.75 clear=12.5 lw=05:12 lwh=10.8 hw=11:24 hwh=14.25 lw2=17:40 lw2h=10.9 t=17:39', '']
+    ['depth', 'depth=12.25 draught=10.75 clear=12.5 lw=05:12 lwh=10.8 hw=11:24 hwh=14.25 lw2=17:40 lw2h=10.9 t=17:39', ''],
+    //  in a sea (W28): the seas govern, the keel stands in their water and
+    //  a sea is drawn on the surface; a long figure for the seas' label;
+    //  and at a station, as Level 2 will link it
+    ['depth', 'dries=0.3 draught=1.8 clear=0.5 swell=1.0 waves=1.0 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9 t=09:00', 'l2-2025-3'],
+    ['depth', 'depth=12.25 draught=10.75 clear=12.5 swell=9 waves=8 lw=05:12 lwh=10.8 hw=11:24 hwh=14.25 lw2=17:40 lw2h=10.9 t=17:39', ''],
+    ['depth', 'dries=0.3 draught=1.8 clear=0.5 swell=0.8 waves=0.6 station=ticon/portsmouth-ptm-gbr-bodc date=2025-05-24 t=09:00', '']
   ];
   for (const [name, args, lesson] of WCASES) {
     const q = 'work=' + name + '&' + args.split(' ').map(kv => {

@@ -12,6 +12,9 @@ dependencies, no network once loaded.
     drill/            a study machine with no material in it        (v1.0)
     icons/            one icon per tool, drawn to read at 60 px
     tests/            verifying the browser builds against the awk
+    notes/            words written once and tagged for re-use between
+                      tools: weather-W28.txt (breaking seas), printed by
+                      tides' depth calculator, for the weather app to take
 
 All six marine tools are built. `deck-log` and `weather` share one log:
 both are served from this origin, and IndexedDB is per-origin rather
