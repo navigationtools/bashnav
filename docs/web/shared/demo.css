@@ -16,6 +16,11 @@
     picture has to be what a reader sees.  */
 .gundemo { margin: 10px 0 0; padding: 0 12px; }
 .gundemo svg { display: block; width: 100%; max-width: 360px; margin: 0 auto; }
+/*  The friction figure (W01) is two panels side by side, so it takes
+    the lesson's full width: at 360 px its labels would shrink below what
+    reads on the iPad mini.  */
+.fricdemo { margin: 10px 0 0; padding: 0 12px; }
+.fricdemo svg { display: block; width: 100%; max-width: 640px; margin: 0 auto; }
 .gunctl { margin-top: 10px; }
 .gunctl label { display: block; margin: 10px 0 0; color: var(--dim); font-size: 13px; }
 .gunctl input[type=range] { display: block; width: 100%; margin: 6px 0 0;

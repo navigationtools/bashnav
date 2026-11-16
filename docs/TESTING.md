@@ -336,6 +336,36 @@ then matched **nothing**, because that pseudo-class means the first element of
 its *tag* among its siblings and these panels are divs among divs. Both were
 found by a check going red, not by reading.
 
+### The friction figure (W01), measured off the drawing
+
+The `gradient` lesson draws its two rules of thumb (weather 1.0.1). Over land
+the speed is drawn as a band, 1/3 to 2/3 of the wind aloft, because the public
+sources disagree and the ground decides it (Larry's ruling AJZ).
+`docs/web/tests/weather-friction.js`, stage 9 of `run-weather-web.sh`, reads
+the parts by name (`data-part`) in night and in day and measures them: the sea
+arrow backed 10-20° and 2/3 the length of the wind aloft; the land arrow backed
+30-40°, solid to 1/3 and dashed on to 2/3 on the same line; land turning
+further and, at its slow end, slower than sea; the low drawn above the isobar
+and both arrows turning up toward it, which is the northern hemisphere; the
+colours read from the page's tokens; nothing outside the box. 32 checks. Four
+faults planted and caught: a sea angle of 25, a land slow end of 1/2, the turn
+drawn away from the low, and the accent fixed instead of read from the page.
+
+**Two checks had to learn that a first-tier lesson can carry a figure.** Until
+now only the deeper tier drew one. `weather-les.js` asked the awk for figure
+markers (`FIGDUMP=1`) on the deeper tier only, so the first tier compared the
+terminal's character art with the page's marker and failed by construction;
+it asks on both now. `tests/weather-reflow-check.js` counted a panel only by
+`.gundemo`; the friction figure is `.fricdemo`, because it takes the lesson's
+full width, and both are named.
+
+**A fault found by drawing it.** The terminal's coriolis wind figure, at 45 N,
+drew the wind running east with the low below the isobar: the southern
+hemisphere. Nothing caught it, because the golden file had recorded the wrong
+picture as right. A golden file holds a drawing still; it cannot say the
+drawing is true. It now draws by hemisphere, and the golden file holds the
+corrected figure.
+
 ### One panel, two pages, and the check that was hiding a gap
 
 Larry: *"It belongs on the main page."* The front page was pure static HTML with

@@ -133,3 +133,25 @@ Validated against **NOAA's own published tide tables**, not against another
 implementation of the same theory. See `docs/TESTING.md` for why that
 distinction found three real bugs that a library-to-library comparison would
 have passed.
+
+---
+
+## Weather
+
+The 500 mb rules are from Sienkiewicz and Chesneau, *Mariner's Guide to the
+500-Millibar Chart* (NOAA, public domain).
+
+**Friction: the surface wind against the wind aloft** (the `gradient` lesson
+and its figure, W01; checked 16 November 2026, as the weather gap list's rule 4
+requires):
+
+| the rule | the lesson | the sources |
+|---|---|---|
+| over the sea, the angle | backed 10-20° | US Navy aerographer's mate training, 10-20°; aviationweather.ws, about 10°; a sea-kayaking text (bookdown), about 15° |
+| over the sea, the speed | about 2/3 | the Royal Meteorological Society's MetLink; the same sea-kayaking text |
+| over land, the angle | backed 30-40° | the sea-kayaking text, 30°; US Navy training, 35° |
+| over land, the speed | 1/3 to 2/3, by the ground | they disagree: MetLink 1/3, the sea-kayaking text 1/2, US Navy training 2/3. ECMWF: drag depends on the surface, high over rough terrain and forest, moderate over open grass, low over the sea |
+
+The land speed is drawn as a band for that reason (Larry's ruling AJZ, from his
+own classes: buildings, towns, cities and forests drag the wind differently).
+

@@ -186,8 +186,17 @@ function lesson_body(k){
     lp(cw("across",C_ACC) " the isobars, toward the low:")
     print ""
     lp("  over water   backed 10-20 degrees, and about 2/3 of gradient speed")
-    lp("  over land    backed 30-40 degrees, and slower still")
+    lp("  over land    backed 30-40 degrees, and 1/3 to 2/3 of gradient speed")
     lp("  " cw("southern hemisphere: veered, not backed",C_ACC))
+    print ""
+    lp("How much the land slows it depends on the ground. Open fields and")
+    lp("farmland drag least; forests, towns and cities, with their trees and")
+    lp("buildings, drag most, and turn the wind further across the isobars.")
+    lpd("These are rules of thumb. The sources disagree on the land figure,")
+    lpd("from 1/3 (Royal Meteorological Society) to 2/3 (US Navy training).")
+    print ""
+    friction_figure()
+    gshow()
     print ""
     lp(cw("This is the chart-to-deck translation",C_ACC) " - what the isobars mean for")
     lp("what you will actually get on the wind instrument.")

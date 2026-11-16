@@ -164,6 +164,19 @@ important of the ten.
 
 `weather learn` lists them; `weather learn <key>` opens one.
 
+![**Figure 6** — friction, in the `gradient` lesson. Over the sea the surface
+wind is backed 10 to 20 degrees toward the low and about 2/3 of the wind
+aloft. Over land it is backed 30 to 40 degrees, and its speed is a band: about
+1/3 over forests, towns and cities, nearer 2/3 over open fields.](fig/weather-friction.png)
+
+Some lessons draw what they say. The `gradient` lesson draws friction (Figure
+6), the turn toward the low and the loss of speed, as a figure in the terminal
+and in the browser. The land speed is drawn as a band, not one number, because
+the published rules of thumb disagree, from 1/3 (the Royal Meteorological
+Society) to 2/3 (US Navy training), and because the ground decides it: trees
+and buildings drag the wind more than open fields do. Figure 6 is the
+northern hemisphere's; south of the equator the turn is the other way.
+
 ---
 
 ## 8. Commands

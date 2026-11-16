@@ -135,6 +135,15 @@ is that the app applies its stated rules correctly and reports its own
 score honestly — not that the forecast is right. It will often be wrong;
 that is the nature of the subject, and it is why both scorers exist.
 
+**Figures.** Where the awk draws a figure in a lesson, `gshow()` under
+`FIGDUMP=1` prints a marker, `@@FIG <kind> <w> <h>`, and the page draws its
+own figure for that kind: `wind` (the panel in `../shared/winddemo.js`),
+`friction` (`frictionDemo` in `weather.js`, the `gradient` lesson, W01), and
+the gun for anything else. Each reads its colours from the page's tokens when
+it draws, and is redrawn when the display mode changes. The friction figure is
+checked by `docs/web/tests/weather-friction.js`, which measures its angles and
+lengths off the drawing.
+
 The 500 mb rules are from Sienkiewicz and Chesneau, *Mariner's Guide to
 the 500-Millibar Chart*, NOAA — public domain. Sources are in
 `docs/SOURCES.md`; nothing in the lessons is copied from anywhere.

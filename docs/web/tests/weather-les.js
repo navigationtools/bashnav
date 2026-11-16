@@ -11,8 +11,13 @@ const ENG = ['-f', REPO + '/src/common/log.awk', '-f', REPO + '/src/common/colou
              '-f', REPO + '/src/weather/grid.awk', '-f', REPO + '/src/weather/wx.awk', '-f', REPO + '/src/weather/score.awk',
              '-f', REPO + '/src/weather/chart.awk', '-f', REPO + '/src/weather/teach.awk',
              '-f', REPO + '/src/weather/screens.awk'];
+//  FIGDUMP=1 HERE TOO, since the gradient lesson carries a figure in its
+//  first tier (W01, the friction figure, 16 November 2026).  Until then
+//  only the deeper tier drew one, and only that pass asked for markers;
+//  the first-tier pass compared the terminal's character art against the
+//  page's marker and failed by construction.  See awkMore below.
 function awkLesson(k) {
-  return execFileSync('mawk', ['-v', 'cmode=plain', '-v', 'cmd=lesson', '-v', 'key=' + k,
+  return execFileSync('mawk', ['-v', 'cmode=plain', '-v', 'FIGDUMP=1', '-v', 'cmd=lesson', '-v', 'key=' + k,
     '-v', 'LOG=/dev/null'].concat(ENG), { input: '', encoding: 'utf8' });
 }
 const RULE = '  ' + new Array(71).join('-');
@@ -111,7 +116,7 @@ const DAYCODE = { '1;32': 'acc', '90': 'dim', '1;91': 'warn', '1;92': 'ok' };
 function awkColoured(k, more) {
   const a = ['-v', 'cmode=day', '-v', 'cmd=' + (more ? 'lessonmore' : 'lesson'),
              '-v', 'key=' + k, '-v', 'LOG=/dev/null'];
-  if (more) { a.push('-v', 'FIGDUMP=1'); }
+  a.push('-v', 'FIGDUMP=1');   /* both tiers can carry a figure now */
   return execFileSync('mawk', a.concat(ENG), { input: '', encoding: 'utf8' });
 }
 

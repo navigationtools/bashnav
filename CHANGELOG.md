@@ -1,5 +1,75 @@
 # Changelog
 
+## weather 1.0.1: friction, over the sea and over land (W01)
+
+**What.** The `gradient` lesson draws what it says: two panels, the wind
+aloft along the isobar and the surface wind turned toward the low. Over the
+sea it is backed 10 to 20 degrees and about 2/3 of the speed aloft; over land
+backed 30 to 40 degrees, and drawn as a band from 1/3 to 2/3, solid to the
+slow end and dashed on to the fast one, because how much the land slows it
+depends on the ground. In the terminal it is a character figure; in the
+browser an SVG in the suite's own colours, redrawn in day, dusk and night.
+
+```
+    OVER THE SEA                     OVER LAND
+                        LOW side                 ^       LOW side
+                                                :
+                   ^                        :
+                  /                        /
+          ////                         //
+   ../..........................    .............................
+    ---------------------->          ---------------------->
+    the wind aloft                   the wind aloft
+```
+
+**Why.** The course's Level 3 leans on it (the weather gap list, W01). The
+lesson said "over land ... and slower still", which gave a student nothing to
+work with.
+
+**Larry's ruling, 16 November 2026.**
+
+| | the choice | what was ruled |
+|---|---|---|
+| AJZ | the land speed, where the sources disagree | a band from 1/3 to 2/3, labelled by the ground: forests, towns and cities at the slow end, open fields at the fast end (Larry, from his classes: buildings, towns, cities and forests each drag differently) |
+
+**A fault, fixed with it.** The coriolis lesson's terminal wind figure, at
+45 N, drew the wind running east with the low BELOW the isobar and the surface
+wind turning down toward it. That is the southern hemisphere: in the north the
+low lies to the left of the wind (Buys Ballot), so with the wind running to
+the right it is above. It now draws the northern picture for a northern
+latitude and keeps the old one for a southern. The browser's wind panel was
+always right; only the terminal's drawing was wrong.
+
+**What it affects.**
+
+1. **`weather` is 1.0.1.** The engine is named by its version, so the bump is
+   what makes an installed copy unpack the new lesson.
+2. **lessons.js** carries a demonstration of kind `friction` in the gradient
+   lesson's first tier; `weather.js` draws it (`frictionDemo`); the shared
+   `demo.css` has a `.fricdemo` class, full lesson width.
+3. **Two checks learned that a first-tier lesson can carry a figure:**
+   `docs/web/tests/weather-les.js` asks the awk for markers on both tiers, and
+   `tests/weather-reflow-check.js` counts `.fricdemo` as a panel.
+4. **A new check,** `docs/web/tests/weather-friction.js` (stage 9 of
+   `run-weather-web.sh`), measures the angles and lengths off the drawing.
+5. **The golden file** `tests/golden/weather.txt` holds the new figure and the
+   corrected wind figure.
+6. **The service worker's cache is `weather-v18`.**
+
+**Sources** (gap list rule 4; named in the code too). The sea angle: US Navy
+aerographer's mate training (10 to 20 degrees), aviationweather.ws and a
+sea-kayaking text (about 10 to 15). The sea speed, about 2/3: the Royal
+Meteorological Society's MetLink, and the same sea-kayaking text. The land
+angle: the sea-kayaking text (30), the Navy (35). The land speed, where they
+disagree: MetLink 1/3, the sea-kayaking text 1/2, the Navy 2/3. ECMWF: drag
+depends on the surface, high over rough terrain and forest, moderate over open
+grass, low over the sea.
+
+**Checked.** The lessons character for character against the awk; the figure
+measured off the drawing in night and day (32 checks); four faults put in,
+each caught (a sea angle of 25, a land slow end of 1/2, the turn drawn away
+from the low, a colour fixed instead of read from the page).
+
 ## tides 1.5.2: the minimum safe depth in a sea (W28)
 
 **What.** `tides work depth` and `?work=depth` take the sea: `swell=` and

@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=004025602
+BASHNAV_BYTES=004028777
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -30496,7 +30496,7 @@ bn_unpack() {
 #  data that is never wrong - what you measured yourself - and the only
 #  one still available when the antenna comes down.
 # =====================================================================
-WEATHER_VERSION=1.0
+WEATHER_VERSION=1.0.1
 
 #  the log belongs to deck-log; weather only ever READS it
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"
@@ -31299,23 +31299,38 @@ function wx_vgrad(mb100, lat, rkm, isLow,   f,g,r,disc){
 #  does would draw a true 15 degrees as about 8 on screen - correct
 #  geometry, and useless as a picture of an angle. The angle is drawn as
 #  it reads and printed as it is.
-function wind_figure(lat, a45, isLow,   w,h,i,al,a,yiso,x0,sgn,bs,hd,r,rmax,xe,ye){
-  w=34; h=14
+function wind_figure(lat, a45, isLow,   w,h,i,al,a,yiso,x0,up,bs,r,xe,ye,lo,hi){
+  #  WHICH SIDE THE LOW IS ON.  In the northern hemisphere the wind blows
+  #  with the low on its LEFT (Buys Ballot), so with the gradient wind
+  #  running to the right the low is ABOVE the isobar and friction turns
+  #  the surface wind UP toward it.  In the southern hemisphere the low is
+  #  below and the turn is down.  (Until 16 November 2026 this drew the
+  #  southern picture at 45 N, the low below a wind running east: found
+  #  while drawing the friction figure beside it.)
+  w=34; h=16
   gclear(w,h)
   FIGNAME = "wind"
   a = wx_alpha(lat, a45)
   al = wx_rad(a)
-  yiso = 4; x0 = 3
-  sgn = (isLow ? 1 : -1)              # the low is below the isobar for a low
+  up = (lat >= 0)
   bs = sprintf("%c", 92)              # a backslash, without the escaping
-  hd = (sgn > 0 ? "v" : "^")
-  rmax = h - 4
+  x0 = 3
+  if(up){ yiso = 9; lo = 1; hi = yiso }   # the surface wind rises toward the low
+  else  { yiso = 4; lo = yiso; hi = h - 4 }
 
-  #  the gradient wind, along the isobar: what the chart draws
-  gputsc(yiso-3, x0, "gradient wind", C_DIM)
-  for(i=x0;i<=x0+13;i++) gputc(yiso-2, i, "-", C_DIM)
-  gputc(yiso-2, x0+14, ">", C_DIM)
-  gputsc(yiso-2, x0+17, (isLow ? "HIGH side" : "LOW side"), C_DIM)
+  #  the gradient wind, along the isobar, drawn on the HIGH side of it
+  if(up){
+    for(i=x0;i<=x0+13;i++) gputc(yiso+2, i, "-", C_DIM)
+    gputc(yiso+2, x0+14, ">", C_DIM)
+    gputsc(yiso+2, x0+17, "HIGH side", C_DIM)
+    gputsc(yiso+3, x0, "gradient wind", C_DIM)
+    gputsc(0, w-9, "LOW side", C_DIM)
+  } else {
+    gputsc(yiso-3, x0, "gradient wind", C_DIM)
+    for(i=x0;i<=x0+13;i++) gputc(yiso-2, i, "-", C_DIM)
+    gputc(yiso-2, x0+14, ">", C_DIM)
+    gputsc(yiso-2, x0+17, "HIGH side", C_DIM)
+  }
 
   #  the isobar itself
   for(i=1;i<w-1;i++) gputc(yiso, i, ".", C_DIM)
@@ -31325,20 +31340,65 @@ function wind_figure(lat, a45, isLow,   w,h,i,al,a,yiso,x0,sgn,bs,hd,r,rmax,xe,y
   #  of latitude alpha is nearly 50 and the line would leave the figure.
   xe = x0; ye = yiso
   for(i=0;i<=18;i++){
-    r = yiso + sgn * i * wx_tan(al)
-    if(r < 1 || r > rmax) break
-    gputc(r, x0 + i, (sgn > 0 ? bs : "/"), C_ACC)
+    r = yiso + (up ? -1 : 1) * i * wx_tan(al)
+    if(r < lo || r > hi) break
+    gputc(r, x0 + i, (up ? "/" : bs), C_ACC)
     xe = x0 + i; ye = r
   }
-  gputc(ye + sgn, xe + 1, hd, C_ACC)
+  gputc(ye + (up ? -1 : 1), xe + 1, (up ? "^" : "v"), C_ACC)
   #  the label goes beside the head, pulled back inside the panel when the
   #  head has run far enough right that it would be clipped - at 15
   #  degrees the line reaches column 21 and "surface wind" lost its last
   #  two characters off the edge.
   i = xe + 3; if(i + 7 > w - 1) i = w - 1 - 7
-  gputsc(ye + sgn, i, "surface", C_ACC)
+  gputsc(ye + (up ? -1 : 1), i, "surface", C_ACC)
   gputsc(h-2, x0, sprintf("crosses the isobar at %d deg", int(a + 0.5)), C_ACC)
   gputsc(h-1, x0, (isLow ? "toward the LOW" : "away from the HIGH"), C_DIM)
+  return 0
+}
+
+#  FRICTION, OVER THE SEA AND OVER LAND (W01; Larry, AJZ, 16 November 2026).
+#  Two panels side by side, each the northern-hemisphere picture of the
+#  wind figure above: the wind aloft along the isobar, and the surface
+#  wind turned toward the low.  Over the sea it is backed 10-20 degrees
+#  and about 2/3 of the speed aloft; over land backed 30-40 degrees, and
+#  slowed by however rough the ground is, which the public sources put
+#  anywhere from 1/3 to 2/3 (RMetS MetLink 1/3, a sea-kayak text 1/2, US
+#  Navy aerographer training 2/3).  Larry, from his classes: towns,
+#  cities and forests slow it most, open ground least.  So the land arrow
+#  is solid to 1/3 and dotted on to 2/3: a band, not one figure.
+#  The angle is drawn at the middle of its range, as it reads; the cell
+#  aspect is ignored, as in the wind figure, and for the same reason.
+function friction_panel(x0, title, ang, f1, f2,   L,i,n1,n2,al,r,c,xe,ye,yiso,bs){
+  yiso = 10; L = 22
+  al = wx_rad(ang)
+  gputsc(0, x0, title, C_ACC)
+  gputsc(1, x0 + 20, "LOW side", C_DIM)
+  for(i=x0-1;i<=x0+L+5;i++) gputc(yiso, i, ".", C_DIM)
+  for(i=x0;i<x0+L;i++) gputc(yiso+2, i, "-", C_DIM)
+  gputc(yiso+2, x0+L, ">", C_DIM)
+  gputsc(yiso+3, x0, "the wind aloft", C_DIM)
+  n1 = L * f1; n2 = L * f2
+  xe = x0; ye = yiso
+  for(i=1;i<=n2;i++){
+    c = x0 + i * cos(al); r = yiso - i * sin(al)
+    gputc(r, c, (i <= n1 ? "/" : ":"), C_ACC)
+    xe = c; ye = r
+  }
+  gputc(ye - 1, xe + 1, "^", C_ACC)
+  return 0
+}
+function friction_figure(   w,h){
+  w=66; h=18
+  gclear(w,h)
+  FIGNAME = "friction"
+  friction_panel(2,  "OVER THE SEA", 15, 2/3, 2/3)
+  friction_panel(35, "OVER LAND",    35, 1/3, 2/3)
+  gputsc(15, 2,  "backed 10-20 deg", C_ACC)
+  gputsc(16, 2,  "about 2/3 of the speed aloft", C_ACC)
+  gputsc(15, 35, "backed 30-40 deg", C_ACC)
+  gputsc(16, 35, "1/3 to 2/3 of the speed aloft", C_ACC)
+  gputsc(17, 35, "1/3 towns, forests; 2/3 open", C_DIM)
   return 0
 }
 # =====================================================================
@@ -32158,8 +32218,17 @@ function lesson_body(k){
     lp(cw("across",C_ACC) " the isobars, toward the low:")
     print ""
     lp("  over water   backed 10-20 degrees, and about 2/3 of gradient speed")
-    lp("  over land    backed 30-40 degrees, and slower still")
+    lp("  over land    backed 30-40 degrees, and 1/3 to 2/3 of gradient speed")
     lp("  " cw("southern hemisphere: veered, not backed",C_ACC))
+    print ""
+    lp("How much the land slows it depends on the ground. Open fields and")
+    lp("farmland drag least; forests, towns and cities, with their trees and")
+    lp("buildings, drag most, and turn the wind further across the isobars.")
+    lpd("These are rules of thumb. The sources disagree on the land figure,")
+    lpd("from 1/3 (Royal Meteorological Society) to 2/3 (US Navy training).")
+    print ""
+    friction_figure()
+    gshow()
     print ""
     lp(cw("This is the chart-to-deck translation",C_ACC) " - what the isobars mean for")
     lp("what you will actually get on the wind instrument.")

@@ -115,7 +115,9 @@ function treeText(n) {                 /* inside a block: no gaps */
     ("N NE E", "Train the gun north") were read as words of the coriolis
     lesson.  The panel count already looked all the way down; the word
     comparison now does too.  */
-function isDemo(n) { return n.className && /\bgundemo\b/.test(n.className); }
+/*  and the friction figure (W01, 16 Nov 2026) has a class of its own,
+    .fricdemo, because it takes the full lesson width - so both are named  */
+function isDemo(n) { return n.className && /\b(gundemo|fricdemo)\b/.test(n.className); }
 function countDemos(n, acc) {
   acc = acc || { n: 0 };
   if (isDemo(n)) { acc.n++; return acc; }

@@ -15,6 +15,7 @@
 #   5  the lessons     reconstructed from lessons.js, vs `weather learn`
 #   6  the page        driven, including the rule that it must not tell
 #                      before it asks
+#   7-9 the gunnery, wind and friction figures, measured off the drawing
 set -e
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 cd "$ROOT"
@@ -107,6 +108,13 @@ if node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.ex
   #  rather than nonsense. Every arrow's angle to its own isobar is
   #  measured off the drawing and compared with the stated one.
   node docs/web/tests/weather-wind.js
+  echo
+  echo "9. the friction figure, against the rules of thumb it draws"
+  #  W01: the gradient lesson's two rules - sea backed 10-20 deg at about
+  #  2/3, land backed 30-40 deg at 1/3 to 2/3 by how rough the ground is -
+  #  measured off the drawing in night and day, with the turn toward a low
+  #  drawn above the isobar (the northern hemisphere).
+  node docs/web/tests/weather-friction.js
   echo
   echo "WEATHER WEB: all stages passed"
 else

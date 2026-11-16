@@ -531,7 +531,9 @@ function drawLines(box, lines) {
           lesson's prose with it and leave the reader a bare drawing.  */
       var fig = el('div', 'figbox');
       box.appendChild(fig);
-      wxRepaints(fig, b.kind === 'wind' ? windDemo : gunDemo);
+      //  one drawing per kind the shell names in its @@FIG marker; the
+      //  gun is the old default and stays the fallback
+      wxRepaints(fig, ({ wind: windDemo, friction: frictionDemo })[b.kind] || gunDemo);
       return;
     }
     //  the first printed line of a section is its heading
@@ -817,6 +819,117 @@ function gunSolve(lat, brg) {
   return { turn: turn, rise: rise, eotvos: eot,
            drift: turn - rise * Math.cos(b),
            along: eot - rise * Math.sin(b) };
+}
+
+/*  FRICTION, OVER THE SEA AND OVER LAND (W01; Larry, AJZ, 16 Nov 2026).
+    The drawing beside the gradient lesson's two rules of thumb.  Both
+    panels are the northern-hemisphere picture: the wind aloft runs along
+    the isobar with the low on its left, and the surface wind is turned
+    toward the low (backed) and slowed.  Lengths are speed, angles are
+    true angles: an SVG has square units, so unlike the terminal figure
+    nothing here is stretched.
+
+    THE NUMBERS ARE RULES OF THUMB, CHECKED (gap list rule 4):
+      sea   backed 10-20 deg  US Navy aerographer training (tpub), about
+                              10-15 deg in the aviation and sea-kayak texts
+            about 2/3 speed   RMetS MetLink; the sea-kayak text
+      land  backed 30-40 deg  sea-kayak text 30, US Navy 35
+            1/3 to 2/3 speed  the sources disagree: MetLink 1/3, the
+                              sea-kayak text 1/2, US Navy 2/3.  ECMWF:
+                              drag depends on the surface, rough terrain
+                              and forest high, open grass moderate, sea low.
+    So the land arrow is DRAWN AS A BAND, not one figure: solid to 1/3
+    (forests, towns, cities - Larry, from his classes: buildings and
+    trees drag most) and dashed on to 2/3 (open fields).  The angle fans
+    show the range of each rule; the arrow sits at the middle of it.
+
+    No warning colour: nothing on it is a caution.  Every colour is read
+    from the host's tokens at draw time, so wxRepaints redraws it in day,
+    dusk and night.  */
+function frictionDemo(host) {
+  var NS = 'http://www.w3.org/2000/svg';
+  var W = 640, H = 340;
+  var wrap = el('div', 'fricdemo');
+  var svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Friction: over the sea the surface wind is ' +
+    'backed 10 to 20 degrees toward the low and about two thirds of the wind ' +
+    'aloft; over land it is backed 30 to 40 degrees and one third to two ' +
+    'thirds as strong, slowest over forests, towns and cities.');
+  wrap.appendChild(svg);
+  function e(n, a, p) {
+    var x = document.createElementNS(NS, n), q;
+    for (q in a) if (a.hasOwnProperty(q)) x.setAttribute(q, a[q]);
+    (p || svg).appendChild(x);
+    return x;
+  }
+  function t(x, y, s, fill, o) {
+    var a = { x: x, y: y, fill: fill, 'font-size': 13 }, q;
+    for (q in (o || {})) a[q] = o[q];
+    e('text', a).textContent = s;
+  }
+  var css = function (n) {
+    return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#6fb3d9';
+  };
+  var dim = css('--dim'), line = css('--line'), acc = css('--accent'), text = css('--text');
+  var L = 270;                          /* the wind aloft, full length = full speed */
+  function rad(d) { return d * Math.PI / 180; }
+  function pt(x0, y0, r, d) { return [x0 + r * Math.cos(rad(d)), y0 - r * Math.sin(rad(d))]; }
+  function head(p, d, fill, open) {     /* an arrowhead at p pointing along bearing d */
+    var b1 = pt(p[0], p[1], 11, d + 155), b2 = pt(p[0], p[1], 11, d - 155);
+    e('path', { d: 'M' + p + 'L' + b1 + 'L' + b2 + 'Z',
+                fill: open ? 'none' : fill, stroke: fill, 'stroke-width': 1.5 });
+  }
+  function panel(px, title, a1, a2, f1, f2) {
+    var x0 = px + 22, y0 = 214, am = (a1 + a2) / 2, R = L * f2 + 16, p;
+    var k = title === 'OVER LAND' ? 'land' : 'sea';   /* tests read the parts by name */
+    t(px + 4, 24, title, text, { 'font-weight': 600 });
+    t(px + 300, 48, 'LOW side', dim, { 'text-anchor': 'end' });
+    /* the fan: the range of the rule */
+    var u1 = pt(x0, y0, R, a1), u2 = pt(x0, y0, R, a2);
+    e('path', { d: 'M' + x0 + ',' + y0 + 'L' + u1 + 'A' + R + ',' + R + ' 0 0 0 ' + u2 + 'Z',
+                fill: acc, 'fill-opacity': 0.12, stroke: 'none', 'data-part': k + '-fan' });
+    /* the isobar */
+    e('line', { x1: px + 6, y1: y0, x2: px + 304, y2: y0, stroke: dim,
+                'stroke-width': 1.2, 'stroke-dasharray': '2 4', 'data-part': k + '-isobar' });
+    t(px + 304, y0 - 6, 'isobar', dim, { 'text-anchor': 'end', 'font-size': 11 });
+    /* the wind aloft, along it */
+    e('line', { x1: x0, y1: y0 + 22, x2: x0 + L, y2: y0 + 22, stroke: dim, 'stroke-width': 2,
+                'data-part': k + '-aloft' });
+    head([x0 + L, y0 + 22], 0, dim);
+    t(x0, y0 + 44, 'the wind aloft, along the isobars', dim);
+    /* the surface wind: solid to f1, dashed on to f2 */
+    p = pt(x0, y0, L * f1, am);
+    e('line', { x1: x0, y1: y0, x2: p[0], y2: p[1], stroke: acc, 'stroke-width': 3,
+                'data-part': k + '-surface' });
+    head(pt(x0, y0, L * f1 + 8, am), am, acc, false);
+    if (f2 > f1) {
+      var q = pt(x0, y0, L * f2, am), s = pt(x0, y0, L * f1 + 10, am);
+      e('line', { x1: s[0], y1: s[1], x2: q[0], y2: q[1], stroke: acc,
+                  'stroke-width': 3, 'stroke-dasharray': '6 5', 'data-part': k + '-band' });
+      head(pt(x0, y0, L * f2 + 8, am), am, acc, true);
+    }
+    /* the angle, marked on a small arc from the isobar */
+    var r = 54, ka = pt(x0, y0, r, am);
+    e('path', { d: 'M' + (x0 + r) + ',' + y0 + 'A' + r + ',' + r + ' 0 0 0 ' + ka,
+                fill: 'none', stroke: acc, 'stroke-width': 1 });
+  }
+  panel(0,   'OVER THE SEA', 10, 20, 2 / 3, 2 / 3);
+  panel(330, 'OVER LAND',    30, 40, 1 / 3, 2 / 3);
+  /* what each arrow means, where it ends */
+  var s1 = pt(22, 214, L * 2 / 3 + 20, 15);
+  t(s1[0] - 30, s1[1] - 16, 'about 2/3', acc);
+  var l1 = pt(352, 214, L / 3, 35), l2 = pt(352, 214, L * 2 / 3, 35);
+  t(l1[0] + 14, l1[1] + 18, '1/3: forests, towns, cities', acc, { 'font-size': 12 });
+  t(l2[0] + 16, l2[1] + 6, '2/3: open fields', acc, { 'font-size': 12 });
+  t(4, 288, 'backed 10–20°, about 2/3 of the speed aloft', acc);
+  t(334, 288, 'backed 30–40°, 1/3 to 2/3 of the speed aloft', acc);
+  t(4, 314, 'Northern hemisphere: the low lies to the left of the wind aloft, and the ' +
+            'surface wind turns toward it.', dim, { 'font-size': 11 });
+  t(4, 330, 'South of the equator it turns the other way: veered, not backed.',
+    dim, { 'font-size': 11 });
+  host.appendChild(wrap);
 }
 
 function gunDemo(host) {
