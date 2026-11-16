@@ -191,8 +191,10 @@ CASES.forEach(function (c, i) {
     }
   } else if (F.kind === 'lunar') {
     //  the strip is thirty days at one scale, the day in the middle; every
-    //  mark is placed from the answer, not from the figure's own numbers
-    var ppd = (640 - 28) / 30;
+    //  mark is placed from the answer, not from the figure's own numbers.
+    //  With bars, a margin of 112 on the right holds the guide lines'
+    //  labels (Larry, ADJ), so the strip is 14 to 528, otherwise 14 to 626
+    var LR = F.bars.length > 0 ? 112 : 14, ppd = (640 - 14 - LR) / 30, MID = 14 + 15 * ppd;
     var all = function (name) {
       var o = [], re = new RegExp('data-pt="' + name + '" cx="([-0-9.]+)"', 'g'), m;
       while ((m = re.exec(svg))) o.push(+m[1]);
@@ -200,9 +202,9 @@ CASES.forEach(function (c, i) {
     };
     var pname = function (q) { return q === 0 ? 'new' : q === 180 ? 'full' : 'quarter'; };
     var hasAt = function (list, x, tol) { return list.some(function (v) { return Math.abs(v - x) <= tol; }); };
-    var xOfHour = function (h) { return 320 + (h * 60 - R.tmin) / 1440 * ppd; };
+    var xOfHour = function (h) { return MID + (h * 60 - R.tmin) / 1440 * ppd; };
     if (!P.day) { ok = false; why = 'the day is not marked'; }
-    else if (Math.abs(P.day[0] - 320) > 0.6) { ok = false; why = 'the day is not in the middle of the strip'; }
+    else if (Math.abs(P.day[0] - MID) > 0.6) { ok = false; why = 'the day is not in the middle of the strip'; }
     //  a phase is given to the hour, so its mark may sit half an hour off
     else if (!hasAt(all(pname(R.pq)), xOfHour(R.ph), 1.1)) { ok = false; why = 'the last phase of the Moon is not where its time puts it'; }
     else if (!hasAt(all(pname(R.nq)), xOfHour(R.nh), 1.1)) { ok = false; why = 'the next phase of the Moon is not where its time puts it'; }
@@ -215,6 +217,12 @@ CASES.forEach(function (c, i) {
         ok = false; why = 'the rule\'s band for the last phase is not a day after it and a day wide';
       }
     }
+    //  the drawing ends with its dates: no empty band between it and its key
+    if (ok) {
+      var vbH = +svg.match(/viewBox="0 0 [0-9.]+ ([0-9.]+)"/)[1], tyMax = 0, rty = /<text x="[-0-9.]+" y="([-0-9.]+)"/g, mty;
+      while ((mty = rty.exec(svg))) tyMax = Math.max(tyMax, +mty[1]);
+      if (vbH - tyMax > 20) { ok = false; why = 'the figure runs on ' + Math.round(vbH - tyMax) + ' below its dates'; }
+    }
     if (ok && svg.indexOf(F.label.replace(/&/g, '&amp;')) < 0) { ok = false; why = 'the day\'s label is not drawn'; }
     if (ok && R.coef !== undefined && (/brhwh=/.test(c.args) || /brest-3-fra-refmar/.test(c.args)) &&
         F.label.indexOf('coefficient ' + R.coef + ' = 100') < 0) { ok = false; why = 'the day\'s label does not carry the coefficient\'s working'; }
@@ -222,7 +230,24 @@ CASES.forEach(function (c, i) {
     if (ok && nbar !== F.bars.length) { ok = false; why = 'the bars are not one for each tide'; }
     if (ok && F.st && (F.bars.length < 50 || nday !== 1)) { ok = false; why = 'a month of tides is not drawn, or the day\'s tide is not marked'; }
     if (ok && !F.st && nbar !== 0) { ok = false; why = 'bars are drawn with no station to predict them'; }
-    if (ok && R.fpm !== undefined && !hasAt(all((R.pq === 0 || R.pq === 180) ? 'biggest' : 'smallest'), 320 + (R.fpm - R.tmin) / 1440 * ppd, 0.6)) {
+    //  no label may stand over a bar: a label there hid the bars' tops,
+    //  so a month of making tides read as flat (fault found by Larry).
+    //  The labels stand in the margin, one for each line, clear of each other
+    if (ok && nbar > 0) {
+      var bright = 0, rbx = /class="l-bar[^"]*" x="([-0-9.]+)" y="[-0-9.]+" width="([-0-9.]+)"/g, mx;
+      while ((mx = rbx.exec(svg))) bright = Math.max(bright, +mx[1] + +mx[2]);
+      var rlx = /<text x="([-0-9.]+)" y="([-0-9.]+)" class="[^"]*"( text-anchor="([a-z]+)")?>(\d+ )?mean (springs|neaps)</g, ml, nl = 0, ly2 = [], two = false, lxs = '';
+      while ((ml = rlx.exec(svg))) {
+        nl++; ly2.push(+ml[2]); lxs = ml[1]; if (!ml[5]) two = true;
+        if (+ml[1] < bright || ml[4] !== 'start') { ok = false; why = 'a guide line\'s label stands over the bars'; }
+      }
+      //  a station's label is two lines, its name and then its height in metres
+      var nm = (svg.match(new RegExp('<text x="' + lxs.replace('.', '\\.') + '"[^>]*text-anchor="start">[-0-9.]+ m<', 'g')) || []).length;
+      if (ok && two && nm !== nl) { ok = false; why = 'a station\'s guide line is labelled without its height'; }
+      if (ok && nl !== F.lines.length) { ok = false; why = 'a guide line has no label in the margin beside the bars'; }
+      if (ok && nl === 2 && Math.abs(ly2[0] - ly2[1]) < (two ? 27 : 13)) { ok = false; why = 'the two guide lines\' labels stand on each other'; }
+    }
+    if (ok && R.fpm !== undefined && !hasAt(all((R.pq === 0 || R.pq === 180) ? 'biggest' : 'smallest'), MID + (R.fpm - R.tmin) / 1440 * ppd, 0.6)) {
       ok = false; why = 'the tide found near the last phase is not where its time puts it';
     }
   } else if (F.kind === 'stream') {

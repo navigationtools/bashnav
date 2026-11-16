@@ -490,6 +490,18 @@ average and up to 6, alternating between the two tides of a day; the second is
 its figure leaves the once-a-day part out: that is a finding from the
 published figures.
 
+**The figure.** A strip of the Moon's month, thirty days with the day in the
+middle: her four phases, and a band where the rule of thumb puts springs and
+neaps. With a station, a bar for every tide stands above it, a dot marks each
+biggest and smallest tide found, and two dashed lines mark mean springs and
+mean neaps. Their labels stand in a margin to the right of the bars, so no
+label hides a bar (Larry, ADJ, 16 November 2026); a station's label is two
+lines, its name and then its height, because on one line it is wider than
+the margin. Where the two lines come close, at a port with little difference
+between springs and neaps, the labels move apart about their midpoint,
+springs above. The day's label, top left, carries its working. The drawing
+ends 12 below its dates, as the other figures do.
+
 **What it does not do.** Use `coef` (above). Give a coefficient for a port
 other than Brest. Correct for the weather.
 

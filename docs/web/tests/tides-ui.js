@@ -200,7 +200,9 @@ const CASES = [
     //  lunar: typed, as a lesson links it; and at a station, where the page must
     //  fetch Brest's record beside the station's own for the coefficient
     ['lunar', 'date=2025-05-24 brhwh=6.07 brlwh=1.26 coef=79', 'l3-2025-3'],
-    ['lunar', 'station=ticon/portsmouth-por-gbr-cmems date=2025-05-24 t=14:00', '']
+    ['lunar', 'station=ticon/portsmouth-por-gbr-cmems date=2025-05-24 t=14:00', ''],
+    //  a port where mean springs and mean neaps lie close: two labels in the margin
+    ['lunar', 'station=ticon/kaikoura-kait-nzl-ttw date=2025-05-24 t=12:00', '']
   ];
   for (const [name, args, lesson] of WCASES) {
     const q = 'work=' + name + '&' + args.split(' ').map(kv => {
@@ -221,7 +223,16 @@ const CASES = [
         svg: document.querySelectorAll('#w-out svg.wfig').length,
         visible: !document.getElementById('v-work').hidden,
         lesson: document.getElementById('w-lesson').hidden ? null : a.getAttribute('href'),
-        url: location.search
+        url: location.search,
+        //  every word of a figure inside its drawing: only a browser can
+        //  measure text, and a label running past the edge is cut off
+        outside: Array.from(document.querySelectorAll('#w-out svg.wfig')).flatMap(svg => {
+          const vb = svg.viewBox.baseVal;
+          return Array.from(svg.querySelectorAll('text')).filter(t => {
+            const b = t.getBBox();
+            return b.x < vb.x - 0.5 || b.y < vb.y - 0.5 || b.x + b.width > vb.x + vb.width + 0.5 || b.y + b.height > vb.y + vb.height + 0.5;
+          }).map(t => t.textContent);
+        })
       };
     });
     const want = awkWork(name, args);
@@ -233,13 +244,15 @@ const CASES = [
     const okText = got.state === 'worked' && got.text === want;
     const okFig = (name === 'secondary' || name === 'atlas') ? got.svg === 0 : got.svg === 1;
     const okL = got.lesson === wantLesson;
-    const ok = okText && okFig && okL && got.visible;
+    const okIn = got.outside.length === 0;
+    const ok = okText && okFig && okL && okIn && got.visible;
     console.log((ok ? '  ok   ' : '  FAIL ') + '?work=' + name + '  ' + args.slice(0, 48) +
                 (lesson ? '  lesson ' + lesson : ''));
     if (!ok) {
       bad++;
       if (!got.visible) console.log('    the work view is not showing');
       if (!okFig) console.log('    figures drawn: ' + got.svg);
+      if (!okIn) console.log('    past the edge of the figure: ' + got.outside.join(' | '));
       if (!okL) console.log('    lesson link ' + got.lesson + ', wanted ' + wantLesson);
       if (!okText) {
         const A = want.split('\n'), B = got.text.split('\n');

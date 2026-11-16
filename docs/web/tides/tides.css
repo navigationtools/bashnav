@@ -427,7 +427,6 @@ svg.wfig .pt.acc { fill: var(--now); }
 svg.wfig .pt.hv { fill: var(--low); }
 svg.wfig .lab { fill: var(--dim); font: 12px -apple-system, system-ui, sans-serif; }
 svg.wfig .lab.acc { fill: var(--now); font-weight: 700; }
-svg.wfig .lab.halo { paint-order: stroke; stroke: var(--panel); stroke-width: 5px; stroke-linejoin: round; }
 .wkey { font-size: 12px; color: var(--dim); margin: 0 0 6px; }
 .wkey span { margin-right: 12px; white-space: nowrap; }
 .wkey span::before { content: ""; display: inline-block; width: 16px; height: 3px; margin-right: 5px; vertical-align: middle; }

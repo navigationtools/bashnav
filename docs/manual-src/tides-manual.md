@@ -339,8 +339,9 @@ tides work lunar station=ticon/brest-3-fra-refmar date=2025-05-24 t=14:00
 with the day in the middle: her four phases, and a band where the rule of
 thumb puts springs and neaps. The bars above it are the range of every tide,
 and a dot marks each biggest and smallest tide found: round the new moon the
-dot sits ahead of the rule's band. The day's label carries its working, not a
-bare number.](fig/tides-lunar.png)
+dot sits ahead of the rule's band. The dashed lines are mean springs and mean
+neaps, labelled in the margin to the right so that no label hides a bar. The
+day's label carries its working, not a bare number.](fig/tides-lunar.png)
 
 `coef=`, the coefficient an almanac prints, may be carried in a link: it is
 checked and noted, and not used yet.

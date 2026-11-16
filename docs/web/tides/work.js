@@ -1754,8 +1754,13 @@ var WORK = (function () {
       //  month: her four phases, and a band where the rule of thumb puts
       //  springs and neaps.  With a station, a bar for every tide stands
       //  above it and a dot marks each biggest and smallest tide found.
-      var lm = { l: 14, r: 14 }, lb = F.bars.length > 0;
-      H = lb ? 300 : 126;
+      //  With bars, a margin on the right carries the two guide lines'
+      //  labels, so no label stands on a bar and hides its top (Larry, ADJ)
+      var lb = F.bars.length > 0, lm = { l: 14, r: lb ? 112 : 14 };
+      //  the drawing ends with the dates, at ly + lh + 30; it is 12 deep
+      //  below them, as the other figures are, so no empty band stands
+      //  between the figure and its key on the page or in print
+      H = lb ? 276 : 120;
       var d0 = F.jd - 15, LX = function (v) { return lm.l + (v - d0) / 30 * (W - lm.l - lm.r); };
       var ly = lb ? 212 : 56, lh = 18, lx0 = LX(d0), lx1 = LX(d0 + 30);
       s = svgOpen(W, H, "The Moon's month, fifteen days either side of the day: her phases, and springs and neaps by the rule" +
@@ -1771,10 +1776,22 @@ var WORK = (function () {
                '" width="' + n2(lbw) + '" height="' + n2(Math.max(by - y, 1)) + '"/>';
         });
         s += '<line class="axis" x1="' + n2(lx0) + '" y1="' + by + '" x2="' + n2(lx1) + '" y2="' + by + '"/>';
-        F.lines.forEach(function (g) {
-          s += '<line class="c-cos" x1="' + n2(lx0) + '" y1="' + n2(BY(g[0])) + '" x2="' + n2(lx1) + '" y2="' + n2(BY(g[0])) + '"/>';
-          //  the label stands on the bars, so it carries a halo of the panel's colour
-          s += text(lx1, BY(g[0]) - 4, g[1], 'lab halo', 'end');
+        //  Each label stands in the margin level with its line.  'mean springs
+        //  3.67 m' is too wide for the margin on one line, so a station's label
+        //  takes two: the name, then the height.  Where the two lines come
+        //  close, at a port with little difference between springs and neaps,
+        //  the labels move apart about their midpoint, springs above
+        var LB = F.lines.map(function (g) {
+          var m = /^(mean [a-z]+) (.+ m)$/.exec(g[1]), t = m ? [m[1], m[2]] : [g[1]];
+          return { y: BY(g[0]), c: BY(g[0]), t: t, h: t.length * 14 };
+        }).sort(function (a, b) { return a.c - b.c; });
+        if (LB.length === 2) {
+          var need = (LB[0].h + LB[1].h) / 2 + 2, mid = (LB[0].c + LB[1].c) / 2;
+          if (LB[1].c - LB[0].c < need) { LB[0].c = mid - need / 2; LB[1].c = mid + need / 2; }
+        }
+        LB.forEach(function (L) {
+          s += '<line class="c-cos" x1="' + n2(lx0) + '" y1="' + n2(L.y) + '" x2="' + n2(lx1) + '" y2="' + n2(L.y) + '"/>';
+          L.t.forEach(function (w, k) { s += text(lx1 + 6, L.c - L.h / 2 + 11 + 14 * k, w, 'lab', 'start'); });
         });
       }
       s += '<rect class="l-base" x="' + n2(lx0) + '" y="' + ly + '" width="' + n2(lx1 - lx0) + '" height="' + lh + '"/>';

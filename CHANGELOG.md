@@ -1,5 +1,53 @@
 # Changelog
 
+## tides 1.4: lunar's figure, laid out for print
+
+**What.** Lunar's figure now ends just below its dates, and the labels of
+its two guide lines (mean springs, mean neaps) stand in a margin to the right
+of the bars. The manual's Figures 3, 4, 6 and 7 are recaptured with a margin
+all round. Larry found the first two in the printed figure.
+
+**Why, one at a time.**
+
+1. The figure was drawn 36 deeper than anything in it, so the page and the
+   printed manual showed an empty band between the dates and the key. It
+   now ends 12 below its dates, as the other figures do.
+2. The guide lines' labels stood on the bars. Their halo of the panel's
+   colour covered the tops of the last few bars, so early June read as flat
+   when the tides were making, and the bars showed through between the
+   letters as a stray mark. Larry ruled the fix (ADJ, 16 November 2026): a
+   margin on the right for the labels, so no label hides a bar. The month is
+   about 15% narrower when there are bars; the Moon-alone strip keeps its
+   full width.
+3. At a station other than Brest the labels carry a height ("mean springs
+   3.67 m"), wider than the margin on one line, so they take two: the name,
+   then the height.
+4. At a port where mean springs and mean neaps lie close (42 of 101 sampled
+   stations come within 32), the two labels stood on each other. They now
+   move apart about their midpoint, springs above.
+5. The manual's figures were cropped flush with the key, so its first mark
+   looked cut off. They now have a margin all round, and every figure's
+   header is in the picture.
+
+**What it affects.**
+
+- `docs/web/tides/work.js`: lunar's branch of `figure()` only. `figure` is
+  a member of the surface the course calls, so the note to the course's
+  inbox travels in the same queue run, as CLAUDE.md requires. No working
+  text changes, and the shell's own figure is unchanged, so `bin/tides` and
+  the iPad installer are not rebuilt.
+- `tides.css` loses the halo, which nothing else used. The tides cache is
+  `tides-v13`, so an installed page fetches the new drawing.
+- Checks: `docs/web/tests/tides-work.js` holds the figure to its layout (the
+  labels in the margin and clear of each other, a station's height, no empty
+  band), and `tests/tides-work.dat` gains the Kaikoura case, a port where the
+  two lines lie close. `docs/web/tests/tides-ui.js` checks in the browser
+  that every word of every figure lies inside its drawing. Four more faults
+  were planted in the port; all are caught.
+- `WORK.md` section 8 describes the figure; the manual's Figure 7 caption
+  names the labels' place; `docs/TESTING.md` the new checks. The manual PDF
+  is rebuilt.
+
 ## tides 1.4: an eighth work calculator, lunar (B16)
 
 **What.** `tides work lunar`, and `?work=lunar` in the browser: springs and

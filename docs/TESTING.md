@@ -1007,12 +1007,26 @@ unrounded stream, the mean interval used when `hw2` is given, a time across
 midnight read on the wrong tide, and high water drawn off the middle of the
 strip. Three were not caught at first and each became a case (rounding, a
 time across midnight, tides eleven and a half hours apart). For lunar,
-twenty-five in the awk and eleven in the port, all caught: among them the
+twenty-five in the awk and fifteen in the port, all caught: among them the
 elongation taken the wrong way, springs put at the quarters, the rule a day
 early, the coefficient truncated or worked on the half range, the almanac's
 figure taken from the whole tide, the day drawn off the middle of the strip,
-a bare number on the day's label, and a call lunar does not need added to
-its list.
+a bare number on the day's label, a call lunar does not need added to its
+list, the guide lines' labels put back on the bars, two close labels left
+standing on each other, a station's label without its height, and the empty
+band below the dates.
+
+**Lunar's figure is also held to its layout.** The figure check reads back
+that every guide line has its label in the margin to the right of the bars,
+none of it over a bar; that two labels stand clear of each other; that a
+station's label carries its height; and that the drawing ends within 20 of
+its dates. A label standing on the bars hid the tops of the last few, so a
+month of making tides read as flat: Larry found it in the printed figure.
+The Kaikoura case (`ticon/kaikoura-kait-nzl-ttw`) is a port where mean
+springs and mean neaps lie close together. Only a browser can measure text,
+so `tides-ui.js` checks that every word of every figure it draws lies inside
+the drawing; a station's label set on one line ran past the edge, and that
+check names it.
 
 **What lunar's reference does not cover, and what does.** The Sun's and
 Moon's longitudes are the engine's own short series in both, because that

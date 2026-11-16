@@ -163,6 +163,9 @@ lunar|date=2025-05-24 coef=20|coefin=20 rstate=making
 # the mean of the low waters either side (Brest 6.07, 1.32, 1.26; Portsmouth 4.02, 0.95, 0.73)
 lunar|station=ticon/brest-3-fra-refmar date=2025-05-24 t=14:00|range=4.78 coef=78 means=1
 lunar|station=ticon/portsmouth-por-gbr-cmems date=2025-05-24 t=14:00|range=3.18 coef=78 means=1
+# a port where mean springs and mean neaps lie close: the figure's two
+# labels must stand apart in the margin, not on each other
+lunar|station=ticon/kaikoura-kait-nzl-ttw date=2025-05-24 t=12:00|means=1
 lunar|date=2025-02-30|err=is not a date
 lunar|date=2025-05-24 t=25:00|err=is not a time
 lunar|hwh=4.3 lwh=1.1 sprange=3.9 nprange=1.9|err=date= is needed
