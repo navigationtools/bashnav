@@ -1,0 +1,55 @@
+# DRAFT, kept as it was written (Larry, 15 Nov 2026): a draft of 14 Nov in a run-file layout that was not built (marks in the run, since moved to the passage file); Larry's 12 Nov settings are in its comments; it uses the Shom stream and does not run with today's reader.
+RUN 3
+# Myth of Malham 2025, the Clipper 68s' start, as sailed (item P6).
+# practical-navigator, 12 November 2026.  Every setting below is Larry's
+# decision of 12 November, made one at a time.
+#
+# RUN 2 (bashnav, 13 Nov): the run names its own wind and current grids.
+
+course course_2025_v3.txt
+areas  areas_rules_2025.txt
+areas  areas_coast_emodnet_2025.txt
+
+# The boat: our generic 70 ft polar, the mean of five ORC certificates.
+# It is NOT Clipper's polar (none is published).
+polar  polar_generic70_v1.txt
+
+# The weather and the water: the GFS 0.25 degree run of 00Z on race day,
+# 10 m wind; the Shom 2D atlas, Manche, 2 km, surface.  Both GRID 1.
+wind    wind_20250524_00z_v2.grid
+current current_20250524_v2.grid
+
+# The start the real Clipper 68s had, SI 8.1 (Larry, 10 Nov).
+start  class IRC One
+
+# Larry, 12 Nov 2026: a 10-minute isochrone step and a 5-degree heading
+# step, "and we see how it looks".  The stream grid steps every 20 minutes.
+step   time 600 heading 5
+
+# As the sources give them.  current 0.5 would be the "what if the stream
+# were half the atlas" question.
+scale  wind 1.0 current 1.0
+
+# Larry, 12 Nov 2026: the EMODnet coastline at low water (LAT), so the
+# router never crosses mud that dries.  The Casquets TSS and Sowley Boom
+# are the SI's own, so not a choice.
+layers coast-emodnet-lat tss-casquets sowley-boom
+
+# Larry, 12 Nov 2026: keep 0.1 nm off the low-water coastline ("but I'll
+# wager no Clipper boat went that close"); the TSS takes 0
+# (touch its edge, never inside it), and so does Sowley Boom.
+clear  coast-emodnet-lat 0.10 tss-casquets 0 sowley-boom 0
+
+# Larry, 12 Nov 2026: within 0.1 nm counts as having rounded a mark.  One
+# distance serves every mark in RUN 2.
+round  0.10
+
+# The Level 1 passage: St Alban's Head and Portland Bill within two miles,
+# out and home.  The run reads down the page as the passage is sailed.
+gate   St Albans Head 50.57868 -2.05644 within 2.0
+gate   Portland Bill  50.51353 -2.45676 within 2.0
+mark   Eddystone Lt House
+gate   Portland Bill  50.51353 -2.45676 within 2.0
+gate   St Albans Head 50.57868 -2.05644 within 2.0
+mark   North Head Buoy
+end

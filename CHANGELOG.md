@@ -1,5 +1,24 @@
 # Changelog
 
+## A drafts folder, and the Level 1 gates draft kept in it
+
+**What.** `drafts/example_run_level1_gates.txt` is new: a draft run file of
+14 November for the Level 1 passage (St Alban's Head and Portland Bill within
+two miles, out to the Eddystone and home), with Larry's settings of 12
+November in its comments. One line is added at its top saying what it is;
+the rest is as it was written.
+
+**Why.** Larry reviewed it and chose to keep it (his ruling AAE, 15 November
+2026). It is in a run-file layout that was not built: it places the marks
+and gates in the run, and that design moved them to the passage file. So it
+does not run with today's reader, and it names the Shom stream. It is kept
+as a record of the settings and of the layout that was considered.
+
+**What it affects.** Nothing reads it: no tool, test or document. `drafts/`
+is for files kept on purpose that are not part of the build. The same
+passage, as it is sailed today, is the plan `two-mile-circles` in the
+course's `passage_2025_v1.txt`.
+
 ## tides 1.3: the version moves with the tidal gate calculator
 
 **What.** `tides` is version **1.3**. Nothing else in the program changed:
