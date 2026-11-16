@@ -15,7 +15,7 @@
 #   5  the lessons     reconstructed from lessons.js, vs `weather learn`
 #   6  the page        driven, including the rule that it must not tell
 #                      before it asks
-#   7-9 the gunnery, wind and friction figures, measured off the drawing
+#   7-11 the gunnery, wind, friction, force and veer figures, measured off the drawing
 set -e
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 cd "$ROOT"
@@ -115,6 +115,18 @@ if node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.ex
   #  measured off the drawing in night and day, with the turn toward a low
   #  drawn above the isobar (the northern hemisphere).
   node docs/web/tests/weather-friction.js
+  echo
+  echo "10. the force triangle, against the balance it draws"
+  #  weather 1.0.2: pressure, Coriolis and friction closing head to tail,
+  #  the corner on the circle, the wind turned atan(k/f) and cos(alpha) as
+  #  strong, measured off the drawing across the friction slider.
+  node docs/web/tests/weather-forces.js
+  echo
+  echo "11. backing and veering, against the words"
+  #  weather 1.0.2, the lesson veer: veering clockwise, backing
+  #  anticlockwise; the surface wind turned toward the low, backed in the
+  #  north and veered in the south, the drawing and its word agreeing.
+  node docs/web/tests/weather-veer.js
   echo
   echo "WEATHER WEB: all stages passed"
 else

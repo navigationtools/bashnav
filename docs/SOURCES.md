@@ -155,3 +155,18 @@ requires):
 The land speed is drawn as a band for that reason (Larry's ruling AJZ, from his
 own classes: buildings, towns, cities and forests drag the wind differently).
 
+**Why the wind turns: the force balance near the surface** (the force triangle
+in the `gradient` lesson, weather 1.0.2). Pressure toward the low, Coriolis at
+right angles to the wind, friction against it, balancing: Penn State METEO 300
+(friction and the force balance); LibreTexts, Brune, *Fundamentals of
+Atmospheric Science*, 10.01; US Navy aerographer's mate training (tpub weather2
+4-28). The drawing uses a simple drag, so the angle's tangent is drag over
+Coriolis and the layer's wind is the angle's cosine of the wind aloft; the
+lesson gives the turn from it and the wind on deck from the rules of thumb.
+
+**Backing and veering** (the lesson `veer`, weather 1.0.2). Veering clockwise,
+backing anticlockwise; the surface wind backed in the north and veered in the
+south; the shifts as a depression passes: US Navy aerographer's mate training;
+aircraftpilots.com, *Southern hemisphere winds*; thewisepilot.com, *Veering and
+backing*.
+

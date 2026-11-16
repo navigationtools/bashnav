@@ -49,6 +49,7 @@
      tide      The atmospheric tide: why the glass falls every afternoon
      coriolis  Coriolis, which is not a force
      gradient  Gradient wind, surface wind, and friction
+     veer      Backing and veering, and why the south is the other way round
      lapse     Lapse rates, stability, and where the cloud base is
      cells     The heat engine, and the three cells
      h500      The 500 millibar chart and the 564 line
@@ -201,6 +202,11 @@ Probably not - that is very close to the daily atmospheric tide, which is about 
   app has. Stand with your back to the wind and the low is on your left
   in the northern hemisphere - and on your right in the southern, because
   the sense of the rotation reverses.
+
+  Backed and veered, again. The surface wind always turns toward
+  the low. In the north the low is on the wind's left, so the turn is
+  anticlockwise - backed. In the south it is on the right, so the turn is
+  clockwise - veered. More in the lesson veer.
 
   ----------------------------------------------------------------------
   Question: Why does no hurricane ever form on the equator?
@@ -518,6 +524,11 @@ Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in t
   These are rules of thumb. The sources disagree on the land figure,
   from 1/3 (Royal Meteorological Society) to 2/3 (US Navy training).
 
+  Backed and veered, again. The surface wind always turns toward
+  the low. In the north the low is on the wind's left, so the turn is
+  anticlockwise - backed. In the south it is on the right, so the turn is
+  clockwise - veered. More in the lesson veer.
+
     OVER THE SEA                     OVER LAND
                         LOW side                 ^       LOW side
                                                 :
@@ -544,6 +555,43 @@ Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in t
   Friction slows the lowest air, so wind speed climbs with height, and
   the apparent wind aloft is stronger and further aft than at the boom.
   That is why a sail is twisted. One piece of physics, two apps.
+
+  Why it turns: three forces
+  Three things act on the wind down here. The push from high pressure
+  toward low - what the isobars show - drives it. The earth turning
+  beneath it bends it: to the right in the north (Coriolis). And the
+  drag of the sea or the land slows it.
+
+  Aloft, with nothing to drag on, the bend grows until it matches the
+  push, and the wind runs straight along the isobars. Down here the drag
+  slows it, a slower wind is bent less, and the push toward the low
+  wins: the wind slants in across the isobars. Drawn head to tail, the
+  three close into a triangle:
+
+    SEA: little friction             LAND: more friction
+           LOW side                         LOW side
+              ^                                ^
+              |\                               |\\
+              |\                               |  \
+              | \                              |   \  Coriolis
+              | \  Coriolis                    |    \\
+    pressure  |  \                   pressure  |      \
+              |  \                             |       \
+              |   \                            |      //
+              |   \                            |    //
+              |   _                            | ///
+              o___                             o/
+            friction                         friction
+    turned 15 deg toward the low     turned 35 deg toward the low
+    friction lies along the wind, Coriolis across it
+    more friction: a longer friction side, a shorter Coriolis side
+
+  The rougher the surface, the longer the drag side and the shorter the
+  bend: the wind turns further in toward the low, and slows. Over the
+  sea, a little. Over towns and forests, a lot.
+  The triangle is for the lowest kilometre or so of air. On deck the
+  wind is slower again, because it drops toward the surface - the same
+  drop that twists a sail - so the rule says about 2/3 over the sea.
 
   ----------------------------------------------------------------------
   Question: The chart shows a 30 knot gradient wind. What do you expect on deck, offshore, in the northern hemisphere?

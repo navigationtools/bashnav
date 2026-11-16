@@ -1,5 +1,80 @@
 # Changelog
 
+## weather 1.0.2: why the wind turns, and backing and veering
+
+**What.** Two additions on top of 1.0.1's friction figure, both asked for by
+Larry the same evening.
+
+1. **Why the wind turns: a force triangle with a friction slider.** At the end
+   of the `gradient` lesson, three forces drawn head to tail: the push toward
+   the low (what the isobars show), the earth's turn bending the wind to its
+   right (Coriolis), and the drag of the sea or land. Coriolis and drag meet
+   at a right angle, so the corner rides a circle drawn on the pressure arrow.
+   In the browser a slider runs the drag from none through the sea and open
+   fields to forests and towns; the wind turns and slows as it moves, and a
+   few sentences under it say what is happening, in a sailor's words. The
+   terminal draws two fixed cases, sea and land.
+2. **A lesson of its own, `veer`: backing and veering.** The words over time
+   (veering clockwise, backing anticlockwise; compass words, the same either
+   side of the equator) and against the wind aloft (the surface wind always
+   turns toward the low: backed in the north, veered in the south), with why
+   the south is the other way round and what a shift tells you. Two figures. A
+   short form is repeated in the `coriolis` and `gradient` lessons.
+
+```
+          LOW                       veers ↻  W → NW → N
+           ↑ \  Coriolis            backs ↺  W → SW → S
+  pressure │  \                     north: low on the wind's left, BACKED
+           │___\                    south: low on the wind's right, VEERED
+          friction (along the wind)
+```
+
+**Why.** Larry asked for a vector from the low to the wind, to show what more
+friction does without making anyone work the mathematics ("we want them to
+understand what's happening"), and for backing and veering explained with
+diagrams and the southern reversal, told as many times as it helps.
+
+**Larry's rulings, 16 November 2026.**
+
+| | the choice | what was ruled |
+|---|---|---|
+| AKB | when to build it | run 1.0.1's queue first, then build this as 1.0.2 before item 3 |
+| AKF | how to show the forces | the friction figure stays; a force triangle with a friction slider below it in the browser, fixed sea and land triangles in the terminal |
+| AKI | where backing and veering go | a lesson of its own, repeated wherever a lesson benefits; the text in seaman's terms, light on mathematics |
+
+**One honest limit, stated on the figure.** The triangle is the wind of the
+lowest kilometre or so of air: it gives the turn, and keeps nearly all the
+speed (97% at 15 degrees). On deck the wind is slower again because it drops
+toward the surface, so the figure gives the turn from the triangle and the
+speed on deck from the rules of thumb.
+
+**What it affects.**
+
+1. **`weather` is 1.0.2,** and has **eleven lessons**: the README, the site,
+   the manual (Figure 5 recaptured) and the web README say so.
+2. **lessons.js** carries three new demonstration kinds, `forces`,
+   `veertime` and `veerhemi`; `weather.js` draws them; `demo.css` has
+   `.forcedemo`, `.forcestops`, `.forcestory` and `.veerdemo`.
+3. **Checks:** `weather-forces.js` (stage 10, 287 checks) and
+   `weather-veer.js` (stage 11, 32 checks) measure the drawings;
+   `weather-ui.js` counts the lessons from the awk's own list instead of a
+   typed 10; the reflow check counts the new panels.
+4. **The golden file** holds the new lesson parts and the repeats.
+5. **The service worker's cache is `weather-v19`.**
+
+**Sources.** The force balance near the surface: Penn State METEO 300
+(friction and the force balance), LibreTexts (Brune), *Fundamentals of
+Atmospheric Science* 10.01, and US Navy aerographer's mate training (tpub
+weather2 4-28). Backing, veering and the southern reversal: the same Navy
+training, and the aviation meteorology texts at aircraftpilots.com and
+thewisepilot.com.
+
+**Checked.** The lessons character for character against the awk; the force
+triangle measured at eight frictions in night and day (closes, right angle on
+the circle, the turn and the speed, Coriolis on the right, more friction always
+turns it further); the veer figures read off the drawing; ten faults planted
+across the two checks, each caught.
+
 ## weather 1.0.1: friction, over the sea and over land (W01)
 
 **What.** The `gradient` lesson draws what it says: two panels, the wind

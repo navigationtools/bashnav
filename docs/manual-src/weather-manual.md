@@ -156,11 +156,11 @@ public domain), and are listed in `docs/SOURCES.md`.
 
 ## 7. The lessons
 
-![**Figure 5** — ten lessons, each one earning its place.](fig/weather-lessons.png)
+![**Figure 5** — eleven lessons, each one earning its place.](fig/weather-lessons.png)
 
 Each lesson changes either what the tool says or what you would do. One of them
 says plainly where the reasoning stops being reliable, which is the most
-important of the ten.
+important of the eleven.
 
 `weather learn` lists them; `weather learn <key>` opens one.
 
@@ -176,6 +176,43 @@ the published rules of thumb disagree, from 1/3 (the Royal Meteorological
 Society) to 2/3 (US Navy training), and because the ground decides it: trees
 and buildings drag the wind more than open fields do. Figure 6 is the
 northern hemisphere's; south of the equator the turn is the other way.
+
+![**Figure 7** — why the wind turns. The push toward the low, the earth's turn
+bending the wind to its right, and the drag of the sea or land close into a
+triangle. Drag the friction slider and the corner rides the circle: the drag
+side grows, the bend shrinks, and the wind turns further toward the low and
+slows.](fig/weather-forces.png)
+
+The same lesson then shows **why** the wind turns (Figure 7), in a sailor's
+terms rather than as equations. Three things act on the wind near the surface:
+the push from high pressure toward low, which is what the isobars show; the
+earth turning beneath, which bends moving air to its right in the north; and
+the drag of the sea or the land. Aloft there is no drag, so the bend grows until
+it matches the push and the wind runs along the isobars. Near the surface the
+drag slows the wind, a slower wind is bent less, and the push toward the low
+wins a little. In the browser a slider runs the drag from none to forests and
+towns, and a few sentences under it say what is happening at each stage. The
+triangle describes the lowest kilometre or so of air; on deck the wind is slower
+again, which is why the rule of thumb over the sea is about two thirds.
+
+![**Figure 8** — the wind shifts, over time. It veers when it shifts clockwise
+round the compass and backs when it shifts anticlockwise. These are compass
+words, so they mean the same on either side of the equator.](fig/weather-veer-time.png)
+
+![**Figure 9** — the surface wind against the wind aloft. It always turns toward
+the low. North of the equator the low is on the wind's left, so the turn is
+anticlockwise: backed. South of it the low is on the right, and the same turn is
+clockwise: veered.](fig/weather-veer-hemi.png)
+
+**Backing and veering** have a lesson of their own, `weather learn veer`,
+because the words do two jobs. Over time (Figure 8) they say which way the wind
+has shifted, and the "What the log says" screen uses them in that sense. Against
+the wind aloft (Figure 9) they describe the friction turn, which is backed in
+the north and veered in the south. The lesson also says what a shift tells you:
+in the Channel, a depression passing to the north veers the wind from south-west
+through west to north-west as its fronts go through, and the same low south of
+the equator backs it instead. The short form is repeated in the Coriolis and
+gradient lessons, so it is met more than once.
 
 ---
 

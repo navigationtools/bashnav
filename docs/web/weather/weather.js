@@ -533,7 +533,8 @@ function drawLines(box, lines) {
       box.appendChild(fig);
       //  one drawing per kind the shell names in its @@FIG marker; the
       //  gun is the old default and stays the fallback
-      wxRepaints(fig, ({ wind: windDemo, friction: frictionDemo })[b.kind] || gunDemo);
+      wxRepaints(fig, ({ wind: windDemo, friction: frictionDemo, forces: forcesDemo,
+                         veertime: veerTimeDemo, veerhemi: veerHemiDemo })[b.kind] || gunDemo);
       return;
     }
     //  the first printed line of a section is its heading
@@ -923,14 +924,312 @@ function frictionDemo(host) {
   var l1 = pt(352, 214, L / 3, 35), l2 = pt(352, 214, L * 2 / 3, 35);
   t(l1[0] + 14, l1[1] + 18, '1/3: forests, towns, cities', acc, { 'font-size': 12 });
   t(l2[0] + 16, l2[1] + 6, '2/3: open fields', acc, { 'font-size': 12 });
-  t(4, 288, 'backed 10–20°, about 2/3 of the speed aloft', acc);
-  t(334, 288, 'backed 30–40°, 1/3 to 2/3 of the speed aloft', acc);
+  t(4, 288, 'backed 10\u201320\u00b0, about 2/3 of the speed aloft', acc);
+  t(334, 288, 'backed 30\u201340\u00b0, 1/3 to 2/3 of the speed aloft', acc);
   t(4, 314, 'Northern hemisphere: the low lies to the left of the wind aloft, and the ' +
             'surface wind turns toward it.', dim, { 'font-size': 11 });
   t(4, 330, 'South of the equator it turns the other way: veered, not backed.',
     dim, { 'font-size': 11 });
   host.appendChild(wrap);
 }
+
+/*  THE FORCES BEHIND THE TURN, WITH FRICTION ON A SLIDER (weather 1.0.2;
+    Larry, AKF, 16 November 2026).  The gradient lesson's second figure.
+    Near the surface three forces balance:
+
+      pressure   toward the low, fixed by the isobars        f.G
+      Coriolis   at right angles to the wind, to its right   f.V
+      friction   straight against the wind                   k.V
+
+    Head to tail they close into a triangle.  Coriolis and friction meet at
+    a right angle, so the corner rides the circle whose diameter is the
+    pressure arrow (Thales), and the friction side lies along the wind.
+    Solved: tan(alpha) = k/f and V = G.cos(alpha) - the balance the
+    coriolis lesson's wind panel is held to (weather-wind.js).  The slider
+    is k/f, from 0 (no friction: the wind aloft, along the isobars) to 1
+    (45 degrees), at 50 N, the course's water.
+
+    THE TRIANGLE GIVES THE TURN, NOT THE WIND ON DECK.  V is the wind of
+    the whole friction layer; at deck height it is slower again, because
+    the wind drops toward the surface.  So the readout gives the turn and
+    the layer's speed from the triangle, and the rule of thumb for the
+    wind on deck beside it, and says why they differ.
+    Sources: Penn State METEO 300 (friction and the force balance); US Navy
+    aerographer's mate training (tpub weather2 4-28).  */
+var FORCES = { k: 0.27 };          /* k/f; 0.27 is 15 degrees, the sea */
+/*  WHAT IS HAPPENING, IN A SAILOR'S WORDS (Larry, 16 November 2026: "we
+    want them to understand what's happening, not to actually have to do
+    the math").  One short story for each kind of ground, told under the
+    slider as it moves.  */
+function forcesGround(a) {          /* what ground gives that much turn */
+  if (a < 5)  return { name: 'none (the wind aloft)', deck: 'all of it, along the isobars',
+    story: 'Aloft, nothing drags on the air. The push toward the low gets it moving, ' +
+           'and the earth turning beneath bends it to the right until the bend exactly ' +
+           'matches the push. Then the wind runs straight along the isobars, just as the ' +
+           'weather chart draws it.' };
+  if (a < 23) return { name: 'the sea', deck: 'about 2/3 of the wind aloft',
+    story: 'Over the sea the water drags a little at the air and slows it. A slower wind ' +
+           'is bent less by the earth\u2019s turn, so the push toward the low wins a ' +
+           'little and the wind slants in across the isobars, about 10 to 20 degrees. ' +
+           'On deck you get about two thirds of the wind aloft.' };
+  if (a < 33) return { name: 'open fields', deck: 'nearer 2/3 of the wind aloft',
+    story: 'Over open land the drag is greater than over the sea. The wind slows ' +
+           'further, the bend weakens further, and the wind cuts in toward the low at ' +
+           'about 30 degrees.' };
+  return { name: 'forests, towns and cities', deck: 'nearer 1/3 of the wind aloft',
+    story: 'Trees and buildings drag hard. The wind is slowed a lot, the earth\u2019s ' +
+           'turn bends it only a little, and it cuts across the isobars toward the low ' +
+           'at 35 to 40 degrees or more - and gusty. In harbour among buildings you may ' +
+           'have a third of the wind that is blowing outside.' };
+}
+function forcesDemo(host) {
+  var NS = 'http://www.w3.org/2000/svg';
+  var W = 640, H = 392;
+  var wrap = el('div', 'forcedemo');
+  var svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  svg.setAttribute('role', 'img');
+  wrap.appendChild(svg);
+  function e(n, a, p) {
+    var x = document.createElementNS(NS, n), q;
+    for (q in a) if (a.hasOwnProperty(q)) x.setAttribute(q, a[q]);
+    (p || svg).appendChild(x);
+    return x;
+  }
+  var css = function (n) {
+    return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#6fb3d9';
+  };
+  var dim = css('--dim'), line = css('--line'), acc = css('--accent'), text = css('--text');
+  var Ox = 210, Oy = 330, D = 270;   /* O: where the wind is; D: the pressure arrow */
+  var Lg = 340;                      /* the wind aloft, full length */
+  var g = e('g');
+  function head(gp, x, y, ang, col) {   /* ang: screen radians the arrow points along */
+    var b1x = x - 11 * Math.cos(ang - 0.45), b1y = y - 11 * Math.sin(ang - 0.45);
+    var b2x = x - 11 * Math.cos(ang + 0.45), b2y = y - 11 * Math.sin(ang + 0.45);
+    e('path', { d: 'M' + x + ',' + y + 'L' + b1x + ',' + b1y + 'L' + b2x + ',' + b2y + 'Z',
+                fill: col }, gp);
+  }
+  function arrow(gp, x1, y1, x2, y2, col, w, part, dash) {
+    var a = { x1: x1, y1: y1, x2: x2, y2: y2, stroke: col, 'stroke-width': w,
+              'data-part': part };
+    if (dash) a['stroke-dasharray'] = dash;
+    e('line', a, gp);
+    if (Math.hypot(x2 - x1, y2 - y1) > 14) head(gp, x2, y2, Math.atan2(y2 - y1, x2 - x1), col);
+  }
+  function t(gp, x, y, s, fill, o) {
+    var a = { x: x, y: y, fill: fill, 'font-size': 13 }, q;
+    for (q in (o || {})) a[q] = o[q];
+    e('text', a, gp).textContent = s;
+  }
+  function draw() {
+    while (g.firstChild) g.removeChild(g.firstChild);
+    var al = Math.atan(FORCES.k), deg = al * 180 / Math.PI;
+    var Tx = Ox, Ty = Oy - D;                                 /* head of the pressure arrow */
+    var Cx = Ox + D * Math.cos(al) * Math.sin(al);            /* the right angle */
+    var Cy = Oy - D * Math.sin(al) * Math.sin(al);
+    var Vl = Lg * Math.cos(al);
+    /* the circle the corner rides, and the isobar */
+    e('circle', { cx: Ox, cy: Oy - D / 2, r: D / 2, fill: 'none', stroke: line,
+                  'stroke-width': 1, 'data-part': 'circle' }, g);
+    e('line', { x1: 30, y1: Oy, x2: 610, y2: Oy, stroke: dim, 'stroke-width': 1.2,
+                'stroke-dasharray': '2 4' }, g);
+    t(g, 34, Oy - 6, 'isobar', dim, { 'font-size': 11 });
+    t(g, Tx, Ty - 14, 'LOW', text, { 'text-anchor': 'middle', 'font-weight': 600 });
+    /* the wind aloft, along the isobar, for comparison */
+    e('line', { x1: Ox, y1: Oy + 26, x2: Ox + Lg, y2: Oy + 26, stroke: dim, 'stroke-width': 2,
+                'data-part': 'aloft' }, g);
+    head(g, Ox + Lg, Oy + 26, 0, dim);
+    t(g, Ox - 8, Oy + 30, 'the wind aloft', dim, { 'font-size': 12, 'text-anchor': 'end' });
+    /* the surface wind, turned toward the low */
+    var wx = Ox + Vl * Math.cos(al), wy = Oy - Vl * Math.sin(al);
+    e('line', { x1: Ox, y1: Oy, x2: wx, y2: wy, stroke: acc, 'stroke-width': 6,
+                'stroke-opacity': 0.35, 'data-part': 'wind' }, g);
+    head(g, wx + 6 * Math.cos(al), wy - 6 * Math.sin(al), -al, acc);
+    t(g, wx + 12, wy - 6, 'the wind', acc, { 'font-weight': 600 });
+    /* the three forces, head to tail */
+    arrow(g, Ox, Oy, Tx, Ty, text, 2.5, 'pgf');
+    t(g, Ox - 10, Oy - D * 0.55, 'pressure', text, { 'text-anchor': 'end' });
+    t(g, Ox - 10, Oy - D * 0.55 + 16, 'the push', dim, { 'text-anchor': 'end', 'font-size': 12 });
+    t(g, Ox - 10, Oy - D * 0.55 + 31, 'toward the low', dim, { 'text-anchor': 'end', 'font-size': 12 });
+    arrow(g, Tx, Ty, Cx, Cy, text, 2.5, 'cor', '7 4');
+    t(g, (Tx + Cx) / 2 + 22, (Ty + Cy) / 2, 'Coriolis', text);
+    t(g, (Tx + Cx) / 2 + 22, (Ty + Cy) / 2 + 16, 'the earth\u2019s turn,', dim, { 'font-size': 12 });
+    t(g, (Tx + Cx) / 2 + 22, (Ty + Cy) / 2 + 31, 'bending it right', dim, { 'font-size': 12 });
+    arrow(g, Cx, Cy, Ox, Oy, text, 2.5, 'fric', '2 3');
+    /*  under the isobar, clear of the wind and the dotted line, and above
+        the wind aloft: at the sea's small angle there is no room beside it  */
+    if (deg > 6) t(g, Cx + 10, Oy + 18, 'friction: the drag', text, { 'font-size': 12 });
+    /* the right angle at the corner */
+    if (deg > 3 && deg < 87) {
+      var ux = Math.cos(al), uy = -Math.sin(al), px = Math.sin(al), py = Math.cos(al), q = 10;
+      var p1x = Cx - q * ux, p1y = Cy - q * uy;
+      e('path', { d: 'M' + p1x + ',' + p1y + 'L' + (p1x - q * px) + ',' + (p1y - q * py) +
+                     'L' + (Cx - q * px) + ',' + (Cy - q * py),
+                  fill: 'none', stroke: dim, 'stroke-width': 1 }, g);
+    }
+    /* the angle the wind is turned */
+    if (deg > 1) {
+      var r = 64, kx = Ox + r * Math.cos(al), ky = Oy - r * Math.sin(al);
+      e('path', { d: 'M' + (Ox + r) + ',' + Oy + 'A' + r + ',' + r + ' 0 0 0 ' + kx + ',' + ky,
+                  fill: 'none', stroke: acc, 'stroke-width': 1.2 }, g);
+    }
+    var gr = forcesGround(deg);
+    t(g, 360, 36, 'friction: ' + gr.name, text, { 'font-weight': 600, 'data-part': 'ground' });
+    t(g, 360, 58, 'turned ' + Math.round(deg) + '\u00b0 toward the low', acc, { 'data-part': 'turn' });
+    t(g, 360, 78, 'on deck: ' + gr.deck, text, { 'data-part': 'deck', 'font-size': 12 });
+    story.textContent = gr.story;
+    t(g, 30, 384, 'Northern hemisphere, 50\u00b0 N. The triangle is the wind of the whole friction ' +
+                  'layer; on deck it is slower again.', dim, { 'font-size': 11 });
+    svg.setAttribute('aria-label', 'Three forces: pressure toward the low, Coriolis and friction. ' +
+      'With friction ' + gr.name + ' the wind is turned ' + Math.round(deg) +
+      ' degrees toward the low.');
+  }
+  var story = el('p', 'gunread forcestory', '');
+  draw();
+  /*  the slider: k/f, 0 to 1, in steps of 0.01  */
+  var ctl = el('div', 'gunctl');
+  var l = el('label', null, '');
+  var span = el('span', 'gunval', '');
+  l.appendChild(document.createTextNode('friction '));
+  l.appendChild(span);
+  var inp = document.createElement('input');
+  inp.type = 'range'; inp.min = 0; inp.max = 100; inp.step = 1;
+  inp.value = Math.round(FORCES.k * 100); inp.id = 'fr-k';
+  inp.setAttribute('aria-label', 'friction, from none to forests, towns and cities');
+  l.appendChild(inp);
+  function sync() { span.textContent = forcesGround(Math.atan(FORCES.k) * 180 / Math.PI).name; }
+  inp.addEventListener('input', function () { FORCES.k = parseFloat(inp.value) / 100; sync(); draw(); });
+  sync();
+  ctl.appendChild(l);
+  /*  the stops sit where their friction is on the slider, not evenly  */
+  var stops = el('div', 'forcestops', '');
+  [['none', 0], ['sea', 0.27], ['open fields', 0.58], ['forests, towns', 0.84]].forEach(function (n) {
+    var sp = el('span', null, n[0]);
+    sp.setAttribute('style', 'left:' + (n[1] * 100) + '%' +
+                    (n[1] > 0 ? ';transform:translateX(-50%)' : ''));
+    stops.appendChild(sp);
+  });
+  ctl.appendChild(stops);
+  wrap.appendChild(ctl);
+  wrap.appendChild(story);
+  host.appendChild(wrap);
+}
+
+/*  BACKING AND VEERING, the two figures of the lesson `veer` (weather
+    1.0.2; Larry, AKI).  veertime: the words over time, round a compass -
+    veering clockwise, backing anticlockwise, the same either side of the
+    equator.  veerhemi: the surface wind against the wind aloft, turned
+    toward the low, which is on the wind's left in the north (backed) and
+    its right in the south (veered).  Colours from the page's tokens, so
+    both repaint with the display mode.  */
+function demoSvg(cls, W, H, label) {
+  var NS = 'http://www.w3.org/2000/svg';
+  var wrap = el('div', cls);
+  var svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', label);
+  wrap.appendChild(svg);
+  var cs = getComputedStyle(document.documentElement);
+  var tok = function (n) { return cs.getPropertyValue(n).trim() || '#6fb3d9'; };
+  function e(n, a, p) {
+    var x = document.createElementNS(NS, n), q;
+    for (q in a) if (a.hasOwnProperty(q)) x.setAttribute(q, a[q]);
+    (p || svg).appendChild(x);
+    return x;
+  }
+  function t(x, y, s, fill, o) {
+    var a = { x: x, y: y, fill: fill, 'font-size': 13 }, q;
+    for (q in (o || {})) a[q] = o[q];
+    e('text', a).textContent = s;
+  }
+  function head(x, y, ang, col) {        /* screen radians */
+    e('path', { d: 'M' + x + ',' + y +
+      'L' + (x - 11 * Math.cos(ang - 0.45)) + ',' + (y - 11 * Math.sin(ang - 0.45)) +
+      'L' + (x - 11 * Math.cos(ang + 0.45)) + ',' + (y - 11 * Math.sin(ang + 0.45)) + 'Z', fill: col });
+  }
+  return { wrap: wrap, svg: svg, e: e, t: t, head: head,
+           dim: tok('--dim'), line: tok('--line'), acc: tok('--accent'), text: tok('--text') };
+}
+function veerTimeDemo(host) {
+  var D = demoSvg('veerdemo', 640, 330,
+    'A compass. The wind veers when it shifts clockwise, west to north-west to north, ' +
+    'and backs when it shifts anticlockwise, west to south-west to south.');
+  var cx = 320, cy = 165, R = 112;
+  function P(b, r) { return [cx + r * Math.sin(b * Math.PI / 180), cy - r * Math.cos(b * Math.PI / 180)]; }
+  D.e('circle', { cx: cx, cy: cy, r: R, fill: 'none', stroke: D.line, 'stroke-width': 1.2 });
+  [['N', 0], ['NE', 45], ['E', 90], ['SE', 135], ['S', 180], ['SW', 225], ['W', 270], ['NW', 315]]
+    .forEach(function (c) {
+      var p = P(c[1], R + 18);
+      D.t(p[0], p[1] + 4.5, c[0], c[0] === 'W' ? D.text : D.dim,
+          { 'text-anchor': 'middle', 'font-weight': c[0] === 'W' ? 700 : 400 });
+    });
+  /* the wind now: from the west, blowing toward the centre */
+  var w0 = P(270, R - 6), w1 = P(270, 26);
+  D.e('line', { x1: w0[0], y1: w0[1], x2: w1[0], y2: w1[1], stroke: D.text, 'stroke-width': 3,
+                'data-part': 'wind-now' });
+  D.head(w1[0], w1[1], 0, D.text);
+  D.t(cx + 4, cy + 30, 'the wind now:', D.dim, { 'font-size': 12 });
+  D.t(cx + 4, cy + 46, 'from the west', D.dim, { 'font-size': 12 });
+  /* veering: clockwise from W toward N; backing: anticlockwise toward S */
+  function arc(b1, b2, sweep, col, part) {
+    var r = R - 24, a = P(b1, r), z = P(b2, r);
+    D.e('path', { d: 'M' + a[0] + ',' + a[1] + 'A' + r + ',' + r + ' 0 0 ' + sweep + ' ' + z[0] + ',' + z[1],
+                  fill: 'none', stroke: col, 'stroke-width': 3, 'data-part': part,
+                  'data-from': b1, 'data-to': b2, 'data-sweep': sweep });
+    /* the head points along the circle, the way the shift goes */
+    var bb = b2 * Math.PI / 180, dir = sweep ? 1 : -1;
+    D.head(z[0], z[1], Math.atan2(dir * Math.sin(bb), dir * Math.cos(bb)), col);
+  }
+  arc(278, 352, 1, D.acc, 'veer-arc');
+  arc(262, 188, 0, D.text, 'back-arc');
+  D.t(470, 70, 'VEERS', D.acc, { 'font-weight': 700 });
+  D.t(470, 88, 'clockwise:', D.acc, { 'font-size': 12 });
+  D.t(470, 104, 'west, north-west, north', D.acc, { 'font-size': 12 });
+  D.t(30, 250, 'BACKS', D.text, { 'font-weight': 700 });
+  D.t(30, 268, 'anticlockwise:', D.text, { 'font-size': 12 });
+  D.t(30, 284, 'west, south-west, south', D.text, { 'font-size': 12 });
+  D.t(320, 322, 'Compass words: they mean the same north and south of the equator.',
+      D.dim, { 'font-size': 12, 'text-anchor': 'middle' });
+  host.appendChild(D.wrap);
+}
+function veerHemiDemo(host) {
+  var D = demoSvg('veerdemo', 640, 330,
+    'Two panels. North of the equator the low is on the wind’s left and the surface ' +
+    'wind is turned anticlockwise toward it: backed. South of the equator the low is on ' +
+    'the right and the turn is clockwise: veered.');
+  var L = 230, A = 15 * Math.PI / 180;
+  function panel(px, north) {
+    var k = north ? 'north' : 'south', s = north ? 1 : -1;
+    var x0 = px + 24, yiso = north ? 200 : 120, yal = north ? 228 : 92;
+    D.t(px + 4, 22, north ? 'NORTH OF THE EQUATOR' : 'SOUTH OF THE EQUATOR', D.text, { 'font-weight': 600 });
+    D.t(px + 290, north ? 52 : 270, 'LOW side', D.dim,
+        { 'text-anchor': 'end', 'data-part': k + '-low' });
+    D.e('line', { x1: px + 6, y1: yiso, x2: px + 300, y2: yiso, stroke: D.dim,
+                  'stroke-width': 1.2, 'stroke-dasharray': '2 4' });
+    D.e('line', { x1: x0, y1: yal, x2: x0 + L, y2: yal, stroke: D.dim, 'stroke-width': 2,
+                  'data-part': k + '-aloft' });
+    D.head(x0 + L + 8, yal, 0, D.dim);
+    D.t(x0, yal + (north ? 20 : -10), 'the wind aloft', D.dim, { 'font-size': 12 });
+    var ex = x0 + L * Math.cos(A), ey = yiso - s * L * Math.sin(A);
+    D.e('line', { x1: x0, y1: yiso, x2: ex, y2: ey, stroke: D.acc, 'stroke-width': 3,
+                  'data-part': k + '-surface' });
+    D.head(ex + 8 * Math.cos(A), ey - s * 8 * Math.sin(A), -s * A, D.acc);
+    D.t(ex - 60, ey + (north ? -14 : 24), 'the surface wind', D.acc, { 'font-size': 12 });
+    /* the turn, as a small arc from along the isobar to the surface wind */
+    var r = 70, q = [x0 + r * Math.cos(A), yiso - s * r * Math.sin(A)];
+    D.e('path', { d: 'M' + (x0 + r) + ',' + yiso + 'A' + r + ',' + r + ' 0 0 ' + (north ? 0 : 1) + ' ' + q[0] + ',' + q[1],
+                  fill: 'none', stroke: D.acc, 'stroke-width': 1.2 });
+    D.t(px + 4, 296, north ? 'low on the wind’s left:' : 'low on the wind’s right:',
+        D.text, { 'font-size': 13 });
+    D.t(px + 4, 314, north ? 'turned anticlockwise, BACKED' : 'turned clockwise, VEERED',
+        D.acc, { 'font-weight': 700, 'data-part': k + '-word' });
+  }
+  panel(0, true);
+  panel(330, false);
+  host.appendChild(D.wrap);
+}
+
 
 function gunDemo(host) {
   var NS = 'http://www.w3.org/2000/svg';
@@ -1189,7 +1488,7 @@ function gunDemo(host) {
          function (v) { GUN.brg = v; return gunBearingName(); },
          function (v) { GUN.brg = v; redraw(shown); say(); });
   slider('gun-lat', 'Latitude', -80, 80, 1, GUN.lat,
-         function (v) { return Math.abs(v).toFixed(0) + '° ' + (v >= 0 ? 'N' : 'S'); },
+         function (v) { return Math.abs(v).toFixed(0) + '\u00b0 ' + (v >= 0 ? 'N' : 'S'); },
          function (v) { GUN.lat = v; redraw(shown); say(); });
 
   var fire = el('button', 'btn wide', 'Fire');

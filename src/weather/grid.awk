@@ -386,3 +386,120 @@ function friction_figure(   w,h){
   gputsc(17, 35, "1/3 towns, forests; 2/3 open", C_DIM)
   return 0
 }
+
+#  THE FORCES BEHIND THE TURN (weather 1.0.2; Larry, AKF, 16 November 2026).
+#  Near the surface three forces balance: the pressure gradient, pushing
+#  toward the low and fixed by the isobars; Coriolis, at right angles to
+#  the wind and to its right in the north; and friction, straight against
+#  the wind.  Drawn head to tail they close into a triangle.  Coriolis and
+#  friction always meet at a right angle, so that corner sits on the
+#  circle whose diameter is the pressure arrow (Thales), and the friction
+#  side lies along the wind itself.  With a drag of k against Coriolis f:
+#  tan(alpha) = k/f, and the layer's wind is cos(alpha) of the gradient
+#  wind - the same balance the coriolis lesson's wind panel is held to.
+#  Sources: Penn State METEO 300 (friction and the force balance); US Navy
+#  aerographer's mate training (tpub weather2 4-28).
+#  The terminal draws two fixed cases, sea and land; the browser puts a
+#  friction slider on one.  Cells are taken as twice as tall as wide.
+function fline(r1,c1,r2,c2,col,   n,i,dr,dc,s,ch){
+  dr = r2 - r1; dc = c2 - c1
+  n = (dr < 0 ? -dr : dr); if((dc < 0 ? -dc : dc) > n) n = (dc < 0 ? -dc : dc)
+  n = int(n + 0.5); if(n < 1) n = 1
+  if(dc == 0) ch = "|"
+  else {
+    s = dr / dc
+    if(s > -0.15 && s < 0.15) ch = "_"
+    else if(s > 4 || s < -4) ch = "|"
+    else if(s < 0) ch = "/"
+    else ch = sprintf("%c", 92)
+  }
+  for(i=1;i<n;i++) gputc(r1 + dr*i/n, c1 + dc*i/n, ch, col)
+}
+function forces_panel(x0, title, ang,   D,al,r0,c0,rt,rc,cc){
+  D = 10; al = wx_rad(ang)
+  r0 = 12; c0 = x0 + 10            # O, the foot of the pressure arrow
+  rt = r0 - D                      # T, its head, toward the low
+  rc = r0 - D * sin(al) * sin(al)  # C, the right angle, on the circle
+  cc = c0 + 2 * D * cos(al) * sin(al)
+  gputsc(0, x0, title, C_ACC)
+  gputsc(rt - 1, c0 - 3, "LOW side", C_DIM)
+  fline(r0, c0, rt, c0, C_DIM);  gputc(rt, c0, "^", C_DIM)
+  fline(rt, c0, rc, cc, C_ACC)
+  fline(rc, cc, r0, c0, C_ACC);  gputc(r0, c0, "o", C_ACC)
+  gputsc(int((r0+rt)/2), x0, "pressure", C_DIM)
+  gputsc(int((rt+rc)/2), int((c0+cc)/2) + 3, "Coriolis", C_ACC)
+  gputsc(r0 + 1, c0 - 2, "friction", C_ACC)
+  gputsc(r0 + 2, x0, sprintf("turned %d deg toward the low", ang), C_ACC)
+  return 0
+}
+function forces_figure(   w,h){
+  w=66; h=17
+  gclear(w,h)
+  FIGNAME = "forces"
+  forces_panel(2,  "SEA: little friction", 15)
+  forces_panel(35, "LAND: more friction",  35)
+  gputsc(15, 2, "friction lies along the wind, Coriolis across it", C_DIM)
+  gputsc(16, 2, "more friction: a longer friction side, a shorter Coriolis side", C_DIM)
+  return 0
+}
+
+#  BACKING AND VEERING (weather 1.0.2; Larry, AKI, 16 November 2026).
+#  Two figures for the lesson `veer`, written as functions so any lesson
+#  that benefits can show them again ("tell them as many times as you
+#  need" - Larry).
+#
+#  veer_time_figure: the words over time.  Veering is clockwise round the
+#  compass, backing anticlockwise; compass words, so the same either side
+#  of the equator.
+function veer_time_figure(   w,h){
+  w=64; h=8
+  gclear(w,h)
+  FIGNAME = "veertime"
+  gputsc(0, 2, "THE WIND SHIFTS, OVER TIME", C_ACC)
+  gputsc(2, 4, "backs: anticlockwise", C_DIM)
+  gputsc(2, 38, "veers: clockwise", C_ACC)
+  gputsc(4, 2,  "S  <--  SW  <--", C_DIM)
+  gputsc(4, 19, "W", C_ACC)
+  gputsc(4, 23, "-->  NW  -->  N", C_ACC)
+  gputsc(6, 2, "compass words: the same north and south of the equator", C_DIM)
+  return 0
+}
+#  veer_hemi_figure: against the wind aloft.  The surface wind is turned
+#  toward the low; the low is on the wind's left in the north (so the turn
+#  is anticlockwise: backed) and on its right in the south (clockwise:
+#  veered).  Drawn as two panels on the wind figure's conventions.
+function veer_hemi_panel(x0, north,   yiso,ya,ye,L){
+  L = 22
+  if(north){
+    gputsc(0, x0, "NORTH OF THE EQUATOR", C_ACC)
+    gputsc(1, x0 + 20, "LOW side", C_DIM)
+    yiso = 8; ya = 10; ye = 3
+    gputsc(2, x0 + L - 8, "surface", C_ACC)
+    gputsc(11, x0, "the wind aloft", C_DIM)
+    gputsc(13, x0, "low on the left: BACKED", C_ACC)
+  } else {
+    gputsc(0, x0, "SOUTH OF THE EQUATOR", C_ACC)
+    gputsc(2, x0, "the wind aloft", C_DIM)
+    yiso = 5; ya = 3; ye = 10
+    gputsc(11, x0 + L - 8, "surface", C_ACC)
+    gputsc(12, x0 + 20, "LOW side", C_DIM)
+    gputsc(13, x0, "low on the right: VEERED", C_ACC)
+  }
+  gline_iso(yiso, x0, x0 + 28)
+  gline_aloft(ya, x0, x0 + L)
+  fline(yiso, x0, ye, x0 + L, C_ACC)
+  gputc(ye, x0 + L, (north ? "^" : "v"), C_ACC)
+  return 0
+}
+function gline_iso(r, c1, c2,   i){ for(i=c1;i<=c2;i++) gputc(r, i, ".", C_DIM); return 0 }
+function gline_aloft(r, c1, c2,   i){ for(i=c1;i<c2;i++) gputc(r, i, "-", C_DIM); gputc(r, c2, ">", C_DIM); return 0 }
+function veer_hemi_figure(   w,h){
+  w=66; h=16
+  gclear(w,h)
+  FIGNAME = "veerhemi"
+  veer_hemi_panel(2, 1)
+  veer_hemi_panel(35, 0)
+  gputsc(15, 2, "the surface wind always turns toward the low", C_DIM)
+  return 0
+}
+

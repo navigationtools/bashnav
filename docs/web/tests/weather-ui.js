@@ -147,7 +147,10 @@ const OBS = [
   await page.evaluate(() => go('learn'));
   await page.waitForTimeout(120);
   const nles = await page.$$eval('#les-list .row', r => r.length);
-  if (nles !== 10) fail('expected 10 lessons, found ' + nles);
+  //  HOW MANY: as many as the awk lists, counted from its own les() calls,
+  //  not a number typed here - it was 10 until the veer lesson made it 11.
+  const wantLes = (fs.readFileSync(REPO + '/src/weather/teach.awk', 'utf8').match(/^\s*les\("/gm) || []).length;
+  if (nles !== wantLes) fail('expected ' + wantLes + ' lessons (the awk lists them), found ' + nles);
   await page.evaluate(() => showLesson('tide'));
   await page.waitForTimeout(120);
   const les = await page.textContent('#les-text');

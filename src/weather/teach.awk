@@ -20,6 +20,7 @@ function les_init(){
   les("tide",     "The atmospheric tide: why the glass falls every afternoon")
   les("coriolis", "Coriolis, which is not a force")
   les("gradient", "Gradient wind, surface wind, and friction")
+  les("veer",     "Backing and veering, and why the south is the other way round")
   les("lapse",    "Lapse rates, stability, and where the cloud base is")
   les("cells",    "The heat engine, and the three cells")
   les("h500",     "The 500 millibar chart and the 564 line")
@@ -29,6 +30,18 @@ function les_init(){
   return 0
 }
 function les(k,t){ LS_N++; LS_K[LS_N]=k; LS_T[LS_N]=t; return 0 }
+
+#  THE SHORT FORM OF THE VEER LESSON, for any lesson that benefits from
+#  hearing it again (Larry, 16 November 2026: "tell them once, tell them
+#  twice, tell them as many times as you need").
+function veer_repeat(){
+  lp(cw("Backed and veered, again.",C_ACC) " The surface wind always turns toward")
+  lp("the low. In the north the low is on the wind's left, so the turn is")
+  lp("anticlockwise - backed. In the south it is on the right, so the turn is")
+  lp("clockwise - veered. More in the lesson " cw("veer",C_ACC) ".")
+  print ""
+  return 0
+}
 
 function lp(s){ printf "  %s\n", s; return 0 }
 function lpd(s){ printf "  %s\n", cwd(s); return 0 }
@@ -172,6 +185,7 @@ function lesson_body(k){
     lp("in the northern hemisphere - and on your right in the southern, because")
     lp("the sense of the rotation reverses.")
     print ""
+    veer_repeat()
     return 1
   }
   # ------------------------------------------------------------------
@@ -195,6 +209,7 @@ function lesson_body(k){
     lpd("These are rules of thumb. The sources disagree on the land figure,")
     lpd("from 1/3 (Royal Meteorological Society) to 2/3 (US Navy training).")
     print ""
+    veer_repeat()
     friction_figure()
     gshow()
     print ""
@@ -205,6 +220,87 @@ function lesson_body(k){
     lp("Friction slows the lowest air, so wind speed climbs with height, and")
     lp("the apparent wind aloft is stronger and further aft than at the boom.")
     lp("That is why a sail is " cw("twisted",C_ACC) ". One piece of physics, two apps.")
+    print ""
+    lp(cw("Why it turns: three forces",C_ACC))
+    lp("Three things act on the wind down here. The " cw("push",C_ACC) " from high pressure")
+    lp("toward low - what the isobars show - drives it. The " cw("earth turning",C_ACC))
+    lp("beneath it bends it: to the right in the north (Coriolis). And the")
+    lp(cw("drag",C_ACC) " of the sea or the land slows it.")
+    print ""
+    lp("Aloft, with nothing to drag on, the bend grows until it matches the")
+    lp("push, and the wind runs straight along the isobars. Down here the drag")
+    lp("slows it, a slower wind is bent less, and the push toward the low")
+    lp("wins: the wind slants in across the isobars. Drawn head to tail, the")
+    lp("three close into a triangle:")
+    print ""
+    forces_figure()
+    gshow()
+    print ""
+    lp("The rougher the surface, the longer the drag side and the shorter the")
+    lp("bend: the wind turns further in toward the low, and slows. Over the")
+    lp("sea, a little. Over towns and forests, a lot.")
+    lpd("The triangle is for the lowest kilometre or so of air. On deck the")
+    lpd("wind is slower again, because it drops toward the surface - the same")
+    lpd("drop that twists a sail - so the rule says about 2/3 over the sea.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  #  BACKING AND VEERING (weather 1.0.2; Larry, AKI, 16 November 2026).
+  #  A lesson of its own because the main screen uses the words ("Wind
+  #  has VEERED 30 degrees") and the gradient lesson uses them in their
+  #  other sense.  Told in a sailor's terms, light on mathematics: the aim
+  #  is to understand what is happening, not to work it.  Its pieces are
+  #  functions (veer_repeat here, the two figures in grid.awk) so other
+  #  lessons can tell it again.
+  if(k=="veer"){
+    lph("BACKING AND VEERING, AND WHY THE SOUTH IS THE OTHER WAY ROUND")
+    lp("Two words a sailor uses all the time, and they have two jobs.")
+    print ""
+    lp(cw("Over time",C_ACC) ", they say which way the wind has shifted. The wind")
+    lp(cw("veers",C_ACC) " when it shifts clockwise round the compass: west, then")
+    lp("north-west, then north. It " cw("backs",C_ACC) " when it shifts anticlockwise:")
+    lp("west, then south-west, then south.")
+    print ""
+    veer_time_figure()
+    gshow()
+    print ""
+    lp("These are compass words, so they mean the same on either side of the")
+    lp("equator. What changes is what a shift is telling you.")
+    print ""
+    lp(cw("What a shift tells you, in the north.",C_ACC) " Depressions here mostly run")
+    lp("west to east. When one passes on your " cw("north",C_ACC) " side, as most do in")
+    lp("the Channel, the wind " cw("veers",C_ACC) " as its fronts go through: south-west")
+    lp("ahead of it, west at the warm front, north-west behind the cold front.")
+    lp("When the centre passes on your " cw("south",C_ACC) " side, the wind " cw("backs",C_ACC))
+    lp("steadily instead: east, north-east, north.")
+    print ""
+    lp(cw("South of the equator it runs the other way.",C_ACC) " The wind goes round a")
+    lp("low clockwise there, so the same picture plays backwards. A low passing")
+    lp("on your poleward side - the south - makes the wind " cw("back",C_ACC) ": north, then")
+    lp("north-west, then south-west as the cold front comes through.")
+    print ""
+    lp(cw("Against the wind aloft",C_ACC) ", the same two words describe the friction")
+    lp("turn from the gradient lesson. Down where you are, the sea slows the")
+    lp("wind and it turns in toward the low. In the north the low is on the")
+    lp("wind's left, so turning toward it is turning anticlockwise: the surface")
+    lp("wind is " cw("backed",C_ACC) " from the isobars. In the south the low is on the right,")
+    lp("so the same turn is clockwise: " cw("veered",C_ACC) ".")
+    print ""
+    veer_hemi_figure()
+    gshow()
+    print ""
+    lp(cw("Why the south is the other way round",C_ACC) ", without the mathematics. The")
+    lp("earth turns under the moving air, and that bends anything moving: to")
+    lp("its right in the north, to its left in the south. So air drawn into a")
+    lp("low swings round it anticlockwise in the north and clockwise in the")
+    lp("south, and the low ends up on the wind's left in one and on its right")
+    lp("in the other. Friction always lets the wind slip toward the low - and")
+    lp("that is backed in one hemisphere and veered in the other.")
+    print ""
+    lp("And the rule that carries all of it to the cockpit is Buys Ballot:")
+    lp(cw("back to the wind, the low is on your left",C_ACC) " in the north, and on your")
+    lp("right in the south.")
     print ""
     return 1
   }
@@ -378,6 +474,7 @@ function lesson_q(k){
   if(k=="tide")     return "You are at 12N. The glass has fallen 2 hPa between 1000 and 1600. Worry?|Probably not - that is very close to the daily atmospheric tide, which is about 1.4 hPa of semidiurnal swing in the tropics with a minimum near 1600. Correct for it before reading anything into it. At 50N the same fall would mean much more."
   if(k=="coriolis") return "Why does no hurricane ever form on the equator?|Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in the world, and nothing to start it rotating. About 5 degrees is the practical minimum."
   if(k=="gradient") return "The chart shows a 30 knot gradient wind. What do you expect on deck, offshore, in the northern hemisphere?|Around 20 knots - roughly two thirds - and backed 10 to 20 degrees from the isobar direction, because friction slows the surface air, which weakens Coriolis, so pressure gradient wins a little and the wind blows across the isobars toward the low."
+  if(k=="veer")     return "Off the Isle of Wight the wind goes from south-west to west to north-west over six hours, and the glass starts to rise. Backed or veered - and where did the low go?|Veered: it shifted clockwise round the compass. In the northern hemisphere that is a depression whose centre has passed on your north side, and the shift to north-west with a rising glass says the cold front is through."
   if(k=="lapse")    return "Air 18 C, dew point 12 C. How high is the cloud base?|About 2,400 ft: a spread of 6 C, and the spread closes at 2.5 C per 1000 ft, so 6 x 400. Not 6 x 333 - the divisor is the DIFFERENCE between the parcel's lapse rate and the dew point's, not the lapse rate itself."
   if(k=="cells")    return "Why are so many of the world's deserts near 30 degrees latitude?|That is where the Hadley cell descends. The air rose at the equator, rained out everything it had, and comes back down warm and dry. The subtropical highs, the horse latitudes and the deserts are all the same descending branch."
   if(k=="h500")     return "The 564 line runs east-west 200 nm north of you. Where is the storm track, and are you in the gales?|The track is 300 to 600 nm poleward of the 564 line and parallel to it, so well north of you. And all the gale force winds are poleward of that line - so at 200 nm south of it you are on the right side of it. That is the routing rule."

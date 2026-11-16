@@ -366,6 +366,32 @@ picture as right. A golden file holds a drawing still; it cannot say the
 drawing is true. It now draws by hemisphere, and the golden file holds the
 corrected figure.
 
+
+### The force triangle and the veer figures (weather 1.0.2)
+
+`docs/web/tests/weather-forces.js` (stage 10) drags the friction slider through
+eight settings, in night and in day, and holds the drawing to the balance
+written in the check, not to the page's own arithmetic: pressure, Coriolis and
+friction close head to tail; Coriolis meets friction at a right angle and the
+corner sits on the circle drawn on the pressure arrow; the wind is turned by
+the angle whose tangent is drag over Coriolis, and is that angle's cosine as
+strong; Coriolis lies on the wind's right; more friction always turns it
+further and slows it; the story under the slider is the one for that ground.
+287 checks. Five faults planted and caught: the wind left at full strength,
+the angle halved, the corner moved off the circle, Coriolis put on the left,
+and a ground boundary moved.
+
+`docs/web/tests/weather-veer.js` (stage 11) reads the veer lesson's two
+figures: the veer arc runs clockwise from west toward north and the back arc
+anticlockwise toward south; in the north the low is drawn on the wind's left
+and the surface wind turns anticlockwise toward it, in the south the mirror;
+and each panel's word (BACKED, VEERED) agrees with its drawing. 32 checks. Four
+faults planted and caught: the veer swept the wrong way, the south drawn as the
+north, the words swapped, the lows swapped.
+
+**A typed count that went stale.** `weather-ui.js` expected exactly 10 lessons.
+It now counts the awk's own `les()` list, so the next lesson needs no edit here.
+
 ### One panel, two pages, and the check that was hiding a gap
 
 Larry: *"It belongs on the main page."* The front page was pure static HTML with

@@ -7,7 +7,7 @@ observations `deck-log` keeps, with no network at all.
     wx.js             the rules, and the atmospheric tide correction
     score.js          the two machine forecasters, and the scoring
     chart.js          the 500 millibar rules
-    lessons.js        the ten lessons (generated)
+    lessons.js        the eleven lessons (generated)
     log.js, store.js  deck-log's record layer (copied, byte-identical)
     weather.js        the app
     gen/              the generator
@@ -110,7 +110,7 @@ score sheet.
 so the words *and the author's emphasis* are carried rather than
 transcribed: `lph` marks a heading, `lpd` an aside, and `cw()` inside a
 line marks the words that matter. The test reconstructs the plain text
-from `lessons.js` and compares it with `weather learn` — all ten are
+from `lessons.js` and compares it with `weather learn` — all eleven are
 character-identical.
 
 The verification compares **prose, character for character**: 400
@@ -138,11 +138,14 @@ that is the nature of the subject, and it is why both scorers exist.
 **Figures.** Where the awk draws a figure in a lesson, `gshow()` under
 `FIGDUMP=1` prints a marker, `@@FIG <kind> <w> <h>`, and the page draws its
 own figure for that kind: `wind` (the panel in `../shared/winddemo.js`),
-`friction` (`frictionDemo` in `weather.js`, the `gradient` lesson, W01), and
-the gun for anything else. Each reads its colours from the page's tokens when
+`friction` (`frictionDemo` in `weather.js`, the `gradient` lesson, W01),
+`forces` (`forcesDemo`, the force triangle with its friction slider, in the
+same lesson), `veertime` and `veerhemi` (the lesson `veer`), and the gun for
+anything else. Each reads its colours from the page's tokens when
 it draws, and is redrawn when the display mode changes. The friction figure is
-checked by `docs/web/tests/weather-friction.js`, which measures its angles and
-lengths off the drawing.
+checked by `docs/web/tests/weather-friction.js`, the force triangle by
+`weather-forces.js` and the veer figures by `weather-veer.js`, each measuring
+the drawing rather than trusting the page's own arithmetic.
 
 The 500 mb rules are from Sienkiewicz and Chesneau, *Mariner's Guide to
 the 500-Millibar Chart*, NOAA — public domain. Sources are in

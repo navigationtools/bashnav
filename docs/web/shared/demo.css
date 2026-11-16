@@ -21,6 +21,17 @@
     reads on the iPad mini.  */
 .fricdemo { margin: 10px 0 0; padding: 0 12px; }
 .fricdemo svg { display: block; width: 100%; max-width: 640px; margin: 0 auto; }
+/*  The force triangle (weather 1.0.2) is the same width, with its
+    friction slider under it and the ground named at four stops.  */
+.forcedemo { margin: 10px 0 0; padding: 0 12px; }
+.forcedemo svg { display: block; width: 100%; max-width: 640px; margin: 0 auto; }
+.forcestops { position: relative; height: 18px; margin-top: 4px;
+              color: var(--dim); font-size: 12px; }
+.forcestops span { position: absolute; top: 0; white-space: nowrap; }
+.forcestory { margin-top: 14px; }
+/*  backing and veering (weather 1.0.2): two more full-width figures  */
+.veerdemo { margin: 10px 0 0; padding: 0 12px; }
+.veerdemo svg { display: block; width: 100%; max-width: 640px; margin: 0 auto; }
 .gunctl { margin-top: 10px; }
 .gunctl label { display: block; margin: 10px 0 0; color: var(--dim); font-size: 13px; }
 .gunctl input[type=range] { display: block; width: 100%; margin: 6px 0 0;
