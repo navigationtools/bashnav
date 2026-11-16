@@ -817,5 +817,112 @@ ok('the dead beat at one-minute steps is found, within three parts in a hundred 
    oneMinuteBeat.ok && oneMinuteBeat.summary.hours < (20 / 4.5) * 1.03 && oneMinuteBeat.summary.hours > 20 / 4.5 - 0.01,
    oneMinuteBeat.ok ? oneMinuteBeat.summary.hours.toFixed(4) + ' against ' + (20 / 4.5).toFixed(4) : oneMinuteBeat.why);
 
+//  ---- THE ISOCHRONES: the search's own lines, written down once an hour
+//  (Larry, AGE, AGL and AGO, 16 November 2026).  An isochrone is every
+//  place she could have reached by one time, and the search holds exactly
+//  that at the end of each step.  Nothing here can be worked out by a
+//  triangle except on the beam reach, where it all can: she makes ten
+//  knots at best, so after one hour nothing is more than ten miles from
+//  the line she started on, and the farthest east is ten miles out, which
+//  is where the route itself is.  Everywhere else the rule is the one
+//  that makes an isochrone worth drawing: THE ROUTE RUNS THROUGH EVERY
+//  ONE OF THEM.  Where she was at that hour is one of the positions the
+//  line holds, on the leg she was on.
+function iso(r) { return r.isochrones.lines; }
+//  how many of a route's isochrones the route does not run through
+function missed(r) {
+  var bad = 0;
+  iso(r).forEach(function (h) {
+    var ms = Date.parse(h.t), i, at = -1;
+    for (i = 0; i < r.rows.length; i++) if (Math.abs(r.rows[i].ms + r.rows[i].minutes * 60000 - ms) < 1) at = i;
+    if (at < 0 || at + 1 >= r.rows.length) { bad++; return; }
+    var w = r.rows[at], leg = r.rows[at + 1].leg;
+    if (!h.at.some(function (p) {
+      return Math.abs(p[0] - w.lat2) < 0.6e-5 && Math.abs(p[1] - w.lon2) < 0.6e-5 && p[2] === leg;
+    })) bad++;
+  });
+  return bad;
+}
+//  what an isochrone must be whatever the course: it says how many
+//  positions it holds, each is a latitude, a longitude and a leg of the
+//  course, the hours it gives are the hours its time is after the start,
+//  they come in order one to each hour, and none is after the finish
+function wellMade(r, legs) {
+  var bad = 0, last = 0, t0 = Date.parse(r.summary.start), end = Date.parse(r.summary.finish);
+  iso(r).forEach(function (h) {
+    var ms = Date.parse(h.t);
+    if (h.n !== h.at.length || h.n < 1) bad++;
+    if (Math.abs(h.hours - (ms - t0) / 3600000) > 1e-9) bad++;
+    if (Math.floor(h.hours + 1e-9) !== last + 1 || ms >= end) bad++;
+    last = Math.floor(h.hours + 1e-9);
+    h.at.forEach(function (p) {
+      if (p.length !== 3 || !(Math.abs(p[0]) <= 90) || !(Math.abs(p[1]) <= 180)) bad++;
+      if (p[2] !== Math.floor(p[2]) || p[2] < 0 || p[2] >= legs) bad++;
+      if (Math.abs(p[0] * 1e5 - Math.round(p[0] * 1e5)) > 1e-6 || Math.abs(p[1] * 1e5 - Math.round(p[1] * 1e5)) > 1e-6) bad++;
+    });
+  });
+  if (last !== Math.floor((end - 1 - t0) / 3600000) && last !== Math.floor((end - 1 - t0) / 3600000) - 1) bad++;
+  return bad;
+}
+if (reach.ok) {
+  var I = reach.isochrones, h1 = iso(reach)[0];
+  ok('a route says how its isochrones are laid out: one an hour, each position a latitude, a longitude and a leg',
+     I && I.stepSeconds === 3600 && I.fields.join(' ') === 'lat lon leg', JSON.stringify(I && [I.stepSeconds, I.fields]));
+  ok('two hours of sailing has one isochrone, at one hour', iso(reach).length === 1 && h1.t === '2025-05-24T01:00:00Z' && h1.hours === 1,
+     iso(reach).map(function (h) { return h.t; }).join(' '));
+  ok('it holds many positions, and says how many', h1 && h1.n === h1.at.length && h1.n > 20, h1 && h1.n + ' ' + h1.at.length);
+  //  HOW MANY, PINNED.  No triangle gives the number of positions the
+  //  search keeps, so a line with a few left out would pass every check
+  //  above unless the one the route used was among them.  The counts are
+  //  pinned instead: a change to the search that moves them is meant to
+  //  be seen here and the figures changed with it.
+  ok('the positions it holds are all written: 270 on the reach, and 306, 292, 200 and 162 on the beat',
+     h1 && h1.n === 270 && beat.ok && iso(beat).map(function (h) { return h.n; }).join(' ') === '306 292 200 162',
+     (h1 && h1.n) + '; ' + (beat.ok ? iso(beat).map(function (h) { return h.n; }).join(' ') : beat.why));
+  //  the start line runs from 0.1 miles south to 0.1 north on the meridian
+  var far = 0, east = -1e9;
+  if (h1) h1.at.forEach(function (p) {
+    var y = Math.max(0, Math.abs(p[0] * 60) - 0.1), x = p[1] * 60;
+    far = Math.max(far, Math.hypot(x, y)); east = Math.max(east, x);
+  });
+  ok('at ten knots at best, nothing on it is more than ten miles from the start line', far < 10.03, far.toFixed(4) + ' miles');
+  ok('its farthest point east is ten miles out, where a beam reach puts her', east > 9.95 && east < 10.03, east.toFixed(4) + ' miles');
+  ok('all of it is on the first leg, since nothing has reached the finish', h1 && h1.at.every(function (p) { return p[2] === 0; }));
+  ok('the route runs through it: where she was at one hour is one of its positions', missed(reach) === 0 && wellMade(reach, 1) === 0,
+     missed(reach) + ' missed, ' + wellMade(reach, 1) + ' badly made');
+}
+if (beat.ok) {
+  ok('a beat of four and a half hours has four isochrones, and the route runs through every one',
+     iso(beat).length === 4 && missed(beat) === 0 && wellMade(beat, 1) === 0,
+     iso(beat).length + ' lines, ' + missed(beat) + ' missed, ' + wellMade(beat, 1) + ' badly made');
+  //  she makes 4.5 knots good to windward at best: nothing on the line at
+  //  hour h is more than 4.5 h miles up wind of the start
+  var up = 0;
+  iso(beat).forEach(function (h) { h.at.forEach(function (p) { up = Math.max(up, p[1] * 60 - 4.5 * h.hours); }); });
+  ok('nothing on them is farther to windward than the best speed made good allows', up < 0.03, up.toFixed(4) + ' miles over');
+}
+if (portRound.ok) {
+  var legsSeen = {};
+  iso(portRound).forEach(function (h) { h.at.forEach(function (p) { legsSeen[p[2]] = 1; }); });
+  ok('round a mark, a position says which leg it is on, and the route runs through every isochrone',
+     legsSeen[0] === 1 && legsSeen[1] === 1 && missed(portRound) === 0 && wellMade(portRound, 2) === 0,
+     Object.keys(legsSeen).join(' ') + '; ' + missed(portRound) + ' missed, ' + wellMade(portRound, 2) + ' badly made');
+}
+ok('with a crew that pays for its tacks, the route still runs through every isochrone',
+   lightCrew.ok && iso(lightCrew).length >= 4 && missed(lightCrew) === 0 && wellMade(lightCrew, 1) === 0,
+   lightCrew.ok ? iso(lightCrew).length + ' lines, ' + missed(lightCrew) + ' missed, ' + wellMade(lightCrew, 1) + ' badly made' : lightCrew.why);
+ok('and at a step of two and a half minutes there is still one isochrone an hour, not one a step',
+   fineBeat.ok && iso(fineBeat).length === 4 && missed(fineBeat) === 0 && wellMade(fineBeat, 1) === 0,
+   fineBeat.ok ? iso(fineBeat).length + ' lines, ' + missed(fineBeat) + ' missed' : fineBeat.why);
+//  A STEP THAT DOES NOT DIVIDE AN HOUR.  At seven minutes a step no step
+//  ends on the hour.  The line kept is the first on or after it, sixty-
+//  three minutes out, and it says so itself: a line that claimed to be
+//  the one-hour line would be three minutes of sailing wrong.
+var sevens = sail({ run: slowRun(1, 420) });
+ok('a seven-minute step keeps the first line on or after each hour, and the line says its own time',
+   sevens.ok && iso(sevens).length === 1 && iso(sevens)[0].t === '2025-05-24T01:03:00Z' &&
+   Math.abs(iso(sevens)[0].hours - 1.05) < 1e-9 && missed(sevens) === 0,
+   sevens.ok ? iso(sevens).map(function (h) { return h.t + ' ' + h.hours; }).join(', ') + '; ' + missed(sevens) + ' missed' : sevens.why);
+
 if (fail) { console.log('  ' + fail + ' of ' + checks + ' checks failed'); process.exit(1); }
 console.log('  all ' + checks + ' checks');

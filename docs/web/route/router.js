@@ -400,6 +400,27 @@ var ROUTER = (function () {
     var nleg = g.stations.length + 1;
     var stats = { expanded: 0, tried: 0, stopped: {}, kept: 0, startPoints: 0, startDropped: 0 };
 
+    //  THE ISOCHRONES (Larry, AGE, AGL and AGO, 16 November 2026).  An
+    //  isochrone is every place she could have reached by one time.  The
+    //  search already holds exactly that: at the end of each step,
+    //  `frontier` is every position it has kept for that time.  So once
+    //  an hour the frontier is written down as it stands: each position
+    //  it holds, with the leg she is on there.  Nothing is thinned, joined
+    //  or outlined, because where the edge of a folded line runs is a
+    //  judgement and these are facts (AGL).  The search reads none of
+    //  this, so the route is the one it was before.
+    //    A run's step need not divide an hour.  The line kept is the
+    //  first that ends on or after each whole hour, and it says its own
+    //  time, so a step of ten minutes gives a line exactly on every hour.
+    //    Positions are kept to five places, about a metre, which is far
+    //  finer than the squares the search sorts them by.
+    var iso = [], isoHour = 0;
+    function r5(v) { return Math.round(v * 1e5) / 1e5; }
+    function isochrone(ms, held) {
+      return { t: utc(ms), hours: (ms - g.t0) / 3600000, n: held.length,
+               at: held.map(function (q) { return [r5(q.lat), r5(q.lon), q.leg]; }) };
+    }
+
     //  THE COST OF A TACK, AND OF A GYBE.  A run may name a crew, and a
     //  crew has a cost for each: the time lost, averaged over how well
     //  that crew's manoeuvres come off (COURSE.md, CREW 1).  A run that
@@ -617,6 +638,11 @@ var ROUTER = (function () {
       if (finishes.length) break;
       frontier = next;
       T = Tn;
+      //  the isochrone, once the hour is reached: see THE ISOCHRONES
+      if (Math.floor((T - g.t0) / 3600000 + 1e-9) > isoHour) {
+        isoHour = Math.floor((T - g.t0) / 3600000 + 1e-9);
+        iso.push(isochrone(T, frontier));
+      }
     }
 
     //  st is given for a manoeuvre row only: the tack she is going onto,
@@ -891,7 +917,11 @@ var ROUTER = (function () {
     sum.rounded.forEach(function (r, k) { if (sm[k]) r.berth = sm[k].berth; });
     sum.passage = rn.passage ? { file: rn.passage.file, plan: rn.passage.plan } : null;
     sum.round = rn.passage ? null : rn.round;
-    return { ok: true, rows: rows, summary: sum, stats: stats, stations: g.stations };
+    //  The isochrones are a piece of their own, beside the rows and not
+    //  inside them, so that whoever writes a route out decides where
+    //  they go (AGO: sail.js puts them in the one route file).
+    return { ok: true, rows: rows, summary: sum, stats: stats, stations: g.stations,
+             isochrones: { stepSeconds: 3600, fields: ['lat', 'lon', 'leg'], lines: iso } };
   }
 
   return { run: run, compile: compile, utc: utc, cross: cross, segSeg: segSeg, ptSeg: ptSeg };

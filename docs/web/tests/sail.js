@@ -346,6 +346,31 @@ ok('the same folder twice gives the same report', SAIL.report(SAIL.sail(folder()
      j && j.rows.length === s.route.rows.length && j.lines.length === s.log.lines.length &&
      j.summary.finish === s.route.summary.finish && j.thresholds.shift === 5 && j.run === 'run.txt',
      x.stderr);
+  //  THE ISOCHRONES IN THE FILE (Larry, AGO, 16 November 2026): always
+  //  there, in the one route file, with no flag to remember.  The router
+  //  hands them over as a piece of their own and this is the one place
+  //  that decides where they are written.
+  var text = j ? fs.readFileSync(out, 'utf8') : '';
+  ok('--json saves the isochrones too, the router\'s own, position for position',
+     j && j.isochrones && j.isochrones.lines.length === 1 && j.isochrones.lines[0].n > 20 &&
+     JSON.stringify(j.isochrones) === JSON.stringify(s.route.isochrones));
+  ok('they come last, after everything the file held before',
+     j && Object.keys(j).join(' ') === 'run title summary thresholds lines rows isochrones', j && Object.keys(j).join(' '));
+  var was = JSON.stringify({ run: s.runName, title: s.title, summary: s.route.summary,
+                             thresholds: s.log.thresholds, lines: s.log.lines, rows: s.route.rows }, null, 1);
+  ok('and what it held before is there to the letter', text.indexOf(was.replace(/\n}$/, '') + ',\n "isochrones": {\n') === 0);
+  ok('the file is the text SAIL.json gives, so a page can save the same file', text !== '' && text === SAIL.json(s));
+  ok('each isochrone is one line of the file, so a day of them stays under a megabyte',
+     j && text.split('\n').filter(function (l) { return /^   \{"t":"/.test(l); }).length === j.isochrones.lines.length &&
+     text.split('\n').filter(function (l) { return /^\s*-?[0-9.]+,?$/.test(l) && l.length < 14; }).length < 400);
+  //  under an hour of sailing there is no isochrone, and the file must
+  //  still be one that reads
+  var short = SAIL.sail(folder(function (f) { f['c.txt'] = f['c.txt'].split(d(20)).join(d(5)); }), 'run.txt');
+  var sj = null; try { sj = short.ok ? JSON.parse(SAIL.json(short)) : null; } catch (e) { sj = null; }
+  ok('half an hour of sailing has no isochrone, and its file still reads',
+     short.ok && short.route.summary.hours < 1 && sj && sj.isochrones.lines.length === 0 &&
+     sj.isochrones.stepSeconds === 3600 && sj.rows.length === short.route.rows.length,
+     short.ok ? short.route.summary.hours.toFixed(3) + ' h' : short.err);
   x = go([dir, 'run.txt', '--json']);
   ok('--json with no file is not asked properly', x.status === 2);
 

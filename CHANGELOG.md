@@ -1,5 +1,49 @@
 # Changelog
 
+## The router writes its isochrones (B2, for the course's Level 3)
+
+**What.** `ROUTER.run` returns a third piece beside `rows` and `summary`:
+`isochrones`, every position the search holds at each whole hour, each with
+its leg. `sail.js --json` always writes them into the route file, last, one
+isochrone to a line of the file. `SAIL.json(s)` is new and gives that file's
+text. `ROUTER.md` has a new section, "The isochrones", with the layout and
+five things to know before drawing them.
+
+**Why.** PILOT's Level 3 is the lesson where a student sees why the router
+goes where it goes, and the picture that shows it is the isochrones: where
+the lines bulge, that side is paying. The search has always held them and
+never written them down. Larry admitted the work (AGE, 16 November 2026) as
+facts only, with no change to the search.
+
+**Two rulings shaped it.**
+
+1. **Every position, and no outline (AGL).** Where the edge of a folded line
+   runs is a judgement, and a first attempt at joining the outermost
+   positions came out as a tangle. The positions are what the search holds;
+   a page may join them and can always go back to them.
+2. **Always in the one route file (AGO).** No flag to forget and no second
+   file to keep in step. The router hands them over as a piece of their own
+   and `sail.js` alone decides where they are written, so a file of their own
+   later would be a few lines.
+
+**What it affects.**
+
+1. **The route file is larger:** the 2025 race goes from 107 KB to 875 KB (23
+   lines, 35,215 positions).
+2. **Nothing that reads the file today is disturbed.** `motor.js --route`
+   reads the run name, the summary and the rows; given the old file and the
+   new, it writes the same passage to the letter.
+3. **The search is not changed.** The 2025 race on both streams gives the
+   same report and the same rows to the letter, in the same sixteen seconds.
+4. **A page that draws them must know two things:** after a mark is rounded
+   the line starts again from the mark, because the search drops the boats
+   still coming up to it; and the same water can be in two lines on two legs.
+   Both are in `ROUTER.md`.
+
+**Checked.** `tests/router.js` (160 checks), `tests/sail.js` (79) and every
+route `race-2025.js` sails. Twenty-four faults were put in one at a time and
+each is caught; one got past at first, and a check was added for it.
+
 ## tides 1.5: verified with the Practical Navigator course (rule 13)
 
 **What.** `tides`' version line moves from 1.4.2 to 1.5. No code, data or

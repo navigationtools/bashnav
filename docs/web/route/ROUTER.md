@@ -466,6 +466,9 @@ crews: the shape is the lesson, not the minutes.
 
 ## What a route says about itself
 
+A route is three pieces: its `rows`, its `summary`, and its `isochrones`, which
+have a section of their own below.
+
 Every row is one step: where and when it began, the heading and tack, both
 winds, the stream, the speed through the water and over the ground, and where
 it ended. The summary adds them up, and says three things a reader should know
@@ -482,6 +485,109 @@ before trusting the rest:
 | `tacks`, `gybes` | how many of each she made, counted apart |
 | `tackSeconds`, `gybeSeconds` | the time given to each, when the run names a crew |
 | `crew` | the crew file, the level, and what a tack and a gybe cost that crew; nothing, when the run names none |
+
+## The isochrones
+
+An isochrone is every place she could have reached by one time. It is the
+standard picture of weather routing: where the lines bulge, the wind or the
+stream on that side is paying, and the route can be seen to follow the bulge
+rather than be taken on trust. The course's Level 3 draws them (Larry, AGE, 16
+November 2026).
+
+The search already holds them. At the end of every step it has a list of every
+position it has kept for that time, and that list is the isochrone. So once an
+hour the list is written down as it stands:
+
+```
+   the search, a step at a time            what is written, once an hour
+
+   10:00  o          the start line        nothing: it is in the course file
+   10:10  . . .
+   10:20  . . . . .  every position kept
+    ...              at the end of a step
+   11:00  . . . . . . . . .   ---------->  "t": "2025-05-24T11:00:00Z",
+   11:10  . . . . . . . . . .              "hours": 1, "n": 83,
+    ...                                    "at": [[50.72666,-1.50277,0], ...]
+   12:00  . . . . . . . . . . . .  ----->  "t": "2025-05-24T12:00:00Z",
+    ...                                    "hours": 2, "n": 556, "at": [...]
+   the step that finishes                  nothing after it
+```
+
+Seen from above, each hour's positions lie along a line, and the route runs
+through one position of every line:
+
+```
+                      2  2        3   3   3
+                1  1     2    2  3         3   4  4
+     start   1        2        3              4      4
+       o-----1--------2--------3--------------4-------->  the route
+             1        2        3              4      4
+                1  1     2    2  3         3   4  4
+                      2  2        3   3   3
+
+     each figure is one position; the same figure is the same hour
+```
+
+**What is written, and what is not (Larry, AGL).**
+
+1. **Every position the search holds at that hour,** each with its latitude,
+   its longitude and the leg she is on there. Nothing is thinned.
+2. **No outline.** Where the edge of a line runs, once it has folded round a
+   headland or split onto two tacks, is a judgement. A first attempt at
+   joining the outermost positions came out as a tangle. The positions are
+   facts; whoever draws them may join them, and can always go back to them.
+3. **No reason.** Like the passage log, the isochrones say where and when and
+   never why.
+
+**Where they are (Larry, AGO).** `ROUTER.run` returns them as a piece of their
+own, `isochrones`, beside `rows` and `summary`. `sail.js --json` always writes
+them into the one route file, last, with no flag to remember:
+
+| | |
+|---|---|
+| `stepSeconds` | 3600: one line an hour |
+| `fields` | `lat`, `lon`, `leg`: the order of the three figures in every position |
+| `lines` | the isochrones, in order of time |
+| `lines[].t` | the time the line is for, as the rows write a time |
+| `lines[].hours` | hours since the start |
+| `lines[].n` | how many positions the line holds |
+| `lines[].at` | the positions, each `[lat, lon, leg]` |
+
+Latitude and longitude are in degrees, north and east positive, to five places:
+about a metre, far finer than the half-mile squares the search sorts them by.
+The leg is counted as the rows count it: 0 until the first mark or passing
+place is made, then 1, and so on.
+
+**Things to know before drawing them.**
+
+1. **The first is one hour after the start, and there is none after she
+   finishes.** A passage of 23 hours 30 minutes has 23.
+2. **After a mark is rounded, the line starts again from the mark.** A leg is
+   not searched for long once the first boat has completed it, so the boats
+   still coming up to the mark are dropped a step later. The line for the hour
+   after a rounding holds the boats that have rounded, and is short. In the
+   2025 race the Eddystone was rounded at 01:08; the line at 01:00 holds 1,576
+   positions, all on leg 0, and the line at 02:00 holds 669, all on leg 1.
+3. **The same water can be in two lines on two legs.** She sails out past
+   Start Point and back past it. A page should draw one leg at a time, or tell
+   them apart, which is what the leg in every position is for.
+4. **A step that does not divide an hour.** The line kept is the first that
+   ends on or after each whole hour, and it says its own time. At a step of
+   ten minutes that is exactly the hour. At seven minutes the first line is at
+   63 minutes and says `"hours": 1.05`.
+5. **The positions are in no order.** They are as the search holds them, which
+   is not along the line.
+
+**How big.** The 2025 race, as sailed, on the Copernicus stream: 23 lines,
+35,215 positions, from 83 at the first hour to 3,230 at the nineteenth. The
+route file goes from 107 KB to 875 KB. So that it stays under a megabyte, each
+isochrone is one line of the file; the summary, the log and the rows are still
+laid out a figure to a line, to be read.
+
+**The search is not changed.** It reads none of this. The 2025 race, on both
+streams, gives the same report and the same rows to the letter as before, the
+motorboat that follows it gives the same passage, and the run takes the same
+sixteen seconds.
 
 ## The passage log
 
@@ -608,7 +714,8 @@ to that.
 
 `--json` saves the summary, the log's lines and every row of the route, each
 row with the position at both its ends, which is what a chart needs to draw
-the track.
+the track. It saves the isochrones after them, always ("The isochrones").
+`SAIL.json(s)` gives the same text to a page that wants to save the file.
 
 A page reaches the router the same way. `SAIL.sail(read, runName)` is given a
 function that returns a file's text by name, so a page hands it what it
@@ -996,8 +1103,10 @@ answer. Exit 1: refused, with the reason. Exit 2: not asked properly.
    `eddystone-reef` layer is a keep-out area round the NE Rock, which dries
    1 m, and both as-sailed runs switch it on. The reef's outline stays on the
    chart. (Until 14 November this item said no rock was in the files.)
-9. **It is not for navigation.** It is for understanding a race after it was
-   sailed, and for asking what a different choice would have cost.
+9. **The isochrones are positions, not a drawn line,** and after a rounding
+   they hold only the boats that have rounded ("The isochrones").
+10. **It is not for navigation.** It is for understanding a race after it was
+    sailed, and for asking what a different choice would have cost.
 
 ## Running the checks
 
@@ -1028,6 +1137,21 @@ the tack not charged, a gybe costed as a tack, time owed forgiven at the end
 of a step or at a mark, the fetching boat not kept apart, the nearer boat kept
 and not the one further along — and each is caught. Two of them got past
 every check at first, and a check was added for each.
+
+The isochrones are checked on the same courses. On the beam reach it can all
+be worked out: she makes ten knots at best, so after one hour nothing is more
+than ten miles from the start line, and the farthest east is ten miles out.
+Everywhere else they are held to the rule that makes them worth drawing: the
+route runs through every one, so where she was at that hour is one of the
+positions the line holds, on the leg she was on. `race-2025.js` holds every
+route it sails to the same rule, and to one line for every hour. How many
+positions a line holds cannot be worked out, so the counts on the reach and the
+beat are pinned. Twenty-four faults were put in one at a time: the line of the
+step before, the time a step early, latitude and longitude changed over, the
+leg wrong, positions thinned or left out, a line every step, a line after the
+finish, only the steps that land on the hour, the isochrones left out of the
+file or written a figure to a line. Each is caught. One got past at first, the
+last three positions left out, and the pinned counts were added for it.
 
 The passage log is checked on rows written by hand, in round numbers: six
 ten-minute rows at nine knots are an hour and nine miles, and 242 less 233 is

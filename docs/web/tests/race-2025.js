@@ -233,7 +233,7 @@ function sailed(label, runName) {
                            current: env.current, polar: env.polar, crew: env.crew, passage: env.passage });
       if (!r.ok) out.why = r.why;
       else {
-        out = { label: label, ok: true, env: env, rows: r.rows, sum: r.summary,
+        out = { label: label, ok: true, env: env, rows: r.rows, sum: r.summary, iso: r.isochrones,
                 gun: Date.parse(r.summary.start), end: Date.parse(r.summary.finish) };
         out.faults = rules(out);
       }
@@ -250,7 +250,34 @@ function sound(r) {
   if (!r.ok) return false;
   ok('the ' + r.label + ' route keeps every rule of the course, checked step by step against all of the water',
      r.faults.length === 0, r.faults.slice(0, 6).join('\n        ') + (r.faults.length > 6 ? '\n        ... and ' + (r.faults.length - 6) + ' more' : ''));
+  //  THE ISOCHRONES (Larry, AGE and AGL, 16 November 2026): the search's
+  //  own lines, written down once an hour for Level 3 to draw.  What is
+  //  held on a real race is what makes them worth drawing: there is one
+  //  for every hour she was out, and the route runs through every one of
+  //  them, so where she was at that hour is one of the positions the
+  //  line holds, on the leg she was on.
+  var lost = isoLost(r);
+  ok('the ' + r.label + ' route has an isochrone for every hour, and runs through every one of them',
+     lost.length === 0, lost.slice(0, 4).join('\n        '));
   return true;
+}
+function isoLost(r) {
+  var bad = [], L = r.iso ? r.iso.lines : null, k;
+  if (!L) return ['the route has no isochrones'];
+  var want = Math.floor((r.rows[r.rows.length - 1].ms - r.gun) / 3600000 + 1e-9);
+  if (L.length !== want) bad.push(L.length + ' isochrones for a finishing step that began ' + want + ' whole hours out');
+  L.forEach(function (h, n) {
+    var ms = Date.parse(h.t), at = -1;
+    if (ms !== r.gun + (n + 1) * 3600000 || h.hours !== n + 1) bad.push('isochrone ' + (n + 1) + ' is at ' + h.t + ' and says ' + h.hours + ' h');
+    if (h.n !== h.at.length || h.n < 1) bad.push(h.t + ' says ' + h.n + ' positions and holds ' + h.at.length);
+    for (k = 0; k < r.rows.length; k++) if (Math.abs(r.rows[k].ms + r.rows[k].minutes * 60000 - ms) < 1) at = k;
+    if (at < 0 || at + 1 >= r.rows.length) { bad.push('no step of the route ends at ' + h.t); return; }
+    var w = r.rows[at], leg = r.rows[at + 1].leg;
+    if (!h.at.some(function (p) {
+      return Math.abs(p[0] - w.lat2) < 0.6e-5 && Math.abs(p[1] - w.lon2) < 0.6e-5 && p[2] === leg;
+    })) bad.push('at ' + h.t + ' she was at ' + w.lat2.toFixed(5) + ' ' + w.lon2.toFixed(5) + ' on leg ' + leg + ', which the isochrone does not hold');
+  });
+  return bad;
 }
 
 // ---- the rules, by arithmetic of this file's own ----------------------

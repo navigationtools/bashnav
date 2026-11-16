@@ -268,7 +268,31 @@ var SAIL = (function () {
     return out.join('\n');
   }
 
-  return { load: load, sail: sail, report: report };
+  // ---------------------------------------------------------------
+  //  json(s) -> the text of the route file `--json` saves.
+  //
+  //  The summary, the log and the rows are laid out a figure to a line,
+  //  to be read.  The isochrones are not: a day's racing is tens of
+  //  thousands of positions, and a figure to a line would treble the
+  //  file.  Each isochrone is one line of the file instead, which keeps
+  //  the 2025 race under a megabyte and still lets a person find an
+  //  hour by eye.  It is all one JSON object either way.
+  // ---------------------------------------------------------------
+  function json(s) {
+    var head = JSON.stringify({
+      run: s.runName, title: s.title, summary: s.route.summary,
+      thresholds: s.log.thresholds, lines: s.log.lines, rows: s.route.rows
+    }, null, 1);
+    var iso = s.route.isochrones;
+    return head.replace(/\n}$/, '') + ',\n "isochrones": {\n' +
+           '  "stepSeconds": ' + JSON.stringify(iso.stepSeconds) + ',\n' +
+           '  "fields": ' + JSON.stringify(iso.fields) + ',\n' +
+           '  "lines": [' + (iso.lines.length ? '\n' : '') +
+           iso.lines.map(function (h) { return '   ' + JSON.stringify(h); }).join(',\n') +
+           (iso.lines.length ? '\n  ' : '') + ']\n }\n}\n';
+  }
+
+  return { load: load, sail: sail, report: report, json: json };
 })();
 
 if (typeof module !== 'undefined') module.exports = SAIL;
@@ -301,10 +325,7 @@ if (typeof require !== 'undefined' && typeof module !== 'undefined' && require.m
     if (!s.ok) { console.error(s.err); process.exit(1); }
     console.log(SAIL.report(s));
     if (json) {
-      fs.writeFileSync(json, JSON.stringify({
-        run: s.runName, title: s.title, summary: s.route.summary,
-        thresholds: s.log.thresholds, lines: s.log.lines, rows: s.route.rows
-      }, null, 1) + '\n');
+      fs.writeFileSync(json, SAIL.json(s));
     }
   })();
 }
