@@ -1037,6 +1037,45 @@ engine, which is held to NOAA's tables, and on the browser and shell agreeing
 line for line. The almanac's figure was measured once against the published
 coefficients for Brest, November 2026: within 2 at all 56 high waters.
 
+## The zero, the licences and the high-water levels
+
+**The ports on chart datum** (`tests/tides-zero-check.awk`, in the suite):
+the station file must agree with `src/tides/gen/corrections.dat` station by
+station; no station may be named `CD` without a line there; each port is held
+to the published figures in `tests/tides-zero.dat`, none of which was copied
+from the station file; a twin record of the same gauge must be within 45 mm of
+its port's first; and a port with no published figure is allowed only by name
+(Cherbourg, until the almanac gives its mean level). **To add a port,** find
+its published mean level, check that the provider's gauge zero is chart datum,
+add its lines to both files, apply, and say so in the CHANGELOG.
+
+**The words.** The suite reads the zero, the provider and the licence at seven
+stations of every kind, and holds the depth sum's caution to the stations that
+need it. `docs/web/tests/tides-zero.js` then opens all 8,334 stations in the
+browser's engine and holds each to the line the awk prints, and to the counts
+of each kind (chart 3,508, computed 4,511, mean sea level 315), so a station
+moving from one kind to another is a decision and not an accident.
+
+**The high-water levels** (`tests/tides-levels-check.awk`): the file has one
+line for each reference station in the station file's order, its levels are in
+order, and it matches what NOAA publishes for three stations
+(`tests/tides-levels.dat`). Ten bridge checks work the level again from the two
+files, apart from the engine, and hold the sum line to adding up.
+`run-tides-web.sh` recomputes three stations and fails if the file has gone
+stale.
+
+**Faults planted** (`zfaults.py` in the session's scratch): twenty-six, all
+caught. Among them a station file left at its old zero under the new name, a
+port 0.1 m off its published level, every MLLW called chart datum, a caution
+dropped, the level left out of the bridge sum or its windows, HAT offered on an
+American chart, and a level off its published figure. One was left out as
+undetectable: a secondary port judged by its own id, since every secondary
+port and its reference are both NOAA's.
+
+**Not covered:** the shell's typed question for the level, which is three
+lines of `sh`; and a published HAT for a British or French port, which waits
+for the almanac.
+
 ## Golden files
 
 `tests/golden/` holds 27,245 lines of expected screen output across 13 files —

@@ -4,12 +4,14 @@
 #  Part of Bash Navigation Software.  https://github.com/navigationtools/bashnav
 #  Copyright 2026 M. Larry Sherman.  Apache License 2.0.
 # =====================================================================
-TIDES_VERSION=1.4
+TIDES_VERSION=1.4.2
 TIDES_HOME=${TIDES_HOME:-$(bn_home .tides)}
 CONF="$TIDES_HOME/config"
 ENGINE="$TIDES_HOME/engine-$TIDES_VERSION.awk"
 TABLES="$TIDES_HOME/tables-$TIDES_VERSION.awk"
 STATIONS="$TIDES_HOME/stations.dat"
+#  the high-water levels a charted clearance is measured above (levels.dat)
+LEVELS="$TIDES_HOME/levels.dat"
 LISTFILE="$TIDES_HOME/lastlist"   # the numbered list a search just drew
 cmode=day
 ISTTY=0; [ -t 1 ] && ISTTY=1
@@ -67,6 +69,6 @@ paint() {
 }
 unpaint() { [ "$cmode" = plain ] || { [ "$ISTTY" = 1 ] && printf '\033[0m\n'; }; }
 cmode_now() { if [ "$ISTTY" = 1 ]; then echo "$cmode"; else echo plain; fi; }
-eng() { $AWK -f "$TABLES" -f "$ENGINE" -v cmode="$(cmode_now)" -v SF="$STATIONS" "$@" </dev/null; }
+eng() { $AWK -f "$TABLES" -f "$ENGINE" -v cmode="$(cmode_now)" -v SF="$STATIONS" -v LF="$LEVELS" "$@" </dev/null; }
 utcnow() { date -u '+%Y-%m-%d %H:%M:%S'; }
 utctoday() { date -u '+%Y-%m-%d'; }

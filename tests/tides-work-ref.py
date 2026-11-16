@@ -414,11 +414,12 @@ if __name__ == '__main__':
     hw3 = hm('22:50')
     show('G11 half hours, the next HW given, over midnight',
          gate(hw3, nxt=near(hm('11:22'), hw3 + 745), t=near(hm('02:00'), hw3), dist=6, sog=4.5, opens=4.5, shuts=-1.5))
-    #  Portsmouth 2025-05-24, as `tides today` prints its high waters:
-    #  20:18 the day before, 08:42, 21:10
-    hwp = hm('08:42')
-    show('G12 Portsmouth, the pilot book', gate(hwp, prev=hm('20:18') - 1440, nxt=hm('21:10'), t=hm('11:00'), opens=5, shuts=-1))
-    show('G13 Portsmouth, the atlas', gate(hwp, prev=hm('20:18') - 1440, nxt=hm('21:10'), t=hm('11:00'), track=255, pairs=LOWW))
+    #  Portsmouth 2025-05-24, as `tides today` prints its high waters at
+    #  BODC's record (ticon/portsmouth-ptm-gbr-bodc; Larry, AED):
+    #  20:17 the day before, 08:41, 21:09
+    hwp = hm('08:41')
+    show('G12 Portsmouth, the pilot book', gate(hwp, prev=hm('20:17') - 1440, nxt=hm('21:09'), t=hm('11:00'), opens=5, shuts=-1))
+    show('G13 Portsmouth, the atlas', gate(hwp, prev=hm('20:17') - 1440, nxt=hm('21:09'), t=hm('11:00'), track=255, pairs=LOWW))
     #  two pages where the printed hundredths matter: unrounded, the gate
     #  would open a minute earlier (23 min after the page, not 24)
     show('G14 worked from the printed figures', gate(hm('10:00'), track=255, pairs=[(60, 0.3), (230, 0.5)], frm=0))
@@ -449,7 +450,9 @@ if __name__ == '__main__':
     #  a first quarter whose two rule days straddle a month's end: 30 Jun to 1 Jul 2028
     print('month-end phase:', month_end_phase(2025, 2031))
     show('L12 the rule across a month end', lunar(2028, 7, 3))
-    #  Brest and Portsmouth on 2025-05-24, as `tides today` prints the turns:
-    #  the range is the high water less the mean of the low waters either side
-    show('LS1 Brest 14:00', dict(range=hundredth(6.07 - (1.32 + 1.26) / 2), coef=half_up(100 * hundredth(6.07 - (1.32 + 1.26) / 2) / 6.10)))
-    show('LS2 Portsmouth 14:00', dict(range=hundredth(4.02 - (0.95 + 0.73) / 2)))
+    #  Brest and Portsmouth (BODC's record) on 2025-05-24, as `tides today`
+    #  prints the turns, above chart datum since B24: the range is the high
+    #  water less the mean of the low waters either side.  The correction
+    #  moves every height at a port by one amount, so a range does not move.
+    show('LS1 Brest 14:00', dict(range=hundredth(6.45 - (1.71 + 1.64) / 2), coef=half_up(100 * hundredth(6.45 - (1.71 + 1.64) / 2) / 6.10)))
+    show('LS2 Portsmouth 14:00', dict(range=hundredth(4.36 - (1.26 + 1.04) / 2)))

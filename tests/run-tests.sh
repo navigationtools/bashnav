@@ -808,7 +808,8 @@ WXLOG
   n=$(echo "$o" | grep -c -E '^  (HIGH|low) ' || true)
   check "tides prints four turns for the day" "4" "$n"
   case "$o" in *"NEW LONDON"*) ;; *) bad "tides does not name the station" ;; esac
-  case "$o" in *"heights above MLLW"*) ;; *) bad "tides does not name the datum" ;; esac
+  #  the zero is named on the height column, for what it is (B24)
+  case "$o" in *"height   above MLLW, the chart datum"*) ;; *) bad "tides does not name the zero its heights are from" ;; esac
   #  a secondary port must work too, and say what it is
   TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides use noaa/8510884 >/dev/null 2>&1
   o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides today 2026-08-30 2>&1)
@@ -918,6 +919,90 @@ WXLOG
     *"TIDESWORK 0 of "*) ok "tides work gives the worked answers ($(printf '%s' "$r" | tail -1 | $AW '{print $4}') checks)" ;;
     *) bad "tides work disagrees with its worked answers"; printf '%s\n' "$r" | head -8 ;;
   esac
+  #  THE ZERO A HEIGHT IS MEASURED FROM (board item B24).  A station is on
+  #  chart datum only if the corrections file says so, and each port there
+  #  is held to figures its hydrographic office published: the station file
+  #  must agree with the corrections file, no station may be named CD
+  #  without a line in it, twins of one gauge must agree, and the copy the
+  #  browser reads must be the same file.
+  r=$($AW -f tests/tides-zero-check.awk -v COR=src/tides/gen/corrections.dat \
+        -v PUB=tests/tides-zero.dat -v SF=src/tides/stations.dat </dev/null 2>&1)
+  case "$r" in
+    *"TIDESZERO 0 of "*)
+      if cmp -s src/tides/stations.dat docs/web/tides/stations.dat; then
+        ok "the ports on chart datum agree with their corrections and their published figures ($(printf '%s' "$r" | tail -1 | $AW '{print $4}') checks)"
+      else bad "the browser's station file is not the one the corrections were applied to"; fi ;;
+    *) bad "a chart-datum correction is not what its file or its published figure says"; printf '%s\n' "$r" | head -8 ;;
+  esac
+  #  and the words: every table names its zero, and a sum with something
+  #  charted carries a caution at a station not on chart datum (Larry, ADV)
+  zw() { $AW -f src/tides/tables.awk -f src/tides/engine.awk -v SF=src/tides/stations.dat -v cmode=plain \
+           -v cmd=info -v id="$1" -v yy=2025 -v mm=5 -v dd=24 </dev/null 2>&1 | cut -d'|' -f9-11; }
+  zbad=""
+  [ "$(zw ticon/portsmouth-ptm-gbr-bodc)" = "above chart datum|BODC, by way of TICON-4|CC BY 4.0" ] || zbad="$zbad portsmouth-bodc"
+  [ "$(zw ticon/portsmouth-por-gbr-cmems)" = "above chart datum|CMEMS, by way of TICON-4|CC BY-NC 4.0, non-commercial use" ] || zbad="$zbad portsmouth-cmems"
+  [ "$(zw ticon/southampton-sou-gbr-da_idh)" = "above a computed LAT, not chart datum|DA_IDH, by way of TICON-4|CC BY 4.0" ] || zbad="$zbad southampton"
+  [ "$(zw noaa/8461490)" = "above MLLW, the chart datum|NOAA|public domain" ] || zbad="$zbad new-london"
+  [ "$(zw noaa/1610367)" = "above MLLW, the chart datum|NOAA|public domain" ] || zbad="$zbad a-secondary-port"
+  [ "$(zw ticon/new_london-8461490-usa-noaa)" = "above a computed MLLW, not chart datum|NOAA, by way of TICON-4|CC BY 4.0" ] || zbad="$zbad ticon-mllw"
+  [ "$(zw ticon/venezia-vene-ita-cv | cut -d'|' -f3)" = "CC BY-NC 4.0, non-commercial use" ] || zbad="$zbad venezia"
+  if [ -z "$zbad" ]; then ok "every kind of zero is named for what it is, with its provider and licence (7 stations)"
+  else bad "a zero, a provider or a licence is named wrongly:$zbad"; fi
+  #  the caution on the depth sum: at a station with a computed zero or none,
+  #  and not at one on chart datum.  The bridge sum carries none anywhere,
+  #  because the zero cancels in it (see the bridge checks below).
+  zc() { $AW -f src/tides/tables.awk -f src/tides/engine.awk -v SF=src/tides/stations.dat -v LF=src/tides/levels.dat -v cmode=plain \
+           -v cmd=day -v id="$1" -v yy=2025 -v mm=5 -v dd=24 -v sky=0 -v nowdate=2025-05-24 -v nowtime=12:00 \
+           -v charted=2.4 -v draft=1.8 -v clear=0.5 -v air=18 -v mast=16.5 -v lvl="$2" </dev/null 2>&1; }
+  c1=$(zc ticon/southampton-sou-gbr-da_idh | grep -c "the zero here is computed, not chart datum" || true)
+  c2=$(zc ticon/southampton-sou-gbr-da_idh | grep -c "sum can be more than half a metre out, either way" || true)
+  c3=$(zc ticon/portsmouth-ptm-gbr-bodc | grep -c "not chart datum" || true)
+  c4=$(zc noaa/8461490 | grep -c "not chart datum" || true)
+  c5=$(zc noaa/8519024 | grep -c "above mean sea level, not chart datum: this sum" || true)
+  check "the depth sum is cautioned where the zero is not the chart's, and only there" "1 1 0 0 1" "$c1 $c2 $c3 $c4 $c5"
+  #  BRIDGE CLEARANCE: charted clearance + the level it is measured above -
+  #  the tide (Larry: AEZ, AFC).  The level's height is worked here from the
+  #  two files, apart from the engine, and the engine's line must print it;
+  #  the three figures on the sum line must add up to its answer; the
+  #  station's usual level is offered (HAT, or mean high water at a NOAA
+  #  station) and the other two can be asked for; and the levels file is
+  #  held to figures NOAA published.
+  r=$($AW -f tests/tides-levels-check.awk -v LV=src/tides/levels.dat -v SF=src/tides/stations.dat -v PUB=tests/tides-levels.dat </dev/null 2>&1)
+  case "$r" in
+    *"TIDESLEVELS 0 of "*)
+      if cmp -s src/tides/levels.dat docs/web/tides/levels.dat; then
+        ok "the high-water levels are whole, in order, and match what NOAA published ($(printf '%s' "$r" | tail -1 | $AW '{print $4}') checks)"
+      else bad "the browser's levels file is not the one in src"; fi ;;
+    *) bad "the high-water levels file is not what it should be"; printf '%s\n' "$r" | head -8 ;;
+  esac
+  lvw() { #  id, column of levels.dat (2 HAT, 3 MHW): z0 + level, to the centimetre
+    z=$(grep "^R|$1|" src/tides/stations.dat | cut -d'|' -f9); v=$(grep "^$1|" src/tides/levels.dat | cut -d'|' -f"$2")
+    $AW -v z="$z" -v v="$v" 'BEGIN{ printf "%.2f", (z+v)/1000 }'; }
+  bbad=""
+  o=$(zc ticon/portsmouth-ptm-gbr-bodc "")
+  case "$o" in *"charted clearance 18.0 m above HAT, which is $(lvw ticon/portsmouth-ptm-gbr-bodc 2) m here"*) ;; *) bbad="$bbad hat-at-portsmouth" ;; esac
+  case "$o" in *"clears the bridge  00:00 to 24:00"*) ;; *) bbad="$bbad all-day-window" ;; esac
+  s=$(printf '%s\n' "$o" | $AW '/ m - tide / { a=$1+$4-$8; d=a-$11; if(d<0) d=-d; print (d<0.011) ? "adds" : "does not add: " $0 }')
+  [ "$s" = "adds" ] || bbad="$bbad the-sum($s)"
+  o=$(zc noaa/8461490 "")
+  case "$o" in *"above mean high water, which is $(lvw noaa/8461490 3) m here"*) ;; *) bbad="$bbad mhw-offered-at-noaa" ;; esac
+  o=$(zc noaa/8461490 hat)
+  case "$o" in *"above HAT, which is $(lvw noaa/8461490 2) m here"*) ;; *) bbad="$bbad hat-asked-at-noaa" ;; esac
+  o=$(zc ticon/portsmouth-ptm-gbr-bodc mhws)
+  case "$o" in *"above mean high water springs, which is 4.73 m here"*) ;; *) bbad="$bbad mhws-at-portsmouth" ;; esac
+  o=$(zc ticon/southampton-sou-gbr-da_idh "")
+  case "$o" in *"clear now"*"not chart datum"*) bbad="$bbad a-caution-on-the-bridge-sum" ;; esac
+  o=$(zc ticon/portsmouth-ptm-gbr-bodc lat)
+  case "$o" in *"above hat, mhws or mhw, not 'lat'"*) ;; *) bbad="$bbad a-level-that-is-not-one" ;; esac
+  o=$(zc ticon/coyote_c_ab_hwy_237_a_milpitas_ca-11172175-usa-usgs "")
+  case "$o" in *"there is no HAT for this station"*) ;; *) bbad="$bbad a-station-with-no-levels" ;; esac
+  #  a secondary port's level is its reference station's, carried across by
+  #  the port's own high-water correction (Nonopapa: x0.77 on Honolulu)
+  o=$(zc noaa/1610367 hat)
+  w=$($AW -v a="$(lvw noaa/1612340 2)" 'BEGIN{ printf "%.2f", a*0.77 }')
+  case "$o" in *"above HAT, which is $w m here"*) ;; *) bbad="$bbad a-secondary-port" ;; esac
+  if [ -z "$bbad" ]; then ok "bridge clearance is the charted figure, plus the level the chart names, less the tide (10 checks)"
+  else bad "bridge clearance is not worked as it should be:$bbad"; fi
   #  Every example the help prints must run, through the real tool, and
   #  end in an answer - and WORK.md, which the coastal course reads as
   #  the contract, must still carry each one.  An example that has

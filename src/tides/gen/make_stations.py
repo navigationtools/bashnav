@@ -94,6 +94,12 @@ def main(src, out, index_json):
     print("constituents kept: %d, dropped as unsupported: %d" % (kept, dropped))
     print("reference stations with no datum (heights are above MSL): %d" % nodat)
     print("%s: %.2f MB" % (out, os.path.getsize(out)/1e6))
+    #  The ports on chart datum, and the header that states the licences
+    #  (board item B24).  A regenerated file is corrected the same way as the
+    #  committed one, from src/tides/gen/corrections.dat.  This applies them
+    #  to src/tides/stations.dat, so write there or copy the result there.
+    import subprocess
+    subprocess.check_call([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'apply_corrections.py')])
 
 if __name__ == "__main__":
     main(sys.argv[1] if len(sys.argv)>1 else "/tmp/tdb/data/*/*.json",

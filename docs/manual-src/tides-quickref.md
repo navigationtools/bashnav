@@ -23,10 +23,16 @@ Search becomes a regular expression if it contains `^ $ . [ ] | ( ) * + ? { } \`
 | | |
 |---|---|
 | **Depth** | charted depth **+** tide, against draught and clearance wanted |
-| **Air draught** | charted clearance **−** tide, against your mast |
+| **Air draught** | charted clearance **+** the level the chart measures it above **−** tide, against your mast |
 
-Depths are below datum, so the tide adds. Clearances are above HAT, so the
-tide subtracts. Reversing that pair is how a mast meets a bridge.
+Depths are below chart datum, so the tide adds. A clearance is above a
+high-water level the chart's notes name (HAT on a British chart, mean high
+water on an American one), so the tide subtracts and that level adds back.
+Reversing the pair is how a mast meets a bridge.
+
+**Read the zero on the height column.** `above chart datum` and `above MLLW,
+the chart datum` can be added to a charted depth. `not chart datum` cannot be
+trusted to better than half a metre against the chart.
 
 ## Units, everywhere
 

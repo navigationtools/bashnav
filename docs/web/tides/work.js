@@ -275,6 +275,8 @@ var WORK = (function () {
     wl('  ' + k + '   ' + ST.id);
     wl('  ' + sprintf("%s at %s, the station's standard time (no summer time)", ST.date, hhmm(ST.t)));
     if (P.kind === 'S') wl('  a secondary port, worked from ' + P.refName);
+    //  every working from a station names the zero its heights are from (ADV)
+    wl('  heights ' + P.zeroWords);
   }
   function kname(k) { return k === 'H' ? 'HW' : 'LW'; }
 

@@ -284,6 +284,75 @@ var TIDE = (function () {
   //  the middle of the interval and held.  V is linear in time and
   //  stepped from there.
   // =====================================================================
+  //  WHICH ZERO A STATION'S HEIGHTS ARE FROM  (board item B24; the awk has
+  //  the same four functions, word for word).  chart: CD, or NOAA's own
+  //  published MLLW.  computed: any other named zero, worked out by the
+  //  database and not the chart's.  msl: no low-water zero at all.  The id
+  //  is the station whose constants are used.
+  function zeroKind(id, datum) {
+    if (datum === 'CD') return 'chart';
+    if (datum === 'MLLW' && /^noaa\//.test(id)) return 'chart';
+    if (datum === 'MSL') return 'msl';
+    return 'computed';
+  }
+  function zeroWords(id, datum) {
+    var k = zeroKind(id, datum);
+    if (datum === 'CD') return 'above chart datum';
+    if (k === 'chart') return 'above MLLW, the chart datum';
+    if (k === 'msl') return 'above mean sea level, not chart datum';
+    return 'above a computed ' + datum + ', not chart datum';
+  }
+  //  the caution for a sum with something charted: two lines, or none
+  function zeroCaution(id, datum) {
+    var k = zeroKind(id, datum);
+    if (k === 'chart') return [];
+    if (k === 'msl') return ['heights here are above mean sea level, not chart datum: this sum',
+                             'leaves out the mean level above chart datum, so it is not a depth'];
+    return ['the zero here is computed, not chart datum: against the chart this',
+            'sum can be more than half a metre out, either way'];
+  }
+  // =====================================================================
+  //  THE HIGH-WATER LEVEL A CHARTED CLEARANCE IS MEASURED ABOVE  (the awk
+  //  has the same five functions; see its head for the reasons.  Larry:
+  //  AEZ, AFC.)   clearance now = charted clearance + that level - the tide
+  //  lv is the station's line of levels.dat as [HAT, MHW] in mm above mean
+  //  sea level, or null where the file has none.
+  function levelDefault(id) { return /^noaa\//.test(id) ? 'mhw' : 'hat'; }
+  function levelName(kind) {
+    if (kind === 'hat') return 'HAT';
+    if (kind === 'mhws') return 'mean high water springs';
+    return 'mean high water';
+  }
+  function levelNote(kind) {
+    if (kind === 'hat') return 'HAT is the highest tide predicted for 2007 to 2025';
+    if (kind === 'mhws') return 'mean high water springs is the mean level + M2 + S2';
+    return 'mean high water: the mean of all high waters predicted, 2007 to 2025';
+  }
+  //  the level's height above the station's zero, or null where not known
+  function levelHeight(P, kind, lv) {
+    var v, i, m2 = 0, s2 = 0, tb = tablesInit();
+    if (kind === 'mhws') {
+      for (i = 1; i <= P._n; i++) { if (P._c[i] === tb.idx.M2) m2 = P._a[i]; if (P._c[i] === tb.idx.S2) s2 = P._a[i]; }
+      if (m2 <= 0) return null;
+      v = P._z0 + m2 + s2;
+    } else if (kind === 'hat') { if (!lv || lv[0] === '') return null; v = P._z0 + (+lv[0]) / 1000.0; }
+    else if (kind === 'mhw') { if (!lv || lv[1] === '') return null; v = P._z0 + (+lv[1]) / 1000.0; }
+    else return null;
+    if (P.kind === 'S') v = (P.type === 'ratio') ? v * P.hhi : v + P.hhi;
+    return v;
+  }
+  //  who provided the constants, and on what licence (docs/DATA-LICENCES.md)
+  function dataProvider(id) {
+    if (/^noaa\//.test(id)) return 'NOAA';
+    var a = id.split('-');
+    return a[a.length - 1].toUpperCase() + ', by way of TICON-4';
+  }
+  function dataLicence(id) {
+    if (/^noaa\//.test(id)) return 'public domain';
+    if (/-(cmems|uz|cv)$/.test(id)) return 'CC BY-NC 4.0, non-commercial use';
+    return 'CC BY 4.0';
+  }
+  // =====================================================================
   function open(st, refSt, jdmid) {
     if (!st) return { err: 'no station with that id' };
     var phys = (st.kind === 'R') ? st : refSt;
@@ -301,11 +370,15 @@ var TIDE = (function () {
       kind: st.kind, id: st.id, name: st.name, region: st.region,
       country: st.country, lat: st.lat, lon: st.lon, tz: st.tz,
       datum: phys.datum, lost: phys.lost,
+      zero: zeroKind(phys.id, phys.datum), zeroWords: zeroWords(phys.id, phys.datum),
+      zeroCaution: zeroCaution(phys.id, phys.datum),
+      provider: dataProvider(phys.id), licence: dataLicence(phys.id),
       ref: st.kind === 'S' ? st.ref : '',
       refName: st.kind === 'S' ? phys.name : '',
       type: st.type, hhi: st.hhi, hlo: st.hlo, thi: st.thi, tlo: st.tlo,
       jd0: jdmid,
-      _z0: phys.z0, _n: phys.n, _c: phys.c, _p: phys.p, _amp: amp,
+      zid: phys.id,
+      _z0: phys.z0, _n: phys.n, _c: phys.c, _p: phys.p, _amp: amp, _a: phys.a,
       _v: h.v, _u: h.u, _w: w, _f: h.f,
       curve: null
     };
@@ -522,7 +595,8 @@ var TIDE = (function () {
     parseStation: parseStation, dist: dist, bearing: bearing,
     sunLon: sunLon, moonLon: moonLon, moonPhase: moonPhase,
     altOf: altOf, riseSet: riseSet, asind: asind,
-    open: open, depthWindows: depthWindows, airWindows: airWindows
+    open: open, depthWindows: depthWindows, airWindows: airWindows,
+    levelDefault: levelDefault, levelName: levelName, levelNote: levelNote, levelHeight: levelHeight
   };
 })();
 

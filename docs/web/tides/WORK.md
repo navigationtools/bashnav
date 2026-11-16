@@ -514,6 +514,19 @@ other than Brest. Correct for the weather.
 
 ---
 
+## The zero a station's heights are from
+
+Every station form (`twelfths`, `atlas`, `tidal_gate`, `lunar`) prints, under
+the station's name and the time, one line saying what its heights are measured
+from: `heights above chart datum`, `heights above MLLW, the chart datum`,
+`heights above a computed LAT, not chart datum` or `heights above mean sea
+level, not chart datum`. Six ports are on chart datum (Portsmouth, Weymouth,
+Devonport, Cherbourg, Brest, Le Conquet); NOAA's stations are on NOAA's own.
+A typed form prints no such line: the heights are hers, from her tide table.
+Ranges, times and coefficients do not depend on the zero. The manual's section
+3 has the table; `src/tides/gen/corrections.dat` has the ports and their
+figures.
+
 ## Checked answers
 
 The coastal course's own chapter examples are in `tests/tides-work.dat`, each

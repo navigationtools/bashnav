@@ -1,0 +1,23 @@
+# Published figures the chart-datum corrections are held to (board item B24).
+# Checked by tests/tides-zero-check.awk, which the suite runs.
+#
+#   id | check | published figure, m | least | most | where it is published
+#
+#   msl   the station's mean sea level above chart datum (its z0) must sit
+#         between published+least and published+most
+#   mhws  z0 + M2 + S2, the Admiralty approximation to mean high water
+#         springs, held the same way
+#   odn   the published figure is chart datum BELOW Ordnance Datum Newlyn;
+#         z0 less that figure is mean sea level above Ordnance Datum, which
+#         NTSLF puts at "about 0.2 m" today, so it is held between least and
+#         most above it
+#
+# Every figure was read from the page named, on 16 November 2026. None was
+# copied from the station file. Cherbourg has no published figure yet: the
+# almanac Larry has ordered will give its mean level, and its line goes here.
+ticon/brest-3-fra-refmar|msl|4.13|-0.05|0.05|Shom niveau moyen, as maree.info prints it (06/2016), maree.info/82/ports-rattaches
+ticon/le_conquet-152-fra-refmar|msl|3.98|-0.05|0.05|Shom niveau moyen, as maree.info prints it (06/2016), maree.info/82/ports-rattaches
+ticon/portsmouth-ptm-gbr-bodc|mhws|4.7|-0.05|0.05|Admiralty chart 5600, Portsmouth MHWS
+ticon/portsmouth-ptm-gbr-bodc|odn|2.73|0.10|0.30|NTSLF, chart datum relative to Ordnance Datum, ntslf.org/tides/datum
+ticon/weymouth-wey-gbr-bodc|odn|0.93|0.10|0.30|NTSLF, chart datum relative to Ordnance Datum, ntslf.org/tides/datum
+ticon/devonport-dev-gbr-bodc|odn|3.22|0.10|0.30|NTSLF, chart datum relative to Ordnance Datum, ntslf.org/tides/datum

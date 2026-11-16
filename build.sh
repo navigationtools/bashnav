@@ -167,6 +167,7 @@ build_tides() {
     echo '  bn_unpack ENGINE "$ENGINE" || exit 1'
     echo '  [ "$ISTTY" = 1 ] && printf "extracting the station data, once ... " >&2'
     echo '  bn_unpack STATIONS "$STATIONS" || exit 1'
+    echo '  bn_unpack LEVELS "$LEVELS" || exit 1'
     echo '  [ "$ISTTY" = 1 ] && echo "done" >&2'
     echo '  return 0'
     echo '}'
@@ -189,6 +190,10 @@ build_tides() {
     echo '#__BN_START_STATIONS__'
     cat src/tides/stations.dat
     echo '#__BN_END_STATIONS__'
+    #  the high-water levels a charted clearance is measured above
+    echo '#__BN_START_LEVELS__'
+    cat src/tides/levels.dat
+    echo '#__BN_END_LEVELS__'
   } > "$out"
   chmod +x "$out"
 }

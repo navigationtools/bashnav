@@ -110,10 +110,11 @@ tidal_gate|hw=14:32 opens=5 shuts=-1 t=17:00 dist=22 sog=7|n=2 o1=427 s1=812 ok1
 tidal_gate|hw=14:32 opens=-1 shuts=5 t=15:00|n=1 o1=812 s1=1172 ok1=1 sk1=1 state=open left=272
 # half hours, the next high water given, over midnight
 tidal_gate|hw=22:50 hw2=11:22 opens=4.5 shuts=-1.5 t=02:00 dist=6 sog=4.5|n=2 o1=895 s1=1280 ok1=1 sk1=1 o2=1640 s2=2032 ok2=1 sk2=1 state=shut left=80 p=80 lv1=815 lb1=1200 lv2=1560 lb2=1952
-# Portsmouth's own high waters, as `tides today` prints them: 20:18 the day before, 08:42, 21:10
-tidal_gate|station=ticon/portsmouth-por-gbr-cmems date=2025-05-24 t=11:00 opens=5 shuts=-1|n=2 o1=78 s1=462 ok1=1 sk1=1 o2=822 s2=1210 ok2=1 sk2=1 state=shut left=162
+# Portsmouth's own high waters, as `tides today` prints them at BODC's record
+# (Larry, AED: the examples use it, as the course does): 20:17 the day before, 08:41, 21:09
+tidal_gate|station=ticon/portsmouth-ptm-gbr-bodc date=2025-05-24 t=11:00 opens=5 shuts=-1|n=2 o1=77 s1=461 ok1=1 sk1=1 o2=821 s2=1209 ok2=1 sk2=1 state=shut left=161
 # and the atlas form from the same prediction
-tidal_gate|station=ticon/portsmouth-por-gbr-cmems date=2025-05-24 t=11:00 track=255 streams=255:2.0,255:1.6,255:0.9,255:0.2,075:0.6,075:1.5,075:2.2,075:2.0,075:1.2,075:0.3,255:0.5,255:1.3,255:1.9|best=2.000000 bestpage=-6 along=-0.930000 n=2 o1=-19 s1=357 ok1=1 sk1=1 o2=725 s2=1105 ok2=1 sk2=1 state=shut left=65
+tidal_gate|station=ticon/portsmouth-ptm-gbr-bodc date=2025-05-24 t=11:00 track=255 streams=255:2.0,255:1.6,255:0.9,255:0.2,075:0.6,075:1.5,075:2.2,075:2.0,075:1.2,075:0.3,255:0.5,255:1.3,255:1.9|best=2.000000 bestpage=-6 along=-0.915000 n=2 o1=-20 s1=356 ok1=1 sk1=1 o2=724 s2=1104 ok2=1 sk2=1 state=shut left=64
 # two pages where the printed hundredths matter: unrounded it would open a minute earlier
 tidal_gate|hw=10:00 track=255 streams=060:0.3,230:0.5 from=0|best=0.450000 bestpage=1 n=1 o1=624 s1=660 ok1=1 sk1=0
 # her time on the far side of midnight from the high water: 23:30 is the evening before
@@ -160,9 +161,10 @@ lunar|date=2028-07-03|age=11.651633 pq=90 nq=180 ph=-83 nh=89 rstate=making
 lunar|date=2025-05-24 brhwh=6.07 brlwh=1.26 coef=79|coef=79 coefin=79 cf=0.68
 lunar|date=2025-05-24 coef=20|coefin=20 rstate=making
 # at a station: the turns as `tides today` prints them, the range the high water less
-# the mean of the low waters either side (Brest 6.07, 1.32, 1.26; Portsmouth 4.02, 0.95, 0.73)
+# the mean of the low waters either side, above chart datum since B24
+# (Brest 6.45, 1.71, 1.64; Portsmouth, BODC's record, 4.36, 1.26, 1.04)
 lunar|station=ticon/brest-3-fra-refmar date=2025-05-24 t=14:00|range=4.78 coef=78 means=1
-lunar|station=ticon/portsmouth-por-gbr-cmems date=2025-05-24 t=14:00|range=3.18 coef=78 means=1
+lunar|station=ticon/portsmouth-ptm-gbr-bodc date=2025-05-24 t=14:00|range=3.21 coef=78 means=1
 # a port where mean springs and mean neaps lie close: the figure's two
 # labels must stand apart in the margin, not on each other
 lunar|station=ticon/kaikoura-kait-nzl-ttw date=2025-05-24 t=12:00|means=1

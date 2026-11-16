@@ -1,0 +1,20 @@
+# Published high-water levels the levels file is held to (bridge clearance).
+# Checked by tests/tides-levels-check.awk, which the suite runs.
+#
+#   id | level | published height above the station's chart datum, m | most it may differ, m | where
+#
+# NOAA publishes HAT and mean high water for its own stations. These were
+# read on 16 November 2026 from its datums service, in metres on the
+# station datum, epoch 1983-2001, and are given here above MLLW, the zero
+# the tool uses there: HAT less MLLW, and MHW less MLLW. None was copied
+# from the tool. The tool's own figures came out within 15 mm of all six.
+#   api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations/<id>/datums.json?units=metric
+noaa/8461490|hat|1.182|0.03|NOAA datums, New London: HAT 2.2556 - MLLW 1.074
+noaa/8461490|mhw|0.839|0.03|NOAA datums, New London: MHW 1.913 - MLLW 1.074
+noaa/8443970|hat|3.757|0.03|NOAA datums, Boston: HAT 4.8306 - MLLW 1.074
+noaa/8443970|mhw|2.997|0.03|NOAA datums, Boston: MHW 4.071 - MLLW 1.074
+noaa/9414290|hat|2.206|0.03|NOAA datums, San Francisco: HAT 4.0278 - MLLW 1.822
+noaa/9414290|mhw|1.594|0.03|NOAA datums, San Francisco: MHW 3.416 - MLLW 1.822
+# The Admiralty prints "Overhead clearance heights are above Highest
+# Astronomical Tide" on chart 5600. A published HAT for a British or French
+# port goes here when the almanac Larry has ordered arrives.

@@ -35,6 +35,10 @@ if cmp -s "$SRC/stations.dat" "$WEB/stations.dat"; then
 else
   echo "stations.dat COPY DIFFERS FROM SRC" >&2; exit 1
 fi
+#  the high-water levels a charted clearance is measured above
+cp "$SRC/levels.dat" "$WEB/levels.dat"
+cmp -s "$SRC/levels.dat" "$WEB/levels.dat" || { echo "levels.dat COPY DIFFERS FROM SRC" >&2; exit 1; }
+echo "levels.dat copied, byte-identical to src"
 
 python3 "$ROOT/docs/web/tides/gen/mkindex.py"
 echo "done"

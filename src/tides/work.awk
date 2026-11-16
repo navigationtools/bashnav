@@ -219,6 +219,8 @@ function wk_sthead(   k){
   wl("  " cw(k, C_ACC) "   " cwd(WS_ID))
   wl("  " cwd(sprintf("%s at %s, the station's standard time (no summer time)", WS_DATE, wk_hhmm(WS_T))))
   if(TD_KIND=="S") wl("  " cwd(sprintf("a secondary port, worked from %s", TD_REFNAME)))
+  #  every working from a station names the zero its heights are from (ADV)
+  wl("  " cwd("heights " zero_words(TD_ZID,TD_DATUM)))
   return 0
 }
 function wk_kname(k){ if(k=="H") return "HW"; return "LW" }

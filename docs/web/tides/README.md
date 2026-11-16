@@ -26,9 +26,12 @@ asks of a tide:
 draught and whatever you want under the keel, with the stretches of the
 day when it is there.
 
-**Does the mast go under?** Charted clearance minus the tide, against your
-air draught. Charted depths are *below* datum and the tide adds to them;
-charted vertical clearances are *above* HAT and the tide takes them away.
+**Does the mast go under?** Charted clearance, plus the level the chart
+measures it above, minus the tide, against your air draught. Charted depths
+are *below* chart datum and the tide adds to them; a charted clearance is
+*above* a high-water level the chart's notes name (HAT, mean high water or
+mean high water springs: you choose, and the station's usual one is offered),
+so the tide takes room away and that level gives it back.
 Getting that pair of signs the wrong way round is the classic way to put a
 mast into a bridge, so the two are separate functions in the engine and
 separately labelled on the screen.
@@ -164,6 +167,12 @@ it further. Harmonics predict the astronomical tide and nothing else.
 Where this and the published tide tables for the port differ, the
 published tables are right and this is wrong.
 
-Data assembled from [neaps/tide-database](https://github.com/neaps/tide-database)
-(CC BY 4.0). NOAA harmonics are public domain; TICON-4 harmonics are
-CC BY 4.0.
+Data assembled from [neaps/tide-database](https://github.com/neaps/tide-database).
+NOAA harmonics are public domain; TICON-4 harmonics are CC BY 4.0, except 674
+stations from three providers that restrict commercial use, which are
+CC BY-NC 4.0. The station panel shows each station's provider and licence;
+`docs/DATA-LICENCES.md` lists them all.
+
+**The zero.** Every table names the zero its heights are from. Six ports are on
+chart datum, each held to published figures; NOAA's stations are on NOAA's own
+chart datum; the rest are on a zero the database computed, and say so.

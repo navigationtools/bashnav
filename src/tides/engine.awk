@@ -450,6 +450,120 @@ function tide_hilo(jdA,jdB,   step,t,h0,h1,h2,den,dl,tv,hv){
 #  turns are corrected, and the curve between them is interpolated -
 #  there is no honest way to synthesise a continuous curve from offsets.
 # =====================================================================
+#  WHICH ZERO A STATION'S HEIGHTS ARE FROM  (board item B24)
+#
+#  A chart's depths and a printed tide table's heights are measured from
+#  chart datum.  Only some stations here are on it:
+#
+#    chart     CD: corrected to chart datum (src/tides/gen/corrections.dat)
+#              noaa/ MLLW: NOAA's own published datum, the US chart datum
+#    computed  every other named zero: the database worked it out from the
+#              tide's constants, and it can sit either side of the chart's
+#    msl       no low-water zero at all: heights about mean sea level
+#
+#  The id is the station whose constants are used, so a secondary port
+#  takes its reference station's.  Larry ruled the words (ADV, 16 November
+#  2026): every table names its zero, and a line warns wherever a height is
+#  added to something charted at a station not on chart datum.
+# =====================================================================
+function zero_kind(id,datum){
+  if(datum=="CD") return "chart"
+  if(datum=="MLLW" && id ~ /^noaa\//) return "chart"
+  if(datum=="MSL") return "msl"
+  return "computed"
+}
+function zero_words(id,datum,   k){
+  k=zero_kind(id,datum)
+  if(datum=="CD") return "above chart datum"
+  if(k=="chart")  return "above MLLW, the chart datum"
+  if(k=="msl")    return "above mean sea level, not chart datum"
+  return "above a computed " datum ", not chart datum"
+}
+#  The caution for a sum with something charted.  Two lines, or none.
+function zero_caution(id,datum,   k){
+  k=zero_kind(id,datum)
+  if(k=="chart") return 0
+  if(k=="msl"){
+    printf "  %s\n", cwd("heights here are above mean sea level, not chart datum: this sum")
+    printf "  %s\n", cwd("leaves out the mean level above chart datum, so it is not a depth")
+  } else {
+    printf "  %s\n", cwd("the zero here is computed, not chart datum: against the chart this")
+    printf "  %s\n", cwd("sum can be more than half a metre out, either way")
+  }
+  return 1
+}
+# =====================================================================
+#  THE HIGH-WATER LEVEL A CHARTED CLEARANCE IS MEASURED ABOVE
+#
+#  A chart gives a bridge's or a cable's clearance above a high-water
+#  level, and which level depends on the chart: Highest Astronomical Tide
+#  on a British chart ("Overhead clearance heights are above Highest
+#  Astronomical Tide", Admiralty chart 5600), mean high water on an
+#  American one, mean high water springs on some older ones.  So
+#
+#      clearance now = charted clearance + that level - the tide
+#
+#  with the level and the tide both measured from the station's zero,
+#  which therefore cancels: this sum does not care whether the zero is
+#  chart datum.  Larry ruled (AEZ, AFC, 16 November 2026) that she says
+#  which level her chart uses, the station's usual one being offered, and
+#  that the levels come from a file made once with the tool's own engine:
+#  levels.dat, HAT and MHW above mean sea level (src/tides/gen/
+#  make_levels.js).  Mean high water springs is the mean level + M2 + S2,
+#  the Admiralty approximation, worked here.
+#
+#  The station's constants must be loaded (tide_open) before these.
+# =====================================================================
+function level_default(id){ if(id ~ /^noaa\//) return "mhw"; return "hat" }
+function level_name(kind){
+  if(kind=="hat")  return "HAT"
+  if(kind=="mhws") return "mean high water springs"
+  return "mean high water"
+}
+function level_note(kind){
+  if(kind=="hat")  return "HAT is the highest tide predicted for 2007 to 2025"
+  if(kind=="mhws") return "mean high water springs is the mean level + M2 + S2"
+  return "mean high water: the mean of all high waters predicted, 2007 to 2025"
+}
+function level_load(file,id,   line,f){
+  LV_HAT=""; LV_MHW=""
+  if(file=="") return 0
+  while((getline line < file) > 0){
+    if(index(line, id "|")!=1) continue
+    split(line,f,"|"); LV_HAT=f[2]; LV_MHW=f[3]; break
+  }
+  close(file)
+  return (LV_HAT!="" || LV_MHW!="")
+}
+#  The level's height above the station's zero, or "" where it is not known.
+#  A secondary port's is its reference station's, carried across by the
+#  port's own high-water correction, as its high waters are.
+function level_height(kind,   v,i,m2,s2){
+  if(kind=="mhws"){
+    m2=0; s2=0
+    for(i=1;i<=ST_N;i++){ if(ST_C[i]==CIDX["M2"]) m2=ST_A[i]; if(ST_C[i]==CIDX["S2"]) s2=ST_A[i] }
+    if(m2<=0) return ""
+    v=ST_Z0+m2+s2
+  } else if(kind=="hat"){ if(LV_HAT=="") return ""; v=ST_Z0+LV_HAT/1000.0 }
+  else if(kind=="mhw"){ if(LV_MHW=="") return ""; v=ST_Z0+LV_MHW/1000.0 }
+  else return ""
+  if(TD_KIND=="S"){ if(TD_TYPE=="ratio") v=v*TD_HHI; else v=v+TD_HHI }
+  return v
+}
+#  Who provided a station's constants, and on what licence.  The provider
+#  is the last part of a ticon/ id; the licence follows from it alone
+#  (docs/DATA-LICENCES.md; Larry, AEK).
+function data_provider(id,   n,a){
+  if(id ~ /^noaa\//) return "NOAA"
+  n=split(id,a,"-")
+  return toupper(a[n]) ", by way of TICON-4"
+}
+function data_licence(id){
+  if(id ~ /^noaa\//) return "public domain"
+  if(id ~ /-(cmems|uz|cv)$/) return "CC BY-NC 4.0, non-commercial use"
+  return "CC BY 4.0"
+}
+# =====================================================================
 function tide_open(file,id,jdmid,   ok){
   TD_ERR=""
   if(!st_load(file,id)){ TD_ERR="no station with that id"; return 0 }
@@ -457,7 +571,7 @@ function tide_open(file,id,jdmid,   ok){
   TD_ID=ST_ID; TD_NAME=ST_NAME; TD_REGION=ST_REGION; TD_COUNTRY=ST_COUNTRY
   TD_LAT=ST_LAT; TD_LON=ST_LON; TD_TZ=ST_TZ
   if(ST_KIND=="R"){
-    TD_DATUM=ST_DATUM; TD_REF=""; TD_REFNAME=""
+    TD_DATUM=ST_DATUM; TD_REF=""; TD_REFNAME=""; TD_ZID=ST_ID
     tide_prep(jdmid, ST_LAT)
     tide_station_prep()
     return 1
@@ -467,7 +581,7 @@ function tide_open(file,id,jdmid,   ok){
   TD_HHI=SB_HHI; TD_HLO=SB_HLO; TD_THI=SB_THI; TD_TLO=SB_TLO
   if(!st_load(file,SB_REF)){ TD_ERR="its reference station is missing"; return 0 }
   if(ST_KIND!="R"){ TD_ERR="its reference station is not a reference station"; return 0 }
-  TD_REFNAME=ST_NAME; TD_DATUM=ST_DATUM
+  TD_REFNAME=ST_NAME; TD_DATUM=ST_DATUM; TD_ZID=ST_ID
   tide_prep(jdmid, ST_LAT)
   tide_station_prep()
   return 1
@@ -674,8 +788,7 @@ function rise_set(jd0,lat,lon,which,h0,   t,a,b,lo,hi,i,mid,step,up){
 function td_head(   k){
   print ""
   printf "  %s\n", cw(TD_NAME, C_HDR)
-  k = sprintf("%s, %s   %.4f %.4f   heights above %s",
-        TD_REGION, TD_COUNTRY, TD_LAT, TD_LON, TD_DATUM)
+  k = sprintf("%s, %s   %.4f %.4f", TD_REGION, TD_COUNTRY, TD_LAT, TD_LON)
   printf "  %s\n", cwd(k)
   #  No ternary spanning a line anywhere in this file: gawk accepts it
   #  in some positions and mawk in none, and the failure is a parse error
@@ -691,7 +804,9 @@ function td_head(   k){
 function td_table(jdA,jdB,   i,n,k){
   n = tide_table(jdA,jdB)
   hr()
-  printf "  %-6s %-6s %8s\n", "", "time", "height"
+  #  the zero is named on the height column itself, so nobody reads a
+  #  height without reading what it is measured from (PILOT's ask; ADV)
+  printf "  %-6s %-6s %8s   %s\n", "", "time", "height", cwd(zero_words(TD_ZID,TD_DATUM))
   for(i=1;i<=n;i++){
     k = (HL_K[i]=="H") ? "HIGH" : "low"
     printf "  %-6s %-6s %7.2f m\n",
@@ -806,7 +921,7 @@ function td_sky(jd0,   a,r,s,ph,i,disc,row,col,x,y,rr,lit,ch){
 # =====================================================================
 #  Depth and clearance.  The two questions a tide table is actually for.
 # =====================================================================
-function td_depth(jdA,jdB,jdnow,charted,draft,clear,air,mast,   i,n,v,ok,t,step,best,worst){
+function td_depth(jdA,jdB,jdnow,charted,draft,clear,air,mast,   i,n,v,ok,t,step,best,worst,L){
   print ""
   printf "  %s\n", cw("DEPTH AND CLEARANCE", C_HDR)
   hr()
@@ -814,6 +929,7 @@ function td_depth(jdA,jdB,jdnow,charted,draft,clear,air,mast,   i,n,v,ok,t,step,
     v=tide_height(jdnow)
     printf "  charted depth %.1f m + tide %.2f m = %s under the surface now\n",
        charted, v, cw(sprintf("%.2f m", charted+v), C_ACC)
+    zero_caution(TD_ZID,TD_DATUM)
     if(draft!=""){
       printf "  your draught %.1f m", draft
       if(clear!="") printf " and %.1f m under the keel wanted", clear
@@ -830,12 +946,23 @@ function td_depth(jdA,jdB,jdnow,charted,draft,clear,air,mast,   i,n,v,ok,t,step,
   }
   if(air!="" && mast!=""){
     print ""
-    v=tide_height(jdnow)
-    printf "  charted height of the bridge %.1f m - tide %.2f m = %s clear now\n",
-       air, v, cw(sprintf("%.2f m", air-v), C_ACC)
-    printf "  %s\n", cwd("charted heights are above HAT, so the tide takes it away")
-    printf "  your air draught %.1f m\n", mast
-    td_airwindows(jdA,jdB,air,mast)
+    #  charted clearance + the level it is measured above - the tide (AEZ)
+    if(lvl=="") lvl=level_default(TD_ZID)
+    level_load(LF, TD_ZID)
+    L=level_height(lvl)
+    if(lvl!="hat" && lvl!="mhws" && lvl!="mhw"){
+      printf "  %s\n", cw("a clearance is charted above hat, mhws or mhw, not '" lvl "'", C_ACC)
+    } else if(L==""){
+      printf "  %s\n", cw("there is no " level_name(lvl) " for this station, so no clearance is worked", C_ACC)
+    } else {
+      v=tide_height(jdnow)
+      printf "  charted clearance %.1f m above %s, which is %.2f m here\n", air, level_name(lvl), L
+      printf "  %.1f m + %.2f m - tide %.2f m = %s clear now\n", air, L, v, cw(sprintf("%.2f m", air+L-v), C_ACC)
+      printf "  %s\n", cwd(level_note(lvl))
+      printf "  %s\n", cwd("the chart's notes name the level; check its height against an almanac")
+      printf "  your air draught %.1f m\n", mast
+      td_airwindows(jdA,jdB,air+L,mast)
+    }
   }
   hr()
   return 0
@@ -851,7 +978,9 @@ function td_windows(jdA,jdB,charted,need,   t,step,inw,st,v,n){
       printf "  enough water   %s to %s\n", fmt_hm(tz_jd(st)), fmt_hm(tz_jd(t))
     }
   }
-  if(inw){ n++; printf "  enough water   %s to %s\n", fmt_hm(tz_jd(st)), fmt_hm(tz_jd(jdB)) }
+  #  a window still open at the day's end runs to 24:00, as the browser
+  #  prints it; the clock would call that 00:00, which reads as no time at all
+  if(inw){ n++; printf "  enough water   %s to 24:00\n", fmt_hm(tz_jd(st)) }
   if(n==0) printf "  %s\n", cw("Never enough water today.", C_ACC)
   return n
 }
@@ -865,7 +994,7 @@ function td_airwindows(jdA,jdB,air,mast,   t,step,inw,st,v,n){
       printf "  clears the bridge  %s to %s\n", fmt_hm(tz_jd(st)), fmt_hm(tz_jd(t))
     }
   }
-  if(inw){ n++; printf "  clears the bridge  %s to %s\n", fmt_hm(tz_jd(st)), fmt_hm(tz_jd(jdB)) }
+  if(inw){ n++; printf "  clears the bridge  %s to 24:00\n", fmt_hm(tz_jd(st)) }
   if(n==0) printf "  %s\n", cw("It never clears today.", C_ACC)
   return n
 }
@@ -991,8 +1120,9 @@ BEGIN{
   else if(cmd=="info"){
     jd0 = jdate(yy+0, mm+0, dd+0)
     if(!tide_open(SF, id, jd0+0.5)){ printf "  tides: %s\n", TD_ERR; exit 2 }
-    printf "%s|%s|%s|%s|%.5f|%.5f|%d|%s\n",
-      TD_ID, TD_NAME, TD_REGION, TD_COUNTRY, TD_LAT, TD_LON, TD_TZ, TD_KIND
+    printf "%s|%s|%s|%s|%.5f|%.5f|%d|%s|%s|%s|%s\n",
+      TD_ID, TD_NAME, TD_REGION, TD_COUNTRY, TD_LAT, TD_LON, TD_TZ, TD_KIND,
+      zero_words(TD_ZID,TD_DATUM), data_provider(TD_ZID), data_licence(TD_ZID)
   }
   #  cmd=work is dispatched by work.awk's own BEGIN block, which runs after
   #  this one: see the head of that file for why it is not called from here.

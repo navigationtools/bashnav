@@ -66,6 +66,24 @@ echo "2. the work calculators, against the awk"
 node docs/web/tests/tides-work.js "$AWK"
 
 echo
+echo "2a. the zero a height is from, its provider and licence, at every station"
+node docs/web/tests/tides-zero.js "$AWK"
+
+echo
+echo "2a2. the high-water levels file is still what the engine gives (a sample)"
+#  levels.dat is made once (src/tides/gen/make_levels.js, about ten minutes on
+#  four cores).  If the constants or the engine change in a way that moves a
+#  tide, the file goes stale; three stations are worked again here and held
+#  to it, so that is seen at once.
+lv_bad=0
+for id in ticon/portsmouth-ptm-gbr-bodc noaa/8443970 ticon/brest-3-fra-refmar; do
+  got=$(node src/tides/gen/make_levels.js --one "$id")
+  have=$(grep "^$id|" src/tides/levels.dat)
+  if [ "$got" = "$have" ]; then echo "  ok   $have"; else echo "  FAIL levels.dat has $have, the engine gives $got"; lv_bad=1; fi
+done
+[ "$lv_bad" = 0 ] || { echo "levels.dat is stale: remake it with src/tides/gen/make_levels.js"; exit 1; }
+
+echo
 echo "2b. work.js as a shared engine: the surface and the engine boundary"
 #  The course embeds a copy of work.js to run worked examples inside a
 #  lesson. This holds the two things it was promised -- the members it may

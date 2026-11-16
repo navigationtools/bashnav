@@ -490,10 +490,14 @@ function drawStation() {
   $('st-name').textContent = P.name;
   var where = [P.region, P.country].filter(Boolean).join(', ');
   $('st-where').textContent = where + '   ' + fmtLat(P.lat) + ' ' + fmtLon(P.lon);
+  //  the curve's key names the zero line for what it is at this station
+  $('key-zero').textContent = P.zero === 'chart' ? 'chart datum (zero)' : 'the zero, not chart datum';
+  //  whose data this station is, and its licence (Larry, AEK)
+  $('st-data').textContent = 'Data: ' + P.provider + '; ' + P.licence + '.';
   var tag = $('st-kind');
   if (P.kind === 'R') {
     tag.className = 'kindtag';
-    tag.textContent = 'REFERENCE \u00b7 heights above ' + P.datum;
+    tag.textContent = 'REFERENCE \u00b7 heights ' + P.zeroWords;
   } else {
     var h = (P.type === 'ratio')
       ? '\u00d7' + P.hhi.toFixed(2) + '/' + P.hlo.toFixed(2)
@@ -503,6 +507,7 @@ function drawStation() {
       ' min and ' + h + ' on ' + P.refName;
   }
 }
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 function sgn(x) { return (x >= 0 ? '+' : '\u2212') + Math.abs(x).toFixed(x === Math.round(x) ? 0 : 2); }
 function fmtLat(x) {
   var d = Math.floor(Math.abs(x)), m = (Math.abs(x) - d) * 60;
@@ -652,13 +657,13 @@ function drawCurve() {
     g.fillStyle = tok('--now');
     g.beginPath(); g.arc(xn, Y(vn), 4, 0, Math.PI * 2); g.fill();
     $('curve-note').textContent = 'Now ' + stTime(jn) + ' \u2014 ' +
-      vn.toFixed(2) + ' m above ' + P.datum + '.';
+      vn.toFixed(2) + ' m ' + P.zeroWords + '.';
     $('key-now').hidden = false;
   } else {
     /*  No marker is drawn on a day that does not contain now, so the key
         for it should not be there either. */
     $('key-now').hidden = true;
-    $('curve-note').textContent = 'Heights above ' + P.datum +
+    $('curve-note').textContent = 'Heights ' + P.zeroWords +
       '. Range this day ' + (hi - lo).toFixed(2) + ' m.';
   }
 }
@@ -683,9 +688,10 @@ function drawTable() {
     n.textContent = 'No turn of the tide falls inside this day at this station.';
   } else if (P.kind === 'S') {
     n.textContent = 'The reference station\u2019s turns, carried across by this ' +
-      'port\u2019s corrections \u2014 which is how a paper tide table is built.';
+      'port\u2019s corrections \u2014 which is how a paper tide table is built.' +
+      ' Heights ' + P.zeroWords + '.';
   } else {
-    n.textContent = 'Heights above ' + P.datum + '. Times are station standard time.';
+    n.textContent = 'Heights ' + P.zeroWords + '. Times are station standard time.';
   }
 }
 
@@ -699,6 +705,23 @@ function drawTable() {
    functions in the engine and labelled separately here.
    ===================================================================== */
 var BOAT = ['charted', 'draft', 'clear', 'air', 'mast'];
+/*  The high-water levels (levels.dat: id|HAT|MHW, mm above mean sea level),
+    fetched once, the first time a clearance is asked for.  null until then. */
+var LEVELS = null, LEVELS_P = null;
+function loadLevels() {
+  if (LEVELS_P) return LEVELS_P;
+  LEVELS_P = fetch('./levels.dat').then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; })
+    .then(function (t) {
+      var m = {};
+      t.split('\n').forEach(function (l) {
+        if (!l || l.charAt(0) === '#') return;
+        var f = l.split('|');
+        m[f[0]] = [f[1], f[2]];
+      });
+      LEVELS = m;
+    });
+  return LEVELS_P;
+}
 function boatRead() {
   var o = {};
   BOAT.forEach(function (k) {
@@ -743,6 +766,8 @@ function drawDepth() {
     p.appendChild(el('b', null, total.toFixed(2) + ' m'));
     p.appendChild(document.createTextNode(' under the surface ' + when + '.'));
     out.appendChild(p);
+    //  the caution, at a station not on chart datum (Larry, ADV)
+    if (P.zeroCaution.length) out.appendChild(el('p', 'note zero-caution', cap(P.zeroCaution.join(' ')) + '.'));
 
     if (b.draft !== null) {
       var need = b.draft + (b.clear === null ? 0 : b.clear);
@@ -762,15 +787,32 @@ function drawDepth() {
   }
 
   if (b.air !== null && b.mast !== null) {
-    var clear = b.air - vRef;
+    //  charted clearance + the level it is measured above - the tide.  Which
+    //  level is on the chart, in its notes; she says, and the station's usual
+    //  one is offered (Larry, AEZ).  The levels come from levels.dat (AFC).
+    var kind = $('i-level').value || TIDE.levelDefault(P.zid);
+    if (LEVELS === null) {
+      out.appendChild(el('p', 'note', 'Fetching the high-water levels\u2026'));
+      loadLevels().then(function () { if (PRED) drawDepth(); });
+      return;
+    }
+    var L = TIDE.levelHeight(P, kind, LEVELS[P.zid] || null);
+    if (L === null) {
+      out.appendChild(el('p', 'verdict no', 'There is no ' + TIDE.levelName(kind) +
+        ' for this station, so no clearance is worked.'));
+      return;
+    }
+    var clear = b.air + L - vRef;
+    out.appendChild(el('p', 'note level-line', 'Charted clearance ' + b.air.toFixed(1) + ' m above ' +
+      TIDE.levelName(kind) + ', which is ' + L.toFixed(2) + ' m here.'));
     var r = el('p', 'verdict');
-    r.appendChild(document.createTextNode('Charted clearance ' + b.air.toFixed(1) +
+    r.appendChild(document.createTextNode(b.air.toFixed(1) + ' m + ' + L.toFixed(2) +
       ' m \u2212 tide ' + vRef.toFixed(2) + ' m = '));
     r.appendChild(el('b', null, clear.toFixed(2) + ' m'));
     r.appendChild(document.createTextNode(' clear ' + when + '.'));
     out.appendChild(r);
-    out.appendChild(el('p', 'note',
-      'Charted heights are above HAT, so the tide takes them away.'));
+    out.appendChild(el('p', 'note', cap(TIDE.levelNote(kind)) + '. The chart\u2019s notes name the level; ' +
+      'check its height against an almanac.'));
     var okA = clear >= b.mast;
     var s = el('p', 'verdict ' + (okA ? 'ok' : 'no'));
     s.appendChild(document.createTextNode('Air draught ' + b.mast.toFixed(1) + ' m: '));
@@ -778,7 +820,7 @@ function drawDepth() {
       ? (clear - b.mast).toFixed(2) + ' m above the masthead ' + when
       : (b.mast - clear).toFixed(2) + ' m too tall ' + when));
     out.appendChild(s);
-    var aw = TIDE.airWindows(P, jdA, jdB, b.air, b.mast);
+    var aw = TIDE.airWindows(P, jdA, jdB, b.air + L, b.mast);
     if (!aw.length) out.appendChild(el('p', 'verdict no', 'It never clears today.'));
     else out.appendChild(windowList(aw, jdA, jdB, 'clears the bridge'));
   }
@@ -916,7 +958,7 @@ function drawTerminal() {
   var P = PRED, out = [];
   out.push('  ' + P.name);
   out.push('  ' + [P.region, P.country].filter(Boolean).join(', ') + '   ' +
-           P.lat.toFixed(4) + ' ' + P.lon.toFixed(4) + '   heights above ' + P.datum);
+           P.lat.toFixed(4) + ' ' + P.lon.toFixed(4));
   if (P.kind === 'S') {
     var k = (P.type === 'ratio')
       ? 'x' + P.hhi.toFixed(2) + '/' + P.hlo.toFixed(2)
@@ -926,7 +968,8 @@ function drawTerminal() {
   }
   var rule = '  ' + new Array(71).join('-');
   out.push(rule);
-  out.push('              time    height');
+  //  the zero is named on the height column, as the shell tool prints it
+  out.push('              time    height   ' + P.zeroWords);
   var hl = P.hilo(DAY.jdA, DAY.jdB);
   hl.forEach(function (e) {
     var kk = e.k === 'H' ? 'HIGH' : 'low';
@@ -1258,6 +1301,9 @@ window.addEventListener('DOMContentLoaded', function () {
     f.value = lsGet(k, '');
     f.addEventListener('input', function () { if (PRED) drawDepth(); });
   });
+  //  the level the chart measures a clearance above: '' is the station's usual one
+  $('i-level').value = lsGet('level', '');
+  $('i-level').addEventListener('change', function () { lsSet('level', $('i-level').value); if (PRED) drawDepth(); });
   $('i-clearbtn').addEventListener('click', function () {
     BOAT.forEach(function (k) { $('i-' + k).value = ''; lsSet(k, ''); });
     if (PRED) drawDepth();

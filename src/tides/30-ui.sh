@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------
 install_engine() {
-  if [ -f "$ENGINE" ] && [ -f "$TABLES" ] && [ -f "$STATIONS" ]; then
+  if [ -f "$ENGINE" ] && [ -f "$TABLES" ] && [ -f "$STATIONS" ] && [ -f "$LEVELS" ]; then
     [ "$1" = force ] || { [ -f "$0" ] && [ "$0" -nt "$ENGINE" ] 2>/dev/null; } || return 0
   fi
   mkdir -p "$TIDES_HOME" 2>/dev/null || { echo "tides: cannot create $TIDES_HOME" >&2; exit 1; }
@@ -79,7 +79,7 @@ do_day() {
   y=$(echo "$d" | cut -d- -f1); m=$(echo "$d" | cut -d- -f2); dd=$(echo "$d" | cut -d- -f3)
   eng -v cmd=day -v id="$station" -v yy="$y" -v mm="$m" -v dd="$dd" -v sky="${SKY:-0}" \
       -v nowdate="$(utctoday)" -v nowtime="$(date -u '+%H:%M')" \
-      -v charted="$CHARTED" -v draft="$DRAFT" -v clear="$CLEAR" -v air="$AIR" -v mast="$MAST"
+      -v charted="$CHARTED" -v draft="$DRAFT" -v clear="$CLEAR" -v air="$AIR" -v mast="$MAST" -v lvl="$LVL"
 }
 #  The coastal-navigation calculators.  Each key=value argument is passed
 #  through untouched, joined with | into one -v string; the engine reads
@@ -206,8 +206,15 @@ ask_depth() {
     printf "  your draught (m): "; IFS= read -r DRAFT
     printf "  water you want under the keel (m): "; IFS= read -r CLEAR
   fi
-  printf "  charted height of a bridge (m, above HAT): "; IFS= read -r AIR
-  [ -n "$AIR" ] && { printf "  your air draught (m): "; IFS= read -r MAST; }
+  printf "  charted clearance of a bridge or cable (m): "; IFS= read -r AIR
+  if [ -n "$AIR" ]; then
+    #  which level the chart measures it above is on the chart, in its
+    #  notes; the station's usual one is offered (Larry, AEZ)
+    case "$station" in noaa/*) LVLD=mhw ;; *) LVLD=hat ;; esac
+    printf "  the chart measures it above (hat, mhws or mhw) [%s]: " "$LVLD"; IFS= read -r LVL
+    [ -n "$LVL" ] || LVL=$LVLD
+    printf "  your air draught (m): "; IFS= read -r MAST
+  fi
 }
 about_text() {
   printf '%s\n' \
@@ -238,10 +245,16 @@ about_text() {
     '' \
     '  DATA.  NOAA harmonic constants: works of the U.S. federal' \
     '  government, public domain. TICON-4 harmonic constants: Piccioni,' \
-    '  Dettmering, Schwatke, Passaro and Seitz, CC BY 4.0. Assembled by' \
-    '  way of the neaps tide-database project, CC BY 4.0. That attribution' \
-    '  travels with the data and is not changed by this program'\''s licence.' \
-    '  See NOTICE.' \
+    '  Dettmering, Schwatke, Passaro and Seitz, CC BY 4.0, except 674' \
+    '  stations from providers that restrict commercial use, which are' \
+    '  CC BY-NC 4.0. Assembled by way of the neaps tide-database project.' \
+    '  `tides where` names the chosen station'\''s provider and licence. That' \
+    '  attribution travels with the data and is not changed by this' \
+    '  program'\''s licence. See NOTICE.' \
+    '' \
+    '  THE ZERO.  Every table names the zero its heights are from. Six' \
+    '  ports are on chart datum and NOAA'\''s stations on NOAA'\''s own; the' \
+    '  rest are on a zero computed from the constants, and say so.' \
     '' \
     '  Copyright 2026 M. Larry Sherman.  Apache License 2.0.  NO WARRANTY.' \
     '  Carry a paper tide table.' \
@@ -270,6 +283,14 @@ case "$1" in
                -v hh=$(echo "$t"|cut -d: -f1) -v mi=$(echo "$t"|cut -d: -f2) ;;
   work)    shift; do_work "$@"; exit $? ;;
   where)   echo "station: ${stationname:-none} ${station}"
+           #  the zero its heights are from, and whose data it is (ADV, AEK)
+           if [ -n "$station" ]; then
+             w=$(eng -v cmd=info -v id="$station" -v yy=2026 -v mm=1 -v dd=1 2>/dev/null)
+             [ -n "$w" ] && {
+               echo "zero:    heights $(echo "$w" | cut -d'|' -f9)"
+               echo "source:  $(echo "$w" | cut -d'|' -f10); $(echo "$w" | cut -d'|' -f11)"
+             }
+           fi
            echo "engine:  $ENGINE"
            echo "data:    $STATIONS"
            echo "config:  $CONF" ;;

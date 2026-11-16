@@ -1,5 +1,118 @@
 # Changelog
 
+## tides 1.4.2: bridge clearance takes in the level the chart measures it above
+
+Released together with 1.4.1 below, in one commit (Larry, AFT). Under rule 13
+a third number means a change not yet verified against the Practical
+Navigator course; `tides` and the course move to 1.5 together when PILOT's
+re-run and this suite are recorded in the set's manifest.
+
+**What.** The room under a bridge is now the charted clearance, **plus the
+level the chart measures it above**, less the tide. The tool asks which level
+the chart uses, offers the station's usual one, and prints the level and its
+height in the working.
+
+**Why.** A chart gives a clearance above a high-water level, and the working
+left that level's own height out, so it under-reported clearance by that much:
+about 5 m at Portsmouth. That was on the safe side, and far enough out that
+the answer could not be used for a real bridge. Found while building 1.4.1.
+
+**Larry ruled the design (16 November 2026):**
+
+| Ruling | Decision | What it means in the tool |
+|---|---|---|
+| AEZ | which level | she chooses: `hat`, `mhws` or `mhw`. A British chart says "Overhead clearance heights are above Highest Astronomical Tide" (Admiralty 5600); American charts use mean high water. NOAA stations are offered `mhw`, all others `hat` |
+| AFC | where the levels come from | `src/tides/levels.dat`, made once by `src/tides/gen/make_levels.js` with the tool's own engine: HAT and mean high water from nineteen years of prediction, 2007 to 2025. Mean high water springs is the mean level + M2 + S2 |
+
+He also said of it "its teachable, and should be part of the curriculum": a
+card is with the XO for the course.
+
+**Held to published figures.** NOAA publishes HAT and mean high water for its
+stations. At New London, Boston and San Francisco the file is within 15 mm of
+all six (`tests/tides-levels.dat`).
+
+**What it affects.**
+
+- `src/tides/engine.awk` (`level_default`, `level_name`, `level_note`,
+  `level_load`, `level_height`; `td_depth`) and `docs/web/tides/engine.js`,
+  `tides.js`, `index.html` (the same functions; a field for the level).
+- **A new data file, `levels.dat`** (253 KB, 6,090 reference stations, 60 with
+  no level): packed into `bin/tides` after the stations, copied to the page,
+  precached by its service worker (`tides-v15`). It is stored above mean sea
+  level, so a zero correction does not touch it. Its header records what it
+  was made from.
+- **In this sum the zero cancels,** because the level and the tide share it. So
+  the bridge line carries no zero caution; the depth line keeps it.
+- **A window still open at the day's end is printed to 24:00** in the shell, as
+  the browser prints it. It was printed as 00:00.
+- `tides today` asks one more question after a bridge's clearance. No work
+  calculator, link or lesson changes.
+- Checks: `tests/tides-levels-check.awk` (the file whole, in order, and matched
+  to NOAA), ten bridge checks in the suite, four in the browser test, a sample
+  recomputed in `run-tides-web.sh`. Ten faults planted, all caught.
+- The manual's section 3 and Figure 8, the quick reference, `docs/web/tides/
+  README.md`, `docs/ARCHITECTURE.md` and `docs/TESTING.md` describe it.
+
+## tides 1.4.1: the zero a height is measured from (B24), and the data's licences (I8)
+
+**What.** Every tide table names the zero its heights are from. Six ports are
+moved onto chart datum. The data's licences are stated as the source states
+them, provider by provider.
+
+**Why.** The file called most stations' zero "LAT". It is a lowest tide the
+neaps tide-database computed from each station's constants, not the zero of
+the chart and the printed tide table, and it sits either side of it: at the
+six course ports the tool read from 0.38 m low (Brest) to 0.18 m HIGH
+(Weymouth). A height from it could not safely be added to a charted depth.
+
+**Larry ruled the design one decision at a time (16 November 2026):**
+
+| Ruling | Decision | What it means in the tool |
+|---|---|---|
+| ADR | how far | Portsmouth, Weymouth, Devonport, Cherbourg, Brest and Le Conquet go onto chart datum, each held to published figures; every other station keeps its zero and says it is computed |
+| ADV | the words | the zero is named on the height column: `above chart datum`, `above MLLW, the chart datum`, `above a computed LAT, not chart datum`, `above mean sea level, not chart datum`. The depth sum carries a caution where the zero is not the chart's; the verdict is still given |
+| AEA | how applied | `src/tides/gen/corrections.dat`, 14 records (every provider's record of the six gauges), applied by `apply_corrections.py`; the suite fails if the station file disagrees with it |
+| AED | Portsmouth | examples and tests use BODC's record, `ticon/portsmouth-ptm-gbr-bodc`, as the course does |
+| AEK | licences | NOTICE, the About screens and `docs/DATA-LICENCES.md` state them; `tides where` and the browser's station panel show a station's provider and licence |
+
+**How each port was checked.** Its zero is its mean sea level above the gauge's
+zero, which is chart datum there: BODC states its data are on Admiralty Chart
+Datum; Shom's published mean level is 4.13 at Brest and 3.98 at Le Conquet
+(here 4.16 and 3.98); the Admiralty's springs level at Portsmouth is 4.7 (here
+4.73); chart datum's published height below Ordnance Datum puts mean sea level
+0.15 to 0.25 m above it at the three British ports; and PILOT's month of gauge
+readings leaves 0.05 to 0.15 m at all six. **Cherbourg has no published mean
+level yet:** the almanac Larry has ordered will give it, and its line goes in
+`tests/tides-zero.dat`.
+
+**Why not a rebuild from today's source.** A trial changed the constants at
+4,297 of 6,090 stations, moved 222 zeros by more than 0.1 m and blanked 4,654
+regions. That is a data refresh, and a separate job.
+
+**What it affects.**
+
+- **Heights at the six ports change** by +0.33 (Portsmouth, CMEMS record), +0.28
+  (BODC), -0.18 (Weymouth), +0.12 (Devonport), +0.31 (Cherbourg), +0.38 (Brest)
+  and +0.29 m (Le Conquet). Ranges, times, streams and coefficients do not.
+  PILOT re-runs the tide verification page against it.
+- `stations.dat`: 14 lines' zero and its name (`CD`), and a header that states
+  the licences. `engine.awk` and `engine.js`: `zero_kind`, `zero_words`,
+  `zero_caution`, `data_provider`, `data_licence`. The zero moved from the
+  station line to the height column.
+- **The working of every station form gains a line,** `heights above ...`
+  (`twelfths`, `atlas`, `tidal_gate`, `lunar`). `run` is on the surface the
+  course calls, so the note to the course travels in the same queue run.
+- Across the 8,334 stations: 3,508 on chart datum (the 14, NOAA's 1,250 and
+  their 2,244 secondary ports), 4,511 on a computed zero, 315 on none.
+- Of the 6,090 reference stations 4,164 are CC BY 4.0, 1,252 public domain and
+  674 CC BY-NC 4.0. The file's header said CC BY 4.0 of all TICON-4 data.
+- Checks: `tests/tides-zero-check.awk` and `tests/tides-zero.dat` (the published
+  figures), the words at seven stations and the caution in the suite,
+  `docs/web/tests/tides-zero.js` (the page against the shell at every station),
+  five stations in the browser test. Sixteen faults planted, all caught.
+- The manual's section 3, 7 and 9, the quick reference, `WORK.md`, NOTICE,
+  `docs/ARCHITECTURE.md`, `docs/TESTING.md`, `docs/DATA-LICENCES.md`.
+
 ## tides 1.4: lunar's figure, laid out for print
 
 **What.** Lunar's figure now ends just below its dates, and the labels of

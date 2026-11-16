@@ -40,11 +40,18 @@ Tide station harmonic constants
 
   TICON-4 harmonic constants: Piccioni, G., Dettmering, D., Schwatke, C.,
   Passaro, M., Seitz, F. Licensed under the Creative Commons Attribution
-  4.0 International License (CC BY 4.0).
+  4.0 International License (CC BY 4.0),
   https://creativecommons.org/licenses/by/4.0/
+  EXCEPT the 674 stations whose data came through three providers that
+  restrict commercial use (station ids ending -cmems, -uz and -cv), which
+  are licensed under the Creative Commons Attribution-NonCommercial 4.0
+  International License (CC BY-NC 4.0),
+  https://creativecommons.org/licenses/by-nc/4.0/
 
   Both were assembled by way of the neaps tide-database project
-  (https://github.com/neaps/tide-database), CC BY 4.0.
+  (https://github.com/neaps/tide-database), which states each station's
+  licence. docs/DATA-LICENCES.md lists every provider, its licence and its
+  stations; `tides where` and the browser's station panel show a station's own.
 
   These constants are redistributed under their own terms, which are not
   changed by the Apache License above. Attribution must travel with them.

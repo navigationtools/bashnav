@@ -91,16 +91,59 @@ else.](fig/tides-day.png)
 Charted depth **plus** the tide, against your draught and whatever you want
 under the keel — with the stretches of the day when it is there.
 
+**That sum needs the tide measured from the chart's own zero,** chart datum,
+because the charted depth is. So every table names the zero its heights are
+from, on the height column itself:
+
+| The heading says | What it means | Where |
+|---|---|---|
+| `above chart datum` | the zero of the chart and of the printed tide table | Portsmouth, Weymouth, Devonport, Cherbourg, Brest and Le Conquet, each held to figures its hydrographic office published |
+| `above MLLW, the chart datum` | NOAA's own published datum, which American charts use | every NOAA station |
+| `above a computed LAT, not chart datum` | a lowest tide worked out from the tide's constants. It can sit either side of the chart's zero | most other stations |
+| `above mean sea level, not chart datum` | no low-water zero at all | 315 stations |
+
+At a station that is not on chart datum the depth sum carries a caution: against
+the chart it can be more than half a metre out, either way. Among 132 British
+and French stations measured, the widest read 0.61 m high and 1.40 m low. The
+verdict is still given; the caution says how far to trust it. Use the printed
+tide table for the port where the answer matters.
+
 ### Does the mast go under?
 
-Charted clearance **minus** the tide, against your air draught.
+Charted clearance, **plus the level the chart measures it above, minus** the
+tide, against your air draught.
 
-**The signs are opposite, and that is the trap.** Charted depths are measured
-*below* datum, so the tide adds to them. Charted vertical clearances are
-measured *above* HAT, so the tide takes them away. Getting that pair the wrong
-way round is the classic way to put a mast into a bridge. They are therefore
-separate functions in the engine and separately labelled on the screen, rather
-than one function with a sign argument.
+![**Figure 8** - the two sums. A depth is charted below chart datum and the tide
+adds to it. A clearance is charted above a high-water level, here HAT, so the
+room under the bridge is the charted figure, plus that level, less the tide.
+HAT and the tide are measured from the same zero, so in the clearance sum the
+zero cancels.](fig/tides-two-sums.png)
+
+**Which level is on the chart, in its notes, and it is the first thing to
+read.** A British chart says "Overhead clearance heights are above Highest
+Astronomical Tide". An American chart measures them above mean high water. Some
+older charts, and some other countries, use mean high water springs. So the
+tool asks, and offers the station's usual one:
+
+| You choose | The level | Offered at |
+|---|---|---|
+| `hat` | Highest Astronomical Tide: the highest tide predicted in nineteen years | every station but NOAA's |
+| `mhw` | mean high water: the mean of every high water in those years | NOAA stations |
+| `mhws` | mean high water springs: the mean level + M2 + S2 | on request |
+
+The working prints the level and its height, so both can be checked against the
+chart's note and an almanac. At Portsmouth an 18.0 m clearance above HAT, with
+HAT at 5.18 m and the tide at 2.62 m, leaves 18.0 + 5.18 − 2.62 = 20.56 m.
+
+**The signs are opposite, and that is the trap.** The tide adds to a depth and
+takes away from a clearance. Getting that pair the wrong way round is the
+classic way to put a mast into a bridge. They are therefore separate functions
+in the engine and separately labelled on the screen, rather than one function
+with a sign argument.
+
+**Where a station has no level, no clearance is worked.** Sixty reference
+stations have no real tide, or are river gauges where a season's rise and fall
+swamps it. The tool says so there.
 
 ---
 
@@ -393,7 +436,15 @@ bad input.**
 3. **The shell engine is held to an independent Python working** of each
    method. So the browser is checked against the awk, and the awk against
    something that shares none of its code.
-4. **The pictures are the one place the builds differ on purpose:** the shell
+4. **The zero at the six ports on chart datum is each port's mean sea level
+   above chart datum,** from its own gauge, held to published figures: Shom's
+   mean level at Brest and Le Conquet, the Admiralty's springs level at
+   Portsmouth, and chart datum's height against Ordnance Datum at the three
+   British ports. Cherbourg's published mean level is still to be checked.
+5. **HAT and mean high water come from nineteen years of the tool's own
+   prediction,** 2007 to 2025, and are held to what NOAA publishes for three
+   of its stations: within 15 mm on all six figures.
+6. **The pictures are the one place the builds differ on purpose:** the shell
    draws characters, the page draws SVG from the same numbers, and the SVG's
    points are read back and checked against the geometry they claim.
 
@@ -447,6 +498,14 @@ A few other limits worth carrying in your head:
 4. **The twelfths rule is a rule of thumb**, which is why the cosine method and
    — at a station — the harmonic height are printed beside it. Where they
    disagree, the harmonic height is the better number.
+5. **Most stations are not on chart datum,** and the heading of every table
+   says which are (section 3). A height from a computed zero is right in its
+   range and its times and can be decimetres out in its level.
+6. **A port on chart datum is good to a few centimetres, not millimetres.** Its
+   mean sea level comes from one to five years of readings some years ago, and
+   the sea has risen since.
+7. **HAT here is computed,** not copied from a chart. It agrees with published
+   figures to a centimetre or two where it could be checked.
 
 ---
 

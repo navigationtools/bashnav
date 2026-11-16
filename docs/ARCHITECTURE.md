@@ -326,8 +326,27 @@ table has always been in standard time.
 ### Data licensing, which travels with the data
 
 - NOAA harmonics: **public domain**
-- TICON-4 harmonics: **CC BY 4.0**
-- assembled via `neaps/tide-database`, itself CC BY 4.0
+- TICON-4 harmonics: **CC BY 4.0**, except 674 stations from three providers
+  that restrict commercial use (ids ending `-cmems`, `-uz`, `-cv`): **CC BY-NC 4.0**
+- assembled via `neaps/tide-database`, which states each station's licence
+
+A station's licence follows from its provider alone, so nothing is stored per
+station: `data_licence()` in the engine reads it off the id.
+`docs/DATA-LICENCES.md` lists every provider.
+
+### The zero, and the high-water levels
+
+    stations.dat  ◄──  src/tides/gen/apply_corrections.py  ◄──  corrections.dat
+    levels.dat    ◄──  src/tides/gen/make_levels.js        ◄──  stations.dat + the browser's engine
+
+`corrections.dat` names the stations whose zero is chart datum (14 records of
+six ports) and where each figure came from; the script writes two fields of
+each line and the file's header, and the suite fails if the two files
+disagree. `levels.dat` holds HAT and mean high water above mean sea level for
+every reference station, for bridge clearance; it is packed into `bin/tides`
+after the stations and fetched by the page on first use. Its header records
+the checksums of what it was made from, and `run-tides-web.sh` recomputes a
+sample to see that it is still what the engine gives.
 
 The CC BY obligation travels with the data regardless of the Apache 2.0 licence
 on the code. `NOTICE` carries it and must not be dropped.

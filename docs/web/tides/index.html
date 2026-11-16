@@ -70,6 +70,7 @@ try {
       <div class="who">
         <div class="nm" id="st-name">&mdash;</div>
         <div class="wh" id="st-where"></div>
+        <div class="wh" id="st-data"></div>
         <span class="kindtag" id="st-kind"></span>
       </div>
       <button class="btn" id="st-change">Change</button>
@@ -87,7 +88,7 @@ try {
       <div class="legend">
         <span><i style="background:var(--curve)"></i>height above datum</span>
         <span id="key-now"><i style="background:var(--now)"></i>time now</span>
-        <span><i style="background:var(--datum)"></i>chart datum (zero)</span>
+        <span><i style="background:var(--datum)"></i><span id="key-zero">chart datum (zero)</span></span>
       </div>
       <p class="note" id="curve-note"></p>
     </div>
@@ -103,8 +104,9 @@ try {
     <div class="panel">
       <h2>Depth and clearance</h2>
       <p class="note">Charted depths are <em>below</em> datum and the tide adds to
-        them. Charted bridge clearances are <em>above</em> HAT and the tide takes
-        them away. Leave a box empty to skip that part.</p>
+        them. A charted bridge clearance is <em>above</em> a high-water level, which
+        the chart&rsquo;s notes name: clearance is the charted figure, plus that
+        level, less the tide. Leave a box empty to skip that part.</p>
       <div class="fields" style="margin-top:10px">
         <div class="f"><label for="i-charted">Charted depth, m</label>
           <input type="number" id="i-charted" inputmode="decimal" step="0.1" placeholder="e.g. 2.4"></div>
@@ -114,6 +116,13 @@ try {
           <input type="number" id="i-clear" inputmode="decimal" step="0.1" placeholder="e.g. 0.5"></div>
         <div class="f"><label for="i-air">Charted bridge clearance, m</label>
           <input type="number" id="i-air" inputmode="decimal" step="0.1" placeholder="e.g. 18.0"></div>
+        <div class="f"><label for="i-level">The chart measures it above</label>
+          <select id="i-level">
+            <option value="">this station&rsquo;s usual level</option>
+            <option value="hat">HAT (British charts)</option>
+            <option value="mhws">mean high water springs</option>
+            <option value="mhw">mean high water (American charts)</option>
+          </select></div>
         <div class="f"><label for="i-mast">Your air draught, m</label>
           <input type="number" id="i-mast" inputmode="decimal" step="0.1" placeholder="e.g. 16.5"></div>
         <div class="f" style="display:flex;align-items:flex-end">
@@ -250,8 +259,14 @@ try {
     <div class="panel">
       <h2>Times, datums and what is missing</h2>
       <p>Times are the station&rsquo;s own <strong>standard time</strong> &mdash;
-        no summer time, exactly like a printed tide table. The datum is named on
-        the day&rsquo;s screen; heights are above it.</p>
+        no summer time, exactly like a printed tide table.</p>
+      <p>Every table names the zero its heights are from. <strong>Chart
+        datum</strong> is the zero of the chart and of the printed tide table: six
+        ports here are on it, each held to published figures, and NOAA&rsquo;s
+        stations are on NOAA&rsquo;s own. Every other station is on a zero worked
+        out from the tide&rsquo;s constants, and says <strong>not chart
+        datum</strong>: against the chart its heights can be more than half a
+        metre out.</p>
       <p>Nothing here knows about the weather. A deep low or a hard onshore blow
         moves the real water by a half metre or more, and a river in flood moves
         it further. Harmonics predict the astronomical tide and nothing else.</p>
@@ -259,8 +274,10 @@ try {
     <div class="panel">
       <h2>Where the data comes from</h2>
       <p>Assembled from <a href="https://github.com/neaps/tide-database">neaps/tide-database</a>
-        (CC&nbsp;BY&nbsp;4.0). NOAA harmonics are public domain; TICON-4
-        harmonics are CC&nbsp;BY&nbsp;4.0.</p>
+        . NOAA harmonics are public domain. TICON-4 harmonics are
+        CC&nbsp;BY&nbsp;4.0, except 674 stations from three providers that restrict
+        commercial use, which are CC&nbsp;BY-NC&nbsp;4.0. The station panel names
+        each station&rsquo;s provider and licence.</p>
     </div>
     <div class="panel">
       <h2>Offline</h2>

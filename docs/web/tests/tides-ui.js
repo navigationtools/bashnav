@@ -136,6 +136,70 @@ const CASES = [
   if (!/clear/i.test(air)) { bad++; console.log('  FAIL bridge clearance produced nothing'); }
   else console.log('  ok   bridge clearance renders');
 
+  // ---- the zero a height is measured from (board item B24) -----------
+  //  Every table names its zero; a sum with something charted carries a
+  //  caution at a station not on chart datum and none at one that is; and
+  //  the station's provider and licence are shown (Larry: ADV, AEK).  The
+  //  words are spelled out here, not taken from the page's own functions.
+  const ZERO = [
+    ['ticon/portsmouth-ptm-gbr-bodc', 'above chart datum', 0, 'Data: BODC, by way of TICON-4; CC BY 4.0.'],
+    ['ticon/portsmouth-por-gbr-cmems', 'above chart datum', 0, 'Data: CMEMS, by way of TICON-4; CC BY-NC 4.0, non-commercial use.'],
+    ['ticon/southampton-sou-gbr-da_idh', 'above a computed LAT, not chart datum', 1, 'Data: DA_IDH, by way of TICON-4; CC BY 4.0.'],
+    ['noaa/8461490', 'above MLLW, the chart datum', 0, 'Data: NOAA; public domain.'],
+    ['noaa/1610367', 'above MLLW, the chart datum', 0, 'Data: NOAA; public domain.']
+  ];
+  for (const [id, words, cautions, data] of ZERO) {
+    await page.evaluate(i => window.choose(i), id);
+    await page.waitForFunction(i => window.PRED && !window.PRED.err && window.PRED.id === i, id);
+    await page.evaluate(() => { window.DAY = { y: 2025, m: 5, d: 24, jd0: TIDE.jdate(2025, 5, 24) }; window.rebuild(); });
+    await page.waitForTimeout(150);
+    const z = await page.evaluate(() => ({
+      kind: document.getElementById('st-kind').textContent,
+      data: document.getElementById('st-data').textContent,
+      term: document.getElementById('term').textContent,
+      page: document.getElementById('v-day') ? document.getElementById('v-day').textContent : document.body.textContent,
+      cautions: document.querySelectorAll('#depth-out .zero-caution').length
+    }));
+    const headJs = (z.term.split('\n').find(l => /^\s+time\s+height/.test(l)) || '').replace(/\s+/g, ' ').trim();
+    const headAwk = (awkDay(id, 2025, 5, 24).split('\n').find(l => /^\s+time\s+height/.test(l)) || '').replace(/\s+/g, ' ').trim();
+    const why = [];
+    if (headJs !== 'time height ' + words) why.push('the terminal heading reads "' + headJs + '"');
+    if (headAwk !== 'time height ' + words) why.push('the shell heading reads "' + headAwk + '"');
+    if (z.page.indexOf('eights ' + words) < 0) why.push('the page does not say "heights ' + words + '"');
+    if (z.cautions !== cautions) why.push(z.cautions + ' cautions in the depth panel, wanted ' + cautions);
+    if (z.data !== data) why.push('the data line reads "' + z.data + '"');
+    if (why.length) { bad++; console.log('  FAIL the zero at ' + id + ': ' + why.join('; ')); }
+    else console.log('  ok   the zero is named at ' + id + ': ' + words + (cautions ? ', with the caution on the depth sum' : ''));
+  }
+
+  // ---- bridge clearance: charted + the level the chart names - the tide ----
+  //  (Larry: AEZ, AFC.)  The level's height is read from the two files here,
+  //  not from the page; the usual level is offered and the others can be had.
+  const LV = {}, Z0 = {};
+  fs.readFileSync(path.join(SRC, 'levels.dat'), 'utf8').split('\n').forEach(l => { const f = l.split('|'); if (f.length === 3) LV[f[0]] = f; });
+  fs.readFileSync(path.join(SRC, 'stations.dat'), 'utf8').split('\n').forEach(l => { if (l.startsWith('R|')) { const f = l.split('|'); Z0[f[1]] = +f[8]; } });
+  const lv = (id, col) => ((Z0[id] + +LV[id][col]) / 1000).toFixed(2);
+  const BR = [
+    ['ticon/portsmouth-ptm-gbr-bodc', '', 'HAT', lv('ticon/portsmouth-ptm-gbr-bodc', 1)],
+    ['ticon/portsmouth-ptm-gbr-bodc', 'mhws', 'mean high water springs', '4.73'],
+    ['noaa/8461490', '', 'mean high water', lv('noaa/8461490', 2)],
+    ['noaa/8461490', 'hat', 'HAT', lv('noaa/8461490', 1)]
+  ];
+  for (const [id, pick, name, h] of BR) {
+    await page.evaluate(i => window.choose(i), id);
+    await page.waitForFunction(i => window.PRED && !window.PRED.err && window.PRED.id === i, id);
+    await page.selectOption('#i-level', pick);
+    await page.waitForFunction(() => /clear (now|at midday)/.test(document.getElementById('depth-out').textContent), null, { timeout: 15000 });
+    const t = (await page.textContent('#depth-out')).replace(/\s+/g, ' ');
+    const want = 'Charted clearance 18.0 m above ' + name + ', which is ' + h + ' m here.';
+    const m = /18\.0 m \+ ([0-9.]+) m \u2212 tide (-?[0-9.]+) m = (-?[0-9.]+) m clear/.exec(t);
+    const adds = m && Math.abs(18 + +m[1] - +m[2] - +m[3]) < 0.011;
+    if (t.indexOf(want) >= 0 && adds && !/zero-caution/.test(await page.innerHTML('#depth-out').then(h2 => h2.split('clear')[1] || '')))
+      console.log('  ok   bridge clearance at ' + id + ': above ' + name + ', ' + h + ' m, and the sum adds up');
+    else { bad++; console.log('  FAIL bridge clearance at ' + id + (pick ? ' (' + pick + ')' : '') + ': wanted "' + want + '", page says "' + t.slice(0, 260) + '"'); }
+  }
+  await page.selectOption('#i-level', '');
+
   // ---- the canvas actually drew something ---------------------------
   const painted = await page.evaluate(() => {
     const c = document.getElementById('curve');
@@ -196,11 +260,11 @@ const CASES = [
     //  the tidal gate: the atlas form with a typed high water, which needs no
     //  station, and the pilot-book form at a station, which waits for one
     ['tidal_gate', 'hw=14:32 track=255 streams=075:2.2,078:2.6,080:2.0,085:0.9,250:0.4,255:1.5,258:2.4,260:2.7,258:2.1,255:1.0,080:0.3,078:1.4,076:2.1 t=17:00 dist=22 sog=7', 'l3-2025-2'],
-    ['tidal_gate', 'station=ticon/portsmouth-por-gbr-cmems date=2025-05-24 t=11:00 opens=5 shuts=-1', ''],
+    ['tidal_gate', 'station=ticon/portsmouth-ptm-gbr-bodc date=2025-05-24 t=11:00 opens=5 shuts=-1', ''],
     //  lunar: typed, as a lesson links it; and at a station, where the page must
     //  fetch Brest's record beside the station's own for the coefficient
     ['lunar', 'date=2025-05-24 brhwh=6.07 brlwh=1.26 coef=79', 'l3-2025-3'],
-    ['lunar', 'station=ticon/portsmouth-por-gbr-cmems date=2025-05-24 t=14:00', ''],
+    ['lunar', 'station=ticon/portsmouth-ptm-gbr-bodc date=2025-05-24 t=14:00', ''],
     //  a port where mean springs and mean neaps lie close: two labels in the margin
     ['lunar', 'station=ticon/kaikoura-kait-nzl-ttw date=2025-05-24 t=12:00', '']
   ];

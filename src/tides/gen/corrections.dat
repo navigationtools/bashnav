@@ -1,0 +1,54 @@
+# Chart-datum corrections to stations.dat (board item B24).
+#
+# stations.dat takes each station's zero from the neaps tide-database. For a
+# station it labels LAT, that zero is a lowest tide the database COMPUTED
+# (19 years of harmonic prediction), not the zero of the chart. At the ports
+# below the chart's zero is known, so their heights are given above it.
+#
+# Larry ruled the design on 16 November 2026: the six course ports only
+# (ADR); a small corrections file, and a check that the station file agrees
+# with it (AEA). Every record of a port's gauge is corrected, each from its
+# own figure.
+#
+#   id | z0, mm | zero | the figure | how it was checked
+#
+#   z0     mean sea level above chart datum, mm: the database's mean sea
+#          level above the gauge's own zero, where that zero is chart datum
+#   zero   CD = chart datum
+#   figure the period of readings the mean is from, and the z0 it replaces
+#
+# The figures are from neaps/tide-database at commit d89b1750 (15 Nov 2026).
+# A twin is another provider's record of the same gauge; it is held to its
+# port's first record, which is the one checked against published figures.
+#
+# apply:   python3 src/tides/gen/apply_corrections.py
+# check:   tests/tides-corrections-check.sh  (run by the suite)
+#
+# To add a port: check it as these were (docs/TESTING.md), add its lines,
+# apply, rebuild the web copy and the tools, and say so in the CHANGELOG.
+
+# Portsmouth
+ticon/portsmouth-ptm-gbr-bodc|2884|CD|readings 2007-03 to 2012-02; was 2602 above a computed LAT, so heights rise by +0.282 m|BODC data are on Admiralty Chart Datum; Admiralty chart 5600 MHWS 4.7 (source 4.71); mean sea level 0.15 m above Ordnance Datum by NTSLF chart datum 2.73 below it; PILOT gauge month
+ticon/portsmouth-por-gbr-cmems|2876|CD|readings 2010-03 to 2012-02; was 2550 above a computed LAT, so heights rise by +0.326 m|twin of portsmouth-ptm-gbr-bodc: its mean sea level is within 8 mm
+ticon/portsmouth-ptm-gbr-da_idh|2845|CD|readings 1980-10 to 1987-09; was 2590 above a computed LAT, so heights rise by +0.255 m|twin of portsmouth-ptm-gbr-bodc: its mean sea level is within 39 mm
+
+# Weymouth
+ticon/weymouth-wey-gbr-bodc|1179|CD|readings 2017-08 to 2018-07; was 1355 above a computed LAT, so heights rise by -0.176 m|BODC data are on Admiralty Chart Datum; mean sea level 0.25 m above Ordnance Datum by NTSLF chart datum 0.93 below it; PILOT gauge month
+ticon/weymouth-wey-gbr-cmems|1163|CD|readings 2018-02 to 2019-01; was 1347 above a computed LAT, so heights rise by -0.184 m|twin of weymouth-wey-gbr-bodc: its mean sea level is within 16 mm
+
+# Devonport
+ticon/devonport-dev-gbr-bodc|3396|CD|readings 2014-12 to 2015-11; was 3274 above a computed LAT, so heights rise by +0.122 m|BODC data are on Admiralty Chart Datum; mean sea level 0.18 m above Ordnance Datum by NTSLF chart datum 3.22 below it; PILOT gauge month
+ticon/devonport-dev-gbr-da_idh|3408|CD|readings 1983-08 to 1985-07; was 3238 above a computed LAT, so heights rise by +0.170 m|twin of devonport-dev-gbr-bodc: its mean sea level is within 12 mm
+
+# Cherbourg
+ticon/cherbourg-13-fra-refmar|3876|CD|readings 2016-09 to 2021-08; was 3569 above a computed LAT, so heights rise by +0.307 m|REFMAR validated data are on the zero hydrographique; PILOT gauge month; PUBLISHED MEAN LEVEL NOT YET CHECKED (the almanac Larry has ordered)
+ticon/cherbourgtg_60minute-che-fra-cmems|3876|CD|readings 2016-09 to 2021-08; was 3569 above a computed LAT, so heights rise by +0.307 m|twin of cherbourg-13-fra-refmar: its mean sea level is within 0 mm
+
+# Brest
+ticon/brest-3-fra-refmar|4163|CD|readings 2006-05 to 2009-04; was 3781 above a computed LAT, so heights rise by +0.382 m|REFMAR validated data are on the zero hydrographique; Shom niveau moyen 4.13 (source 4.16); PILOT gauge month
+ticon/bresttg_60minute-bre-fra-cmems|4163|CD|readings 2006-05 to 2009-04; was 3780 above a computed LAT, so heights rise by +0.383 m|twin of brest-3-fra-refmar: its mean sea level is within 0 mm
+ticon/brest-822-fra-uhslc_fd|4173|CD|readings 2009-12 to 2012-11; was 3781 above a computed LAT, so heights rise by +0.392 m|twin of brest-3-fra-refmar: its mean sea level is within 10 mm
+ticon/brest-822a-fra-uhslc_rq|4159|CD|readings 2000-05 to 2009-04; was 3781 above a computed LAT, so heights rise by +0.378 m|twin of brest-3-fra-refmar: its mean sea level is within 4 mm
+
+# Le Conquet
+ticon/le_conquet-152-fra-refmar|3978|CD|readings 2006-09 to 2010-08; was 3687 above a computed LAT, so heights rise by +0.291 m|REFMAR validated data are on the zero hydrographique; Shom niveau moyen 3.98 (source 3.98); PILOT gauge month
