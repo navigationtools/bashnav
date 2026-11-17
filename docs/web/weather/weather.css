@@ -600,6 +600,10 @@ input[type="range"]::-moz-range-thumb {
     own words in the reasoning, and the row that sets how near the next
     sea state counts as close.  */
 .seablock { margin: 6px 0 10px; }
+/*  Where the low lies (weather 1.0.8): the compass card beside the words
+    that give the low's bearings.  */
+.lowblock { margin: 6px 0 8px; }
+.lowfig svg { display: block; width: 100%; max-width: 520px; margin: 0 auto; }
 .seafig svg { display: block; width: 100%; max-width: 660px; margin: 0 auto; }
 .closerow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 10px; font-size: 14px; color: var(--dim); }
 .closerow .btn.step { flex: 0 0 auto; min-width: 44px; min-height: 40px; padding: 4px 10px; font-size: 18px; line-height: 1; }

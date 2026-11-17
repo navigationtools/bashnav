@@ -102,14 +102,52 @@ observation logged on its own takes the position of the last deck entry before
 it. With no position anywhere in the log the tide is not allowed for, and the
 report says so.
 
-### The wind
+### The wind, and where the low lies
 
-**Backed or veered**, against the previous observation, with Buys Ballot
-applied: stand with your back to the wind and in the northern hemisphere the
-low is on your left. The tool gives the bearing of the centre from you.
+![**Figure 3** — where the low lies. The wind is the solid arrow through the
+centre, where you are; the dashed line is the wind before. The wedge is the
+low's bearing. The low is drawn out along it with its wind round it, and the
+dashed fan is the quarter it is heading into.](fig/weather-low.png)
 
-**Backing with a falling glass is the one to take seriously** — it puts the
-centre to your north and closing.
+**Backed or veered**, against the previous observation. A shift of more than
+10 degrees is read by the side of the storm's track, and the reading is the
+same in both hemispheres:
+
+1. **If the wind goes on backing, you are on the left of the storm's track,**
+   looking the way it is going. It passes south of you if it is going east,
+   north of you if it is going west.
+2. **If it goes on veering, you are on the right.** It passes north of you if
+   it is going east, south of you if it is going west.
+
+**Where the low lies** is Buys Ballot: stand with your back to the wind, and in
+the northern hemisphere the low is on your left, in the southern on your right.
+The sea turns the wind on deck 10 to 20 degrees in toward the low, so the low
+lies up to 20 degrees forward of that arm. The report gives the two bearings.
+The compass card (Figure 3) draws them as a wedge, with the low itself out
+along it and its wind round it: anticlockwise in the north, clockwise in the
+south. How far off the low is, the log cannot say.
+
+**Where it is going.** One boat's log cannot give a storm's course. With a wind
+that has shifted more than 10 degrees *and* a glass that is falling or rising,
+it can give the quarter of the compass the course lies in. Take the bearing
+from the low to you:
+
+| The wind has | The glass is | So | Its course lies |
+|---|---|---|---|
+| backed | falling | you are on its left, and it is closing | within a quarter turn clockwise of that bearing |
+| backed | rising | you are on its left, and it is opening | a quarter to a half turn clockwise of it |
+| veered | falling | you are on its right, and it is closing | within a quarter turn anticlockwise of it |
+| veered | rising | you are on its right, and it is opening | a quarter to a half turn anticlockwise of it |
+
+The card draws the quarter as a dashed fan from the low. When the low is
+closing, the report says where it passes if it holds its course: *its course is
+somewhere between 090 and 180; if it holds that, it passes to your south-west.*
+When it is opening, the report says it is drawing away.
+
+**These are two rules of thumb.** A low can deepen without moving, or fill
+where it lies, and the picture is of a straight track and a boat that is slow
+against the storm. It is where to watch, not a fix. Without both a shift and a
+moving glass, the card says the course cannot be told yet.
 
 ### Fog, and the cloud base
 
@@ -131,12 +169,12 @@ the cloud is logged by level rather than as "overcast".
 
 ### The sea against your wind
 
-![**Figure 3** — the sea against your wind. The solid curve is the Beaufort
+![**Figure 4** — the sea against your wind. The solid curve is the Beaufort
 scale; your wind is the dashed upright, your sea the thick bar, your swell the
 diamond. The dashed curve above is the fully developed limit.](fig/weather-sea.png)
 
 When your latest observation has a wind, the report holds the sea you logged
-against the sea that wind should raise, and draws it (Figure 3).
+against the sea that wind should raise, and draws it (Figure 4).
 
 1. **The solid curve is the Beaufort scale's probable wave height:** the Met
    Office's table, for a well-developed sea in open water, with a dot at each
@@ -189,7 +227,7 @@ and Pierson and Moskowitz's limit as Stewart gives it.
 
 ## 4. The forecast loop, and why yours comes first
 
-![**Figure 4** — yours first. Nothing of the machine's until yours is written
+![**Figure 5** — yours first. Nothing of the machine's until yours is written
 down.](fig/weather-forecast.png)
 
 **Nothing of the machine's appears until your own forecast is recorded.** If
@@ -210,7 +248,7 @@ not yet adding anything.
 
 ## 5. The score
 
-![**Figure 5** — you, the rules, and persistence, scored against what actually
+![**Figure 6** — you, the rules, and persistence, scored against what actually
 happened.](fig/weather-score.png)
 
 Weighted error points, from the WxChallenge convention: half a point per knot
@@ -230,7 +268,7 @@ are you better than persistence?**
 
 ## 6. The 500 millibar chart
 
-![**Figure 6** — reasoning over a chart that arrived by radiofax.](fig/weather-chart.png)
+![**Figure 7** — reasoning over a chart that arrived by radiofax.](fig/weather-chart.png)
 
 **This tool cannot fetch a chart and never will.** But a 500 mb chart does
 arrive at sea, by HF radiofax on an SSB receiver, with no internet involved at
@@ -257,7 +295,7 @@ public domain), and are listed in `docs/SOURCES.md`.
 
 ## 7. The wind from the isobars
 
-![**Figure 7** — the wind from the isobars, 100 nm apart at 50° N. Above, the
+![**Figure 8** — the wind from the isobars, 100 nm apart at 50° N. Above, the
 two isobars at the spacing typed, with the wind aloft along them and the wind on
 deck turned toward the low; close the isobars and the arrows lengthen. Below,
 the scale: wind against spacing, one curve for each latitude, with your reading
@@ -292,7 +330,7 @@ lesson** at the top.
 
 ## 8. The lessons
 
-![**Figure 8** — eleven lessons, each one earning its place.](fig/weather-lessons.png)
+![**Figure 9** — eleven lessons, each one earning its place.](fig/weather-lessons.png)
 
 Each lesson changes either what the tool says or what you would do. One of them
 says plainly where the reasoning stops being reliable, which is the most
@@ -300,26 +338,26 @@ important of the eleven.
 
 `weather learn` lists them; `weather learn <key>` opens one.
 
-![**Figure 9** — friction, in the `gradient` lesson. Over the sea the surface
+![**Figure 10** — friction, in the `gradient` lesson. Over the sea the surface
 wind is backed 10 to 20 degrees toward the low and about 2/3 of the wind
 aloft. Over land it is backed 30 to 40 degrees, and its speed is a band: about
 1/3 over forests, towns and cities, nearer 2/3 over open fields.](fig/weather-friction.png)
 
 Some lessons draw what they say. The `gradient` lesson draws friction (Figure
-9), the turn toward the low and the loss of speed, as a figure in the terminal
+10), the turn toward the low and the loss of speed, as a figure in the terminal
 and in the browser. The land speed is drawn as a band, not one number, because
 the published rules of thumb disagree, from 1/3 (the Royal Meteorological
 Society) to 2/3 (US Navy training), and because the ground decides it: trees
-and buildings drag the wind more than open fields do. Figure 9 is the
+and buildings drag the wind more than open fields do. Figure 10 is the
 northern hemisphere's; south of the equator the turn is the other way.
 
-![**Figure 10** — why the wind turns. The push toward the low, the earth's turn
+![**Figure 11** — why the wind turns. The push toward the low, the earth's turn
 bending the wind to its right, and the drag of the sea or land close into a
 triangle. Drag the friction slider and the corner rides the circle: the drag
 side grows, the bend shrinks, and the wind turns further toward the low and
 slows.](fig/weather-forces.png)
 
-The same lesson then shows **why** the wind turns (Figure 10), in a sailor's
+The same lesson then shows **why** the wind turns (Figure 11), in a sailor's
 terms rather than as equations. Three things act on the wind near the surface:
 the push from high pressure toward low, which is what the isobars show; the
 earth turning beneath, which bends moving air to its right in the north; and
@@ -331,19 +369,19 @@ towns, and a few sentences under it say what is happening at each stage. The
 triangle describes the lowest kilometre or so of air; on deck the wind is slower
 again, which is why the rule of thumb over the sea is about two thirds.
 
-![**Figure 11** — the wind shifts, over time. It veers when it shifts clockwise
+![**Figure 12** — the wind shifts, over time. It veers when it shifts clockwise
 round the compass and backs when it shifts anticlockwise. These are compass
 words, so they mean the same on either side of the equator.](fig/weather-veer-time.png)
 
-![**Figure 12** — the surface wind against the wind aloft. It always turns toward
+![**Figure 13** — the surface wind against the wind aloft. It always turns toward
 the low. North of the equator the low is on the wind's left, so the turn is
 anticlockwise: backed. South of it the low is on the right, and the same turn is
 clockwise: veered.](fig/weather-veer-hemi.png)
 
 **Backing and veering** have a lesson of their own, `weather learn veer`,
-because the words do two jobs. Over time (Figure 11) they say which way the wind
+because the words do two jobs. Over time (Figure 12) they say which way the wind
 has shifted, and the "What the log says" screen uses them in that sense. Against
-the wind aloft (Figure 12) they describe the friction turn, which is backed in
+the wind aloft (Figure 13) they describe the friction turn, which is backed in
 the north and veered in the south. The lesson also says what a shift tells you:
 in the Channel, a depression passing to the north veers the wind from south-west
 through west to north-west as its fronts go through, and the same low south of

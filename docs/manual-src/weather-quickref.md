@@ -43,13 +43,15 @@ phenomenal 64.** **Under the scale:** still building, or short of fetch.
 **Above it:** is some of it swell? **Close:** your wind is in the top quarter
 of its step.
 
-## Buys Ballot
+## Buys Ballot, and the storm's track
 
 Back to the wind: **northern hemisphere, the low is on your left**; southern,
-on your right.
+on your right; and up to 20 degrees forward of that arm.
 
-**Backing wind, falling glass — the centre is to your north and closing.**
-That is the one to take seriously.
+**The wind backs on the left of a storm's track and veers on its right,**
+looking the way it is going, in both hemispheres. Backing: it passes south of
+you if it is going east, north if west. **A falling glass: it is closing. A
+rising glass: it is drawing away.**
 
 ## Cloud base and fog
 

@@ -298,6 +298,46 @@ var WX = (function () {
     while (b < 0) b += 360;
     return Math.trunc(b + 0.5) % 360;
   }
+  //  THE LOW IS A SECTOR, NOT A LINE (weather 1.0.8; Larry, APK).  bb is
+  //  the rule for a wind along the isobars; the wind on deck is turned 10
+  //  to 20 degrees in toward the low, so the low lies that much forward of
+  //  the arm Buys Ballot gives.  The sector runs from straight off that
+  //  arm to 20 degrees forward of it: clockwise from bb in the north,
+  //  anticlockwise in the south.  bbLo and bbHi are its edges in clockwise
+  //  order.  As wx_bbfar, wx_bblo and wx_bbhi in the awk.
+  function bbFar(wdir, isNorth) { return (bb(wdir, isNorth) + (isNorth ? 20 : 340)) % 360; }
+  function bbLo(wdir, isNorth) { return isNorth ? bb(wdir, isNorth) : bbFar(wdir, isNorth); }
+  function bbHi(wdir, isNorth) { return isNorth ? bbFar(wdir, isNorth) : bb(wdir, isNorth); }
+
+  // ---------------------------------------------------------------
+  //  THE QUARTER THE LOW IS HEADING INTO (weather 1.0.8; Larry, APR).
+  //  A port of wx_course in the awk, where the reasoning is set out:
+  //  a wind that has shifted more than 10 degrees says which side of
+  //  its track you are on (backed, the left; veered, the right), and a
+  //  glass that is falling or rising says whether it is closing or
+  //  opening.  With t the bearing from the low to you, its course is in
+  //    left and closing   t to t+90       left and opening   t+90 to t+180
+  //    right and closing  t-90 to t       right and opening  t-180 to t-90
+  //  and holding it, it comes nearest a quarter turn round from the
+  //  course.  Null when the log does not have both things.
+  // ---------------------------------------------------------------
+  function course(lo, hi, dw, bnd) {
+    if (!(dw > 10 || dw < -10)) return null;
+    var tr;
+    if (bnd === 'falling' || bnd === 'falling fast') tr = 1;
+    else if (bnd === 'rising') tr = 0;
+    else return null;
+    var left = dw < 0;
+    var t = lo + ((hi - lo + 360) % 360) / 2 + 180;
+    var c0 = left ? (tr ? t : t + 90) : (tr ? t - 90 : t - 180);
+    var C = { left: left, closing: tr === 1 };
+    C.c0 = (c0 % 360 + 360) % 360;
+    C.c1 = (C.c0 + 90) % 360;
+    C.cpa = ((C.c0 + 45 + (left ? 90 : 270)) % 360 + 360) % 360;
+    return C;
+  }
+  var PT8 = ['north', 'north-east', 'east', 'south-east', 'south', 'south-west', 'west', 'north-west'];
+  function pt8(b) { return PT8[Math.trunc((b % 360 + 360) % 360 / 45 + 0.5) % 8]; }
 
   // ---- the printf forms the awk uses ------------------------------
   // ---------------------------------------------------------------
@@ -385,7 +425,7 @@ var WX = (function () {
       return out;
     }
 
-    var last = W[n - 1], i, k = 0;
+    var last = W[n - 1], i, k = 0, tend = '';      // tend: the glass's tendency word, for the low's course
     //  the most recent earlier observation with a pressure, for the trend
     for (i = n - 2; i >= 0; i--) if (has(W[i].p) && has(last.p)) break;
     k = i;
@@ -413,6 +453,7 @@ var WX = (function () {
       }
       if (dt > 0) {
         var bd = band(corr, dt);
+        tend = bd;
         if (bd === 'falling fast') warn('That is a serious fall. Expect a deepening system and a rising wind.');
         else if (bd === 'falling') say('A definite fall. Something is coming.');
         else if (bd === 'rising') say('Rising. The gradient is easing or a ridge is building.');
@@ -450,20 +491,50 @@ var WX = (function () {
       if (dw > 10) say('Wind has VEERED ' + di(dw + 0.5) + ' degrees, ' + d3(prev.wdir) + ' to ' + d3(last.wdir) + '.');
       else if (dw < -10) say('Wind has BACKED ' + di(-dw + 0.5) + ' degrees, ' + d3(prev.wdir) + ' to ' + d3(last.wdir) + '.');
       else say('Wind steady in direction, about ' + d3(last.wdir) + '.');
-      if (north(last.lat)) {
-        if (dw > 10) { why('northern hemisphere: veering with a rising glass usually means the'); }
-        if (dw > 10) { why('centre has passed to the north of you and the cold front is through.'); }
-        if (dw < -10) { why('northern hemisphere: backing with a falling glass puts the centre'); }
-        if (dw < -10) { why('to your north and closing. This is the one to take seriously.'); }
-      } else {
-        why('southern hemisphere: the sense of all of this reverses.');
+      //  what a shift tells you, whichever way the storm is going and in
+      //  either hemisphere (weather 1.0.8; Larry, APO and APP): on the left
+      //  of its track the wind backs, on the right it veers
+      if (dw > 10) {
+        why('if the wind goes on veering, you are on the right of the storm\'s');
+        why('track, looking the way it is going: it passes north of you if it');
+        why('is going east, south of you if it is going west.');
+      }
+      if (dw < -10) {
+        why('if the wind goes on backing, you are on the left of the storm\'s');
+        why('track, looking the way it is going: it passes south of you if it');
+        why('is going east, north of you if it is going west.');
       }
     }
+    //  the low, for the words and for the page's compass card: the wind
+    //  now, the sector's two edges, the hemisphere, and the wind before if
+    //  it has shifted
+    out.low = null;
     if (has(last.wdir)) {
+      var isN = north(last.lat), l0 = out.length;
+      out.low = { wdir: last.wdir, north: isN, lo: bbLo(last.wdir, isN), hi: bbHi(last.wdir, isN),
+                  arm: bb(last.wdir, isN),
+                  was: (prev && has(prev.wdir)) ? prev.wdir : NONE,
+                  dw: (prev && has(prev.wdir)) ? d180(last.wdir - prev.wdir) : 0 };
       gap();
-      say('Back to the wind: the low is roughly ' + d3(bb(last.wdir, north(last.lat))) + ' from you.');
+      say('Back to the wind: the low is between ' + d3(out.low.lo) + ' and ' + d3(out.low.hi) + ' from you.');
       why('Buys Ballot. Stand with your back to the wind: in the northern');
-      why('hemisphere the low is on your left, in the southern, on your right.');
+      why('hemisphere the low is on your left, in the southern, on your right,');
+      why('and up to 20 degrees forward of that arm, because the sea turns the');
+      why('wind on deck in toward the low.');
+      //  the quarter it is heading into, when the log has a shift and a
+      //  moving glass (APR)
+      var C = course(out.low.lo, out.low.hi, out.low.dw, tend);
+      out.low.course = C;
+      if (C) {
+        say('Its course is somewhere between ' + d3(C.c0) + ' and ' + d3(C.c1) + '.');
+        if (C.closing) say('If it holds that, it passes to your ' + pt8(C.cpa) + '.');
+        else say('It is drawing away.');
+        why('the wind has ' + (C.left ? 'backed' : 'veered') + ', so you are on the ' + (C.left ? 'left' : 'right') + ' of its track; the glass');
+        why('is ' + (C.closing ? 'falling' : 'rising') + ', so it is ' + (C.closing ? 'closing' : 'opening') + '. A low can deepen without');
+        why('moving, or fill where it lies: this is where to watch, not a fix.');
+      }
+      //  marked, so the page can put the compass card beside these words
+      for (i = l0; i < out.length; i++) out[i].low = true;
     }
 
     // ---- fog -------------------------------------------------------
@@ -623,7 +694,7 @@ var WX = (function () {
   }
 
   return { NONE: NONE, num: num, has: has, d180: d180, mins: mins, load: load,
-           north: north, latdeg: latdeg, tide: tide, bb: bb,
+           north: north, latdeg: latdeg, tide: tide, bb: bb, bbFar: bbFar, bbLo: bbLo, bbHi: bbHi, course: course, pt8: pt8,
            tideok: tideok, band: band, glass: glass, runs: runs, day: day,
            seaHt: seaHt, seaFor: seaFor, seaClose: seaClose, seaFull: seaFull,
            seaName: seaName, seaRange: seaRange, seaPct: seaPct, sea: sea, kts: kts,

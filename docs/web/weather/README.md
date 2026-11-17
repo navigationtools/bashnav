@@ -165,6 +165,22 @@ carried** in `WX.load`: a weather observation on its own takes the position of
 the last deck entry. Checked by `docs/web/tests/weather-glass.js` and the
 second corpus in `weather-wx.js`.
 
+**Where the low lies** (weather 1.0.8; Larry's rulings APK, APO, APP and APR)
+is a compass card beside its own words in "What the log says". The report's
+`low` holds the wind now and before, the hemisphere, the two edges of the
+low's sector in clockwise order (`WX.bbLo`, `WX.bbHi`: from the arm Buys
+Ballot gives to 20 degrees forward of it) and, when the wind has shifted more
+than 10 degrees and the glass is falling or rising, its `course`
+(`WX.course`): the quarter of the compass it is heading into and the bearing
+it would come nearest on. `lowFigure` in `weather.js` draws the wind through
+the centre, the wind before dashed, the sector as a wedge, the low out on its
+bearing with its wind round it, and the quarter as a dashed fan; the card is
+as tall as what is on it. The words for a backing or veering wind have no
+hemisphere in them: on the left of a storm's track the wind backs, on the
+right it veers. Checked by `docs/web/tests/weather-low.js`, by
+`tests/wx-check.awk` (which moves a low past a boat on every course) and by
+the corpora in `weather-wx.js`.
+
 **The sea against the wind** (weather 1.0.7, W09; Larry's rulings AOU, AOZ,
 APC and APF) is a figure beside its own words in "What the log says".
 `WX.sea(observation, percent)` gives, for the latest observation's wind: the

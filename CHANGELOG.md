@@ -1,5 +1,91 @@
 # Changelog
 
+## weather 1.0.8: where the low lies, where it is going, and what a shift tells you
+
+**What.** "What the log says" already gave the low's bearing from the wind, by
+Buys Ballot. It now draws it, on a compass card beside its own words, and says
+more than it did.
+
+```
+              N                     ->  the wind, through you at the centre
+          .  -|-  .                 - - the wind before, when it has shifted
+   (L)  /     ^     \               \_/ the low's bearing: a wedge, from the arm
+  ~~\~ |=====-o      | E                Buys Ballot gives to 20 degrees forward
+    \\  \    / \    /               (L) the low, out on its bearing, its wind
+     v    ' -/- \'                      round it
+              S                     ~~~ dashed fan: the quarter it is heading into
+```
+
+```
+  Wind has BACKED 40 degrees, 210 to 170.
+     if the wind goes on backing, you are on the left of the storm's
+     track, looking the way it is going: it passes south of you if it
+     is going east, north of you if it is going west.
+
+  Back to the wind: the low is between 260 and 280 from you.
+  Its course is somewhere between 090 and 180.
+  If it holds that, it passes to your south-west.
+```
+
+**Why.** Item 6 of the weather work before the launch: does the report give
+where the low lies, and if so, a compass card with the low marked. It did, so
+the card is built. Drawing it showed that the words beside it disagreed with
+the backing-and-veering lesson, and Larry asked for a picture from above to
+settle it. The picture showed the two were one rule, with the storm going
+opposite ways.
+
+**Larry's rulings, 17 November 2026.**
+
+| | the choice | what was ruled |
+|---|---|---|
+| APK | what the card claims | the low is a sector, from straight off the arm Buys Ballot gives to 20 degrees forward of it, because the sea turns the wind on deck in toward the low |
+| APO | what a backing or veering wind is said to mean | the rule that is true whichever way the storm is going: on the left of its track the wind backs, on the right it veers |
+| APP | the southern hemisphere | the same sentence in both hemispheres; "the sense of all of this reverses" goes. A card is with the XO to revisit whether the south needs words of its own |
+| APR | the low and its course | the low is drawn out on its bearing with its wind round it; and, when the wind has shifted more than 10 degrees and the glass is falling or rising, the quarter of the compass it is heading into, with a cautious last line |
+
+**A fault in what the report said.** "Backing with a falling glass puts the
+centre to your north and closing" is true of a storm going west and false of
+the depressions going east that the lesson describes; and in the south the
+report said only that the sense reverses. Worked for all eight cases (each
+hemisphere, the storm going east or west, the boat north or south of its
+track), the shift is the same in both hemispheres: the low's bearing from a
+boat that stays put swings the same way whichever way the wind goes round the
+low.
+
+**A fault in the tests, made in 1.0.7.** A case added to `tests/golden.sh`
+ended in `grep -c`, which fails when it counts nothing. Under `set -e` that
+ended the weather block there, and the four isobar cases after it dropped out
+of the golden file without a word. They are back. The block now ends with a
+marker, and its absence is an error.
+
+**What it touches.**
+
+1. The engine: `wx.awk` (`wx_bbfar`, `wx_bblo`, `wx_bbhi` for the sector;
+   `wx_course` and `wx_pt8` for the quarter; the words for a shift, with no
+   hemisphere branch).
+2. The browser: `wx.js` (the same, and `out.low` for the card), `weather.js`
+   (`lowBlock`, `lowFigure`; the card is as tall as what is on it),
+   `weather.css`, cache `weather-v25`.
+3. The weather manual (section 3, "The wind, and where the low lies", with a
+   new Figure 3; later figures renumbered) and the quick reference, rebuilt.
+4. Nothing in the tides engine or the course. A note has gone to PILOT.
+
+**Checked.** `tests/wx-check.awk` (115 checks, were 101): the sector for every
+wind in both hemispheres; the eight cases of left backs, right veers; and a low
+moved past a boat on every course, which must lie inside the quarter given.
+The browser and the awk agree character for character over 1,200 generated
+logs. `docs/web/tests/weather-low.js` (207 checks) measures the card off the
+drawing over every tenth degree in both hemispheres, with the fan in each of
+its four quarters; six planted faults were each caught.
+
+**Sources, and what is worked and not yet read.** The sector: Penn State METEO
+3 (with the surface wind at your back the low lies forward of your left arm).
+The dangerous side of a storm in each hemisphere: the Hong Kong Observatory.
+The rule for a shift and the side of the track, and the quarter built on it,
+are worked from Buys Ballot and tested, and have not yet been read in a source;
+Bowditch's chapter on tropical cyclones is the one to read. In
+`docs/SOURCES.md`, Weather.
+
 ## weather 1.0.7: the sea against your wind (W09), and the sea state is scored
 
 **What.** When your latest observation has a wind, "What the log says" holds

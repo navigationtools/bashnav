@@ -16,7 +16,7 @@
 #   6  the page        driven, including the rule that it must not tell
 #                      before it asks
 #   3b the wind from the isobars, vs `weather isobars`
-#   7-14 the gunnery, wind, friction, force, veer, isobar, barograph and sea figures, measured off the drawing
+#   7-15 the gunnery, wind, friction, force, veer, isobar, barograph, sea and compass figures, measured off the drawing
 set -e
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 cd "$ROOT"
@@ -152,6 +152,14 @@ if node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.ex
   #  adjustable share, your sea and your swell where you logged them, the
   #  fully developed limit on 0.22 U^2/g, the figure beside its own words.
   node docs/web/tests/weather-sea.js
+  echo
+  echo "15. where the low lies: the compass card on What the log says"
+  #  weather 1.0.8: the wind's arrow on its bearing, the low's wedge from
+  #  Buys Ballot's arm to 20 degrees forward of it in each hemisphere, the
+  #  low drawn out on its bearing with its wind round it, the quarter it
+  #  is heading into worked from first principles, and the words for a
+  #  wind that has backed or veered.
+  node docs/web/tests/weather-low.js
   echo
   echo "WEATHER WEB: all stages passed"
 else

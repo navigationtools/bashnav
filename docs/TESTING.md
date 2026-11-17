@@ -416,6 +416,53 @@ drawn below its curve.
 named the ten lessons; `veer`, the eleventh, had no golden copy. It now asks the
 awk for the list, as `weather-ui.js` does.
 
+### A golden file that got shorter, and a claim tested by moving a storm (weather 1.0.8)
+
+**The golden file lost four cases and nothing said so.** In 1.0.7 a case
+added to `tests/golden.sh` ended with `grep -c`, to print how many times a
+line appears. When the answer is none, `grep -c` prints 0 and fails. The cases
+sit in braces on the left of a pipe, so `set -e` stopped the braces there and
+the pipe still succeeded: the four isobar cases that came after were simply no
+longer in the file, in the committed copy and the fresh one alike, and the
+comparison passed. Found when a new case added in the same place did not
+appear either. Each such count now ends `|| true`, and the weather block ends
+with a marker line whose absence is an error. The other blocks have no counts
+in them; a marker for each would be the thorough cure.
+
+**The words for a wind shift make a claim, so the claim is tested.**
+`tests/wx-check.awk` does not test the sentence; it tests what the sentence
+says.
+
+1. **Eight cases:** each hemisphere, the storm going east or west, the boat
+   north or south of its track. The wind at the boat comes from Buys Ballot
+   with the turn toward the low. On the left of the track it must back, on the
+   right veer.
+2. **A low moved past a boat on every course.** For each bearing of the low
+   and each course, which side of the track the boat is on and whether the low
+   is closing are worked from the two directions alone, a cross product and a
+   dot product. The quarter `wx_course` gives must hold the course, and the
+   bearing it comes nearest on must be abeam of it on the boat's side. Over
+   1,500 cases.
+3. **The sector** is 20 degrees wide, starts at Buys Ballot's arm and runs
+   forward, for every wind in both hemispheres.
+
+**The card, measured.** `docs/web/tests/weather-low.js` (stage 15): the wind's
+arrow on its bearing through the centre; the wedge from the arm to 20 degrees
+forward in each hemisphere; the low on the middle of its bearing at the one
+distance; its eight arrows going round the right way, each turned 15 degrees
+in; the fan on the quarter worked in the test from first principles, in each
+of its four quarters, and absent with a steady glass or a small shift; the
+card straight before its own words; nothing drawn with no wind direction;
+night and day. A sweep of every tenth degree in both hemispheres requires
+that no label lies on another or on a compass letter and nothing leaves the
+box. 207 checks. Six faults planted, each caught: the sector the wrong way
+(32 failures), the wind before drawn solid (3), the quarter's closing and
+opening exchanged (19), the wind round the low the wrong way (9), the low on
+the edge of its bearing (9), and in an earlier form the shift's arc reversed
+(3).
+
+115 checks in `wx-check.awk` (were 101).
+
 ### A rule that was never scored, and a corpus that never asked (weather 1.0.7)
 
 Two faults had sat behind tests that passed. The score's rule for the sea

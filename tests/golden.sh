@@ -574,7 +574,28 @@ WXLOG2
   $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log5" -v lon=-72 </dev/null | sed -n '/The sea:/,/^$/p'
   seacase 'sea=4' '|swht=2.0'
   echo "=== weather what, the sea: no wind logged, so nothing said ==="
-  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log5" -v lon=-72 </dev/null | grep -c 'The sea:'
+  #  "|| true": grep -c prints 0 and then FAILS when nothing matches, and
+  #  under set -e that ended this whole block here.  In weather 1.0.7 it
+  #  did: every case after this line, the four isobar cases among them,
+  #  dropped out of the golden file unnoticed.  The count of sections at
+  #  the end of the block is what would have caught it.
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log5" -v lon=-72 </dev/null | grep -c 'The sea:' || true
+  #  WHERE THE LOW LIES, AND WHERE IT IS GOING (weather 1.0.8).  The same
+  #  backed wind and falling glass south of the equator (the low on the
+  #  right, its course the mirror); a wind that has veered with a rising
+  #  glass (drawing away); and a shift with a steady glass (no course).
+  lowcase() { printf '%s\n' "2026-08-30T06:00Z|nav|lat=$1|wdir=$2|~" '2026-08-30T06:00Z|wx|mslp=1012.4|~' \
+                "2026-08-30T12:00Z|nav|lat=$1|wdir=$3|~" "2026-08-30T12:00Z|wx|mslp=$4|~" > "$WXD/log6"; }
+  lowcase '41 14.0S' 210 170 1005.1
+  echo "=== weather what, the low: backed and falling, southern hemisphere ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log6" -v lon=-72 </dev/null | sed -n '/Wind has/,/not a fix/p'
+  lowcase '50 00.0N' 350 005 1020.0
+  echo "=== weather what, the low: veered and rising ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log6" -v lon=-72 </dev/null | sed -n '/Wind has/,/not a fix/p'
+  lowcase '50 00.0N' 300 250 1012.5
+  echo "=== weather what, the low: a shift with a steady glass, so no course ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log6" -v lon=-72 </dev/null | sed -n '/Wind has/,/wind on deck/p'
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log6" -v lon=-72 </dev/null | grep -c 'Its course' || true
   #  the wind from the isobars (W07, weather 1.0.3): north, south, and the
   #  refusal near the equator
   for c in "100 50 1" "100 50 0" "60 30 1" "100 3 1"; do
@@ -582,7 +603,15 @@ WXLOG2
     echo "=== weather isobars, spacing=$1 lat=$2 north=$3 ==="
     $AW $WX -v cmode=plain -v cmd=isobars -v spacing="$1" -v lat="$2" -v north="$3" -v step=4 </dev/null
   done
+  echo "=== end of the weather cases ==="
 } | emit weather.txt
+#  A COMMAND THAT FAILS INSIDE THE BRACES ENDS THE BLOCK QUIETLY: the
+#  braces are the left side of a pipe, so set -e stops them and the pipe
+#  still succeeds, and the golden file is simply shorter.  That is how the
+#  four isobar cases went missing in weather 1.0.7.  The block's last line
+#  is a marker, and its absence is an error.
+grep -q '^=== end of the weather cases ===$' "$out/weather.txt" || {
+  echo "golden: the weather cases stopped before their end - a command inside the block failed" >&2; exit 1; }
 rm -rf "$WXD"
 
 # ---- compare or update ------------------------------------------------

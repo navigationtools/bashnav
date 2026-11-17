@@ -161,7 +161,7 @@ function genSea(seed) {
 }
 
 const TMP = process.env.TMPDIR || '/tmp';
-let bad = 0, n = 0, firstDiff = null, seaSaid = 0, closeSaid = 0;
+let bad = 0, n = 0, firstDiff = null, seaSaid = 0, closeSaid = 0, courseSaid = 0, awaySaid = 0;
 const N = +(process.argv[2] || 400);
 for (let seed = 1; seed <= 3 * N; seed++) {
   const g = seed <= N ? genLog(seed) : seed <= 2 * N ? genGlass(seed - N) : genSea(seed - 2 * N);
@@ -171,6 +171,8 @@ for (let seed = 1; seed <= 3 * N; seed++) {
   const got = jsWhat(g.text, g.lon, g.hours, g.pct);
   if (/\n  The sea: /.test(want)) seaSaid++;
   if (/\n  Close to /.test(want)) closeSaid++;
+  if (/\n  Its course is somewhere between /.test(want)) courseSaid++;
+  if (/\n  It is drawing away\./.test(want)) awaySaid++;
   n++;
   if (got !== want) {
     bad++;
@@ -190,6 +192,9 @@ console.log('   ' + N + ' ending on a wind from every part of the sea-state scal
             ', a close step in ' + closeSaid + ')');
 //  the corpus must actually reach what it is for
 if (N >= 100 && (seaSaid < N || closeSaid < N / 8)) { console.log('  THE CORPUS DOES NOT REACH THE SEA: ' + seaSaid + ', ' + closeSaid); bad++; }
+//  and the low's course (weather 1.0.8): a wind that has shifted with a glass that is falling or rising
+console.log('  the low\'s course is given in ' + courseSaid + ', drawing away in ' + awaySaid + ' of them');
+if (N >= 100 && (courseSaid < N / 8 || awaySaid < N / 40)) { console.log('  THE CORPUS DOES NOT REACH THE LOW\'S COURSE: ' + courseSaid + ', ' + awaySaid); bad++; }
 if (firstDiff) console.log('  first disagreement:\n' + firstDiff);
 console.log(bad ? bad + ' DISAGREEMENTS' : 'the reasoning matches the awk exactly, wording and all');
 process.exit(bad ? 1 : 0);

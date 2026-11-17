@@ -176,6 +176,38 @@ the American Meteorological Society's glossary, "geostrophic wind scale"; US
 Navy aerographer's mate training (tpub weather2 7-10). Air density 1.225 kg/m3.
 The wind on deck from it is W01's rules, above.
 
+**Where the low lies, and what a wind shift tells you** (the compass card and
+its words in "What the log says"; weather 1.0.8; read 17 November 2026).
+
+1. **The low is forward of the arm Buys Ballot gives.** Penn State, METEO 3,
+   *Introductory Meteorology*: with the wind along the isobars at your back
+   "low pressure should be on your left"; with the surface wind at your back
+   "low pressure is still on your left, but on average, it will lie about 30
+   degrees clockwise from your left arm"; "over land, the wind crosses the
+   isobars at approximately 30 degrees, on average", and over water "generally
+   less than 30 degrees". The app's own figure for the sea is 10 to 20 degrees
+   (the friction rule above), and the card's sector runs from the arm to 20
+   degrees forward of it (Larry's ruling APK).
+2. **The dangerous side of a storm.** The Hong Kong Observatory, *Wind and
+   Wave Distribution around a Tropical Cyclone*: in the northern hemisphere
+   "the right-hand side of the moving cyclone" is the dangerous semicircle; in
+   the southern "the dangerous semicircle is to the left and the navigable
+   semicircle to the right". The app does not name a dangerous side; this is
+   recorded for the card with the XO on the southern hemisphere's words.
+
+**Worked, tested, and not yet read in a source.** That a wind which goes on
+backing puts you on the left of a storm's track, and one which goes on veering
+on its right, in both hemispheres (Larry's rulings APO and APP); and the
+quarter of the compass a low is heading into, from that and a glass that is
+falling or rising (APR). Both follow from Buys Ballot for a low on a straight
+track past a boat that is slow against it: `tests/wx-check.awk` works the
+eight cases, and moves a low past a boat on every course. The report says the
+quarter is "where to watch, not a fix", because a low can deepen without
+moving or fill where it lies. **To read before this is called confirmed:**
+Bowditch, *American Practical Navigator*, the chapter on tropical cyclones.
+The American Meteorological Society's glossary entry for Buys Ballot's law
+would not load on 17 November.
+
 **The sea against the wind** (the figure and words in "What the log says",
 and the sea state the score gives a wind; weather 1.0.7, W09; read 17 November
 2026, as the weather gap list's rule 4 requires).

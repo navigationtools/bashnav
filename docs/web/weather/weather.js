@@ -177,11 +177,16 @@ function drawWhat() {
   /*  the sea against the wind: its figure goes in beside its own words,
       which the report marks; one child of the list for each item, so the
       first of them that is not a gap is where the figure belongs  */
-  if (items.sea) {
-    var at = -1;
-    for (var q = 0; q < shown.length; q++) if (shown[q].sea && shown[q].k !== 'gap') { at = q; break; }
-    if (at >= 0) $('what-out').insertBefore(seaBlock(items.sea), $('what-out').children[at]);
-  }
+  var firstOf = function (mark) {
+    for (var q = 0; q < shown.length; q++) if (shown[q][mark] && shown[q].k !== 'gap') return q;
+    return -1;
+  };
+  var atSea = items.sea ? firstOf('sea') : -1, atLow = items.low ? firstOf('low') : -1;
+  /*  the later one goes in first, so the earlier one's place has not moved  */
+  if (atSea >= 0) $('what-out').insertBefore(seaBlock(items.sea), $('what-out').children[atSea]);
+  /*  where the low lies: the compass card, beside the words that give its
+      bearings (weather 1.0.8)  */
+  if (atLow >= 0) $('what-out').insertBefore(lowBlock(items.low), $('what-out').children[atLow]);
   var G = items.glass, box = $('glass-fig');
   box.textContent = '';
   $('what-glass').hidden = !(G && G.n >= 2);
@@ -191,6 +196,184 @@ function drawWhat() {
       bs[i].setAttribute('aria-pressed', String(+bs[i].getAttribute('data-win') === hours));
     glassFigure(box, OBS, G, lon);
   }
+}
+
+/* =====================================================================
+   WHERE THE LOW LIES: the compass card (weather 1.0.8; item 6 of the
+   weather work before the launch).  The report already gave the low's
+   bearing from the wind, by Buys Ballot; this draws it.
+
+   Larry's ruling APK, 17 November 2026: the low is marked as a SECTOR,
+   from straight off the arm Buys Ballot gives to 20 degrees forward of
+   it, because the sea turns the wind on deck 10 to 20 degrees in toward
+   the low (the gradient lesson's rule).  In the north the low is on your
+   left with your back to the wind and the sector runs clockwise from
+   that arm; in the south it is on your right and runs anticlockwise.
+
+   Everything drawn comes from the report's own `low` (wx.js): the wind
+   now, the sector's two edges in clockwise order, the hemisphere, and
+   the wind before, which is drawn dashed with an arc for the shift when
+   the wind has backed or veered more than 10 degrees, as the words say.
+
+   Larry's ruling APR: the low itself is drawn out on its bearing with
+   its wind round it, and, when the log has a wind that has shifted and a
+   glass that is falling or rising, the quarter of the compass it must be
+   heading into (WX.course): a dashed fan from the low, with what that
+   means in a line under the card.  A single pointer is not possible: one
+   boat's log does not give a storm's course.
+
+   Said by FORM as well as colour: the wind is the one solid arrow, blown
+   through the centre, where you are; the wind before is dashed; the low's
+   bearing is a filled wedge, the low a ring with an L and small arrows
+   round it, its course a dashed fan.  The warning colour is asked for by
+   both its names (--warn, then --bad).  Source: Penn State METEO 3, in
+   docs/SOURCES.md.  drawWhat redraws it on a mode change.
+   ===================================================================== */
+function lowBlock(L) {
+  var wrap = el('div', 'lowblock');
+  wrap.id = 'what-low';
+  var fig = el('div'); fig.id = 'low-fig';
+  wrap.appendChild(fig);
+  lowFigure(fig, L);
+  return wrap;
+}
+function lowFigure(host, L) {
+  var d3 = function (x) { var s = String(Math.trunc(x)); while (s.length < 3) s = '0' + s; return s; };
+  var shifted = WX.has(L.was) && (L.dw > 10 || L.dw < -10);
+  var how = shifted ? (L.dw > 0 ? 'veered ' : 'backed ') + Math.trunc((L.dw > 0 ? L.dw : -L.dw) + 0.5) + ' degrees from ' + d3(L.was) : '';
+  var C = L.course || null;
+  var D = demoSvg('lowfig', 520, 566, 'A compass, north at the top. The wind is from ' + d3(L.wdir) +
+    (shifted ? ', ' + how : '') + '. With your back to it the low lies between ' + d3(L.lo) + ' and ' + d3(L.hi) +
+    ', on your ' + (L.north ? 'left' : 'right') + ' in the ' + (L.north ? 'northern' : 'southern') + ' hemisphere' +
+    (C ? '. Its course is somewhere between ' + d3(C.c0) + ' and ' + d3(C.c1) +
+         (C.closing ? '; if it holds that, it passes to your ' + WX.pt8(C.cpa) + '.' : '; it is drawing away.') : '.'));
+  var cs = getComputedStyle(document.documentElement);
+  var tk = function (k) { return cs.getPropertyValue(k).trim(); };
+  var warn = tk('--warn') || tk('--bad') || '#e23a2c', panel = tk('--panel') || '#10151a', ground = tk('--ground') || '#07090b';
+  var cx = 260, R = 70, RL = R + 70, RAD = Math.PI / 180;
+  /*  THE CARD IS AS TALL AS WHAT IS ON IT.  The low can lie on any bearing
+      and its course can run any way, so a frame with room for every case
+      is mostly empty in each one.  What will be drawn above and below the
+      centre is worked first - the ring and its letters, the low with its
+      fan, the two labels - and the centre is set so the highest of them
+      sits just under the title, with the key just under the lowest.  */
+  var span0 = (L.hi - L.lo + 360) % 360, mid0 = L.lo + span0 / 2;
+  var ldir = mid0;
+  if (C && !C.closing) ldir = C.left ? mid0 + 90 : mid0 - 90;
+  var lyRel = -RL * Math.cos(mid0 * RAD), reach = C ? 62 : 32;
+  var lowLab = lyRel - 36 * Math.cos(ldir * RAD), windLab = -(R + 28) * Math.cos(L.wdir * RAD);
+  var upMost = Math.min(-R - 24, lyRel - reach, lowLab - 14, windLab - 14);
+  var downMost = Math.max(R + 24, lyRel + reach, lowLab + 14, windLab + 14);
+  var cy = 44 - upMost, keyTop = cy + downMost + 22;
+  var P = function (b, r, ox, oy) { return [(ox === undefined ? cx : ox) + r * Math.sin(b * RAD), (oy === undefined ? cy : oy) - r * Math.cos(b * RAD)]; };
+  var set = function (k, v) { D.svg.setAttribute(k, v); };
+  set('data-cx', cx); set('data-cy', cy); set('data-r', R); set('data-rl', RL);
+  D.t(22, 24, 'Where the low lies', D.text, { 'font-weight': 600 });
+  D.t(498, 24, (L.north ? 'northern' : 'southern') + ' hemisphere: on your ' + (L.north ? 'left' : 'right'), D.dim,
+      { 'font-size': 11, 'text-anchor': 'end', 'data-part': 'hemi' });
+
+  D.e('circle', { cx: cx, cy: cy, r: R, fill: panel, stroke: D.line, 'stroke-width': 1.5 });
+  for (var b = 0; b < 360; b += 10) {
+    var a = P(b, R), c = P(b, R - (b % 30 ? 4 : 8));
+    D.e('line', { x1: a[0], y1: a[1], x2: c[0], y2: c[1], stroke: D.dim });
+  }
+  [['N', 0], ['E', 90], ['S', 180], ['W', 270]].forEach(function (c) {
+    var p = P(c[1], R + 12);
+    D.t(p[0], p[1] + 4.5, c[0], D.dim, { 'text-anchor': 'middle', 'font-size': 12, 'font-weight': c[0] === 'N' ? 700 : 400, 'data-part': 'card' });
+  });
+  /*  an arrow with its head, for the small ones  */
+  var arrow = function (x1, y1, x2, y2, col, w, part, extra) {
+    var o = { x1: x1.toFixed(1), y1: y1.toFixed(1), x2: x2.toFixed(1), y2: y2.toFixed(1), stroke: col, 'stroke-width': w, 'stroke-linecap': 'round' }, k;
+    if (part) o['data-part'] = part;
+    for (k in (extra || {})) o[k] = extra[k];
+    D.e('line', o);
+    var an = Math.atan2(y2 - y1, x2 - x1), h = w * 2.4 + 3;
+    D.e('path', { d: 'M' + x2.toFixed(1) + ',' + y2.toFixed(1) + 'L' + (x2 - h * Math.cos(an - 0.45)).toFixed(1) + ',' + (y2 - h * Math.sin(an - 0.45)).toFixed(1) +
+                     'L' + (x2 - h * Math.cos(an + 0.45)).toFixed(1) + ',' + (y2 - h * Math.sin(an + 0.45)).toFixed(1) + 'Z', fill: col });
+  };
+
+  /*  the low's bearing: a wedge from the arm Buys Ballot gives to 20
+      degrees forward of it, lo to hi clockwise  */
+  var span = (L.hi - L.lo + 360) % 360, p1 = P(L.lo, R - 2), p2 = P(L.hi, R - 2), mid = L.lo + span / 2;
+  D.e('path', { d: 'M' + cx + ' ' + cy + 'L' + p1[0].toFixed(1) + ' ' + p1[1].toFixed(1) + 'A' + (R - 2) + ' ' + (R - 2) + ' 0 0 1 ' +
+                   p2[0].toFixed(1) + ' ' + p2[1].toFixed(1) + 'Z',
+                fill: warn, 'fill-opacity': 0.20, stroke: warn, 'stroke-width': 2, 'stroke-linejoin': 'round',
+                'data-part': 'low', 'data-lo': L.lo, 'data-hi': L.hi, 'data-arm': L.arm });
+
+  /*  the wind before, when it has shifted: dashed  */
+  if (shifted) {
+    var w0 = P(L.was, R - 5);
+    D.e('line', { x1: w0[0], y1: w0[1], x2: cx, y2: cy, stroke: D.acc, 'stroke-width': 2, 'stroke-dasharray': '5 5',
+                  'stroke-opacity': 0.75, 'data-part': 'was', 'data-from': L.was });
+  }
+  /*  the wind now: one solid arrow, from its bearing, through you  */
+  var wf = P(L.wdir, R - 5), wt = P(L.wdir + 180, R * 0.55);
+  arrow(wf[0], wf[1], wt[0], wt[1], D.acc, 4, 'wind', { 'data-from': L.wdir });
+  D.e('circle', { cx: cx, cy: cy, r: 5.5, fill: D.text, stroke: ground, 'stroke-width': 1.5, 'data-part': 'you' });
+
+  /*  THE LOW ITSELF (Larry, APR): out along the middle of its bearing,
+      with its wind round it - anticlockwise in the north, clockwise in the
+      south, turned 15 degrees in toward the centre, as the top-down
+      picture drew it.  How far off it is the log cannot say, so it is
+      always drawn at the one distance.  */
+  var lp = P(mid, RL), lx = lp[0], ly = lp[1];
+  /*  its course: the quarter it is heading into, c0 to c1 clockwise, when
+      the log has a shift and a moving glass  */
+  if (C) {
+    var f1 = P(C.c0, 56, lx, ly), f2 = P(C.c1, 56, lx, ly), cm = C.c0 + 45;
+    D.e('path', { d: 'M' + lx.toFixed(1) + ' ' + ly.toFixed(1) + 'L' + f1[0].toFixed(1) + ' ' + f1[1].toFixed(1) + 'A56 56 0 0 1 ' +
+                     f2[0].toFixed(1) + ' ' + f2[1].toFixed(1) + 'Z',
+                  fill: warn, 'fill-opacity': 0.10, stroke: warn, 'stroke-width': 1.5, 'stroke-dasharray': '6 5',
+                  'data-part': 'course', 'data-c0': C.c0, 'data-c1': C.c1, 'data-left': C.left ? 1 : 0, 'data-closing': C.closing ? 1 : 0 });
+    var q0 = P(cm, 27, lx, ly), q1 = P(cm, 50, lx, ly);
+    arrow(q0[0], q0[1], q1[0], q1[1], warn, 3, 'course-arrow');
+  }
+  D.e('circle', { cx: lx, cy: ly, r: 26, fill: ground, 'fill-opacity': 0.85 });
+  for (var be = 0; be < 360; be += 45) {
+    var pp = P(be, 20, lx, ly), hd = (L.north ? be - 105 : be + 105) * RAD;
+    arrow(pp[0] - 5 * Math.sin(hd), pp[1] + 5 * Math.cos(hd), pp[0] + 5 * Math.sin(hd), pp[1] - 5 * Math.cos(hd), warn, 1.6, 'spin', { 'data-b': be });
+  }
+  D.e('circle', { cx: lx.toFixed(1), cy: ly.toFixed(1), r: 10.5, fill: ground, stroke: warn, 'stroke-width': 2.5, 'data-part': 'lowmark' });
+  D.t(lx, ly + 4.5, 'L', warn, { 'font-size': 13, 'font-weight': 700, 'text-anchor': 'middle', 'data-part': 'L' });
+
+  /*  the two labels, each set on the far side of its mark from the thing
+      that would otherwise run through it: the low's bearings away from its
+      course, the wind's bearing outside the ring  */
+  var lab = function (px, py, dir, dist, s, fill, part) {
+    var sn = Math.sin(dir * RAD), cs2 = Math.cos(dir * RAD), x = px + dist * sn, y = py - dist * cs2;
+    D.t(x, y + (cs2 > 0.5 ? 0 : cs2 < -0.5 ? 9 : 4.5), s, fill,
+        { 'font-size': 12, 'font-weight': 600, 'text-anchor': sn > 0.3 ? 'start' : sn < -0.3 ? 'end' : 'middle', 'data-part': part,
+          stroke: ground, 'stroke-width': 3, 'paint-order': 'stroke', 'stroke-linejoin': 'round' });
+  };
+  /*  outward from the compass when the course runs back toward it; beside
+      the low, on the side away from its course, when the course runs on
+      outward (ldir, worked above with the card's height)  */
+  lab(lx, ly, ldir, 36, d3(L.lo) + ' to ' + d3(L.hi), warn, 'low-label');
+  lab(cx, cy, L.wdir, R + 28, 'wind from ' + d3(L.wdir), D.acc, 'wind-label');
+
+  /*  the key  */
+  var ky = keyTop;
+  D.e('line', { x1: 30, y1: ky, x2: 56, y2: ky, stroke: D.acc, 'stroke-width': 4, 'stroke-linecap': 'round' });
+  D.t(66, ky + 4, 'the wind, blowing through you at the centre' + (shifted ? '; dashed, the wind before:' : ''), D.dim, { 'font-size': 11, 'data-part': 'key-wind' });
+  if (shifted) { ky += 14; D.t(66, ky + 4, 'it has ' + how, D.dim, { 'font-size': 11, 'data-part': 'key-was' }); }
+  ky += 19;
+  D.e('circle', { cx: 43, cy: ky, r: 7, fill: ground, stroke: warn, 'stroke-width': 2 });
+  D.t(66, ky + 4, 'the low, between ' + d3(L.lo) + ' and ' + d3(L.hi) + ', with its wind round it; how far off, the log cannot say', D.dim,
+      { 'font-size': 11, 'data-part': 'key-low' });
+  ky += 19;
+  D.e('path', { d: 'M30 ' + (ky + 5) + 'L56 ' + (ky - 6) + 'L56 ' + (ky + 5) + 'Z', fill: warn, 'fill-opacity': 0.10, stroke: warn, 'stroke-width': 1.5, 'stroke-dasharray': '5 4' });
+  if (C) {
+    D.t(66, ky + 4, 'its course: somewhere in this quarter. The wind has ' + (C.left ? 'backed' : 'veered') + ', so you are on the ' +
+        (C.left ? 'left' : 'right'), D.dim, { 'font-size': 11, 'data-part': 'key-course' });
+    D.t(66, ky + 18, 'of its track; the glass is ' + (C.closing ? 'falling, so it is closing' : 'rising, so it is opening'), D.dim, { 'font-size': 11 });
+    D.t(66, ky + 38, C.closing ? 'If it holds its course, it passes to your ' + WX.pt8(C.cpa) + '.' : 'It is drawing away.', D.text,
+        { 'font-size': 12, 'font-weight': 600, 'data-part': 'key-pass' });
+  } else {
+    D.t(66, ky + 4, 'its course cannot be told from this log yet: that takes a wind that has', D.dim, { 'font-size': 11, 'data-part': 'key-course' });
+    D.t(66, ky + 18, 'shifted more than 10 degrees and a glass that is falling or rising', D.dim, { 'font-size': 11 });
+  }
+  D.svg.setAttribute('viewBox', '0 0 520 ' + Math.ceil(ky + (C ? 54 : 34)));
+  host.appendChild(D.wrap);
 }
 
 /* =====================================================================

@@ -359,6 +359,76 @@ function wx_bb(wdir, north,   b){
   while(b<0)    b+=360
   return int(b+0.5)%360
 }
+#  THE LOW IS A SECTOR, NOT A LINE (weather 1.0.8; Larry, APK, 17 November
+#  2026).  wx_bb is the rule for a wind that runs along the isobars.  The
+#  wind on deck does not: the sea turns it 10 to 20 degrees in toward the
+#  low (the gradient lesson, W01), so with your back to it the low lies
+#  that much FORWARD of the arm Buys Ballot gives.  The report and the
+#  page's compass card give the sector from straight off that arm to 20
+#  degrees forward of it: clockwise from wx_bb in the north, where the low
+#  is on your left; anticlockwise from it in the south, where it is on
+#  your right.  wx_bbfar is the forward edge, and wx_bblo and wx_bbhi are
+#  the two edges in clockwise order, as bearings are read.
+#  Source: Penn State METEO 3 ("with the surface wind at your back ... low
+#  pressure is still on your left, but on average, it will lie about 30
+#  degrees clockwise from your left arm"; less over water); docs/SOURCES.md.
+function wx_bbfar(wdir, north,   b){
+  b = wx_bb(wdir, north) + (north ? 20 : 340)
+  return b%360
+}
+function wx_bblo(wdir, north){ return north ? wx_bb(wdir, north) : wx_bbfar(wdir, north) }
+function wx_bbhi(wdir, north){ return north ? wx_bbfar(wdir, north) : wx_bb(wdir, north) }
+
+# ---------------------------------------------------------------------
+#  THE QUARTER THE LOW IS HEADING INTO (weather 1.0.8; Larry, APR, 17
+#  November 2026).  One boat's log cannot give a storm's course.  With two
+#  things in it, it can give the quarter of the compass the course lies in:
+#
+#    the wind has shifted more than 10 degrees: backed, you are on the
+#      LEFT of its track, looking the way it is going; veered, the right
+#      (APO and APP, above).  On the left, the course lies within the half
+#      turn clockwise of the bearing FROM the low TO you; on the right,
+#      anticlockwise of it.
+#    the glass is falling or rising (wx_band): falling, the low is CLOSING,
+#      so its course is within 90 degrees of that same bearing; rising, it
+#      is opening, and its course is more than 90 from it.
+#
+#  Together, with t the bearing from the low to you (the middle of the
+#  sector, turned about), the course is in:
+#      left and closing     t      to t+90        left and opening   t+90 to t+180
+#      right and closing    t-90   to t           right and opening  t-180 to t-90
+#  and, holding its course, it comes nearest to you a quarter turn round
+#  from it: clockwise of the course on the left, anticlockwise on the right.
+#
+#  THESE ARE TWO RULES OF THUMB, and the report says so: a low can deepen
+#  without moving, or fill where it lies, and the picture is of a straight
+#  track and a boat that is slow against the storm.  tests/wx-check.awk
+#  moves a low past a boat on every course and requires the course to be
+#  inside the quarter this gives.
+#
+#  Sets WXC_0 and WXC_1 (the quarter, clockwise), WXC_CPA (the bearing it
+#  comes nearest on), WXC_LEFT and WXC_CLOSING; returns 0 when the log does
+#  not have both things.
+# ---------------------------------------------------------------------
+function wx_course(lo, hi, dw, band,   t, tr, c0){
+  if(dw+0 <= 10 && dw+0 >= -10) return 0
+  if(band=="falling" || band=="falling fast") tr=1
+  else if(band=="rising") tr=0
+  else return 0
+  WXC_LEFT = (dw+0 < 0) ? 1 : 0
+  WXC_CLOSING = tr
+  t = lo + ((hi-lo+360)%360)/2 + 180
+  if(WXC_LEFT)  c0 = tr ? t : t+90
+  else          c0 = tr ? t-90 : t-180
+  WXC_0 = (c0%360+360)%360
+  WXC_1 = (WXC_0+90)%360
+  WXC_CPA = ((WXC_0 + 45 + (WXC_LEFT ? 90 : 270))%360+360)%360
+  return 1
+}
+function wx_pt8(b,   n, P){
+  n = split("north north-east east south-east south south-west west north-west", P, " ")
+  return P[int((b%360+360)%360/45 + 0.5)%8 + 1]
+}
 
 # ---------------------------------------------------------------------
 #  The report
@@ -427,22 +497,49 @@ function wx_report(logfile, lon, hours, pct,   n, i, j, dt, dp, dw, tide1, tide2
     if(dw > 10)       wx_say(sprintf("Wind has VEERED %d degrees, %03d to %03d.", int(dw+0.5), WDIR[k], WDIR[n]))
     else if(dw < -10) wx_say(sprintf("Wind has BACKED %d degrees, %03d to %03d.", int(-dw+0.5), WDIR[k], WDIR[n]))
     else              wx_say(sprintf("Wind steady in direction, about %03d.", WDIR[n]))
-    if(wx_north(WLAT[n])){
-      if(dw > 10)       wx_why("northern hemisphere: veering with a rising glass usually means the")
-      if(dw > 10)       wx_why("centre has passed to the north of you and the cold front is through.")
-      if(dw < -10)      wx_why("northern hemisphere: backing with a falling glass puts the centre")
-      if(dw < -10)      wx_why("to your north and closing. This is the one to take seriously.")
-    } else {
-      wx_why("southern hemisphere: the sense of all of this reverses.")
+    #  WHAT A SHIFT TELLS YOU, WHICHEVER WAY THE STORM IS GOING (weather
+    #  1.0.8; Larry, APO and APP, 17 November 2026).  Until then this said,
+    #  in the north, "backing with a falling glass puts the centre to your
+    #  north and closing", and in the south only "the sense of all of this
+    #  reverses".  The first is true of a storm going WEST and false of
+    #  one going east, which is what the veer lesson describes; Larry asked
+    #  for the picture from above, and it showed the two were one rule with
+    #  the storm going opposite ways.  Worked for all eight cases (each
+    #  hemisphere, the storm going east or west, the boat north or south
+    #  of its track): the low's bearing from a boat that stays put swings
+    #  the same way whichever way the wind goes round the low, so on the
+    #  left of the track the wind backs and on the right it veers, in both
+    #  hemispheres.  tests/wx-check.awk works the eight again.
+    if(dw > 10){
+      wx_why("if the wind goes on veering, you are on the right of the storm's")
+      wx_why("track, looking the way it is going: it passes north of you if it")
+      wx_why("is going east, south of you if it is going west.")
+    }
+    if(dw < -10){
+      wx_why("if the wind goes on backing, you are on the left of the storm's")
+      wx_why("track, looking the way it is going: it passes south of you if it")
+      wx_why("is going east, north of you if it is going west.")
     }
   }
   #  Buys Ballot
   if(wx_has(WDIR[n])){
     print ""
-    wx_say(sprintf("Back to the wind: the low is roughly %03d from you.",
-           wx_bb(WDIR[n], wx_north(WLAT[n]))))
+    wx_say(sprintf("Back to the wind: the low is between %03d and %03d from you.",
+           wx_bblo(WDIR[n], wx_north(WLAT[n])), wx_bbhi(WDIR[n], wx_north(WLAT[n]))))
     wx_why("Buys Ballot. Stand with your back to the wind: in the northern")
-    wx_why("hemisphere the low is on your left, in the southern, on your right.")
+    wx_why("hemisphere the low is on your left, in the southern, on your right,")
+    wx_why("and up to 20 degrees forward of that arm, because the sea turns the")
+    wx_why("wind on deck in toward the low.")
+    #  the quarter it is heading into, when the log has a shift and a
+    #  moving glass (APR)
+    if(wx_course(wx_bblo(WDIR[n], wx_north(WLAT[n])), wx_bbhi(WDIR[n], wx_north(WLAT[n])), dw, b)){
+      wx_say(sprintf("Its course is somewhere between %03d and %03d.", WXC_0, WXC_1))
+      if(WXC_CLOSING) wx_say(sprintf("If it holds that, it passes to your %s.", wx_pt8(WXC_CPA)))
+      else            wx_say("It is drawing away.")
+      wx_why(sprintf("the wind has %s, so you are on the %s of its track; the glass", (WXC_LEFT ? "backed" : "veered"), (WXC_LEFT ? "left" : "right")))
+      wx_why(sprintf("is %s, so it is %s. A low can deepen without", (WXC_CLOSING ? "falling" : "rising"), (WXC_CLOSING ? "closing" : "opening")))
+      wx_why("moving, or fill where it lies: this is where to watch, not a fix.")
+    }
   }
 
   # ---- fog -----------------------------------------------------------

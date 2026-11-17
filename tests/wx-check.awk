@@ -72,6 +72,86 @@ BEGIN{
   close("src/weather/teach.awk")
   chk("the tide lesson quotes the working (" want ")", found, 1)
 
+  # ---- the low as a sector (weather 1.0.8; Larry, APK) ---------------
+  #  From straight off the arm Buys Ballot gives to 20 degrees forward of
+  #  it: clockwise from that arm in the north, anticlockwise in the south.
+  chk("NH, wind from 170: the low is between", wx_bblo(170,1) " and " wx_bbhi(170,1), "260 and 280")
+  chk("SH, wind from 170: the low is between", wx_bblo(170,0) " and " wx_bbhi(170,0), "60 and 80")
+  chk("NH, wind from 268: the sector runs through north", wx_bblo(268,1) " and " wx_bbhi(268,1), "358 and 18")
+  bad=0
+  for(d=0; d<360; d++) for(nh=0; nh<=1; nh++){
+    lo = wx_bblo(d,nh); hi = wx_bbhi(d,nh)
+    if((hi-lo+360)%360 != 20) bad++                    # twenty degrees wide, clockwise lo to hi
+    if((nh ? lo : hi) != wx_bb(d,nh)) bad++            # one edge is Buys Ballot's own arm
+    #  the other edge is the FORWARD one: nearer the way you face, which
+    #  is downwind, wdir+180.  The arm is 90 from it; the far edge, 70.
+    far = wx_bbfar(d,nh); a = wx_d180(far - (d+180)); if(a<0) a=-a
+    if(a != 70) bad++
+  }
+  chk("the sector is 20 degrees wide, starts at Buys Ballot's arm and runs forward, every wind, both hemispheres", bad, 0)
+
+  # ---- what a shift tells you (weather 1.0.8; Larry, APO and APP) ----
+  #  THE CLAIM THE REPORT MAKES, WORKED: on the left of a storm's track,
+  #  looking the way it is going, the wind backs; on its right it veers;
+  #  in both hemispheres.  A boat 100 miles north or south of the track,
+  #  the low at three places along it, the wind at the boat from Buys
+  #  Ballot with the 15 degree turn toward the low (the low bears
+  #  wind+105 in the north, wind-105 in the south).  Eight cases.
+  bad=0; cases=0
+  for(nh=0; nh<=1; nh++) for(east=0; east<=1; east++) for(nb=0; nb<=1; nb++){
+    by = nb ? 100 : -100
+    for(i=1;i<=3;i++){
+      x = (i-2)*130; if(!east) x = -x
+      brg = atan2(x, -by)*180/3.14159265358979; if(brg<0) brg+=360
+      W3[i] = nh ? brg-105 : brg+105
+    }
+    turn = wx_d180(W3[3]-W3[1])
+    left = (east == nb)                 # going east, the north side is its left; going west, the south side
+    if(left && turn >= 0) bad++         # on the left it must back
+    if(!left && turn <= 0) bad++        # on the right it must veer
+    #  and where it passes: on the left of an eastward track it passes south of you
+    cases++
+  }
+  chk("on the left of the track the wind backs, on the right it veers: " cases " cases, both hemispheres", bad, 0)
+
+  # ---- the quarter the low is heading into (weather 1.0.8; APR) ------
+  #  A LOW IS MOVED PAST A BOAT ON EVERY COURSE, and the quarter wx_course
+  #  gives must hold that course.  The boat is at the centre; the low lies
+  #  on a bearing bm from it and goes on a course tc.  Which side of the
+  #  track the boat is on, and whether the low is closing, are worked here
+  #  from the two directions alone (a cross product and a dot product), not
+  #  from wx_course's own table; the wind is then said to have backed on
+  #  the left and veered on the right, the glass to fall when closing.
+  bad=0; cases=0; r=3.14159265358979/180
+  for(bm=5; bm<360; bm+=10) for(tc=3; tc<360; tc+=7){
+    dx = sin(tc*r); dy = cos(tc*r)                 # the way it is going, east and north
+    vx = -sin(bm*r); vy = -cos(bm*r)               # from the low to the boat
+    cr = dx*vy - dy*vx; dt2 = dx*vx + dy*vy
+    if(cr > -0.02 && cr < 0.02) continue           # the boat is on the track itself
+    if(dt2 > -0.02 && dt2 < 0.02) continue         # at its nearest: neither closing nor opening
+    left = (cr > 0)
+    if(!wx_course((bm+350)%360, (bm+10)%360, (left ? -40 : 40), (dt2 > 0 ? "falling" : "rising"))){ bad++; continue }
+    off = ((tc - WXC_0)%360+360)%360
+    if(off > 90) bad++                             # the course is not in the quarter given
+    if(WXC_LEFT != left || WXC_CLOSING != (dt2 > 0)) bad++
+    #  holding its course it comes nearest abeam of that course, on the boat's side of it
+    if(dt2 > 0){ cp = left ? tc+90 : tc-90; d = wx_d180(cp - WXC_CPA); if(d<0) d=-d; if(d > 45.001) bad++ }
+    cases++
+  }
+  chk("a low moved past a boat: its course is in the quarter given, " cases " cases", bad ":" (cases > 1500), "0:1")
+  chk("a shift of 10 degrees or less gives no course", wx_course(260, 280, -10, "falling"), 0)
+  chk("a steady glass gives no course",                wx_course(260, 280, -40, "steady"), 0)
+  chk("no tendency at all gives no course",            wx_course(260, 280, -40, ""), 0)
+  wx_course(260, 280, -40, "falling")
+  chk("low to the west, backed, falling: the course is between", WXC_0 " and " WXC_1, "90 and 180")
+  chk("and it passes to your", wx_pt8(WXC_CPA), "south-west")
+  wx_course(260, 280, 40, "falling fast")
+  chk("low to the west, veered, falling fast: between", WXC_0 " and " WXC_1 ", " wx_pt8(WXC_CPA), "0 and 90, north-west")
+  wx_course(260, 280, -40, "rising")
+  chk("low to the west, backed, rising: between", WXC_0 " and " WXC_1 ", closing " WXC_CLOSING, "180 and 270, closing 0")
+  wx_course(60, 80, -40, "falling")
+  chk("low to the east-north-east, backed, falling: between", WXC_0 " and " WXC_1 ", " wx_pt8(WXC_CPA), "250 and 340, north-east")
+
   # ---- the sea against the wind (W09, weather 1.0.7) -----------------
   #  THE CURVE IS THE MET OFFICE'S TABLE.  At each force's mean wind it
   #  must give that force's probable wave height, to the figure printed.
