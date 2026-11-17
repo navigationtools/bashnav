@@ -125,7 +125,8 @@ help_text() {
     '  WEATHER -- read your own barometer' \
     '' \
     '  weather                  the menu' \
-    '  weather what             what your log says is coming, with the reasoning' \
+    '  weather what [24|48|72]  what your log says is coming, with the reasoning,' \
+    '                           and the glass over that many hours (48)' \
     '  weather learn [key]      a lesson; no key lists them' \
     '  weather chart            reason over a 500 mb radiofax chart' \
     '  weather isobars [nm lat [N|S] [hPa]]  the wind from a surface chart' \
@@ -180,7 +181,7 @@ load_conf
 install_engine
 case "${1:-}" in
   "")        paint; menu ;;
-  what)      eng -v cmd=what ;;
+  what)      shift; eng -v cmd=what -v hours="${1:-48}" ;;
   learn)     shift; do_learn "$1" ;;
   chart)     do_chart ;;
   isobars)   shift; do_isobars "$@" ;;

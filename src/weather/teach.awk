@@ -128,6 +128,10 @@ function lesson_body(k){
     lpd("tells you how much of the change was the tide. Give it your longitude")
     lpd("- it needs local solar time to know where in the cycle you are.")
     print ""
+    lp("In the browser, the barograph on " cw("What the log says",C_ACC) " draws this wave")
+    lp("behind your own readings. A trace that follows the wave is only the")
+    lp("tide; one that leaves it is weather.")
+    print ""
     return 1
   }
   # ------------------------------------------------------------------

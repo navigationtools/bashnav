@@ -176,3 +176,24 @@ the American Meteorological Society's glossary, "geostrophic wind scale"; US
 Navy aerographer's mate training (tpub weather2 7-10). Air density 1.225 kg/m3.
 The wind on deck from it is W01's rules, above.
 
+**The daily pressure tide** (the correction in "What the log says", the
+barograph's wave and the `tide` lesson). Confirmed from sources read:
+
+1. It is mainly semidiurnal, largest in the tropics and small in high
+   latitudes, with maxima near 10:00 and 22:00 local time; its semidiurnal part
+   is "somewhat over 1 hPa" in the tropics and its once-a-day part about a
+   third of that (K. Hamilton's history of the atmospheric tides, preprints.org
+   2024; Ray and Ponte, *Barometric tides from ECMWF operational analyses*,
+   Annales Geophysicae 21, 2003).
+2. "In the Tropics pressure varies little; the normal diurnal pressure change
+   is only about 3 hPa" (Bowditch, *American Practical Navigator*, 2002,
+   article 3506; public domain). The working's 1.4 hPa each way near the
+   equator is that 3 hPa from top to bottom.
+
+**Not yet confirmed from a source read:** how it falls off with latitude. The
+working uses `cos^3(latitude)`, the shape of the classical fit usually quoted
+(Haurwitz and Cowley, 1973, not read here), which gives 0.5 hPa each way at 45
+degrees and 0.4 at 50. The `tide` lesson quotes "~1.2 hPa at the equator, ~0.2
+at 45 deg", which is not what the working does. Raised with Larry, 17 November
+2026.
+

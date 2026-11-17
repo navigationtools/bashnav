@@ -588,3 +588,11 @@ input[type="range"]::-moz-range-thumb {
 .lessonlink { margin: 4px 0 12px; }
 .lessonlink a { color: var(--accent); font-weight: 600; text-decoration: none; }
 
+/*  The barograph on "What the log says" (W04, weather 1.0.5): the three
+    window buttons, and the figure at the lesson figures' width.  */
+.winrow { display: flex; gap: 8px; margin: 2px 0 6px; }
+.winrow .btn.win { flex: 0 0 auto; min-height: 40px; padding: 6px 16px; font-size: 14px; }
+.winrow .btn.win[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.glassfig { margin: 4px 0 14px; }
+.glassfig svg { display: block; width: 100%; max-width: 660px; margin: 0 auto; }
+

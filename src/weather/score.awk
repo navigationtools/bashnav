@@ -88,7 +88,7 @@ function sc_rules(n, k, hours, lon,   dt, dp, dw, rate, damp, p, w, d, tide1, ti
 
   if(wx_has(WP[n]) && wx_has(WP[k])){
     dp = WP[n] - WP[k]
-    if(lon!=""){
+    if(wx_tideok(lon, WLAT[k], WLAT[n])){
       tide1 = wx_tide(WT[k], lon, WLAT[k]); tide2 = wx_tide(WT[n], lon, WLAT[n])
       dp = dp - (tide2 - tide1)
     }

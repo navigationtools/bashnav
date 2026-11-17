@@ -340,7 +340,8 @@ sequence, and swell as the earliest warning there is. Then you forecast, it
 forecasts, and both are scored against what happened — including against
 simple persistence, so you can see whether you actually beat doing nothing.
 From a surface chart it works the wind from the isobars, aloft and then on
-deck.
+deck. And it draws the glass: a barograph of your own log, with the daily tide
+behind it.
 
 ### drill
 
@@ -513,7 +514,7 @@ app are rebuilt from the built program by `capture.sh`.
 | `colregs` | 1.15 | `docs/colregs-manual.pdf` | `docs/colregs-quickref.pdf` | owed |
 | `tides` | 1.5.3 | `docs/tides-manual.pdf` | `docs/tides-quickref.pdf` | owed |
 | `deck-log` | 1.1 | `docs/deck-log-manual.pdf` | `docs/deck-log-quickref.pdf` | owed |
-| `weather` | 1.0.4 | `docs/weather-manual.pdf` | `docs/weather-quickref.pdf` | owed |
+| `weather` | 1.0.5 | `docs/weather-manual.pdf` | `docs/weather-quickref.pdf` | owed |
 | `bashnav` (launcher) | 1.0 | `docs/bashnav-manual.pdf` | `docs/bashnav-quickref.pdf` | owed |
 | `drill` | build 26 | `docs/drill-manual.pdf`, carrying the **pack-format reference** | `docs/drill-quickref.pdf` | owed |
 | `route` | being built | owed at its first release | owed | owed |

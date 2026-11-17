@@ -47,8 +47,17 @@ var WX = (function () {
   //  records of other types are skipped before the merge test and not
   //  after.
   // ---------------------------------------------------------------
+  //
+  //  THE LATITUDE IS CARRIED (weather 1.0.5).  Only a deck entry has a
+  //  position; a weather observation taken on its own has none, and an
+  //  empty latitude used to be read as the equator and as north, so the
+  //  daily tide was taken off at its full tropical size wherever the boat
+  //  was.  A reading without a position now takes the last one logged
+  //  before it, and readings before the first position take that first
+  //  one.  With no latitude anywhere it stays empty and the rules say the
+  //  tide is not allowed for.  Exactly as wx_load in the awk.
   function load(recs) {
-    var W = [], i, r, o;
+    var W = [], i, r, o, lastlat = '', firstlat = '';
     for (i = 0; i < recs.length; i++) {
       r = recs[i];
       if (r.type !== 'nav' && r.type !== 'wx') continue;
@@ -57,7 +66,7 @@ var WX = (function () {
       } else {
         o = { ts: r.ts, wdir: NONE, wspd: NONE, p: NONE, tend: '',
               air: NONE, dew: NONE, sea: NONE, cld: NONE,
-              swp: NONE, swd: NONE, lat: '',
+              swp: NONE, swd: NONE, lat: lastlat,
               cl: -1, cm: -1, ch: -1, vis: -1 };
         W.push(o);
       }
@@ -76,8 +85,11 @@ var WX = (function () {
       if (v.cm !== undefined && v.cm !== '' && v.cm !== '-' && v.cm !== '/') o.cm = +v.cm;
       if (v.ch !== undefined && v.ch !== '' && v.ch !== '-' && v.ch !== '/') o.ch = +v.ch;
       if (v.vis !== undefined && v.vis !== '' && v.vis !== '-' && v.vis !== '/') o.vis = +v.vis;
-      if (v.lat !== undefined && v.lat !== '') o.lat = v.lat;
+      if (v.lat !== undefined && v.lat !== '') {
+        o.lat = v.lat; lastlat = v.lat; if (firstlat === '') firstlat = v.lat;
+      }
     }
+    for (i = 0; i < W.length && W[i].lat === ''; i++) W[i].lat = firstlat;
     return W;
   }
 
@@ -117,6 +129,78 @@ var WX = (function () {
     if (amp < 0) amp = -amp;
     return amp * Math.cos(2 * PI * (solar - 10.0) / 12.0);
   }
+
+  //  The tide can be allowed for only when we know where the sun is (the
+  //  longitude) and how big the tide is here (the latitude of both).
+  function tideok(lon, lat1, lat2) {
+    return lon !== '' && lon !== undefined && lon !== null && lat1 !== '' && lat2 !== '';
+  }
+
+  // ---------------------------------------------------------------
+  //  The tendency, in the four words the barograph uses.  ONE RULE, for
+  //  the report's sentence, the table of the glass and the barograph:
+  //  the change per three hours, the daily tide allowed for where it can
+  //  be.  3.0 or more down, falling fast; 1.5 or more down, falling; 1.5
+  //  or more up, rising; otherwise steady.  As wx_band in the awk.
+  // ---------------------------------------------------------------
+  function band(corr, dt) {
+    if (dt <= 0) return 'steady';
+    if (corr <= -3.0 * (dt / 3.0)) return 'falling fast';
+    if (corr <= -1.5 * (dt / 3.0)) return 'falling';
+    if (corr >= 1.5 * (dt / 3.0)) return 'rising';
+    return 'steady';
+  }
+
+  // ---------------------------------------------------------------
+  //  THE GLASS (W04; weather 1.0.5; Larry, AOI and AOQ).  The pressures
+  //  of the last 24, 48 or 72 hours of the log, ending at the latest
+  //  one.  glass() is wx_glass_build in the awk: for each reading in the
+  //  window its time, its change from the one before with the tide
+  //  allowed for, the hours between and the tendency word; whether the
+  //  tide could be allowed for; and its size here.  runs() merges
+  //  neighbouring stretches of the same tendency, which is what the
+  //  terminal's table and the page's strip both show.
+  // ---------------------------------------------------------------
+  var MON = 'JanFebMarAprMayJunJulAugSepOctNovDec';
+  function day(ts) { return String(+ts.substr(8, 2)) + ' ' + MON.substr(3 * (+ts.substr(5, 2)) - 3, 3); }
+  function glass(W, lon, hours) {
+    var G = { n: 0, at: [], m: [], c: [], d: [], b: [], tide: false, amp: 0, e: -1, hours: hours };
+    var e, i, t1, m, dp;
+    for (e = W.length - 1; e >= 0; e--) if (has(W[e].p)) break;
+    if (e < 0) return G;
+    G.e = e;
+    t1 = mins(W[e].ts) - hours * 60;
+    for (i = 0; i <= e; i++) {
+      if (!has(W[i].p)) continue;
+      m = mins(W[i].ts); if (m < t1) continue;
+      G.at.push(i); G.m.push(m); G.n++;
+    }
+    G.tide = tideok(lon, W[e].lat, W[e].lat);
+    if (G.tide) { G.amp = 1.4 * Math.pow(Math.cos(latdeg(W[e].lat) * 3.14159265 / 180.0), 3); if (G.amp < 0) G.amp = -G.amp; }
+    G.c.push(0); G.d.push(0); G.b.push('');
+    for (i = 1; i < G.n; i++) {
+      var a = W[G.at[i - 1]], z = W[G.at[i]];
+      G.d.push((G.m[i] - G.m[i - 1]) / 60.0);
+      dp = z.p - a.p;
+      if (G.tide) dp = dp - (tide(z.ts, lon, z.lat) - tide(a.ts, lon, a.lat));
+      G.c.push(dp);
+      G.b.push(band(dp, G.d[i]));
+    }
+    return G;
+  }
+  //  the runs: [{ from, to, band, rate }], from and to indexing G.at
+  function runs(G) {
+    var R = [], i = 1, j, c, d;
+    while (i < G.n) {
+      j = i; c = G.c[i]; d = G.d[i];
+      while (j + 1 < G.n && G.b[j + 1] === G.b[i]) { j++; c += G.c[j]; d += G.d[j]; }
+      R.push({ from: i - 1, to: j, band: G.b[i], rate: d > 0 ? c / d * 3 : 0 });
+      i = j + 1;
+    }
+    return R;
+  }
+  function padr(t, n) { t = String(t); while (t.length < n) t += ' '; return t; }
+  function padl(t, n) { t = String(t); while (t.length < n) t = ' ' + t; return t; }
 
   // ---------------------------------------------------------------
   //  Buys Ballot.
@@ -208,8 +292,9 @@ var WX = (function () {
   //  working behind it, 'warn' a conclusion that matters, 'acc' one
   //  worth noticing, 'gap' a blank line.
   // ---------------------------------------------------------------
-  function report(W, lon) {
+  function report(W, lon, hours) {
     var out = [], n = W.length;
+    hours = +hours; if (hours !== 24 && hours !== 72) hours = 48;
     function say(t) { out.push({ k: 'say', t: t }); }
     function why(t) { out.push({ k: 'why', t: t }); }
     function warn(t) { out.push({ k: 'warn', t: t }); }
@@ -237,19 +322,46 @@ var WX = (function () {
       var t1 = tide(prev.ts, lon, prev.lat), t2 = tide(last.ts, lon, last.lat);
       var corr = dp - (t2 - t1);
       say('Pressure ' + f1(last.p) + ', ' + pm1(dp) + ' hPa in ' + f1(dt) + ' hours.');
-      if (lon !== '' && lon !== undefined && lon !== null) {
+      if (tideok(lon, prev.lat, last.lat)) {
         say('Allowing for the daily atmospheric tide: ' + pm1(corr) + ' hPa.');
         why('the tide alone accounts for ' + pm1(t2 - t1) + ' of that. It is semidiurnal,');
         why('about 1.4 hPa in the tropics and much less in high latitudes,');
         why('and in the tropics it falls 2-3 mb every afternoon in fine weather.');
-      } else corr = dp;
+      } else {
+        corr = dp;
+        if (lon !== '' && lon !== undefined && lon !== null) {
+          say('The daily atmospheric tide is not allowed for: no latitude in the log.');
+          why('its size depends on where you are, 1.4 hPa near the equator and a');
+          why('quarter of that at 50 degrees. Log a deck entry with your position.');
+        }
+      }
       if (dt > 0) {
-        if (corr <= -3.0 * (dt / 3.0)) warn('That is a serious fall. Expect a deepening system and a rising wind.');
-        else if (corr <= -1.5 * (dt / 3.0)) say('A definite fall. Something is coming.');
-        else if (corr >= 1.5 * (dt / 3.0)) say('Rising. The gradient is easing or a ridge is building.');
+        var bd = band(corr, dt);
+        if (bd === 'falling fast') warn('That is a serious fall. Expect a deepening system and a rising wind.');
+        else if (bd === 'falling') say('A definite fall. Something is coming.');
+        else if (bd === 'rising') say('Rising. The gradient is easing or a ridge is building.');
         else say('Near steady.');
         why('a rate matters more than a level: 1000 hPa steady is a quiet day,');
         why('1015 falling fast is not.');
+      }
+      //  the glass, as the terminal's table.  Every line of it is marked
+      //  glass:true, because the page draws the barograph in its place.
+      var G = glass(W, lon, hours);
+      out.glass = G;
+      if (G.n >= 2) {
+        var gl = function (k, t) { out.push({ k: k, t: t, glass: true }); };
+        gl('gap', '');
+        gl('say', 'The glass, last ' + hours + ' hours:');
+        var f = W[G.at[0]], dy = f.ts.substr(0, 10);
+        gl('say', '   ' + padr(day(f.ts) + ' ' + f.ts.substr(11, 5), 17) + padl(f1(f.p), 7));
+        runs(G).forEach(function (r) {
+          var z = W[G.at[r.to]], lab = 'to ' + z.ts.substr(11, 5);
+          if (z.ts.substr(0, 10) !== dy) { lab = 'to ' + day(z.ts) + ' ' + z.ts.substr(11, 5); dy = z.ts.substr(0, 10); }
+          gl('say', '   ' + padr(lab, 17) + padl(f1(z.p), 7) + '   ' + padr(r.band, 14) + pm1(r.rate) + ' hPa in 3 h');
+        });
+        if (G.tide) gl('why', 'the daily tide alone is ' + f1(G.amp) + ' hPa each way here, and is allowed for');
+        else if (lon === '' || lon === undefined || lon === null) gl('why', 'no longitude set, so the daily tide is not allowed for');
+        else gl('why', 'no latitude in the log yet, so the daily tide is not allowed for');
       }
     } else {
       say('No pressure trend - fewer than two entries carry a pressure.');
@@ -391,6 +503,7 @@ var WX = (function () {
 
   return { NONE: NONE, num: num, has: has, d180: d180, mins: mins, load: load,
            north: north, latdeg: latdeg, tide: tide, bb: bb,
+           tideok: tideok, band: band, glass: glass, runs: runs, day: day,
            report: report, renderTerminal: renderTerminal,
            cfixed: cfixed, cplus: cplus };
 })();

@@ -6,7 +6,7 @@ BEGIN{
 
   if(cmd=="version"){ print "weather engine"; exit 0 }
 
-  else if(cmd=="what"){ wx_report(LOG, lon) }
+  else if(cmd=="what"){ wx_report(LOG, lon, hours+0) }
   else if(cmd=="score"){ sc_report(LOG) }
   else if(cmd=="chart"){ ch_report(brg, dist, orient, w500, (north==""?1:north+0)) }
   else if(cmd=="isobars"){ iso_report(spacing, lat, step, (north==""?1:north+0)) }

@@ -416,6 +416,36 @@ drawn below its curve.
 named the ten lessons; `veer`, the eleventh, had no golden copy. It now asks the
 awk for the list, as `weather-ui.js` does.
 
+### The glass, and a corpus that could not see a fault (weather 1.0.5)
+
+**The fault.** A weather observation logged on its own has no position, and an
+empty latitude was read as the equator: the daily tide was taken off at its
+full tropical size, four times too much at 50 N. Both builds did it
+identically, so the character-for-character comparison passed, and it passed
+for a second reason too: **every generated log put a deck entry, with its
+position, on every single reading**, and so did the golden log. A corpus shaped
+unlike real use cannot find what real use would. `weather-wx.js` now runs a
+second corpus of 400 logs kept the way one is at sea: readings at uneven
+intervals over up to four days, most of them weather observations on their own,
+a position now and then, sometimes never, sometimes not until late, the
+longitude sometimes not set, the window 24, 48, 72 or left out. The golden file
+gained five reports from such logs, one of them the fault's own case.
+
+**The barograph, measured.** `docs/web/tests/weather-glass.js` (stage 13)
+seeds the shared log store as deck-log would and reads the drawing back:
+every reading where the axes say; each stretch in the tendency worked in the
+check from `1.4 cos^3(latitude)` and the local sun time; heavier for worse
+news, each in its own colour from the page; the wave through the first
+reading, the right size, cresting near 10 and 22 by the sun; the strip's runs;
+each key line at its own slope; the window buttons, remembered across a
+reload; the table present in the terminal text and absent from the page's
+reasoning; no wave and a plain note without a longitude or without any
+latitude; the days named by their real dates. 136 checks. Six faults planted
+in the drawing and caught (the wave not anchored, a weight out of order, a key
+slope, the wave's phase, the weekday, the carried latitude taken out of the
+page), and two in the port caught by the corpus (the carry removed, a boundary
+moved).
+
 ### One rule for lesson names (tides 1.5.3, weather 1.0.4)
 
 The lesson-name rule moved to `docs/web/shared/lesson.js` (Larry, ALI), so

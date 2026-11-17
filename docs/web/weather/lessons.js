@@ -90,6 +90,10 @@ var LESSONS = [
     { s: 'line', p: [, { t: '  ', s: 'plain' }, { t: 'tells you how much of the change was the tide. Give it your longitude', s: 'dim' }] },
     { s: 'line', p: [, { t: '  ', s: 'plain' }, { t: '- it needs local solar time to know where in the cycle you are.', s: 'dim' }] },
     { s: 'gap' },
+    { s: 'line', p: [, { t: '  In the browser, the barograph on ', s: 'plain' }, { t: 'What the log says', s: 'acc' }, { t: ' draws this wave', s: 'plain' }] },
+    { s: 'line', p: [, { t: '  behind your own readings. A trace that follows the wave is only the', s: 'plain' }] },
+    { s: 'line', p: [, { t: '  tide; one that leaves it is weather.', s: 'plain' }] },
+    { s: 'gap' },
   ], q: 'You are at 12N. The glass has fallen 2 hPa between 1000 and 1600. Worry?', a: 'Probably not - that is very close to the daily atmospheric tide, which is about 1.4 hPa of semidiurnal swing in the tropics with a minimum near 1600. Correct for it before reading anything into it. At 50N the same fall would mean much more.',
   },
   { key: 'coriolis', title: 'Coriolis, which is not a force', body: [

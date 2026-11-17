@@ -504,6 +504,48 @@ WX="-f src/common/log.awk -f src/common/colour.awk -f src/weather/grid.awk -f sr
     echo "=== weather chart, north=$n ==="
     $AW $WX -v cmode=plain -v cmd=chart -v brg=000 -v dist=200 -v orient=090 -v w500=60 -v north=$n </dev/null
   done
+  #  THE GLASS, FROM A LOG KEPT THE WAY ONE IS AT SEA (W04, weather 1.0.5):
+  #  a position now and then, every pressure a weather observation on its
+  #  own.  The first fixture above logs a position with every reading,
+  #  which is why it never showed that a reading without one was worked as
+  #  if on the equator.  Here: 48 hours, 24 hours, no longitude set, and a
+  #  log with no latitude anywhere.
+  cat > "$WXD/log2" <<'WXLOG2'
+2026-08-29T00:00Z|nav|lat=50 10.0N|wdir=250|wspd=12|~
+2026-08-29T00:00Z|wx|mslp=1018.4|~
+2026-08-29T03:00Z|wx|mslp=1017.7|~
+2026-08-29T06:00Z|wx|mslp=1017.4|~
+2026-08-29T09:00Z|wx|mslp=1017.2|~
+2026-08-29T12:00Z|wx|mslp=1015.8|~
+2026-08-29T15:00Z|wx|mslp=1013.1|~
+2026-08-29T18:00Z|wx|mslp=1010.0|~
+2026-08-29T21:00Z|wx|mslp=1006.3|~
+2026-08-30T00:00Z|wx|mslp=1002.1|~
+2026-08-30T03:00Z|wx|mslp=998.5|~
+2026-08-30T06:00Z|wx|mslp=997.2|~
+2026-08-30T09:00Z|wx|mslp=998.4|~
+2026-08-30T12:00Z|nav|lat=50 20.0N|wdir=300|wspd=25|~
+2026-08-30T12:00Z|wx|mslp=1000.8|~
+2026-08-30T15:00Z|wx|mslp=1003.1|~
+2026-08-30T18:00Z|wx|mslp=1005.7|~
+2026-08-30T21:00Z|wx|mslp=1008.3|~
+2026-08-31T00:00Z|wx|mslp=1009.8|~
+WXLOG2
+  grep -v '|nav|' "$WXD/log2" | head -6 > "$WXD/log3"
+  printf '%s\n' '2026-08-28T12:00Z|nav|lat=50 00.0N|wdir=240|wspd=10|~' \
+                '2026-08-29T10:12Z|wx|mslp=1012.0|~' '2026-08-29T16:12Z|wx|mslp=1007.8|~' > "$WXD/log4"
+  echo "=== weather what, the glass, 48 hours ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log2" -v lon=-3 </dev/null
+  echo "=== weather what, the glass, 24 hours ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log2" -v lon=-3 -v hours=24 </dev/null
+  echo "=== weather what, the glass, no longitude ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log2" -v lon= </dev/null
+  echo "=== weather what, the glass, no latitude in the log ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log3" -v lon=-3 </dev/null
+  #  the carried latitude's own case: 50 N, a fall of 4.2 hPa across the
+  #  tide's whole fall.  A definite fall; worked on the equator, "steady".
+  echo "=== weather what, a reading with no position of its own ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log4" -v lon=-3 </dev/null
   #  the wind from the isobars (W07, weather 1.0.3): north, south, and the
   #  refusal near the equator
   for c in "100 50 1" "100 50 0" "60 30 1" "100 3 1"; do

@@ -1,5 +1,85 @@
 # Changelog
 
+## weather 1.0.5: the glass, a barograph of your own log (W04)
+
+**What.** "What the log says" opens with a barograph: every pressure in the
+last 24, 48 or 72 hours of the log, ending at the latest. Three buttons choose
+the window, and the choice is remembered. In the terminal the same thing is a
+short table in `weather what` (`weather what 24`, `72`).
+
+```
+  hPa                                    the trace: your readings; each stretch in its
+  1020 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      tendency's colour AND weight
+  1016 o--o--o--o-o                      ~~~ behind: the daily tide alone, from your
+  1008              \o                       first reading
+  1000                \o=o               the strip: the same tendencies, in words
+        [   steady    ][fall][falling fast]
+```
+
+**Why.** The weather gap list's W04: the barometer is the one instrument the
+whole app reasons from, and until now it was only ever two numbers and a
+sentence. The course's "Reading the forecast" level names the barometer as a
+trigger to watch.
+
+**Larry's rulings, 17 November 2026.**
+
+| | the choice | what was ruled |
+|---|---|---|
+| AOI | how the daily tide is shown | as a wave behind the one bold trace, from the first reading: a trace that follows the wave is only the tide, one that leaves it is weather |
+| AOQ | how the tendency is marked | both ways: each stretch of the trace in its tendency's colour and weight, and a strip of the same words beneath (the night display is all reds, so colour alone would not carry it) |
+
+**One rule, three places.** The four tendencies (steady; falling, 1.5 hPa or
+more in 3 hours; falling fast, 3 or more; rising, 1.5 or more; the daily tide
+allowed for) are now one function, `wx_band` / `WX.band`, used by the report's
+sentence, the terminal's table and the barograph. The key on the figure is
+drawn at its own slopes on the figure's axes.
+
+**A fault, fixed with it: the latitude is carried.** Only a deck entry has a
+position. A weather observation logged on its own (deck-log has a form for
+exactly that) has none, and an empty latitude was read as the equator and as
+north. So the daily tide was taken off at its full tropical size wherever the
+boat was: at 50 N, four times too much. A fall of 4.2 hPa from mid-morning to
+mid-afternoon in the Channel is a definite fall; the old working took 2.8 of
+it off as tide and said "near steady". A reading without a position now takes
+the last one logged before it, and readings before the first position take
+that first one. With no position anywhere in the log the tide is not allowed
+for, and the report and the figure both say so. Found while drawing the wave,
+which needs the same latitude. The tests never saw it because every generated
+log, and the golden log, put a position on every reading.
+
+**What it affects.**
+
+1. **`weather` is 1.0.5.** `weather what` takes 24, 48 or 72; the report gains
+   the table of the glass; with no latitude in the log it now says the tide is
+   not allowed for instead of working it for the equator.
+2. **Forecast scoring** (`sc_rules`, `SCORE.rules`) uses the same guard and the
+   carried latitude, so "the rules" forecast changes for logs whose weather
+   observations had no position.
+3. **The page** draws the barograph (`glassFigure` in `weather.js`) from
+   `WX.glass` and `WX.runs`; the table's lines are marked and left out of the
+   page's reasoning, and kept in "Show it as the terminal does".
+4. **The tide lesson** points at the barograph.
+5. **Checks:** `weather-wx.js` gained a second corpus of 400 logs kept the way
+   one is at sea; `weather-glass.js` (stage 13, 136 checks) measures the
+   drawing; `wx-check.awk` holds the tendency's boundaries; the golden file
+   holds five new reports.
+6. **The manual:** section 3 gains "The glass" and a new Figure 1; the old
+   Figure 1 is Figure 2 and the rest move up one. **Cache `weather-v22`.**
+
+**Sources.** The daily (semidiurnal) pressure tide, largest in the tropics,
+with its maxima near 10:00 and 22:00 local time: K. Hamilton, a history of the
+atmospheric tides (preprints.org, 2024); Ray and Ponte, *Barometric tides from
+ECMWF operational analyses*, Annales Geophysicae 21 (2003); and its size in
+the tropics, "about 3 hPa" from top to bottom: Bowditch (2002), article 3506.
+Not relying on colour alone: W3C, WCAG 2.2, "Use of Color". See
+`docs/SOURCES.md` for what is not yet confirmed: how the tide falls off with
+latitude.
+
+**Checked.** 800 generated logs character for character against the awk; the
+drawing measured in night and day at 24, 48 and 72 hours; the carried latitude
+on the page, in the terminal text and in the golden file; eight faults
+planted, each caught.
+
 ## tides 1.5.3 and weather 1.0.4: one rule for lesson names, and a lesson link to the isobars screen
 
 **What.** A course lesson can now open the weather app's "wind from the isobars"

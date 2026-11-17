@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=004047159
+BASHNAV_BYTES=004052874
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -30496,7 +30496,7 @@ bn_unpack() {
 #  data that is never wrong - what you measured yourself - and the only
 #  one still available when the antenna comes down.
 # =====================================================================
-WEATHER_VERSION=1.0.4
+WEATHER_VERSION=1.0.5
 
 #  the log belongs to deck-log; weather only ever READS it
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"
@@ -30767,7 +30767,8 @@ help_text() {
     '  WEATHER -- read your own barometer' \
     '' \
     '  weather                  the menu' \
-    '  weather what             what your log says is coming, with the reasoning' \
+    '  weather what [24|48|72]  what your log says is coming, with the reasoning,' \
+    '                           and the glass over that many hours (48)' \
     '  weather learn [key]      a lesson; no key lists them' \
     '  weather chart            reason over a 500 mb radiofax chart' \
     '  weather isobars [nm lat [N|S] [hPa]]  the wind from a surface chart' \
@@ -30822,7 +30823,7 @@ load_conf
 install_engine
 case "${1:-}" in
   "")        paint; menu ;;
-  what)      eng -v cmd=what ;;
+  what)      shift; eng -v cmd=what -v hours="${1:-48}" ;;
   learn)     shift; do_learn "$1" ;;
   chart)     do_chart ;;
   isobars)   shift; do_isobars "$@" ;;
@@ -31575,8 +31576,20 @@ function wx_mins(ts,   y,mo,d,h,mi,a,jd){
 }
 
 #  Load the observation history: the nav and wx records, newest last.
-function wx_load(logfile,   i, n){
-  WN=0
+#
+#  THE LATITUDE IS CARRIED.  Only a deck entry has a position; a weather
+#  observation taken on its own (deck-log has a form for exactly that) has
+#  none.  Until weather 1.0.5 such a reading kept an empty latitude, and
+#  an empty latitude was read as the EQUATOR and as NORTH: the daily tide
+#  was taken off at its full tropical 1.4 hPa, which at 50 degrees is four
+#  times too much, enough to turn a definite fall into "near steady".
+#  Found while drawing the barograph, whose wave needs the same latitude.
+#  So a reading without a position takes the last one logged before it,
+#  and readings before the first position take that first one.  With no
+#  latitude anywhere in the log it stays empty, and the rules then say the
+#  tide is not allowed for rather than guess (see wx_tideok).
+function wx_load(logfile,   i, n, lastlat, firstlat){
+  WN=0; lastlat=""; firstlat=""
   lg_read(logfile, "")
   for(i=1;i<=LG_N;i++){
     if(!lg_at(i)) continue
@@ -31586,7 +31599,7 @@ function wx_load(logfile,   i, n){
     if(WN>0 && WT[WN]==LG_TS) n=WN; else { WN++; n=WN; WT[n]=LG_TS
       WDIR[n]=-9999; WSPD[n]=-9999; WP[n]=-9999; WTEND[n]=""
       WAIR[n]=-9999; WDEW[n]=-9999; WSEA[n]=-9999; WCLD[n]=-9999
-      WSWP[n]=-9999; WSWD[n]=-9999; WLAT[n]=""
+      WSWP[n]=-9999; WSWD[n]=-9999; WLAT[n]=lastlat
       WCL[n]=-1; WCM[n]=-1; WCH[n]=-1; WVIS[n]=-1 }
     if(LG["wdir"]!="") WDIR[n]=wx_num(LG["wdir"])
     if(LG["wspd"]!="") WSPD[n]=wx_num(LG["wspd"])
@@ -31602,8 +31615,9 @@ function wx_load(logfile,   i, n){
     if(LG["cm"]!="" && LG["cm"]!="-" && LG["cm"]!="/") WCM[n]=LG["cm"]+0
     if(LG["ch"]!="" && LG["ch"]!="-" && LG["ch"]!="/") WCH[n]=LG["ch"]+0
     if(LG["vis"]!="" && LG["vis"]!="-" && LG["vis"]!="/") WVIS[n]=LG["vis"]+0
-    if(LG["lat"]!="") WLAT[n]=LG["lat"]
+    if(LG["lat"]!=""){ WLAT[n]=LG["lat"]; lastlat=LG["lat"]; if(firstlat=="") firstlat=LG["lat"] }
   }
+  for(i=1;i<=WN && WLAT[i]=="";i++) WLAT[i]=firstlat
   return WN
 }
 
@@ -31646,6 +31660,89 @@ function wx_tide(ts, lon, lat,   utch, solar, amp, la){
   return amp * cos(2*3.14159265*(solar-10.0)/12.0)
 }
 
+#  The tide can be allowed for only when we know where the sun is (the
+#  longitude) and how big the tide is here (the latitude of both readings).
+function wx_tideok(lon, lat1, lat2){ return (lon!="" && lat1!="" && lat2!="") }
+
+# ---------------------------------------------------------------------
+#  The tendency, in the four words the barograph uses.  ONE RULE, used by
+#  the report's sentence, by the table of the glass and by the page's
+#  barograph, so the three cannot disagree: the change per three hours,
+#  with the daily tide allowed for where it can be.
+#     3.0 hPa or more down   falling fast
+#     1.5 or more down       falling
+#     1.5 or more up         rising
+#     otherwise              steady
+# ---------------------------------------------------------------------
+function wx_band(corr, dt){
+  if(dt<=0) return "steady"
+  if(corr <= -3.0*(dt/3.0)) return "falling fast"
+  if(corr <= -1.5*(dt/3.0)) return "falling"
+  if(corr >=  1.5*(dt/3.0)) return "rising"
+  return "steady"
+}
+
+# ---------------------------------------------------------------------
+#  THE GLASS (W04; weather 1.0.5; Larry, AOI and AOQ, 17 November 2026).
+#  The pressures of the last 24, 48 or 72 hours of the log, ending at the
+#  latest one, as a barograph.  The page draws it: one bold trace, each
+#  stretch coloured and weighted by its tendency, a strip of the same
+#  words beneath, and behind it the daily tide alone as a wave from the
+#  first reading.  The terminal prints the same thing as a table: one
+#  line for each run of readings in the same tendency.
+#
+#  wx_glass_build fills, for the readings in the window:
+#     GLN       how many          GLI[i]  which observation
+#     GLM[i]    its time, minutes
+#     GLC[i]    the change from the reading before, tide allowed for
+#     GLD[i]    the hours between them      GLB[i]  the tendency word
+#     GLTIDE    1 if the tide could be allowed for
+#     GLAMP     the tide's size here, hPa each way: 1.4 cos^3(latitude)
+# ---------------------------------------------------------------------
+function wx_mon(m){ return substr("JanFebMarAprMayJunJulAugSepOctNovDec", 3*m-2, 3) }
+function wx_day(ts){ return sprintf("%d %s", substr(ts,9,2)+0, wx_mon(substr(ts,6,2)+0)) }
+function wx_glass_build(lon, hours,   i, e, t1, m, dp, la){
+  GLN=0; GLTIDE=0; GLAMP=0
+  for(e=WN; e>=1; e--) if(wx_has(WP[e])) break
+  if(e<1) return 0
+  t1 = wx_mins(WT[e]) - hours*60
+  for(i=1;i<=e;i++){
+    if(!wx_has(WP[i])) continue
+    m = wx_mins(WT[i]); if(m < t1) continue
+    GLN++; GLI[GLN]=i; GLM[GLN]=m
+  }
+  GLTIDE = wx_tideok(lon, WLAT[e], WLAT[e]) ? 1 : 0
+  if(GLTIDE){ la = wx_latdeg(WLAT[e]); GLAMP = 1.4 * cos(la*3.14159265/180.0)^3; if(GLAMP<0) GLAMP=-GLAMP }
+  for(i=2;i<=GLN;i++){
+    GLD[i] = (GLM[i]-GLM[i-1])/60.0
+    dp = WP[GLI[i]] - WP[GLI[i-1]]
+    if(GLTIDE) dp = dp - (wx_tide(WT[GLI[i]], lon, WLAT[GLI[i]]) - wx_tide(WT[GLI[i-1]], lon, WLAT[GLI[i-1]]))
+    GLC[i] = dp
+    GLB[i] = wx_band(dp, GLD[i])
+  }
+  return GLN
+}
+function wx_glass(lon, hours,   i, j, c, d, lab, day){
+  if(wx_glass_build(lon, hours) < 2) return 0
+  print ""
+  wx_say(sprintf("The glass, last %d hours:", hours))
+  day = substr(WT[GLI[1]],1,10)
+  wx_say(sprintf("   %-17s%7.1f", wx_day(WT[GLI[1]]) " " substr(WT[GLI[1]],12,5), WP[GLI[1]]))
+  i=2
+  while(i<=GLN){
+    j=i; c=GLC[i]; d=GLD[i]
+    while(j+1<=GLN && GLB[j+1]==GLB[i]){ j++; c+=GLC[j]; d+=GLD[j] }
+    lab = "to " substr(WT[GLI[j]],12,5)
+    if(substr(WT[GLI[j]],1,10)!=day){ lab = "to " wx_day(WT[GLI[j]]) " " substr(WT[GLI[j]],12,5); day = substr(WT[GLI[j]],1,10) }
+    wx_say(sprintf("   %-17s%7.1f   %-14s%+.1f hPa in 3 h", lab, WP[GLI[j]], GLB[i], (d>0 ? c/d*3 : 0)))
+    i=j+1
+  }
+  if(GLTIDE)       wx_why(sprintf("the daily tide alone is %.1f hPa each way here, and is allowed for", GLAMP))
+  else if(lon=="") wx_why("no longitude set, so the daily tide is not allowed for")
+  else             wx_why("no latitude in the log yet, so the daily tide is not allowed for")
+  return 1
+}
+
 # ---------------------------------------------------------------------
 #  Buys Ballot.
 #
@@ -31673,8 +31770,9 @@ function wx_bb(wdir, north,   b){
 function wx_say(s){ printf "  %s\n", s; return 0 }
 function wx_why(s){ printf "  %s\n", cwd("   " s); return 0 }
 
-function wx_report(logfile, lon,   n, i, j, dt, dp, dw, tide1, tide2, corr, k)
+function wx_report(logfile, lon, hours,   n, i, j, dt, dp, dw, tide1, tide2, corr, k, b)
 {
+  if(hours!=24 && hours!=72) hours = 48
   n = wx_load(logfile)
   print ""
   printf "  %s\n", cw("WHAT THE LOG SAYS", C_ACC)
@@ -31699,20 +31797,29 @@ function wx_report(logfile, lon,   n, i, j, dt, dp, dw, tide1, tide2, corr, k)
     tide1 = wx_tide(WT[k], lon, WLAT[k]); tide2 = wx_tide(WT[n], lon, WLAT[n])
     corr = dp - (tide2 - tide1)
     wx_say(sprintf("Pressure %.1f, %+.1f hPa in %.1f hours.", WP[n], dp, dt))
-    if(lon!=""){
+    if(wx_tideok(lon, WLAT[k], WLAT[n])){
       wx_say(sprintf("Allowing for the daily atmospheric tide: %+.1f hPa.", corr))
       wx_why(sprintf("the tide alone accounts for %+.1f of that. It is semidiurnal,", tide2-tide1))
       wx_why("about 1.4 hPa in the tropics and much less in high latitudes,")
       wx_why("and in the tropics it falls 2-3 mb every afternoon in fine weather.")
-    } else corr = dp
+    } else {
+      corr = dp
+      if(lon!=""){
+        wx_say("The daily atmospheric tide is not allowed for: no latitude in the log.")
+        wx_why("its size depends on where you are, 1.4 hPa near the equator and a")
+        wx_why("quarter of that at 50 degrees. Log a deck entry with your position.")
+      }
+    }
     if(dt>0){
-      if(corr <= -3.0*(dt/3.0))      wx_say(cw("That is a serious fall. Expect a deepening system and a rising wind.", C_WARN))
-      else if(corr <= -1.5*(dt/3.0)) wx_say("A definite fall. Something is coming.")
-      else if(corr >=  1.5*(dt/3.0)) wx_say("Rising. The gradient is easing or a ridge is building.")
-      else                           wx_say("Near steady.")
+      b = wx_band(corr, dt)
+      if(b=="falling fast")   wx_say(cw("That is a serious fall. Expect a deepening system and a rising wind.", C_WARN))
+      else if(b=="falling")   wx_say("A definite fall. Something is coming.")
+      else if(b=="rising")    wx_say("Rising. The gradient is easing or a ridge is building.")
+      else                    wx_say("Near steady.")
       wx_why("a rate matters more than a level: 1000 hPa steady is a quiet day,")
       wx_why("1015 falling fast is not.")
     }
+    wx_glass(lon, hours)
   } else {
     wx_say("No pressure trend - fewer than two entries carry a pressure.")
   }
@@ -31920,7 +32027,7 @@ function sc_rules(n, k, hours, lon,   dt, dp, dw, rate, damp, p, w, d, tide1, ti
 
   if(wx_has(WP[n]) && wx_has(WP[k])){
     dp = WP[n] - WP[k]
-    if(lon!=""){
+    if(wx_tideok(lon, WLAT[k], WLAT[n])){
       tide1 = wx_tide(WT[k], lon, WLAT[k]); tide2 = wx_tide(WT[n], lon, WLAT[n])
       dp = dp - (tide2 - tide1)
     }
@@ -32421,6 +32528,10 @@ function lesson_body(k){
     lpd("This app corrects for it before saying anything about tendency, and")
     lpd("tells you how much of the change was the tide. Give it your longitude")
     lpd("- it needs local solar time to know where in the cycle you are.")
+    print ""
+    lp("In the browser, the barograph on " cw("What the log says",C_ACC) " draws this wave")
+    lp("behind your own readings. A trace that follows the wave is only the")
+    lp("tide; one that leaves it is weather.")
     print ""
     return 1
   }
@@ -33058,7 +33169,7 @@ BEGIN{
 
   if(cmd=="version"){ print "weather engine"; exit 0 }
 
-  else if(cmd=="what"){ wx_report(LOG, lon) }
+  else if(cmd=="what"){ wx_report(LOG, lon, hours+0) }
   else if(cmd=="score"){ sc_report(LOG) }
   else if(cmd=="chart"){ ch_report(brg, dist, orient, w500, (north==""?1:north+0)) }
   else if(cmd=="isobars"){ iso_report(spacing, lat, step, (north==""?1:north+0)) }

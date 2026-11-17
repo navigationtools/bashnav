@@ -111,6 +111,14 @@ try {
   <section class="view" id="v-what" hidden>
     <div class="panel">
       <h2>What the log says</h2>
+      <div id="what-glass" hidden>
+        <div class="winrow" role="group" aria-label="Hours of the log shown">
+          <button class="btn win" data-win="24">24 h</button>
+          <button class="btn win" data-win="48">48 h</button>
+          <button class="btn win" data-win="72">72 h</button>
+        </div>
+        <div id="glass-fig"></div>
+      </div>
       <div class="reason" id="what-out"></div>
     </div>
     <details class="asterm">

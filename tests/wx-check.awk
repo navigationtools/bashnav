@@ -55,6 +55,21 @@ BEGIN{
   chk("the tide is much smaller at 60N than at 5N", (high < trop/4), 1)
 
   # ---- hemisphere from a latitude as a person writes it -------------
+  #  the tendency, in the barograph's four words (weather 1.0.5): the
+  #  change per three hours, each boundary from both sides
+  chk("3.0 down in 3 h is falling fast",  wx_band(-3.0, 3), "falling fast")
+  chk("2.9 down in 3 h is falling",       wx_band(-2.9, 3), "falling")
+  chk("1.5 down in 3 h is falling",       wx_band(-1.5, 3), "falling")
+  chk("1.4 down in 3 h is steady",        wx_band(-1.4, 3), "steady")
+  chk("1.4 up in 3 h is steady",          wx_band( 1.4, 3), "steady")
+  chk("1.5 up in 3 h is rising",          wx_band( 1.5, 3), "rising")
+  chk("5.9 down in 6 h is falling",       wx_band(-5.9, 6), "falling")
+  chk("6.0 down in 6 h is falling fast",  wx_band(-6.0, 6), "falling fast")
+  chk("no time between is steady",        wx_band(-9.0, 0), "steady")
+  #  the tide is allowed for only with a longitude and both latitudes
+  chk("tide: longitude and latitudes known", wx_tideok(-3, "50 00.0N", "50 10.0N"), 1)
+  chk("tide: no longitude",                  wx_tideok("", "50 00.0N", "50 10.0N"), 0)
+  chk("tide: a latitude missing",            wx_tideok(-3, "", "50 10.0N"), 0)
   chk("41 14.0N is northern", wx_north("41 14.0N"), 1)
   chk("33 55.0S is southern", wx_north("33 55.0S"), 0)
   chk("-33.9 is southern",    wx_north("-33.9"),    0)

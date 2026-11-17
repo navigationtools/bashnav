@@ -39,12 +39,47 @@ course alone gives it almost nothing to work with.
 
 ## 3. What the log says
 
-![**Figure 1** — the reasoning, with every step shown and its rule
-underneath.](fig/weather-what.png)
+![**Figure 1** — the glass: your own pressures over the last 48 hours. Each
+stretch of the trace takes its tendency's colour and weight, the strip beneath
+says the same in words, and the grey wave behind is the daily tide
+alone.](fig/weather-glass.png)
 
 `weather what` (or **What the log says**) takes your last observations and
 reasons out loud. Every line is followed by the rule it came from, in smaller
 type, because the point is that you can do this yourself afterwards.
+
+### The glass
+
+The screen opens with a barograph drawn from your own log (Figure 1): every
+pressure of the last 24, 48 or 72 hours, ending at the latest. Three buttons
+choose the window, and the choice is remembered.
+
+1. **The trace is your readings,** joined in order. Each stretch is drawn in
+   the colour *and* the weight of its tendency, so it reads in the night
+   display too, where every colour is a red: thin for steady, heavier for
+   rising, heavier again for falling, heaviest for falling fast.
+2. **The strip beneath says the same in words,** with neighbouring stretches
+   of the same tendency joined: *steady, falling, falling fast, steady, rising*
+   is a depression going through.
+3. **The grey wave behind is the daily tide alone,** drawn from your first
+   reading: what the glass would do in settled weather. A trace that follows
+   the wave is only the tide. A trace that leaves it is weather. In the trade
+   winds the wave is 1.3 hPa each way and is most of what the barometer does;
+   in the Channel it is a ripple of 0.4.
+4. **The key is drawn to scale.** Each key line has its own slope on these
+   axes: the line for *falling* drops 1.5 hPa in 3 hours as measured against
+   the scales beside it.
+
+In the terminal the same thing is a short table, one line for each run of the
+same tendency: `weather what` for 48 hours, `weather what 24` or `72` for the
+others.
+
+The wave needs your longitude, for the local sun time, and a latitude, which it
+takes from the log. Without one of them the trace is drawn without the wave,
+and the figure says which is missing.
+
+![**Figure 2** — the reasoning, with every step shown and its rule
+underneath.](fig/weather-what.png)
 
 ### The pressure
 
@@ -61,7 +96,11 @@ type, because the point is that you can do this yourself afterwards.
 **It corrects for the atmospheric tide first.** The atmosphere has its own
 semidiurnal pressure wave, largest in the tropics, and near the equator it is
 big enough to hide a real trend or invent one. The correction needs your
-longitude, which is why `weather lon <deg>` exists.
+longitude, which is why `weather lon <deg>` exists, and your latitude, which
+comes from the log. Only a deck entry carries a position, so a weather
+observation logged on its own takes the position of the last deck entry before
+it. With no position anywhere in the log the tide is not allowed for, and the
+report says so.
 
 ### The wind
 
@@ -94,7 +133,7 @@ the cloud is logged by level rather than as "overcast".
 
 ## 4. The forecast loop, and why yours comes first
 
-![**Figure 2** — yours first. Nothing of the machine's until yours is written
+![**Figure 3** — yours first. Nothing of the machine's until yours is written
 down.](fig/weather-forecast.png)
 
 **Nothing of the machine's appears until your own forecast is recorded.** If
@@ -115,7 +154,7 @@ not yet adding anything.
 
 ## 5. The score
 
-![**Figure 3** — you, the rules, and persistence, scored against what actually
+![**Figure 4** — you, the rules, and persistence, scored against what actually
 happened.](fig/weather-score.png)
 
 Weighted error points, from the WxChallenge convention: half a point per knot
@@ -129,7 +168,7 @@ are you better than persistence?**
 
 ## 6. The 500 millibar chart
 
-![**Figure 4** — reasoning over a chart that arrived by radiofax.](fig/weather-chart.png)
+![**Figure 5** — reasoning over a chart that arrived by radiofax.](fig/weather-chart.png)
 
 **This tool cannot fetch a chart and never will.** But a 500 mb chart does
 arrive at sea, by HF radiofax on an SSB receiver, with no internet involved at
@@ -156,7 +195,7 @@ public domain), and are listed in `docs/SOURCES.md`.
 
 ## 7. The wind from the isobars
 
-![**Figure 5** — the wind from the isobars, 100 nm apart at 50° N. Above, the
+![**Figure 6** — the wind from the isobars, 100 nm apart at 50° N. Above, the
 two isobars at the spacing typed, with the wind aloft along them and the wind on
 deck turned toward the low; close the isobars and the arrows lengthen. Below,
 the scale: wind against spacing, one curve for each latitude, with your reading
@@ -191,7 +230,7 @@ lesson** at the top.
 
 ## 8. The lessons
 
-![**Figure 6** — eleven lessons, each one earning its place.](fig/weather-lessons.png)
+![**Figure 7** — eleven lessons, each one earning its place.](fig/weather-lessons.png)
 
 Each lesson changes either what the tool says or what you would do. One of them
 says plainly where the reasoning stops being reliable, which is the most
@@ -199,7 +238,7 @@ important of the eleven.
 
 `weather learn` lists them; `weather learn <key>` opens one.
 
-![**Figure 7** — friction, in the `gradient` lesson. Over the sea the surface
+![**Figure 8** — friction, in the `gradient` lesson. Over the sea the surface
 wind is backed 10 to 20 degrees toward the low and about 2/3 of the wind
 aloft. Over land it is backed 30 to 40 degrees, and its speed is a band: about
 1/3 over forests, towns and cities, nearer 2/3 over open fields.](fig/weather-friction.png)
@@ -209,16 +248,16 @@ Some lessons draw what they say. The `gradient` lesson draws friction (Figure
 and in the browser. The land speed is drawn as a band, not one number, because
 the published rules of thumb disagree, from 1/3 (the Royal Meteorological
 Society) to 2/3 (US Navy training), and because the ground decides it: trees
-and buildings drag the wind more than open fields do. Figure 7 is the
+and buildings drag the wind more than open fields do. Figure 8 is the
 northern hemisphere's; south of the equator the turn is the other way.
 
-![**Figure 8** — why the wind turns. The push toward the low, the earth's turn
+![**Figure 9** — why the wind turns. The push toward the low, the earth's turn
 bending the wind to its right, and the drag of the sea or land close into a
 triangle. Drag the friction slider and the corner rides the circle: the drag
 side grows, the bend shrinks, and the wind turns further toward the low and
 slows.](fig/weather-forces.png)
 
-The same lesson then shows **why** the wind turns (Figure 8), in a sailor's
+The same lesson then shows **why** the wind turns (Figure 9), in a sailor's
 terms rather than as equations. Three things act on the wind near the surface:
 the push from high pressure toward low, which is what the isobars show; the
 earth turning beneath, which bends moving air to its right in the north; and
@@ -230,19 +269,19 @@ towns, and a few sentences under it say what is happening at each stage. The
 triangle describes the lowest kilometre or so of air; on deck the wind is slower
 again, which is why the rule of thumb over the sea is about two thirds.
 
-![**Figure 9** — the wind shifts, over time. It veers when it shifts clockwise
+![**Figure 10** — the wind shifts, over time. It veers when it shifts clockwise
 round the compass and backs when it shifts anticlockwise. These are compass
 words, so they mean the same on either side of the equator.](fig/weather-veer-time.png)
 
-![**Figure 10** — the surface wind against the wind aloft. It always turns toward
+![**Figure 11** — the surface wind against the wind aloft. It always turns toward
 the low. North of the equator the low is on the wind's left, so the turn is
 anticlockwise: backed. South of it the low is on the right, and the same turn is
 clockwise: veered.](fig/weather-veer-hemi.png)
 
 **Backing and veering** have a lesson of their own, `weather learn veer`,
-because the words do two jobs. Over time (Figure 9) they say which way the wind
+because the words do two jobs. Over time (Figure 10) they say which way the wind
 has shifted, and the "What the log says" screen uses them in that sense. Against
-the wind aloft (Figure 10) they describe the friction turn, which is backed in
+the wind aloft (Figure 11) they describe the friction turn, which is backed in
 the north and veered in the south. The lesson also says what a shift tells you:
 in the Channel, a depression passing to the north veers the wind from south-west
 through west to north-west as its fronts go through, and the same low south of
@@ -256,7 +295,7 @@ gradient lessons, so it is met more than once.
 | | |
 |---|---|
 | `weather` | the menu |
-| `weather what` | what your log says is coming, with the reasoning |
+| `weather what [24\|48\|72]` | what your log says is coming, with the reasoning, and the glass over that many hours |
 | `weather learn [key]` | a lesson; no key lists them |
 | `weather chart` | reason over a 500 mb radiofax chart |
 | `weather isobars [nm lat [N|S] [hPa]]` | the wind from a surface chart: aloft and on deck |

@@ -164,9 +164,176 @@ function lonVal() {
 }
 function drawWhat() {
   var lon = lonVal();
-  var items = WX.report(OBS, lon);
-  drawReason($('what-out'), items);
+  var hours = +lsGet('glass-h', '48');
+  if (hours !== 24 && hours !== 72) hours = 48;
+  var items = WX.report(OBS, lon, hours);
+  /*  the terminal prints the glass as a table; the page draws it, so the
+      table's lines (marked glass) are left out of the page's reasoning and
+      kept in "Show it as the terminal does"  */
+  drawReason($('what-out'), items.filter(function (it) { return !it.glass; }));
   $('what-term').textContent = WX.renderTerminal(items, OBS.length >= 2);
+  var G = items.glass, box = $('glass-fig');
+  box.textContent = '';
+  $('what-glass').hidden = !(G && G.n >= 2);
+  if (G && G.n >= 2) {
+    var bs = document.querySelectorAll('#what-glass .win');
+    for (var i = 0; i < bs.length; i++)
+      bs[i].setAttribute('aria-pressed', String(+bs[i].getAttribute('data-win') === hours));
+    glassFigure(box, OBS, G, lon);
+  }
+}
+
+/* =====================================================================
+   THE GLASS: the barograph (W04; weather 1.0.5).  Larry's rulings of
+   17 November 2026: AOI, the readings are the one bold trace and the
+   daily tide alone is drawn behind it as a wave from the first reading,
+   so a trace that follows the wave is only the tide and one that leaves
+   it is weather; AOQ, each stretch of the trace takes its tendency's
+   colour AND weight, and a strip beneath says the same in words, because
+   the night palette is all reds and colour alone would not carry it.
+
+   Everything drawn comes from WX.glass (the readings, the change between
+   each pair with the tide allowed for, the tendency word, the tide's size)
+   and WX.runs, which the terminal's table is printed from too, so the
+   figure and the words cannot disagree.  The tendency key is drawn AT ITS
+   OWN SLOPES on this figure's scale: the line for "falling" falls 1.5 hPa
+   in 3 hours as measured on the axes beside it.
+
+   The tide: ref + amp * cos(2 pi (solar - 10) / 12), solar the local sun
+   time from the longitude, amp = 1.4 cos^3(latitude) hPa (wx.js tide()),
+   ref chosen so the wave passes through the first reading.  Without a
+   longitude or a latitude it is not drawn, and the figure says which.
+   Sources for the tide are in wx.js and docs/SOURCES.md.
+
+   Colours are read from the page when it draws (the warning by both its
+   names, --warn then --bad), and drawWhat redraws it on a mode change.
+   ===================================================================== */
+var GLASS_STY = { 'steady': ['--accent', 2.2, 'st.'], 'rising': ['--ok', 3, 'rise'],
+                  'falling': ['--att', 4, 'fall'], 'falling fast': ['--warn', 6, 'fast'] };
+function glassFigure(host, W, G, lon) {
+  var n = G.n, t0 = G.m[0], t1 = G.m[n - 1], spanH = (t1 - t0) / 60;
+  var D = demoSvg('glassfig', 660, 372, 'The barograph: ' + n + ' pressure readings over ' +
+    Math.round(spanH) + ' hours, ending at ' + WX.cfixed(W[G.at[n - 1]].p, 1) + ' hectopascals.');
+  var cs = getComputedStyle(document.documentElement);
+  var tok = function (k) {
+    if (k === '--warn') return cs.getPropertyValue('--warn').trim() || cs.getPropertyValue('--bad').trim() || '#e23a2c';
+    return cs.getPropertyValue(k).trim() || '#6fb3d9';
+  };
+  var ground = tok('--ground');
+  var x0 = 62, x1 = 630, top = 44, bot = 214;
+  /*  the frame: at least 10 hPa tall, so a quiet day's ripple is not blown
+      up into something alarming, and on a grid of round numbers  */
+  var first = W[G.at[0]], PI = 3.14159265, i;
+  var lo = Infinity, hi = -Infinity;
+  for (i = 0; i < n; i++) { lo = Math.min(lo, W[G.at[i]].p); hi = Math.max(hi, W[G.at[i]].p); }
+  var solar = function (m) { var h = (m % 1440) / 60 + (parseFloat(lon) || 0) / 15.0;
+    while (h < 0) h += 24; while (h >= 24) h -= 24; return h; };
+  var tideAt = function (m) { return G.amp * Math.cos(2 * PI * (solar(m) - 10.0) / 12.0); };
+  var ref = G.tide ? first.p - tideAt(t0) : 0;
+  if (G.tide) { lo = Math.min(lo, ref - G.amp); hi = Math.max(hi, ref + G.amp); }
+  var span = Math.max(10, hi - lo + 2), mid = (lo + hi) / 2;
+  var step = span <= 14 ? 2 : span <= 28 ? 4 : span <= 60 ? 10 : 20;
+  var ymin = step * Math.floor((mid - span / 2) / step), ymax = step * Math.ceil((mid + span / 2) / step);
+  var X = function (m) { return x0 + (m - t0) / (t1 - t0) * (x1 - x0); };
+  var Y = function (p) { return bot - (p - ymin) / (ymax - ymin) * (bot - top); };
+  D.svg.setAttribute('data-ymin', ymin); D.svg.setAttribute('data-ymax', ymax);
+  D.svg.setAttribute('data-t0', t0); D.svg.setAttribute('data-t1', t1);
+
+  D.t(22, 22, 'The glass, last ' + G.hours + ' hours', D.text, { 'font-weight': 600 });
+  D.t(x1, 22, 'hours are UTC, as the log is kept', D.dim, { 'font-size': 11, 'text-anchor': 'end' });
+  D.t(22, top - 8, 'hPa', D.dim, { 'font-size': 11 });
+  for (var p = ymin; p <= ymax + 0.001; p += step) {
+    D.e('line', { x1: x0, y1: Y(p), x2: x1, y2: Y(p), stroke: D.line, 'stroke-width': 1 });
+    D.t(x0 - 8, Y(p) + 4, String(p), D.dim, { 'font-size': 12, 'text-anchor': 'end' });
+  }
+  /*  the hours, UTC as the log is kept; a day's name under each midnight  */
+  var hstep = spanH <= 12 ? 3 : 6, DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], named = false;
+  var dom = function (m) {            /* the day of the month at minute m, from the civil date */
+    var j = Math.floor(m / 1440) + 32044, g = Math.floor(j / 146097), dg = j % 146097;
+    var c = Math.floor((Math.floor(dg / 36524) + 1) * 3 / 4), dc = dg - c * 36524;
+    var b = Math.floor(dc / 1461), db = dc % 1461, a = Math.floor((Math.floor(db / 365) + 1) * 3 / 4), da = db - a * 365;
+    var mm = Math.floor((da * 5 + 308) / 153) - 2, d = da - Math.floor((mm + 4) * 153 / 5) + 122;
+    return d + 1;
+  };
+  for (var m = Math.ceil(t0 / (hstep * 60)) * hstep * 60; m <= t1; m += hstep * 60) {
+    var hh = Math.round((m % 1440) / 60);
+    D.e('line', { x1: X(m), y1: bot, x2: X(m), y2: bot + 5, stroke: D.dim });
+    D.t(X(m), bot + 19, (hh < 10 ? '0' : '') + hh, D.dim, { 'font-size': 11, 'text-anchor': 'middle' });
+    if (hh === 0) {
+      D.e('line', { x1: X(m), y1: top, x2: X(m), y2: bot, stroke: D.line, 'stroke-dasharray': '2 3' });
+      D.t(X(m), bot + 33, DAYS[(Math.floor(m / 1440) + 1) % 7] + ' ' + dom(m), D.dim,
+          { 'font-size': 11, 'text-anchor': 'middle', 'font-weight': 600, 'data-part': 'day' });
+      named = true;
+    }
+  }
+  /*  a short log may cross no midnight: then the date goes at the left  */
+  if (!named) D.t(x0, bot + 33, WX.day(first.ts), D.dim, { 'font-size': 11, 'font-weight': 600, 'data-part': 'day' });
+
+  /*  behind everything: the daily tide alone, from the first reading  */
+  if (G.tide) {
+    D.e('rect', { x: x0, y: Y(ref + G.amp), width: x1 - x0, height: Y(ref - G.amp) - Y(ref + G.amp),
+                  fill: D.dim, 'fill-opacity': 0.10, 'data-part': 'tide-band' });
+    var pts = [];
+    for (var q = t0; q <= t1; q += 15) pts.push(X(q).toFixed(1) + ',' + Y(ref + tideAt(q)).toFixed(1));
+    pts.push(X(t1).toFixed(1) + ',' + Y(ref + tideAt(t1)).toFixed(1));
+    D.e('polyline', { points: pts.join(' '), fill: 'none', stroke: D.dim, 'stroke-width': 2,
+                      'stroke-opacity': 0.75, 'data-part': 'tide-wave', 'data-ref': ref, 'data-amp': G.amp });
+  }
+  /*  the trace: each stretch in its tendency's colour and weight  */
+  for (i = 1; i < n; i++) {
+    var a = W[G.at[i - 1]], z = W[G.at[i]], st = GLASS_STY[G.b[i]];
+    D.e('line', { x1: X(G.m[i - 1]), y1: Y(a.p), x2: X(G.m[i]), y2: Y(z.p), stroke: tok(st[0]),
+                  'stroke-width': st[1], 'stroke-linecap': 'round', 'data-part': 'seg', 'data-band': G.b[i] });
+  }
+  for (i = 0; i < n; i++)
+    D.e('circle', { cx: X(G.m[i]), cy: Y(W[G.at[i]].p), r: 3.2, fill: D.text, 'data-part': 'pt',
+                    'data-ts': W[G.at[i]].ts, 'data-p': W[G.at[i]].p });
+  var last = W[G.at[n - 1]], ly = Y(last.p);
+  /*  the last reading, named: above it when the trace came up to it, beside
+      it when the trace came down, so the label never sits on the line  */
+  var fell = last.p < W[G.at[n - 2]].p;
+  D.t(X(t1) - (fell ? 14 : 6), fell ? ly + 5 : (ly - 12 > top + 4 ? ly - 12 : ly + 22),
+      'now ' + WX.cfixed(last.p, 1), D.text,
+      { 'font-size': 12, 'text-anchor': 'end', 'font-weight': 600, 'data-part': 'now' });
+
+  /*  the strip: the same tendencies in words, neighbours of a kind merged  */
+  var sy = bot + 52;
+  D.t(22, sy + 15, 'trend', D.dim, { 'font-size': 11 });
+  WX.runs(G).forEach(function (r) {
+    var xa = X(G.m[r.from]), xb = X(G.m[r.to]), st = GLASS_STY[r.band], w = xb - xa, calm = r.band === 'steady';
+    D.e('rect', { x: xa + 1, y: sy, width: Math.max(1, w - 2), height: 22, rx: 3, fill: tok(st[0]),
+                  'fill-opacity': calm ? 0.18 : 0.9, 'data-part': 'run', 'data-band': r.band,
+                  'data-from': W[G.at[r.from]].ts, 'data-to': W[G.at[r.to]].ts });
+    var full = w > r.band.length * 6.4 + 12, word = full ? r.band : w > 30 ? st[2] : '';
+    if (word) D.t((xa + xb) / 2, sy + 15, word, calm ? D.text : ground,
+                  { 'font-size': full ? 11 : 10, 'text-anchor': 'middle', 'font-weight': 600 });
+  });
+
+  /*  the key, each line drawn at its own slope for three hours  */
+  var ky = sy + 44, kx = x0, dx = Math.max(24, Math.min(60, X(t0 + 180) - X(t0)));
+  var perPx = (bot - top) / (ymax - ymin), hrs = dx / ((x1 - x0) / (spanH || 1));
+  [['steady', 0, 'steady'], ['falling', -1.5, 'falling, 1.5+'], ['falling fast', -3, 'falling fast, 3+'],
+   ['rising', 1.5, 'rising, 1.5+']].forEach(function (k) {
+    var st = GLASS_STY[k[0]], dy = -(k[1] * hrs / 3) * perPx;
+    D.e('line', { x1: kx, y1: ky - dy / 2, x2: kx + dx, y2: ky + dy / 2, stroke: tok(st[0]),
+                  'stroke-width': st[1], 'stroke-linecap': 'round', 'data-part': 'key', 'data-band': k[0],
+                  'data-hours': hrs });
+    D.t(kx + dx + 8, ky + 4, k[2], D.dim, { 'font-size': 11 });
+    kx += dx + 24 + k[2].length * 5.8;
+  });
+  D.t(x0, ky + 26, 'hPa in 3 hours' + (G.tide ? ', with the daily tide allowed for' : '') +
+      '; each key line is drawn at its own slope', D.dim, { 'font-size': 11 });
+  if (G.tide) {
+    D.e('line', { x1: x0, y1: ky + 44, x2: x0 + 28, y2: ky + 44, stroke: D.dim, 'stroke-width': 2, 'stroke-opacity': 0.75 });
+    D.t(x0 + 36, ky + 48, 'the daily tide alone, from your first reading: ' + WX.cfixed(G.amp, 1) +
+        ' hPa each way', D.dim, { 'font-size': 11, 'data-part': 'tide-note' });
+  } else {
+    D.t(x0, ky + 48, 'The daily tide is not drawn: ' +
+        ((lon === '' || lon === undefined || lon === null) ? 'no longitude is set (the home screen).'
+                                                            : 'there is no latitude in the log yet.'),
+        D.dim, { 'font-size': 11, 'data-part': 'tide-note' });
+  }
+  host.appendChild(D.wrap);
 }
 
 /* =====================================================================
@@ -845,7 +1012,15 @@ window.addEventListener('DOMContentLoaded', function () {
   $('i-hemi').addEventListener('change', drawIsobars);
   /*  the two drawings read their colours at draw time, so a change of
       display mode redraws them while the screen is open  */
-  window.addEventListener('visualmodechange', function () { if (VIEW === 'isobars') drawIsobars(); });
+  window.addEventListener('visualmodechange', function () {
+    if (VIEW === 'isobars') drawIsobars();
+    if (VIEW === 'what') drawWhat();
+  });
+  /*  the barograph's window: 24, 48 or 72 hours, remembered  */
+  var wins = document.querySelectorAll('#what-glass .win');
+  for (var wi = 0; wi < wins.length; wi++) wins[wi].addEventListener('click', function () {
+    lsSet('glass-h', this.getAttribute('data-win')); drawWhat();
+  });
   $('les-back').addEventListener('click', drawLessonIndex);
 
   /*  a lesson's link opens the isobars screen with its example in it  */

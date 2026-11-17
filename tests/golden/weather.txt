@@ -11,6 +11,12 @@
      a rate matters more than a level: 1000 hPa steady is a quiet day,
      1015 falling fast is not.
 
+  The glass, last 48 hours:
+     30 Aug 06:00      1016.4
+     to 12:00          1010.1   falling fast  -3.2 hPa in 3 h
+     to 31 Aug 00:00   1003.0   falling       -1.8 hPa in 3 h
+     the daily tide alone is 0.6 hPa each way here, and is allowed for
+
   Wind has BACKED 20 degrees, 170 to 150.
      northern hemisphere: backing with a falling glass puts the centre
      to your north and closing. This is the one to take seriously.
@@ -148,6 +154,10 @@ The analysis. A human forecaster has looked at it and corrected it. The GRIB is 
   This app corrects for it before saying anything about tendency, and
   tells you how much of the change was the tide. Give it your longitude
   - it needs local solar time to know where in the cycle you are.
+
+  In the browser, the barograph on What the log says draws this wave
+  behind your own readings. A trace that follows the wave is only the
+  tide; one that leaves it is weather.
 
   ----------------------------------------------------------------------
   Question: You are at 12N. The glass has fallen 2 hPa between 1000 and 1600. Worry?
@@ -921,6 +931,122 @@ Because the seasons are the 23.5 degree tilt, not the distance. The northern hem
   Rules from Sienkiewicz and Chesneau, Mariner's Guide to the
   500-Millibar Chart, NOAA. They are rules of thumb: good ones,
   and still rules of thumb.
+
+=== weather what, the glass, 48 hours ===
+
+  WHAT THE LOG SAYS
+  ----------------------------------------------------------------------
+  Pressure 1009.8, +1.5 hPa in 3.0 hours.
+  Allowing for the daily atmospheric tide: +1.6 hPa.
+     the tide alone accounts for -0.1 of that. It is semidiurnal,
+     about 1.4 hPa in the tropics and much less in high latitudes,
+     and in the tropics it falls 2-3 mb every afternoon in fine weather.
+  Rising. The gradient is easing or a ridge is building.
+     a rate matters more than a level: 1000 hPa steady is a quiet day,
+     1015 falling fast is not.
+
+  The glass, last 48 hours:
+     29 Aug 00:00      1018.4
+     to 12:00          1015.8   steady        -0.6 hPa in 3 h
+     to 15:00          1013.1   falling       -2.2 hPa in 3 h
+     to 30 Aug 03:00    998.5   falling fast  -3.6 hPa in 3 h
+     to 09:00           998.4   steady        -0.4 hPa in 3 h
+     to 31 Aug 00:00   1009.8   rising        +2.3 hPa in 3 h
+     the daily tide alone is 0.4 hPa each way here, and is allowed for
+
+  ----------------------------------------------------------------------
+  This reasons only from what you logged. It is not a forecast:
+  no model, no chart, no GRIB. It is you, reading your own barometer.
+
+=== weather what, the glass, 24 hours ===
+
+  WHAT THE LOG SAYS
+  ----------------------------------------------------------------------
+  Pressure 1009.8, +1.5 hPa in 3.0 hours.
+  Allowing for the daily atmospheric tide: +1.6 hPa.
+     the tide alone accounts for -0.1 of that. It is semidiurnal,
+     about 1.4 hPa in the tropics and much less in high latitudes,
+     and in the tropics it falls 2-3 mb every afternoon in fine weather.
+  Rising. The gradient is easing or a ridge is building.
+     a rate matters more than a level: 1000 hPa steady is a quiet day,
+     1015 falling fast is not.
+
+  The glass, last 24 hours:
+     30 Aug 00:00      1002.1
+     to 03:00           998.5   falling fast  -3.1 hPa in 3 h
+     to 09:00           998.4   steady        -0.4 hPa in 3 h
+     to 31 Aug 00:00   1009.8   rising        +2.3 hPa in 3 h
+     the daily tide alone is 0.4 hPa each way here, and is allowed for
+
+  ----------------------------------------------------------------------
+  This reasons only from what you logged. It is not a forecast:
+  no model, no chart, no GRIB. It is you, reading your own barometer.
+
+=== weather what, the glass, no longitude ===
+
+  WHAT THE LOG SAYS
+  ----------------------------------------------------------------------
+  Pressure 1009.8, +1.5 hPa in 3.0 hours.
+  Rising. The gradient is easing or a ridge is building.
+     a rate matters more than a level: 1000 hPa steady is a quiet day,
+     1015 falling fast is not.
+
+  The glass, last 48 hours:
+     29 Aug 00:00      1018.4
+     to 12:00          1015.8   steady        -0.7 hPa in 3 h
+     to 15:00          1013.1   falling       -2.7 hPa in 3 h
+     to 30 Aug 03:00    998.5   falling fast  -3.7 hPa in 3 h
+     to 09:00           998.4   steady        -0.1 hPa in 3 h
+     to 31 Aug 00:00   1009.8   rising        +2.3 hPa in 3 h
+     no longitude set, so the daily tide is not allowed for
+
+  ----------------------------------------------------------------------
+  This reasons only from what you logged. It is not a forecast:
+  no model, no chart, no GRIB. It is you, reading your own barometer.
+
+=== weather what, the glass, no latitude in the log ===
+
+  WHAT THE LOG SAYS
+  ----------------------------------------------------------------------
+  Pressure 1013.1, -2.7 hPa in 3.0 hours.
+  The daily atmospheric tide is not allowed for: no latitude in the log.
+     its size depends on where you are, 1.4 hPa near the equator and a
+     quarter of that at 50 degrees. Log a deck entry with your position.
+  A definite fall. Something is coming.
+     a rate matters more than a level: 1000 hPa steady is a quiet day,
+     1015 falling fast is not.
+
+  The glass, last 48 hours:
+     29 Aug 00:00      1018.4
+     to 12:00          1015.8   steady        -0.7 hPa in 3 h
+     to 15:00          1013.1   falling       -2.7 hPa in 3 h
+     no latitude in the log yet, so the daily tide is not allowed for
+
+  ----------------------------------------------------------------------
+  This reasons only from what you logged. It is not a forecast:
+  no model, no chart, no GRIB. It is you, reading your own barometer.
+
+=== weather what, a reading with no position of its own ===
+
+  WHAT THE LOG SAYS
+  ----------------------------------------------------------------------
+  Pressure 1007.8, -4.2 hPa in 6.0 hours.
+  Allowing for the daily atmospheric tide: -3.5 hPa.
+     the tide alone accounts for -0.7 of that. It is semidiurnal,
+     about 1.4 hPa in the tropics and much less in high latitudes,
+     and in the tropics it falls 2-3 mb every afternoon in fine weather.
+  A definite fall. Something is coming.
+     a rate matters more than a level: 1000 hPa steady is a quiet day,
+     1015 falling fast is not.
+
+  The glass, last 48 hours:
+     29 Aug 10:12      1012.0
+     to 16:12          1007.8   falling       -1.7 hPa in 3 h
+     the daily tide alone is 0.4 hPa each way here, and is allowed for
+
+  ----------------------------------------------------------------------
+  This reasons only from what you logged. It is not a forecast:
+  no model, no chart, no GRIB. It is you, reading your own barometer.
 
 === weather isobars, spacing=100 lat=50 north=1 ===
 

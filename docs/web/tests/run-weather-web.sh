@@ -16,7 +16,7 @@
 #   6  the page        driven, including the rule that it must not tell
 #                      before it asks
 #   3b the wind from the isobars, vs `weather isobars`
-#   7-12 the gunnery, wind, friction, force, veer and isobar figures, measured off the drawing
+#   7-13 the gunnery, wind, friction, force, veer, isobar and barograph figures, measured off the drawing
 set -e
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 cd "$ROOT"
@@ -138,6 +138,13 @@ if node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.ex
   #  long as the speed, the deck wind turned toward the low, the dot on its
   #  latitude's curve; the refusal near the equator; the lesson's scale.
   node docs/web/tests/weather-isoui.js
+  echo
+  echo "13. the glass: the barograph on What the log says"
+  #  weather 1.0.5: every reading where the axes say, each stretch in the
+  #  tendency the rule gives, the tide's wave through the first reading,
+  #  the strip, the key at its own slopes, the windows - and the carried
+  #  latitude, on a log kept the way one is at sea.
+  node docs/web/tests/weather-glass.js
   echo
   echo "WEATHER WEB: all stages passed"
 else

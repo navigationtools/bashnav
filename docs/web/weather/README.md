@@ -152,6 +152,19 @@ character for character by `docs/web/tests/weather-iso.js`; its two drawings
 (`isoPicture`, `isoCurves` in `weather.js`) are measured by
 `weather-isoui.js`.
 
+**The glass** (weather 1.0.5, W04) is the barograph at the top of "What the
+log says". `WX.glass(obs, lon, hours)` gives the readings in the window, the
+change between each pair with the daily tide allowed for, the tendency word
+(`WX.band`, one rule shared with the report) and the tide's size;
+`WX.runs` merges neighbours of a kind. `glassFigure` in `weather.js` draws
+them: the trace coloured and weighted by tendency, the strip of words, the
+tide's wave behind from the first reading, the key at its own slopes. The
+terminal prints the same runs as a table, which the page keeps for "Show it as
+the terminal does" and leaves out of its reasoning. **The latitude is
+carried** in `WX.load`: a weather observation on its own takes the position of
+the last deck entry. Checked by `docs/web/tests/weather-glass.js` and the
+second corpus in `weather-wx.js`.
+
 **A lesson can open it with an example** (weather 1.0.4, Larry's ruling ALI),
 as the course's lessons open the tides calculators:
 

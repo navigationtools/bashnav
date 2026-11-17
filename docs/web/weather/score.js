@@ -90,7 +90,7 @@ var SCORE = (function () {
 
     if (WX.has(o.p) && WX.has(p.p)) {
       var dp = o.p - p.p;
-      if (lon !== '' && lon !== undefined && lon !== null) {
+      if (WX.tideok(lon, p.lat, o.lat)) {
         dp = dp - (WX.tide(o.ts, lon, o.lat) - WX.tide(p.ts, lon, p.lat));
       }
       var rate = dp / dt;

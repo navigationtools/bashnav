@@ -6,7 +6,7 @@
 | | |
 |---|---|
 | `weather` | the menu |
-| `weather what` | what your log says is coming, with the reasoning |
+| `weather what [24\|48\|72]` | what your log says, and the glass over that many hours (48) |
 | `weather learn [key]` | a lesson; no key lists them |
 | `weather chart` | reason over a 500 mb radiofax chart |
 | `weather isobars [nm lat [N|S] [hPa]]` | the wind from the isobars: aloft, then on deck |
@@ -28,6 +28,11 @@
 **The rate matters more than the level.** 1000 steady is a quiet day; 1015
 falling fast is not. The figures are corrected for the atmospheric tide first,
 which needs your longitude.
+
+**The glass.** The same bands are drawn on the barograph: thin and steady,
+heavier rising, heavier again falling, heaviest falling fast, with the daily
+tide alone as a grey wave behind. A trace that follows the wave is only the
+tide.
 
 ## Buys Ballot
 
