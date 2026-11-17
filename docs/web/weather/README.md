@@ -150,7 +150,27 @@ aloft from the geostrophic balance and the wind on deck from W01's rules out.
 `CHART.isoReport` is a port of `iso_report` in `chart.awk`, held to it
 character for character by `docs/web/tests/weather-iso.js`; its two drawings
 (`isoPicture`, `isoCurves` in `weather.js`) are measured by
-`weather-isoui.js`. Each reads its colours from the page's tokens when
+`weather-isoui.js`.
+
+**A lesson can open it with an example** (weather 1.0.4, Larry's ruling ALI),
+as the course's lessons open the tides calculators:
+
+    ?view=isobars&sp=100&lat=50&hemi=N&step=4&lesson=l3a-2025-1
+
+| name | | meaning |
+|---|---|---|
+| `view` | required | `isobars` |
+| `sp` | required | the spacing between the isobars, nm |
+| `lat` | required | latitude, degrees, 0 to 90 |
+| `hemi` | optional | `N` (the default) or `S` |
+| `step` | optional | the isobar interval, hPa; 4 if left out |
+| `lesson` | optional | the lesson to go back to; "Back to the lesson" leads to its page |
+
+Only numbers reach the fields: anything else leaves the field empty and the
+screen asks for it. The back link is built only from an exact lesson name, by
+the rule in `../shared/lesson.js` that tides uses too, so nothing from the URL
+reaches an href otherwise. These names are a contract with the course: a name
+is never renamed or given a new meaning. Each reads its colours from the page's tokens when
 it draws, and is redrawn when the display mode changes. The friction figure is
 checked by `docs/web/tests/weather-friction.js`, the force triangle by
 `weather-forces.js` and the veer figures by `weather-veer.js`, each measuring

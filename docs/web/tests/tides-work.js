@@ -357,7 +357,9 @@ console.log('  ' + figs + ' figures read back against their geometry');
 
 // ---- the lesson link -------------------------------------------------
 var L = WORK.lessonHref;
-//  Lesson names: Larry's decision of 11 November 2026. l1-3 for Level 1,
+//  Lesson names: Larry's decision of 11 November 2026; the rule is in
+//  docs/web/shared/lesson.js since tides 1.5.3 (ALI), and this list holds
+//  work.js's lessonHref to it. l1-3 for Level 1,
 //  which both race years share; l3-2025-4 for Levels 2 to 5, one track per
 //  year. The page is the name without its lesson number, so there is no
 //  table of pages to keep in step. Each refusal below is here because
@@ -370,6 +372,11 @@ var want = [
   ['l2-2025-1', M.COURSE_BASE + 'l2-2025.html#l2-2025-1'],
   ['l3-2025-4', M.COURSE_BASE + 'l3-2025.html#l3-2025-4'],
   ['l5-2027-10', M.COURSE_BASE + 'l5-2027.html#l5-2027-10'],
+  //  Level 3a, Reading the forecast (Larry, ALA), accepted since the rule
+  //  moved to docs/web/shared/lesson.js (ALI), with the same strictness
+  ['l3a-2025-1', M.COURSE_BASE + 'l3a-2025.html#l3a-2025-1'],
+  ['l3a-2027-12', M.COURSE_BASE + 'l3a-2027.html#l3a-2027-12'],
+  ['l3a-2025-01', null], ['l3a-2025-0', null], ['l3b-2025-1', null], ['l3A-2025-1', null],
   //  the old names, now gone: a stale link must fail visibly
   ['a6-2', null], ['c9-14', null],
   //  one lesson, one name

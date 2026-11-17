@@ -416,6 +416,19 @@ drawn below its curve.
 named the ten lessons; `veer`, the eleventh, had no golden copy. It now asks the
 awk for the list, as `weather-ui.js` does.
 
+### One rule for lesson names (tides 1.5.3, weather 1.0.4)
+
+The lesson-name rule moved to `docs/web/shared/lesson.js` (Larry, ALI), so
+`tides-work.js`'s list of names, built and refused, now tests that file through
+`work.js`; six names were added for Level 3a. `work-engine.js` gained the check
+that matters most for the course: `work.js` run as a course page runs it, in a
+bare scope with no `lesson.js` and no `require`, must still offer its shared
+surface and must build no back link. A planted load-time lookup broke exactly
+that and was caught. `weather-isoui.js` opens the isobars screen from five
+links: two good ones (north and south), a lesson name without its year, a
+spacing that is not a number with markup in the lesson, and a latitude that is
+a script.
+
 ### One panel, two pages, and the check that was hiding a gap
 
 Larry: *"It belongs on the main page."* The front page was pure static HTML with

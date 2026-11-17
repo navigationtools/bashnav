@@ -1,5 +1,48 @@
 # Changelog
 
+## tides 1.5.3 and weather 1.0.4: one rule for lesson names, and a lesson link to the isobars screen
+
+**What.** A course lesson can now open the weather app's "wind from the isobars"
+screen with its example filled in, and the screen shows **Back to the lesson**,
+as the tides calculators have since 11 November:
+
+    ?view=isobars&sp=100&lat=50&hemi=N&step=4&lesson=l3a-2025-1
+
+The rule for what a lesson name is, and the course's address, moved out of
+`tides` into one file both tools load, `docs/web/shared/lesson.js`, and it
+accepts Level 3a (`l3a-2025-1` leads to `l3a-2025.html#l3a-2025-1`).
+
+```
+   course lesson ──?lesson=l3a-2025-1──▶ tides calculator ──┐
+         ▲                                weather isobars ──┤
+         └──── "Back to the lesson" ◀── shared/lesson.js ◀──┘  (one rule)
+```
+
+**Why.** Larry's ruling ALI (17 November 2026): PILOT's Level 3a GRIB exercise
+will link the screen; one rule for both tools, so they can never disagree.
+Level 3a itself is Larry's ruling ALA (nothing renumbers).
+
+**What it affects.**
+
+1. **`tides` is 1.5.3** (rule 13: not yet verified with the course; the next
+   verification covers 1.5.1 to 1.5.3 together). Its lesson links work exactly
+   as before; they also accept `l3a`. `work.js` looks the rule up only when a
+   back link is asked for, because the course loads `work.js` on its own and
+   never asks; without `lesson.js` no back link is built and nothing breaks.
+2. **`weather` is 1.0.4.** It reads the link: only numbers reach the fields;
+   the back link comes only from an exact lesson name. The contract is in the
+   weather README.
+3. **Both pages load `../shared/lesson.js`** and precache it; caches `tides-v18`
+   and `weather-v21`.
+4. **Checks:** `tides-work.js` holds 33 lesson names (six new, for 3a and its
+   refusals); `work-engine.js` loads `work.js` on its own, as the course does,
+   and checks it stands without `lesson.js`; `weather-isoui.js` opens five
+   links, good and bad.
+
+**Checked.** All of the above; `tides-ui.js` in the browser, back links
+included; two faults planted (a load-time lookup in `work.js`, Level 3a
+misspelled in the rule), both caught.
+
 ## weather 1.0.3: the wind from the isobars (W07)
 
 **What.** A screen of its own, "The wind from the isobars", on the home menu and

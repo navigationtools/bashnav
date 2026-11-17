@@ -139,7 +139,13 @@ page the lesson sits on. The alternative was a table mapping names to pages,
 which is a second copy of the same fact and drifts the first time a page is
 renamed (README rule 8: derive rather than keep two copies).
 
-`COURSE_BASE` is defined **once**, at the top of `docs/web/tides/work.js`.
+`COURSE_BASE` and the rule for lesson names are defined **once**, in
+`docs/web/shared/lesson.js` (since tides 1.5.3, Larry's ruling ALI): the
+weather app's isobar screen links back to lessons too, and one file for both
+tools means they can never disagree about what a lesson name is. `work.js`
+looks the file up only when a back link is asked for, never when it loads,
+because the course loads `work.js` on its own; without `lesson.js` the back
+link is simply not built (`docs/web/tests/work-engine.js` checks exactly that).
 It points at the course's coastal section on this same origin, where The
 bashnav Practical Navigator lives; the first draft of this contract named
 `navigationtools.org/coastal/`, from before the move, and was corrected
@@ -150,7 +156,12 @@ before it was applied:
 **What is accepted,** checked **before** any link is built, so nothing from
 the URL reaches an href unless it is exactly a lesson name:
 
-    ^(l1-[1-9][0-9]*|l[2-5]-20[0-9]{2}-[1-9][0-9]*)$
+    ^(l1-[1-9][0-9]*|l(?:[2-5]|3a)-20[0-9]{2}-[1-9][0-9]*)$
+
+Level 3a, Reading the forecast (Larry's ruling ALA, 16 November 2026), is named
+the same way as Levels 2 to 5: `l3a-2025-1` leads to `l3a-2025.html#l3a-2025-1`.
+The levels are exactly 1, 2, 3, 3a, 4 and 5; `l3b-2025-1` and `l6-1` are
+refused, and a new level is one change in `lesson.js` with its tests.
 
 This is stricter than the pattern practical-navigator proposed
 (`^l[1-5](-20[0-9]{2})?-[0-9]+$`), in three ways, each of them so that a
@@ -172,7 +183,7 @@ works as normal. The shell tool ignores `lesson`.
 **What this change impacts.** Only the back link. No calculator, no working
 line and no figure reads `lesson`, so a course page that still carries an old
 name loses its "Back to the lesson" button and nothing else; the arithmetic on
-the page is unaffected. `docs/web/tests/tides-work.js` holds 27 names against
+the page is unaffected. `docs/web/tests/tides-work.js` holds 33 names against
 this rule, five built and twenty-two refused.
 
 ---

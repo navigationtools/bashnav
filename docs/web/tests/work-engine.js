@@ -214,5 +214,24 @@ function run(c) {
     ok('the shim does detect reaching: atlas asks it for ' + sh.reached.join(', '));
 })();
 
+/*  THE COURSE LOADS work.js ON ITS OWN (tides 1.5.3, ALI).  The lesson-name
+    rule moved to docs/web/shared/lesson.js, which the course does not load.
+    So work.js must load and run its shared surface with neither that file
+    nor require() in reach, and a back link must quietly not be built.
+    Run the source the way a course page would: a bare function scope.  */
+(function () {
+  var src = fs.readFileSync(WEB + 'work.js', 'utf8');
+  var good = true, why = '';
+  try {
+    var exp = new Function('TIDE', 'TT_CONST', 'TT_SAT', 'TT_SHAL',
+      src + '\n;return { WORK: WORK, SHARED: WORK_SHARED };')(TIDE, tabs.TT_CONST, tabs.TT_SAT, tabs.TT_SHAL);
+    exp.SHARED.forEach(function (k) { if (!(k in exp.WORK)) { good = false; why = 'no ' + k; } });
+    if (exp.WORK.lessonHref('l3-2025-4') !== null) { good = false; why = 'a back link built without lesson.js'; }
+  } catch (e) { good = false; why = String(e); }
+  if (!good) fail('work.js does not stand alone without shared/lesson.js: ' + why);
+  else ok('work.js loads and runs on its own, as the course loads it, with no lesson-name file');
+})();
+
 console.log(fails ? '\nWORK ENGINE: ' + fails + ' FAILURE(S)' : '\nWORK ENGINE: the shared surface and the engine boundary both hold');
+
 process.exitCode = fails ? 1 : 0;

@@ -13,7 +13,9 @@
    which deep-links here:  ?work=<name>&key=value...&lesson=<id>.  The
    authoritative list is docs/web/tides/WORK.md.  Do not rename one.
    Lesson names follow Larry's decision of 11 November 2026 (l1-3,
-   l3-2025-4); lessonHref() below is the only place that reads them.
+   l3-2025-4, and l3a-2025-1 since ALA); the rule for them lives in
+   ../shared/lesson.js, which the weather app uses too (Larry, ALI), and
+   lessonHref() below hands every name to it.
 
    Formatting goes through fx(), which rounds an exact tie the way C's
    printf does (to even) rather than the way toFixed() does (up).  A range
@@ -22,12 +24,19 @@
    ===================================================================== */
 'use strict';
 
-/*  The Practical Navigator course, its coastal section.  ONE constant,
-    used for every back link to a lesson: ?lesson=l3-2025-4 leads to
-    COURSE_BASE + 'l3-2025.html#l3-2025-4'.  Same origin as tides since
-    the course moved to bashnav.navigationtools.org/practical-navigator/.
-    Documented in WORK.md; change it here and nowhere else. */
-var COURSE_BASE = 'https://bashnav.navigationtools.org/practical-navigator/coastal/';
+/*  THE LESSON NAMES AND COURSE_BASE LIVE IN ../shared/lesson.js since
+    tides 1.5.3 (Larry's ruling ALI, 17 November 2026): one rule for every
+    tool that links back to a lesson.  They are looked up WHEN ASKED FOR,
+    never when this file loads, because the course loads this file on its
+    own (see THIS FILE IS A SHARED ENGINE below) and never calls
+    lessonHref; a lookup at load time would break every lesson page that
+    runs a worked example.  The tides page loads lesson.js before this
+    file; the tests require it.  */
+function lessonNames() {
+  if (typeof LESSON_NAMES !== 'undefined') return LESSON_NAMES;
+  if (typeof require === 'function') return require('../shared/lesson.js');
+  return null;
+}
 
 /* =====================================================================
    THIS FILE IS A SHARED ENGINE, and the four lists below are what that
@@ -1862,42 +1871,13 @@ var WORK = (function () {
     depth: 'dries=0.3 draught=1.8 clear=0.5 lw=05:12 lwh=0.8 hw=11:24 hwh=4.2 lw2=17:40 lw2h=0.9 t=09:00'
   };
 
-  /*  A LESSON NAME, AND THE PAGE IT IS ON.  Larry's decision of
-      11 November 2026, relayed by practical-navigator: a lesson is named
-      by its level, its race year where it has one, and its number.
-
-          l1-3        Level 1, lesson 3.  Level 1 is shared by both race
-                      years, so it carries no year.
-          l3-2025-4   Level 3, 2025, lesson 4.  Levels 2 to 5 run one
-                      track per race year, so the year is part of the name.
-
-      ?lesson=l3-2025-4 -> COURSE_BASE + 'l3-2025.html#l3-2025-4'
-      ?lesson=l1-3      -> COURSE_BASE + 'l1.html#l1-3'
-
-      THE PAGE IS DERIVED FROM THE NAME, not held as a second rule: it is
-      the name with its trailing lesson number removed, which is exactly
-      the track - a level, or a level and its year.  There is no table of
-      pages to drift out of step with the names (README rule 8).
-
-      The check runs BEFORE a link is built, so nothing from the URL
-      reaches an href unless it is exactly a lesson name.  It is stricter
-      than the pattern practical-navigator proposed, in three ways, each
-      so that a lesson has exactly ONE name - which is their own reason
-      for putting the year in the name at all:
-
-        1. a year is REFUSED for Level 1 (l1-2025-3) and REQUIRED for
-           Levels 2 to 5 (l3-4), so one lesson cannot have two names;
-        2. the lesson number carries no leading zero (l1-03) and is not
-           zero (l1-0), for the same reason;
-        3. the year is four digits beginning 20 (l3-25-4 is refused).
-
-      Refused with it: every old-style name (a6-2, c9-14), so a stale link
-      in a page that was not updated fails visibly instead of pointing at
-      a lesson that no longer exists under that name. */
-  var LESSON = /^(l1-[1-9][0-9]*|l[2-5]-20[0-9]{2}-[1-9][0-9]*)$/;
+  /*  A LESSON NAME, AND THE PAGE IT IS ON: the rule, its reasons and the
+      course's address are in ../shared/lesson.js (Larry, ALI).  With that
+      file absent the back link is simply not built, and the calculator
+      works as normal.  */
   function lessonHref(lesson) {
-    if (typeof lesson !== 'string' || !LESSON.test(lesson)) return null;
-    return COURSE_BASE + lesson.replace(/-[1-9][0-9]*$/, '') + '.html#' + lesson;
+    var L = lessonNames();
+    return L ? L.href(lesson) : null;
   }
   /*  The URL's parameters, in order, values trimmed: a '+' in a query
       string is a SPACE, so tdhw2=+5 arrives as ' 5' -- WORK.md says to
@@ -2362,7 +2342,7 @@ var WORK = (function () {
     are file-scope data rather than members of WORK, so the promise can be
     read by a checker without widening the surface a page can reach. */
 if (typeof module !== 'undefined') module.exports = {
-  WORK: WORK, COURSE_BASE: COURSE_BASE,
+  WORK: WORK, COURSE_BASE: lessonNames().COURSE_BASE,
   SHARED: WORK_SHARED, HOST: WORK_HOST,
   PURE_CALLS: WORK_PURE_CALLS, PURE_WORK: WORK_PURE_WORK,
   MOON_CALLS: WORK_MOON_CALLS, MOON_WORK: WORK_MOON_WORK

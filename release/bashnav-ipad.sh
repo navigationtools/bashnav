@@ -10829,7 +10829,7 @@ bn_unpack() {
 #  Part of Bash Navigation Software.  https://github.com/navigationtools/bashnav
 #  Copyright 2026 M. Larry Sherman.  Apache License 2.0.
 # =====================================================================
-TIDES_VERSION=1.5.2
+TIDES_VERSION=1.5.3
 TIDES_HOME=${TIDES_HOME:-$(bn_home .tides)}
 CONF="$TIDES_HOME/config"
 ENGINE="$TIDES_HOME/engine-$TIDES_VERSION.awk"
@@ -30496,7 +30496,7 @@ bn_unpack() {
 #  data that is never wrong - what you measured yourself - and the only
 #  one still available when the antenna comes down.
 # =====================================================================
-WEATHER_VERSION=1.0.3
+WEATHER_VERSION=1.0.4
 
 #  the log belongs to deck-log; weather only ever READS it
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"

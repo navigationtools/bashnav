@@ -358,7 +358,30 @@ function drawChart() {
    (the tool).  Drawn by isoPicture and isoCurves, which the gradient
    lesson reuses for its own copy of the scale.
    ===================================================================== */
+/*  A LESSON'S LINK (weather 1.0.4; Larry, ALI).  A course lesson opens this
+    screen with its example filled in and a way back:
+        ?view=isobars&sp=100&lat=50&hemi=N&step=4&lesson=l3a-2025-1
+    The contract is in docs/web/weather/README.md.  Only numbers reach the
+    fields (anything else leaves the field empty), hemi is N or S, and the
+    back link is built only from an exact lesson name, by the rule in
+    ../shared/lesson.js that tides uses too, so nothing from the URL reaches
+    an href otherwise.  */
+var ISO_LESSON = null;
+function isoFromQuery(search) {
+  var q = new URLSearchParams(search || ''), out = { view: q.get('view') };
+  var num = function (k) {
+    var v = (q.get(k) || '').trim();
+    return (v !== '' && isFinite(+v)) ? String(+v) : '';
+  };
+  out.sp = num('sp'); out.lat = num('lat'); out.step = num('step');
+  var h = (q.get('hemi') || 'N').toUpperCase();
+  out.north = h !== 'S';
+  out.lesson = (typeof LESSON_NAMES !== 'undefined') ? LESSON_NAMES.href(q.get('lesson')) : null;
+  return out;
+}
 function drawIsobars() {
+  $('iso-lesson').hidden = !ISO_LESSON;
+  if (ISO_LESSON) $('iso-lesson-a').setAttribute('href', ISO_LESSON);
   var sp = $('i-sp').value.trim(), lat = $('i-lat').value.trim();
   var step = $('i-step').value.trim(), north = $('i-hemi').value === '1';
   ['i-sp', 'i-lat', 'i-step'].forEach(function (k) { lsSet(k, $(k).value); });
@@ -825,7 +848,14 @@ window.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('visualmodechange', function () { if (VIEW === 'isobars') drawIsobars(); });
   $('les-back').addEventListener('click', drawLessonIndex);
 
-  go('home');
+  /*  a lesson's link opens the isobars screen with its example in it  */
+  var IQ = isoFromQuery(location.search);
+  if (IQ.view === 'isobars') {
+    $('i-sp').value = IQ.sp; $('i-lat').value = IQ.lat; $('i-step').value = IQ.step;
+    $('i-hemi').value = IQ.north ? '1' : '0';
+    ISO_LESSON = IQ.lesson;
+    go('isobars');
+  } else go('home');
   reload().then(drawHome).catch(function (e) {
     $('st-obs').textContent = 'Could not open the log store';
     $('st-sub').textContent = e.message;

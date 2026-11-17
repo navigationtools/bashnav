@@ -581,3 +581,10 @@ input[type="range"]::-moz-range-thumb {
     opacity: 1;
   }
 }
+
+/*  "Back to the lesson", when a course lesson opened a screen with an
+    example filled in (weather 1.0.4, Larry ALI) - styled as the tides
+    page styles its own, so the two tools look alike to the course.  */
+.lessonlink { margin: 4px 0 12px; }
+.lessonlink a { color: var(--accent); font-weight: 600; text-decoration: none; }
+

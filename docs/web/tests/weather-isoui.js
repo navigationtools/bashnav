@@ -15,7 +15,9 @@
          spacing blows harder nearer the equator;
       4. within 5 degrees of the equator no drawing, only the refusal;
       5. day and night redraw in the page's colours; nothing leaves a box;
-      6. the gradient lesson carries the same scale, its example marked.
+      6. the gradient lesson carries the same scale, its example marked;
+      7. a lesson's link fills the screen and builds "Back to the lesson"
+         only from an exact lesson name (weather 1.0.4, Larry ALI).
 
       node weather-isoui.js   (needs the server on $PORT)  */
 'use strict';
@@ -115,6 +117,38 @@ function ok(what, cond, note) { checks++; if (!cond) { bad++; console.log('  FAI
     await set(100, 3, true, 4); const q = await read();
     ok(mode + ': within 5 degrees of the equator, no drawing', q.n === 0 && /do not give the wind/.test(q.out));
   }
+  /* 7: a lesson's link (weather 1.0.4, Larry ALI): the example filled in,
+     and "Back to the lesson" built only from an exact lesson name, by the
+     rule in docs/web/shared/lesson.js  */
+  const CB = 'https://bashnav.navigationtools.org/practical-navigator/coastal/';
+  for (const [q, want] of [
+    ['view=isobars&sp=100&lat=50&hemi=N&step=4&lesson=l3a-2025-1',
+       { sp: '100', lat: '50', hemi: '1', step: '4', back: CB + 'l3a-2025.html#l3a-2025-1', wind: 31 }],
+    ['view=isobars&sp=150&lat=45&hemi=S&lesson=l3-2025-4',
+       { sp: '150', lat: '45', hemi: '0', step: '', back: CB + 'l3-2025.html#l3-2025-4', wind: null }],
+    ['view=isobars&sp=100&lat=50&lesson=l3a-4', { sp: '100', lat: '50', hemi: '1', step: '', back: null, wind: 31 }],
+    ['view=isobars&sp=abc&lat=50&lesson=l3a-2025-1%22%3E%3Cb%3E', { sp: '', lat: '50', hemi: '1', step: '', back: null, wind: null }],
+    ['view=isobars&sp=100&lat=javascript:alert(1)', { sp: '100', lat: '', hemi: '1', step: '', back: null, wind: null }]]) {
+    const p2 = await browser.newPage({ viewport: { width: 744, height: 1600 } });
+    p2.on('pageerror', e => errs.push(String(e)));
+    await p2.goto(BASE + 'index.html?' + q, { waitUntil: 'load' });
+    await p2.waitForTimeout(250);
+    const r = await p2.evaluate(() => ({
+      view: VIEW, sp: document.getElementById('i-sp').value, lat: document.getElementById('i-lat').value,
+      hemi: document.getElementById('i-hemi').value, step: document.getElementById('i-step').value,
+      shown: !document.getElementById('iso-lesson').hidden,
+      href: document.getElementById('iso-lesson-a').getAttribute('href'),
+      out: document.getElementById('iso-out').innerText }));
+    const tag = 'link ?' + q + ': ';
+    ok(tag + 'opens the isobars screen', r.view === 'isobars');
+    ok(tag + 'fills the fields from numbers only', r.sp === want.sp && r.lat === want.lat && r.hemi === want.hemi && r.step === want.step,
+       JSON.stringify(r));
+    ok(tag + (want.back ? 'shows the way back to the lesson' : 'builds no way back'),
+       want.back ? (r.shown && r.href === want.back) : !r.shown, r.href);
+    if (want.wind) ok(tag + 'works the example', r.out.indexOf('at ' + want.wind + ' knots') >= 0);
+    await p2.close();
+  }
+
   /* 6: the gradient lesson's scale */
   await page.evaluate(() => go('learn')); await page.waitForTimeout(150);
   await page.click('#les-list >> text=/Gradient wind/i'); await page.waitForTimeout(400);

@@ -183,7 +183,9 @@ most charts), and it works the rest:
 
 The same scale is printed in the `gradient` lesson, so it is met twice. In the
 terminal it is `weather isobars`, with the questions asked in turn, or the
-answers given at once: `weather isobars 100 50 N 4`.
+answers given at once: `weather isobars 100 50 N 4`. A lesson of the course can
+open the screen with its own example filled in, and then shows **Back to the
+lesson** at the top.
 
 ---
 

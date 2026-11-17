@@ -52,8 +52,8 @@ extraction repeats if the executable is newer than the extracted engine
 
     ~/.celnav/    engine-1.6.awk  teach-1.6.awk  celnav.conf
     ~/.colregs/   engine-1.15.awk  contacts-1.15.awk  review-1.15.awk  colregs.conf
-    ~/.tides/     engine-1.5.2.awk  tables-1.5.2.awk  stations.dat  levels.dat  config  lastlist
-    ~/.bashnav/   decklog-1.1.awk  weather-1.0.3.awk  log  boat  *.conf
+    ~/.tides/     engine-1.5.3.awk  tables-1.5.3.awk  stations.dat  levels.dat  config  lastlist
+    ~/.bashnav/   decklog-1.1.awk  weather-1.0.4.awk  log  boat  *.conf
 
 ### `$HOME` is not writable on iOS, so the folder is chosen, not assumed
 
@@ -267,6 +267,13 @@ answer is true at every instant — including during an update, when the new
 worker claims the page without a reload and the label follows it live. With
 no worker in charge the page says "not installed — served from the network",
 which is both honest and the useful thing to know.
+
+**The lesson names are written once too.** A course lesson links a tool with
+`?lesson=<name>` and gets "Back to the lesson". What a lesson name is, and the
+course's address, live in `docs/web/shared/lesson.js` (tides 1.5.3, weather
+1.0.4; Larry's ruling ALI), which both the tides page and the weather page
+load. `tides/work.js` asks it only when a back link is wanted, because the
+course loads `work.js` by itself and must not need a second file.
 
 **drill is the deliberate exception, and it shows where the rule stops.**
 drill fetches its own `drill.js` from the network and reads the `BUILD`

@@ -50,8 +50,8 @@ the day screen and the station picker, and a URL opens one directly:
 
 The coastal navigation course links into them that way, so **the parameter
 names are a contract**, written down in [`WORK.md`](WORK.md) with every unit
-and default. `lesson=` adds a link back to the lesson, built from the one
-constant `COURSE_BASE` at the top of `work.js`.
+and default. `lesson=` adds a link back to the lesson, built by the one rule
+for lesson names in `../shared/lesson.js`, which the weather app uses too.
 
 ```
    URL  ?work=..&..&lesson=..          form  "Work it"

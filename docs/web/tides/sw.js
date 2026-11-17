@@ -7,7 +7,7 @@
 // opposite of what a worker is for on a boat.  It is cached on first
 // successful fetch instead, and the About screen has a button that
 // fetches it with a progress bar.
-const CACHE = 'tides-v17'
+const CACHE = 'tides-v18'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'tides-';
@@ -15,7 +15,7 @@ const FILES = ['./', './index.html', './tides.css', './tides.js',
                './engine.js', './tables.js', './work.js', './stations.idx',
                './levels.dat',
                './manifest.webmanifest', './icon.svg',
-               '../shared/build.js'];
+               '../shared/build.js', '../shared/lesson.js'];
 const BIG = './stations.dat';
 //  WHERE A USER'S OWN SAVED FILE LIVES, AND WHY IT IS NOT IN CACHE.
 //
