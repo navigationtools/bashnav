@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=004052874
+BASHNAV_BYTES=004053653
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -30496,7 +30496,7 @@ bn_unpack() {
 #  data that is never wrong - what you measured yourself - and the only
 #  one still available when the antenna comes down.
 # =====================================================================
-WEATHER_VERSION=1.0.5
+WEATHER_VERSION=1.0.6
 
 #  the log belongs to deck-log; weather only ever READS it
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"
@@ -32515,10 +32515,22 @@ function lesson_body(k){
     lp("not once. Why once-a-day heating produces a twice-a-day pressure signal")
     lp("is a genuine puzzle in meteorology.")
     print ""
-    lp("  amplitude in the tropics     about 1.4 hPa")
+    lp("  size in the tropics          about 1.4 hPa each way")
     lp("  maxima                       about 1000 and 2200 local")
     lp("  minima                       about 0400 and " cw("1600",C_ACC) " local")
-    lp("  and it falls off steeply    ~1.2 hPa at the equator, ~0.2 at 45 deg")
+    #  THE SIZES ARE THE WORKING'S (Larry, AOR, 17 November 2026).  The
+    #  correction in wx.awk is 1.4 * cos^3(latitude) hPa each way: 1.4 at
+    #  the equator, 0.5 at 45 degrees, 0.4 at 50.  Until weather 1.0.6
+    #  this line said "~1.2 hPa at the equator, ~0.2 at 45 deg", which
+    #  the working never did; a lesson must quote the rule the app
+    #  applies.  The tropics' size is Bowditch's (American Practical
+    #  Navigator, 2002, art. 3506: "about 3 hPa", top to bottom).  The
+    #  fall-off with latitude is not yet confirmed from a source read
+    #  (docs/SOURCES.md, Weather).
+    lp("  falling off with latitude    1.4 hPa at the equator, 0.5 at 45 deg")
+    print ""
+    lpd("The tropics' size is Bowditch's: about 3 hPa from top to bottom, so")
+    lpd("1.4 each way. The fall-off with latitude is the rule this app uses.")
     print ""
     lp(cw("Which is a trap worth knowing about.",C_WARN) " In the tropics the glass")
     lp("falls two to three millibars between mid-morning and mid-afternoon")

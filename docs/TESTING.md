@@ -416,6 +416,18 @@ drawn below its curve.
 named the ten lessons; `veer`, the eleventh, had no golden copy. It now asks the
 awk for the list, as `weather-ui.js` does.
 
+### A lesson held to the working it describes (weather 1.0.6)
+
+The tide lesson quoted sizes the working never used ("~1.2 hPa at the
+equator, ~0.2 at 45 deg" against 1.4 and 0.5). Nothing could catch it: the
+golden file pinned the lesson's words, and the rule checks pinned the working,
+each on its own. `tests/wx-check.awk` now asks `wx_tide` for its size at the
+equator, 45 and 50 degrees at the morning maximum, builds the lesson's line
+from those two numbers, and requires `src/weather/teach.awk` to contain it.
+Change the working and the check fails until the lesson is changed with it.
+Shown to fail: run from a folder where the lesson cannot be read, it reports
+the line it wanted. 37 checks, were 33.
+
 ### The glass, and a corpus that could not see a fault (weather 1.0.5)
 
 **The fault.** A weather observation logged on its own has no position, and an

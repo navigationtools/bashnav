@@ -1,5 +1,36 @@
 # Changelog
 
+## weather 1.0.6: the tide lesson quotes the working (Larry, AOR)
+
+**What.** The lesson on the atmospheric tide (`weather learn tide`, and the
+same lesson in the browser) now gives the sizes the app applies: 1.4 hPa each
+way at the equator, 0.5 at 45 degrees. It says where the tropics' size comes
+from (Bowditch: about 3 hPa from top to bottom) and that the fall-off with
+latitude is the app's own rule.
+
+```
+    size in the tropics          about 1.4 hPa each way
+    falling off with latitude    1.4 hPa at the equator, 0.5 at 45 deg
+```
+
+**Why.** A fault, found while building the barograph: the lesson said "~1.2
+hPa at the equator, ~0.2 at 45 deg", which the working never did (it takes off
+`1.4 x cos^3(latitude)`: 1.4, and 0.5 at 45 degrees). A reader checking the
+barograph's wave against the lesson would have found them disagreeing. Larry
+ruled (AOR, 17 November 2026) that the lesson quotes the working.
+
+**What it touches.** `src/weather/teach.awk`; `docs/web/weather/lessons.js`
+(generated from it); the golden file; `tests/wx-check.awk`, which now takes
+the sizes from `wx_tide` itself and requires the lesson's line to say them, so
+the two cannot drift apart again (37 checks, were 33). No number the app works
+with has changed: tendencies, the barograph and the scores are as in 1.0.5.
+The browser cache is `weather-v23`.
+
+**Still open.** The fall-off with latitude is not yet confirmed from a source
+read (`docs/SOURCES.md`, Weather). Larry has asked for the source documents to
+be carried on board, Bowditch first; that is recorded as a note and a card and
+is not built.
+
 ## weather 1.0.5: the glass, a barograph of your own log (W04)
 
 **What.** "What the log says" opens with a barograph: every pressure in the

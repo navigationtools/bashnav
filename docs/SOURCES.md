@@ -193,7 +193,11 @@ barograph's wave and the `tide` lesson). Confirmed from sources read:
 **Not yet confirmed from a source read:** how it falls off with latitude. The
 working uses `cos^3(latitude)`, the shape of the classical fit usually quoted
 (Haurwitz and Cowley, 1973, not read here), which gives 0.5 hPa each way at 45
-degrees and 0.4 at 50. The `tide` lesson quotes "~1.2 hPa at the equator, ~0.2
-at 45 deg", which is not what the working does. Raised with Larry, 17 November
-2026.
+degrees and 0.4 at 50.
+
+**Larry's ruling (AOR, 17 November 2026):** the `tide` lesson quotes the
+working. Until weather 1.0.6 it said "~1.2 hPa at the equator, ~0.2 at 45
+deg", which the working never did; it now says 1.4 at the equator and 0.5 at
+45 degrees, gives Bowditch for the tropics, and says the fall-off is the app's
+own rule. `tests/wx-check.awk` holds the lesson's line to `wx_tide`.
 

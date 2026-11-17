@@ -141,10 +141,13 @@ The analysis. A human forecaster has looked at it and corrected it. The GRIB is 
   not once. Why once-a-day heating produces a twice-a-day pressure signal
   is a genuine puzzle in meteorology.
 
-    amplitude in the tropics     about 1.4 hPa
+    size in the tropics          about 1.4 hPa each way
     maxima                       about 1000 and 2200 local
     minima                       about 0400 and 1600 local
-    and it falls off steeply    ~1.2 hPa at the equator, ~0.2 at 45 deg
+    falling off with latitude    1.4 hPa at the equator, 0.5 at 45 deg
+
+  The tropics' size is Bowditch's: about 3 hPa from top to bottom, so
+  1.4 each way. The fall-off with latitude is the rule this app uses.
 
   Which is a trap worth knowing about. In the tropics the glass
   falls two to three millibars between mid-morning and mid-afternoon

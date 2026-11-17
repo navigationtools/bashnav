@@ -54,6 +54,24 @@ BEGIN{
   if(high<0) high=-high
   chk("the tide is much smaller at 60N than at 5N", (high < trop/4), 1)
 
+  # ---- the tide lesson quotes the working (Larry, AOR; weather 1.0.6) --
+  #  The lesson once said "~1.2 hPa at the equator, ~0.2 at 45 deg" while
+  #  the working took off 1.4 and 0.5.  The sizes are taken here from
+  #  wx_tide itself, at its morning maximum, and the lesson's line is
+  #  built from them: change the working and this fails until the lesson
+  #  is changed with it.
+  a0  = wx_tide("2026-08-30T10:00Z", 0, "00 00.0N")
+  a45 = wx_tide("2026-08-30T10:00Z", 0, "45 00.0N")
+  a50 = wx_tide("2026-08-30T10:00Z", 0, "50 00.0N")
+  chk("the tide at the equator, hPa each way", sprintf("%.1f", a0),  "1.4")
+  chk("the tide at 45 degrees",                sprintf("%.1f", a45), "0.5")
+  chk("the tide at 50 degrees",                sprintf("%.1f", a50), "0.4")
+  want = sprintf("%.1f hPa at the equator, %.1f at 45 deg", a0, a45)
+  found = 0
+  while((getline ln < "src/weather/teach.awk") > 0) if(index(ln, want)) found = 1
+  close("src/weather/teach.awk")
+  chk("the tide lesson quotes the working (" want ")", found, 1)
+
   # ---- hemisphere from a latitude as a person writes it -------------
   #  the tendency, in the barograph's four words (weather 1.0.5): the
   #  change per three hours, each boundary from both sides
