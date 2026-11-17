@@ -26,6 +26,19 @@ BEGIN{
   }
   chk("wind-direction points are 0..18 and symmetric everywhere", bad, 0)
 
+  # ---- sea state from wind: the Beaufort scale's, since 1.0.7 --------
+  #  (Larry, AOU.)  The steps are the curve's, checked against it in
+  #  tests/wx-check.awk; here, that the score uses them and not the table
+  #  of its own it had before: 12 kt was state 2 and is slight, 24 kt was
+  #  moderate and is rough, 60 kt was phenomenal and is very high.
+  chk("12 kt forecasts a slight sea",     sc_sea(12), 3)
+  chk("24 kt forecasts a rough sea",      sc_sea(24), 5)
+  chk("60 kt forecasts a very high sea",  sc_sea(60), 8)
+  bad=0; for(w=0; w<=700; w++) if(sc_sea(w/10) != wx_seafor(w/10)) bad++
+  chk("the score's sea state is the scale's at every wind", bad, 0)
+  chk("one sea state out is 2 points",    sc_pts("sea", 4, 5), 2)
+  chk("a sea state not logged is not comparable", sc_pts("sea", 4, -9999), -1)
+
   # ---- sea state from wind, monotonic ------------------------------
   bad=0; last=-1
   for(w=0; w<=70; w++){ s=sc_sea(w); if(s<last) bad++; last=s

@@ -1,5 +1,87 @@
 # Changelog
 
+## weather 1.0.7: the sea against your wind (W09), and the sea state is scored
+
+**What.** When your latest observation has a wind, "What the log says" holds
+the sea you logged against the sea that wind should raise. In the browser it
+is a figure beside its own words; in the terminal, the words.
+
+```
+  m                         :        :  your wind (a dashed upright)
+  6 |- - - - - - - - - - - -:- - -/  dashed box: the state you are close to
+  4 |=======================o=/===   solid box: the state the scale expects
+    |                  <>   :/       o  the scale's answer at your wind
+  2 |               _.-~    #        #  your sea: a bar over the band you logged
+  0 |___..--~~~              #        <> your swell, on its own
+    0        10        20   28  kt   /  dashed curve above: fully developed
+```
+
+```
+  The sea: at 28 kt the Beaufort scale expects about 3.7 m, rough.
+  Close to very rough: the scale turns at 30 kt.
+  You logged a moderate sea, 1.25 to 2.5 m: under the scale.
+  Your swell: 3.0 m at 13 seconds.
+  Fully developed, this wind could raise about 4.7 m.
+```
+
+**Why.** The weather gap list's W09, and item 5 of the weather work before the
+launch. The course's Level 3 has a sea-state layer on its chart; this is how
+to read one against your own wind.
+
+**Larry's rulings, 17 November 2026.**
+
+| | the choice | what was ruled |
+|---|---|---|
+| AOU | which curve the figure claims | a public source's: the Beaufort scale's probable wave height, from the Met Office's table; and the score's rule for turning a wind into a sea state follows the same curve |
+| AOZ | marking the next step | when the wind is in the top share of the step it is on, the next state is marked as close; the share can be set, 25 percent unless set, measured in knots, upward only |
+| APC | the score | the sea state is scored: one state for each wind, two points a state |
+| APF | the fully developed sea | drawn as a dashed ceiling above the scale, the gap shaded |
+
+**Two faults, found on the way.**
+
+1. **The rule for the sea state had never been checked against a source.** The
+   score turned a wind into a sea state with a table of its own, described as
+   "a fully developed sea". By the Met Office's heights it was one state low at
+   4 to 12 and 22 to 24 knots and one high at 56 to 63. It now follows the
+   scale's curve: the steps are at 1, 2, 8, 14.5, 21.5, 30, 39.3, 52 and 64
+   knots.
+2. **The sea state was forecast by all three and scored for none.** The form
+   asked for it, the two machine forecasters wrote one, and the weight was in
+   the code, but the sea state the log holds was never read, so there was
+   nothing to score against. It is read now (`sea` on a deck entry) and scored.
+   **Totals that include a sea-state forecast change once**, and who is ahead
+   may change with them.
+
+**What it touches.**
+
+1. The engine: `wx.awk` (the curve, the steps, close, the limit, the words;
+   `wx_load` reads `sea` and `swht`), `score.awk` (`sc_sea` is the scale's;
+   the sea state scored and shown), `screens.awk`, `10-head.sh` and `30-ui.sh`
+   (the setting `weather close <percent>`, kept in `weather.conf`).
+2. The browser: `wx.js`, `score.js`, `weather.js` (`seaFigure`, the two
+   buttons, the score table's sea column), `weather.css`, `index.html` (the
+   score's note), cache `weather-v24`.
+3. The weather manual (section 3, "The sea against your wind", with a new
+   Figure 3; the figures after it renumbered; section 5; the commands) and the
+   quick reference, both rebuilt. One stale figure reference in section 8 is
+   corrected.
+4. Nothing in the tides engine or the course. A note has gone to PILOT.
+
+**Checked.** `tests/wx-check.awk` (101 checks, were 37): the curve at every
+force's mean wind against the Met Office's table; each written step found
+again from the curve; the Met Office's three paired forces each holding both
+their states; close, and its share; the limit against `0.22 U^2 / g`.
+`tests/score-check.awk` (17, were 11). The browser and the awk agree
+character for character over 1,200 generated logs (400 of them new, ending on
+winds from every part of the scale, the steps' edges among them) and 300
+scored logs, two thirds of which now score a sea state.
+`docs/web/tests/weather-sea.js` (62 checks) measures the figure off the
+drawing, over a sweep of 125 winds and logs.
+
+**Sources.** The Met Office, "Beaufort wind force scale"; NOAA NCEI's table of
+WMO code 3700; Stewart, *Introduction to Physical Oceanography*, 16.4. In
+`docs/SOURCES.md`, Weather.
+
 ## weather 1.0.6: the tide lesson quotes the working (Larry, AOR)
 
 **What.** The lesson on the atmospheric tide (`weather learn tide`, and the

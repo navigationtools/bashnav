@@ -416,6 +416,50 @@ drawn below its curve.
 named the ten lessons; `veer`, the eleventh, had no golden copy. It now asks the
 awk for the list, as `weather-ui.js` does.
 
+### A rule that was never scored, and a corpus that never asked (weather 1.0.7)
+
+Two faults had sat behind tests that passed. The score's rule for the sea
+state was a table of its own, and the only check on it was that it rose with
+the wind. And the sea state was never scored at all: the scored-log corpus
+gave every observation exactly the state that rule gave its wind, and no
+forecast in it ever offered a sea state, so the one field that was skipped
+was never missed.
+
+1. **The curve is held to its source.** `tests/wx-check.awk` has the Met
+   Office's table written out and requires the curve to give each force's
+   height at its mean wind.
+2. **The steps are written out and found again.** A step found by comparing
+   two floating-point heights can land either side of its own edge, so the
+   steps are constants in knots. The check finds each edge again from the
+   curve, by halving, and requires the constant to match: move a point of the
+   curve and it fails until the step moves with it.
+3. **The Met Office's pairs.** Forces 4, 7 and 8 must each hold both of their
+   states, and force 6 only one.
+4. **Close** nests by share, is always the next state up, and 0 turns it off,
+   over every tenth of a knot to 70.
+5. **The limit** is worked in the check from the definition of the knot, and
+   must never be under the scale from 15 knots up.
+6. **The two builds on the edges.** `weather-wx.js` has a third corpus of 400
+   logs ending on winds from every part of the scale, the edges themselves and
+   the first wind of each close zone among them, with the share set, off and
+   out of range. It fails if fewer than 400 of its logs speak of the sea.
+7. **The score asks now.** `weather-sc.js` logs a sea state that is the
+   scale's, one either side of it, or absent, and its forecasts offer one. It
+   fails if fewer than a third of its logs score a sea state.
+8. **The figure, measured.** `docs/web/tests/weather-sea.js` (stage 14): the
+   scale's dots on the table; the boxed band the state that height falls in;
+   28 knots close at a quarter and not at a tenth, 27 not close, 29.5 close at
+   a tenth; the buttons, remembered, stopping at 0 and 50; the bar over the
+   band logged; the diamond at the swell's height; the limit dashed, on
+   `0.22 U^2 / g`, from 15 knots, never under the scale; the figure straight
+   before its own words; nothing drawn with no wind; night and day. A sweep of
+   125 winds and logs requires that the three labels never lie on each other
+   and nothing leaves the box. 62 checks.
+   Three faults planted, each caught: a point of the curve moved (7
+   failures), the close share doubled (2), the limit drawn solid (3).
+
+101 checks in `wx-check.awk` (were 37), 17 in `score-check.awk` (were 11).
+
 ### A lesson held to the working it describes (weather 1.0.6)
 
 The tide lesson quoted sizes the working never used ("~1.2 hPa at the

@@ -47,21 +47,13 @@ var SCORE = (function () {
          : f === 'mslp' ? 'hPa' : f === 'sea' ? 'sea' : f;
   }
 
-  //  A fully developed sea for a given wind, roughly.  Used only to turn
-  //  a forecast wind into a forecast sea state; it is a rule of thumb
-  //  and is scored like everything else.
-  function sea(kt) {
-    if (kt < 1) return 0;
-    if (kt < 7) return 1;
-    if (kt < 13) return 2;
-    if (kt < 19) return 3;
-    if (kt < 25) return 4;
-    if (kt < 34) return 5;
-    if (kt < 41) return 6;
-    if (kt < 48) return 7;
-    if (kt < 56) return 8;
-    return 9;
-  }
+  //  The sea state for a given wind: the one the Beaufort scale's
+  //  probable wave height gives it (WX.seaFor, where the curve and its
+  //  sources are; Larry, AOU, 17 November 2026).  Used to turn a
+  //  forecast wind into a forecast sea state; it is a rule of thumb and
+  //  is scored like everything else.  Until weather 1.0.7 this was a
+  //  table of its own, never checked against a source.
+  function sea(kt) { return WX.seaFor(kt); }
 
   // ---------------------------------------------------------------
   //  The two machine forecasters.  Both deliberately simple and both
@@ -157,6 +149,10 @@ var SCORE = (function () {
         if (f === 'wdir') p = pts(f, +r.v[f], W[o].wdir);
         else if (f === 'wspd') p = pts(f, +r.v[f], W[o].wspd);
         else if (f === 'mslp') p = pts(f, +r.v[f], W[o].p);
+        //  the sea state was forecast by all three and scored for none,
+        //  because the state the log holds was never read: scored since
+        //  weather 1.0.7 (Larry, APC), as sc_verify in the awk
+        else if (f === 'sea') p = pts(f, +r.v[f], W[o].sst);
         else p = -1;
         if (p < 0) return;
         tot[by] = (tot[by] || 0) + p; cnt[by] = (cnt[by] || 0) + 1;
@@ -204,7 +200,7 @@ var SCORE = (function () {
       return L.join('\n') + '\n';
     }
     var names = ['you', 'rules', 'persist'];
-    var fields = ['wdir', 'wspd', 'mslp'];
+    var fields = ['wdir', 'wspd', 'mslp', 'sea'];
     L.push('  ' + padR('', 10) + ' ' + padL('points', 8) + '  per field, points per forecast');
     names.forEach(function (by) {
       if (!(by in res.cnt)) return;
@@ -217,7 +213,8 @@ var SCORE = (function () {
     });
     L.push(RULE);
     L.push('  Lower is better. Half a point per knot, one per millibar, a tenth');
-    L.push('  per degree of wind direction - so a near miss scores like one.');
+    L.push('  per degree of wind direction, two per sea state - so a near miss');
+    L.push('  scores like one.');
     L.push('');
     if (('persist' in res.cnt) && ('rules' in res.cnt)) {
       if (res.tot.rules / res.cnt.rules > res.tot.persist / res.cnt.persist) {

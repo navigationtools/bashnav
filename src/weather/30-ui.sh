@@ -133,6 +133,7 @@ help_text() {
     '  weather forecast         yours first, then mine, then both are scored' \
     '  weather score            how you, the rules and persistence are doing' \
     '  weather lon <deg>        your longitude, E positive - for the pressure tide' \
+    '  weather close <percent>  how near the next sea state counts as close (25)' \
     '  weather day|night|plain  colour mode' \
     '  weather about | version' \
     '' \
@@ -188,6 +189,18 @@ case "${1:-}" in
   forecast)  do_forecast ;;
   score)     eng -v cmd=score ;;
   lon)       shift; lon="$1"; save_conf; echo "  longitude: $lon" ;;
+  #  The share of a sea-state step that counts as close to the next one
+  #  (Larry, AOZ).  A whole number from 0 to 50; 0 turns the mark off;
+  #  nothing after the word puts it back to 25.
+  close)     shift
+             case "${1:-}" in
+               "") seaclose=""; save_conf; echo "  close to the next sea state: the top 25% of a step" ;;
+               *[!0-9]*) echo "  weather close: a whole number of percent, 0 to 50"; exit 2 ;;
+               *) if [ "$1" -gt 50 ]; then echo "  weather close: a whole number of percent, 0 to 50"; exit 2; fi
+                  seaclose="$1"; save_conf
+                  if [ "$1" -eq 0 ]; then echo "  close to the next sea state: not marked"
+                  else echo "  close to the next sea state: the top $1% of a step"; fi ;;
+             esac ;;
   day|night|plain) cmode="$1"; save_conf; echo "  colour: $cmode" ;;
   about)     about_text ;;
   help|-h|--help) help_text ;;

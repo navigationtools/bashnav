@@ -166,12 +166,22 @@ function drawWhat() {
   var lon = lonVal();
   var hours = +lsGet('glass-h', '48');
   if (hours !== 24 && hours !== 72) hours = 48;
-  var items = WX.report(OBS, lon, hours);
+  var pct = lsGet('sea-close', '');
+  var items = WX.report(OBS, lon, hours, pct);
   /*  the terminal prints the glass as a table; the page draws it, so the
       table's lines (marked glass) are left out of the page's reasoning and
       kept in "Show it as the terminal does"  */
-  drawReason($('what-out'), items.filter(function (it) { return !it.glass; }));
+  var shown = items.filter(function (it) { return !it.glass; });
+  drawReason($('what-out'), shown);
   $('what-term').textContent = WX.renderTerminal(items, OBS.length >= 2);
+  /*  the sea against the wind: its figure goes in beside its own words,
+      which the report marks; one child of the list for each item, so the
+      first of them that is not a gap is where the figure belongs  */
+  if (items.sea) {
+    var at = -1;
+    for (var q = 0; q < shown.length; q++) if (shown[q].sea && shown[q].k !== 'gap') { at = q; break; }
+    if (at >= 0) $('what-out').insertBefore(seaBlock(items.sea), $('what-out').children[at]);
+  }
   var G = items.glass, box = $('glass-fig');
   box.textContent = '';
   $('what-glass').hidden = !(G && G.n >= 2);
@@ -181,6 +191,265 @@ function drawWhat() {
       bs[i].setAttribute('aria-pressed', String(+bs[i].getAttribute('data-win') === hours));
     glassFigure(box, OBS, G, lon);
   }
+}
+
+/* =====================================================================
+   THE SEA AGAINST THE WIND (W09; weather 1.0.7).  Larry's rulings of
+   17 November 2026:
+     AOU  the curve is a public source's (the Beaufort scale's probable
+          wave height, the Met Office's table), and the score's rule for
+          turning a wind into a sea state follows it
+     AOZ  when the wind is in the top share of the step it is on, the
+          next step is marked as close; the share can be set, 25% unless
+          set, measured in knots, upward only
+     APC  the sea state is scored (score.js)
+     APF  the fully developed limit is drawn as a dashed ceiling, the gap
+          to the scale shaded
+
+   Everything drawn comes from WX.sea (wx.js), which the words beside the
+   figure are written from too, so the figure and the words cannot
+   disagree: the wind, the height and state the scale gives it, the step's
+   two ends, the state it is close to, the fully developed height, and the
+   sea state and swell logged with that wind.
+
+   What marks what, said by FORM as well as colour because the night
+   palette is all reds: the scale is the one solid curve with a dot at
+   each force's mean wind; the limit is dashed; the expected state has a
+   solid box round its band and the close one a dashed box; your wind is
+   a dashed upright; your sea is a thick bar over the band you logged;
+   your swell is a hollow diamond, on its own because this wind did not
+   raise it.
+
+   Sources: the Met Office, "Beaufort wind force scale" (probable wave
+   heights, "well-developed wind waves of the open sea"); NOAA NCEI's
+   table of WMO code 3700 (the sea states); Stewart, Introduction to
+   Physical Oceanography, 16.4 (Pierson and Moskowitz, 0.22 U^2/g).
+   docs/SOURCES.md, Weather.
+
+   Colours are read from the page when it draws, and drawWhat redraws it
+   on a mode change.
+   ===================================================================== */
+function seaBlock(S) {
+  var wrap = el('div', 'seablock');
+  wrap.id = 'what-sea';
+  var fig = el('div'); fig.id = 'sea-fig';
+  wrap.appendChild(fig);
+  seaFigure(fig, S);
+  /*  the share of a step that counts as close: five percent a press,
+      0 (off) to 50, remembered  */
+  var row = el('div', 'closerow');
+  row.setAttribute('role', 'group');
+  row.setAttribute('aria-label', 'How near the next sea state counts as close');
+  row.appendChild(el('span', 'lab', 'Close to the next state: the top'));
+  var dn = el('button', 'btn step', '\u2212'), val = el('span', 'val', S.pct + '%'), up = el('button', 'btn step', '+');
+  dn.id = 'sea-close-down'; up.id = 'sea-close-up'; val.id = 'sea-close-val';
+  dn.setAttribute('aria-label', 'A smaller share'); up.setAttribute('aria-label', 'A larger share');
+  dn.disabled = S.pct <= 0; up.disabled = S.pct >= 50;
+  dn.addEventListener('click', function () { lsSet('sea-close', String(Math.max(0, S.pct - 5))); drawWhat(); });
+  up.addEventListener('click', function () { lsSet('sea-close', String(Math.min(50, S.pct + 5))); drawWhat(); });
+  row.appendChild(dn); row.appendChild(val); row.appendChild(up);
+  row.appendChild(el('span', 'lab', S.pct > 0 ? 'of a step' : 'of a step (not marked)'));
+  wrap.appendChild(row);
+  return wrap;
+}
+function seaFigure(host, S) {
+  var NONE = WX.NONE, has = WX.has;
+  var name = WX.seaName, f1 = function (x) { return WX.cfixed(x, 1); };
+  var D = demoSvg('seafig', 660, 420, 'The sea against your wind. At ' + WX.kts(S.w) + ' knots the Beaufort scale ' +
+    'expects about ' + f1(S.h) + ' metres, a ' + name(S.s) + ' sea' +
+    (S.next ? ', close to ' + name(S.next) : '') +
+    (has(S.logged) ? '. You logged a ' + name(S.logged) + ' sea' : '') +
+    (has(S.swh) ? '. Your swell is ' + f1(S.swh) + ' metres' : '') +
+    (S.showFull ? '. Fully developed, this wind could raise about ' + f1(S.full) + ' metres.' : '.'));
+  var cs = getComputedStyle(document.documentElement);
+  var tok = function (k) { return cs.getPropertyValue(k).trim() || '#6fb3d9'; };
+  var ground = tok('--ground'), panel = tok('--panel'), att = tok('--att');
+  var x0 = 50, x1 = 536, top = 44, bot = 300, i;
+  var TOPS = WX.SEA_TOP;                 /* TOPS[s]: the top of state s, metres; 9 has none */
+
+  /*  the frame: some knots past your wind and never less than 20, tall
+      enough for the scale at its right-hand edge, your sea, your swell
+      and the limit at your wind.  It grows with the wind, so a light
+      air's ripples are not drawn in the bottom twentieth of a gale's
+      frame.  */
+  var XM = Math.max(20, Math.min(80, 10 * Math.ceil((S.w + 6) / 10)));
+  var need = WX.seaHt(XM);
+  if (S.showFull) need = Math.max(need, S.full);
+  if (has(S.swh)) need = Math.max(need, S.swh);
+  if (has(S.logged)) need = Math.max(need, S.logged >= 9 ? 15 : TOPS[S.logged]);
+  var ystep = need <= 5.5 ? 1 : need <= 13.5 ? 2 : 5;
+  var YM = Math.max(2, ystep * Math.ceil((need + 0.3) / ystep));
+  var X = function (k) { return x0 + (x1 - x0) * k / XM; };
+  var Y = function (m) { return bot - (bot - top) * Math.min(m, YM) / YM; };
+  var set = function (o, a) { for (var k in a) o.setAttribute(k, a[k]); return o; };
+  set(D.svg, { 'data-xm': XM, 'data-ym': YM, 'data-x0': x0, 'data-x1': x1, 'data-top': top, 'data-bot': bot });
+  var halo = { stroke: ground, 'stroke-width': 4, 'paint-order': 'stroke', 'stroke-linejoin': 'round' };
+  var lab = function (x, y, s, fill, o) {
+    var a = {}, k; for (k in halo) a[k] = halo[k]; for (k in (o || {})) a[k] = o[k];
+    D.t(x, y, s, fill, a);
+  };
+  var bandLo = function (s) { return s <= 0 ? 0 : TOPS[s - 1]; };
+  var bandHi = function (s) { return s >= 9 ? YM : Math.min(TOPS[s], YM); };
+
+  D.t(22, 24, 'The sea against your wind', D.text, { 'font-weight': 600 });
+  D.t(x1, 24, 'from your latest observation', D.dim, { 'font-size': 11, 'text-anchor': 'end' });
+  D.t(22, top - 8, 'm', D.dim, { 'font-size': 11 });
+
+  /*  the sea states, as bands, named in the margin; the expected state's
+      name is the bold one and the close state's the lighter one  */
+  for (i = 1; i <= 9; i++) {
+    if (bandLo(i) >= YM) break;
+    var yt = Y(bandHi(i)), yb = Y(bandLo(i));
+    D.e('rect', { x: x0, y: yt, width: x1 - x0, height: yb - yt, fill: i % 2 ? panel : ground,
+                  'data-part': 'band', 'data-state': i });
+    if (yb - yt >= 13) {
+      var on = i === S.s, near = S.next && i === S.next;
+      D.t(x1 + 8, (yt + yb) / 2 + 4, i + '  ' + name(i), on || near ? D.acc : D.dim,
+          { 'font-size': 12, 'font-weight': on ? 700 : 400, 'data-part': 'state-label', 'data-state': i });
+    }
+  }
+  D.t(x1 + 8, top - 8, 'sea state', D.dim, { 'font-size': 11, 'font-weight': 600 });
+  for (var m = 0; m <= YM + 0.001; m += ystep) {
+    D.e('line', { x1: x0 - 4, y1: Y(m), x2: x0, y2: Y(m), stroke: D.dim });
+    D.t(x0 - 8, Y(m) + 4, String(m), D.dim, { 'font-size': 12, 'text-anchor': 'end' });
+  }
+  D.e('rect', { x: x0, y: top, width: x1 - x0, height: bot - top, fill: 'none', stroke: D.line });
+
+  /*  the wind: knots, and the Beaufort forces by their limits  */
+  var FL = [[1, 3], [4, 6], [7, 10], [11, 16], [17, 21], [22, 27], [28, 33], [34, 40], [41, 47], [48, 55], [56, 63], [64, 80]];
+  FL.forEach(function (b, n) {
+    var xa = X(b[0] - 0.5), xb = X(Math.min(b[1] + 0.5, XM));
+    if (b[0] - 0.5 > XM) return;
+    D.e('line', { x1: xa, y1: bot, x2: xa, y2: bot + 5, stroke: D.dim });
+    if (xb - xa >= 24) D.t((xa + xb) / 2, bot + 17, 'F' + (n + 1), D.dim,
+                           { 'font-size': 11, 'text-anchor': 'middle', 'data-part': 'force-label' });
+  });
+  for (var k = 0; k <= XM; k += 10)
+    D.t(X(k), bot + 33, String(k), D.dim, { 'font-size': 12, 'text-anchor': k === 0 ? 'start' : 'middle' });
+  D.t((x0 + x1) / 2, bot + 49, 'wind, knots, and its Beaufort force', D.dim, { 'font-size': 11, 'text-anchor': 'middle' });
+
+  /*  the expected state's band, boxed; and the one it is close to, dashed  */
+  if (S.s >= 1 && bandLo(S.s) < YM)
+    D.e('rect', { x: x0 + 1.5, y: Y(bandHi(S.s)), width: x1 - x0 - 3, height: Y(bandLo(S.s)) - Y(bandHi(S.s)),
+                  fill: D.acc, 'fill-opacity': 0.10, stroke: D.acc, 'stroke-width': 2.5,
+                  'data-part': 'band-on', 'data-state': S.s });
+  if (S.next && bandLo(S.next) < YM)
+    D.e('rect', { x: x0 + 1.5, y: Y(bandHi(S.next)), width: x1 - x0 - 3, height: Y(bandLo(S.next)) - Y(bandHi(S.next)),
+                  fill: 'none', stroke: D.acc, 'stroke-width': 2, 'stroke-dasharray': '7 5',
+                  'data-part': 'band-close', 'data-state': S.next });
+
+  /*  the limit: from 15 knots, where it is over the scale for good; the
+      gap between the two shaded  */
+  var scaleAt = [], fullAt = [], kk;
+  for (kk = 15; kk <= XM + 0.001; kk += 0.5) {
+    var fh = WX.seaFull(kk);
+    scaleAt.push(X(kk).toFixed(1) + ',' + Y(WX.seaHt(kk)).toFixed(1));
+    if (fh > YM) {          /* the limit leaves the frame: end it on the frame's top edge */
+      var ke = Math.sqrt(YM * 9.80665 / 0.22) / 0.514444;
+      fullAt.push(X(ke).toFixed(1) + ',' + Y(YM).toFixed(1));
+      break;
+    }
+    fullAt.push(X(kk).toFixed(1) + ',' + Y(fh).toFixed(1));
+  }
+  /*  the scale's side of the gap runs on to the right-hand edge, under
+      the frame's top where the limit has left it  */
+  var gapPts = fullAt.slice();
+  if (WX.seaFull(XM) > YM) gapPts.push(X(XM).toFixed(1) + ',' + Y(YM).toFixed(1));
+  var back = [];
+  for (kk = XM; kk >= 15 - 0.001; kk -= 0.5) back.push(X(kk).toFixed(1) + ',' + Y(WX.seaHt(kk)).toFixed(1));
+  D.e('polygon', { points: gapPts.concat(back).join(' '), fill: att, 'fill-opacity': 0.10, 'data-part': 'gap' });
+  D.e('polyline', { points: fullAt.join(' '), fill: 'none', stroke: att, 'stroke-width': 2,
+                    'stroke-dasharray': '8 5', 'data-part': 'full' });
+
+  /*  the scale: straight lines through each force's mean wind and height  */
+  var pts = [];
+  for (i = 0; i < WX.SEA_K.length && WX.SEA_K[i] <= XM; i++) pts.push(X(WX.SEA_K[i]).toFixed(1) + ',' + Y(WX.SEA_H[i]).toFixed(1));
+  if (WX.SEA_K[i - 1] < XM) pts.push(X(XM).toFixed(1) + ',' + Y(WX.seaHt(XM)).toFixed(1));
+  D.e('polyline', { points: pts.join(' '), fill: 'none', stroke: D.text, 'stroke-width': 2.5,
+                    'stroke-linejoin': 'round', 'data-part': 'curve' });
+  for (i = 1; i < WX.SEA_K.length - 1 && WX.SEA_K[i] <= XM; i++)
+    D.e('circle', { cx: X(WX.SEA_K[i]), cy: Y(WX.SEA_H[i]), r: 3.2, fill: D.text, 'data-part': 'force',
+                    'data-kt': WX.SEA_K[i], 'data-m': WX.SEA_H[i] });
+
+  /*  your wind, and what you logged with it.  The labels go on the side
+      of the wind's line with more room, and never closer than a line of
+      type to each other.  */
+  var xw = X(S.w), right = xw < x0 + 0.55 * (x1 - x0), pxk = (x1 - x0) / XM;
+  var edges = [];
+  if (S.s >= 1 && bandLo(S.s) < YM) edges.push(Y(bandLo(S.s)), Y(bandHi(S.s)));
+  if (S.next && bandLo(S.next) < YM) edges.push(Y(bandHi(S.next)));
+  /*  where a label goes: the roomier side of the wind's line, unless the
+      scale's own line runs through the words there and not on the other
+      side; and if it runs through them on both, lifted clear above it  */
+  var place = function (s, ty) {
+    var wpx = s.length * 6.9 + 6, canR = xw + 12 + wpx <= x1 - 2, canL = xw - 12 - wpx >= x0 + 2;
+    var mTop = (bot - (ty - 11)) / (bot - top) * YM, mBot = (bot - (ty + 4)) / (bot - top) * YM;
+    var hits = function (ka, kb) { return WX.seaHt(Math.min(XM, kb)) >= mBot && WX.seaHt(Math.max(0, ka)) <= mTop; };
+    var hitR = hits(S.w + 12 / pxk, S.w + (12 + wpx) / pxk), hitL = hits(S.w - (12 + wpx) / pxk, S.w - 12 / pxk);
+    var r = right;
+    if (canR && canL) { if (r && hitR && !hitL) r = false; else if (!r && hitL && !hitR) r = true; }
+    else r = canR || !canL;
+    if (r ? hitR : hitL) {
+      var up = Y(WX.seaHt(Math.min(XM, r ? S.w + (12 + wpx) / pxk : S.w - 12 / pxk))) - 8;
+      if (up >= top + 34 && ty - up <= 48) ty = up;
+    }
+    /*  and never struck through by an edge of the two boxes  */
+    edges.forEach(function (ey) {
+      if (ey > ty - 12 && ey < ty + 5) {
+        var upTo = ey - 6, downTo = ey + 14;
+        ty = (upTo >= top + 34 && (ty - upTo <= downTo - ty || downTo > bot - 4)) ? upTo : downTo;
+      }
+    });
+    return { x: r ? xw + 12 : xw - 12, anc: r ? 'start' : 'end', y: ty, r: r };
+  };
+  D.e('line', { x1: xw, y1: top, x2: xw, y2: bot, stroke: D.acc, 'stroke-width': 1.5, 'stroke-dasharray': '5 4',
+                'data-part': 'wind', 'data-kt': S.w });
+  var wl = 'your wind, ' + WX.kts(S.w) + ' kt', wp = place(wl, top + 15);
+  lab(wp.x, top + 15, wl, D.acc,
+      { 'font-size': 12, 'font-weight': 600, 'text-anchor': wp.anc, 'data-part': 'wind-label' });
+  var ySea = null, ySw = null;
+  if (has(S.logged)) {
+    var la = Y(bandLo(S.logged)), lb = Y(bandHi(S.logged));
+    if (la - lb < 6) { la += 3; lb -= 3; }            /* a glassy or rippled sea is still a mark */
+    D.e('line', { x1: xw, y1: la, x2: xw, y2: lb, stroke: D.acc, 'stroke-width': 9, 'stroke-linecap': 'round',
+                  'data-part': 'logged', 'data-state': S.logged });
+    ySea = (la + lb) / 2;
+  }
+  if (has(S.swh)) ySw = Y(S.swh);
+  /*  the scale's own answer at your wind, over the bar so it is not hidden  */
+  D.e('circle', { cx: xw, cy: Y(S.h), r: 5.5, fill: ground, stroke: D.text, 'stroke-width': 2.5,
+                  'data-part': 'expected', 'data-kt': S.w, 'data-m': S.h });
+  if (ySw !== null)
+    D.e('path', { d: 'M' + xw + ' ' + (ySw - 8) + 'L' + (xw + 8) + ' ' + ySw + 'L' + xw + ' ' + (ySw + 8) + 'L' + (xw - 8) + ' ' + ySw + 'Z',
+                  fill: ground, stroke: D.acc, 'stroke-width': 2.5, 'data-part': 'swell', 'data-m': S.swh });
+  /*  label heights: kept inside the frame, clear of the wind's label, and
+      a line of type apart  */
+  var clampY = function (y) { return Math.max(top + 34, Math.min(bot - 6, y)); };
+  var seaT = has(S.logged) ? 'your sea: ' + S.logged + ', ' + name(S.logged) : '';
+  var swT = has(S.swh) ? 'your swell: ' + f1(S.swh) + ' m' + (has(S.swp) ? ', ' + Math.trunc(S.swp) + ' s' : '') : '';
+  var pSea = ySea === null ? null : place(seaT, clampY(ySea + 4)), pSw = ySw === null ? null : place(swT, clampY(ySw + 4));
+  if (pSea && pSw && pSea.r === pSw.r && Math.abs(pSea.y - pSw.y) < 16) {
+    if (ySw <= ySea) { pSw.y = pSea.y - 16; if (pSw.y < top + 34) { pSw.y = top + 34; pSea.y = pSw.y + 16; } }
+    else { pSw.y = pSea.y + 16; if (pSw.y > bot - 6) { pSw.y = bot - 6; pSea.y = pSw.y - 16; } }
+  }
+  if (pSea)
+    lab(pSea.x, pSea.y, seaT, D.acc, { 'font-size': 12, 'font-weight': 600, 'text-anchor': pSea.anc, 'data-part': 'logged-label' });
+  if (pSw)
+    lab(pSw.x, pSw.y, swT, D.acc, { 'font-size': 12, 'font-weight': 600, 'text-anchor': pSw.anc, 'data-part': 'swell-label' });
+
+  /*  the key  */
+  var ky = bot + 68;
+  D.e('line', { x1: x0, y1: ky, x2: x0 + 28, y2: ky, stroke: D.text, 'stroke-width': 2.5 });
+  D.e('circle', { cx: x0 + 14, cy: ky, r: 3.2, fill: D.text });
+  D.t(x0 + 36, ky + 4, 'the Beaufort scale: probable wave height, for a well-developed sea', D.dim, { 'font-size': 11 });
+  D.e('line', { x1: x0, y1: ky + 17, x2: x0 + 28, y2: ky + 17, stroke: att, 'stroke-width': 2, 'stroke-dasharray': '8 5' });
+  D.t(x0 + 36, ky + 21, 'fully developed: the limit for a wind, given days and open ocean', D.dim, { 'font-size': 11 });
+  D.e('rect', { x: x0 + 1, y: ky + 28, width: 26, height: 12, fill: D.acc, 'fill-opacity': 0.10, stroke: D.acc, 'stroke-width': 2 });
+  D.t(x0 + 36, ky + 38, 'expected at your wind', D.dim, { 'font-size': 11 });
+  D.e('rect', { x: x0 + 181, y: ky + 28, width: 26, height: 12, fill: 'none', stroke: D.acc, 'stroke-width': 2, 'stroke-dasharray': '7 5' });
+  D.t(x0 + 216, ky + 38, S.pct > 0 ? 'close: the top ' + S.pct + '% of a step, in knots' : 'close: not marked', D.dim,
+      { 'font-size': 11, 'data-part': 'close-note' });
+  host.appendChild(D.wrap);
 }
 
 /* =====================================================================
@@ -458,7 +727,9 @@ function drawScore() {
   }
   var t = el('table', 'score');
   var head = el('tr');
-  ['', 'points', 'dir', 'spd', 'hPa'].forEach(function (h) { head.appendChild(el('th', null, h)); });
+  /*  the sea state has its column since weather 1.0.7 (Larry, APC): it was
+      forecast by all three and scored for none  */
+  ['', 'points', 'dir', 'spd', 'hPa', 'sea'].forEach(function (h) { head.appendChild(el('th', null, h)); });
   var thead = document.createElement('thead'); thead.appendChild(head); t.appendChild(thead);
   var tb = document.createElement('tbody');
   ['you', 'rules', 'persist'].forEach(function (by) {
@@ -466,7 +737,7 @@ function drawScore() {
     var tr = el('tr', by);
     tr.appendChild(el('td', null, by));
     tr.appendChild(el('td', null, WX.cfixed(res.tot[by], 1)));
-    ['wdir', 'wspd', 'mslp'].forEach(function (f) {
+    ['wdir', 'wspd', 'mslp', 'sea'].forEach(function (f) {
       var kk = by + '\u001c' + f;
       tr.appendChild(el('td', null, kk in res.fcnt ? WX.cfixed(res.ftot[kk] / res.fcnt[kk], 1) : '\u2014'));
     });

@@ -471,9 +471,9 @@ cat > "$WXD/log" <<'WXLOG'
 2026-08-30T06:00Z|wx|mslp=1016.4|airt=18.0|dewp=14.0|seat=17.5|cloud=2|ch=1|cm=0|cl=1|vis=8|swper=7|swdir=200|~
 2026-08-30T12:00Z|nav|lat=41 20.0N|wdir=170|wspd=22|sea=4|~
 2026-08-30T12:00Z|wx|mslp=1010.1|airt=17.2|dewp=16.8|seat=16.9|cloud=7|ch=4|cm=2|cl=6|vis=5|swper=14|swdir=230|~
-2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=you|wdir=150|wspd=30|mslp=1002|~
-2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=rules|wdir=114|wspd=48|mslp=1001|~
-2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=persist|wdir=170|wspd=22|mslp=1010|~
+2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=you|wdir=150|wspd=30|mslp=1002|sea=6|~
+2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=rules|wdir=114|wspd=48|mslp=1001|sea=7|~
+2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=persist|wdir=170|wspd=22|mslp=1010|sea=5|~
 2026-08-31T00:00Z|nav|lat=42 00.0N|wdir=150|wspd=32|sea=5|~
 2026-08-31T00:00Z|wx|mslp=1003.0|~
 WXLOG
@@ -546,6 +546,35 @@ WXLOG2
   #  tide's whole fall.  A definite fall; worked on the equator, "steady".
   echo "=== weather what, a reading with no position of its own ==="
   $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log4" -v lon=-3 </dev/null
+  #  THE SEA AGAINST THE WIND (W09, weather 1.0.7).  28 kt with a moderate
+  #  sea and a swell logged: under the scale, close to very rough at the
+  #  usual quarter of a step; not close at a tenth; the mark turned off.
+  #  Then a sea logged above the scale at an edge of a step, a storm, a
+  #  light air, and a latest observation with no wind (nothing is said).
+  seacase() { printf '%s\n' '2026-08-30T06:00Z|nav|lat=41 14.0N|wdir=210|wspd=14|sea=3|~' '2026-08-30T06:00Z|wx|mslp=1012.4|~' \
+                "2026-08-30T12:00Z|nav|lat=41 20.0N|wdir=170|$1|~" "2026-08-30T12:00Z|wx|mslp=1008.1$2|~" > "$WXD/log5"; }
+  seacase 'wspd=28|sea=4' '|swper=13|swdir=250|swht=3.6'
+  echo "=== weather what, the sea: 28 kt, moderate logged, a swell ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log5" -v lon=-72 </dev/null
+  echo "=== weather what, the sea: the same, close set to 10 ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log5" -v lon=-72 -v seaclose=10 </dev/null | sed -n '/The sea:/,/^$/p'
+  echo "=== weather what, the sea: the same, close set to 0 ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log5" -v lon=-72 -v seaclose=0 </dev/null | sed -n '/The sea:/,/^$/p'
+  seacase 'wspd=30|sea=7' '|swht=2.0'
+  echo "=== weather what, the sea: 30 kt, a high sea logged ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log5" -v lon=-72 </dev/null | sed -n '/The sea:/,/^$/p'
+  seacase 'wspd=62|sea=8' ''
+  echo "=== weather what, the sea: 62 kt ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log5" -v lon=-72 </dev/null | sed -n '/The sea:/,/^$/p'
+  seacase 'wspd=5|sea=2' ''
+  echo "=== weather what, the sea: 5 kt ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log5" -v lon=-72 </dev/null | sed -n '/The sea:/,/^$/p'
+  seacase 'wspd=0|sea=0' ''
+  echo "=== weather what, the sea: a calm ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log5" -v lon=-72 </dev/null | sed -n '/The sea:/,/^$/p'
+  seacase 'sea=4' '|swht=2.0'
+  echo "=== weather what, the sea: no wind logged, so nothing said ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log5" -v lon=-72 </dev/null | grep -c 'The sea:'
   #  the wind from the isobars (W07, weather 1.0.3): north, south, and the
   #  refusal near the equator
   for c in "100 50 1" "100 50 0" "60 30 1" "100 3 1"; do

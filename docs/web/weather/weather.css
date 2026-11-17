@@ -596,3 +596,13 @@ input[type="range"]::-moz-range-thumb {
 .glassfig { margin: 4px 0 14px; }
 .glassfig svg { display: block; width: 100%; max-width: 660px; margin: 0 auto; }
 
+/*  The sea against the wind (W09, weather 1.0.7): the figure beside its
+    own words in the reasoning, and the row that sets how near the next
+    sea state counts as close.  */
+.seablock { margin: 6px 0 10px; }
+.seafig svg { display: block; width: 100%; max-width: 660px; margin: 0 auto; }
+.closerow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 10px; font-size: 14px; color: var(--dim); }
+.closerow .btn.step { flex: 0 0 auto; min-width: 44px; min-height: 40px; padding: 4px 10px; font-size: 18px; line-height: 1; }
+.closerow .btn.step:disabled { opacity: 0.4; }
+.closerow .val { min-width: 3.2em; text-align: center; color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+

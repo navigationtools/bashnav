@@ -14,7 +14,7 @@
 #  data that is never wrong - what you measured yourself - and the only
 #  one still available when the antenna comes down.
 # =====================================================================
-WEATHER_VERSION=1.0.6
+WEATHER_VERSION=1.0.7
 
 #  the log belongs to deck-log; weather only ever READS it
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"
@@ -29,6 +29,9 @@ cmode=day
 #  substitution stdout is a pipe and every terminal is told it is plain.
 ISTTY=0; [ -t 1 ] && ISTTY=1
 lessons=""; lon=""
+#  the share of a sea-state step that counts as "close to the next one"
+#  on What the log says, in percent; empty means the engine's 25
+seaclose=""
 
 awk_has_math() {
   $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1)+cos(1); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
@@ -53,11 +56,11 @@ pick_awk() {
 load_conf() {
   [ -f "$CONF" ] || return 0
   while IFS='=' read -r k v; do
-    case "$k" in cmode) cmode="$v" ;; lon) lon="$v" ;; esac
+    case "$k" in cmode) cmode="$v" ;; lon) lon="$v" ;; seaclose) seaclose="$v" ;; esac
   done < "$CONF"
 }
 save_conf() { mkdir -p "$WEATHER_HOME"
-  printf '%s\n' "cmode=$cmode" "lon=$lon" > "$CONF"; }
+  printf '%s\n' "cmode=$cmode" "lon=$lon" "seaclose=$seaclose" > "$CONF"; }
 load_prog() {
   [ -f "$PROG" ] || return 0
   while IFS='=' read -r k v; do case "$k" in lessons) lessons="$v" ;; esac; done < "$PROG"
@@ -79,6 +82,6 @@ paint() {
 unpaint() { [ "$cmode" = plain ] || { [ "$ISTTY" = 1 ] && printf '\033[0m\n'; }; }
 cmode_now() { if [ "$ISTTY" = 1 ]; then echo "$cmode"; else echo plain; fi; }
 eng() {
-  $AWK -f "$ENGINE" -v cmode="$(cmode_now)" -v LOG="$LOG" -v lon="$lon" \
+  $AWK -f "$ENGINE" -v cmode="$(cmode_now)" -v LOG="$LOG" -v lon="$lon" -v seaclose="$seaclose" \
        -v now="$(date -u '+%Y-%m-%dT%H:%MZ')" "$@" </dev/null
 }

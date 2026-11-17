@@ -49,21 +49,16 @@ function sc_short(f){
   return f
 }
 
-#  A fully developed sea for a given wind, roughly.  Used only to turn a
+#  The sea state for a given wind: the one the Beaufort scale's probable
+#  wave height gives it (wx_seafor in wx.awk, where the curve, the states
+#  and their sources are; Larry, AOU, 17 November 2026).  Used to turn a
 #  forecast wind into a forecast sea state; it is a rule of thumb and is
 #  scored like everything else.
-function sc_sea(kt){
-  if(kt<1)  return 0
-  if(kt<7)  return 1
-  if(kt<13) return 2
-  if(kt<19) return 3
-  if(kt<25) return 4
-  if(kt<34) return 5
-  if(kt<41) return 6
-  if(kt<48) return 7
-  if(kt<56) return 8
-  return 9
-}
+#
+#  Until weather 1.0.7 this was a table of its own, never checked against
+#  a source, and one state away from the Met Office's heights in four
+#  bands of wind.  It was also never scored: see sc_verify.
+function sc_sea(kt){ return wx_seafor(kt) }
 
 # ---------------------------------------------------------------------
 #  The two machine forecasters.
@@ -165,6 +160,15 @@ function sc_verify(logfile,   i, j, by, fo, o, f, p, nf, any, tot, cnt, fields, 
       if(f=="wdir") p = sc_pts(f, LG[f]+0, WDIR[o])
       else if(f=="wspd") p = sc_pts(f, LG[f]+0, WSPD[o])
       else if(f=="mslp") p = sc_pts(f, LG[f]+0, WP[o])
+      #  THE SEA STATE WAS FORECAST BY ALL THREE AND SCORED FOR NONE.  The
+      #  weight was written (two points a state), the question was asked
+      #  and the answer was stored, but the sea state the log holds was
+      #  never read, so there was nothing to hold a forecast against and
+      #  this branch gave "not comparable" every time.  Scored since
+      #  weather 1.0.7 (Larry, APC): one state for each wind, against the
+      #  state logged nearest the valid time; an observation with no sea
+      #  state logged is still not comparable.
+      else if(f=="sea")  p = sc_pts(f, LG[f]+0, WSST[o])
       else p = -1
       if(p<0) continue
       TOT[by] += p; CNT[by]++
@@ -188,7 +192,7 @@ function sc_report(logfile,   n, by, i, f, fields, nfld, j, names, nn){
     return 0
   }
   nn = split("you rules persist", names, " ")
-  nfld = split("wdir wspd mslp", fields, " ")
+  nfld = split("wdir wspd mslp sea", fields, " ")
   printf "  %-10s %8s  %s\n", "", "points", "per field, points per forecast"
   for(i=1;i<=nn;i++){
     by = names[i]
@@ -203,7 +207,8 @@ function sc_report(logfile,   n, by, i, f, fields, nfld, j, names, nn){
   }
   hr()
   printf "  %s\n", cwd("Lower is better. Half a point per knot, one per millibar, a tenth")
-  printf "  %s\n", cwd("per degree of wind direction - so a near miss scores like one.")
+  printf "  %s\n", cwd("per degree of wind direction, two per sea state - so a near miss")
+  printf "  %s\n", cwd("scores like one.")
   print ""
   if(("persist" in CNT) && ("rules" in CNT)){
     if(TOT["rules"]/CNT["rules"] > TOT["persist"]/CNT["persist"])

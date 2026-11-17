@@ -13,6 +13,7 @@
 | `weather forecast` | yours first, then mine, then both scored |
 | `weather score` | you, the rules and persistence |
 | `weather lon <deg>` | your longitude, east positive |
+| `weather close <percent>` | how near the next sea state counts as close (25) |
 | `weather day\|night\|plain` | colour mode |
 | `weather about` / `version` | |
 
@@ -33,6 +34,14 @@ which needs your longitude.
 heavier rising, heavier again falling, heaviest falling fast, with the daily
 tide alone as a grey wave behind. A trace that follows the wave is only the
 tide.
+
+## The sea against your wind
+
+The sea state the Beaufort scale gives your wind begins at: **slight 8 kt ·
+moderate 14.5 · rough 21.5 · very rough 30 · high 39.3 · very high 52 ·
+phenomenal 64.** **Under the scale:** still building, or short of fetch.
+**Above it:** is some of it swell? **Close:** your wind is in the top quarter
+of its step.
 
 ## Buys Ballot
 
@@ -67,7 +76,7 @@ the 500 mb wind there · hemisphere.
 1. **Yours is written first.** Nothing of the machine's until it is.
 2. Then the **rules** forecaster and **persistence**.
 3. All three scored against the verifying observation: half a point per knot,
-   one per millibar, a tenth per degree.
+   one per millibar, a tenth per degree, two per sea state.
 
 **Persistence is the benchmark.** A forecaster who cannot beat it is not yet
 adding anything.

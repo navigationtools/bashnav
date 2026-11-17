@@ -129,19 +129,75 @@ successive observations and tells you how far through that sequence you are —
 which is a judgement you cannot make from a single observation, and the reason
 the cloud is logged by level rather than as "overcast".
 
+### The sea against your wind
+
+![**Figure 3** — the sea against your wind. The solid curve is the Beaufort
+scale; your wind is the dashed upright, your sea the thick bar, your swell the
+diamond. The dashed curve above is the fully developed limit.](fig/weather-sea.png)
+
+When your latest observation has a wind, the report holds the sea you logged
+against the sea that wind should raise, and draws it (Figure 3).
+
+1. **The solid curve is the Beaufort scale's probable wave height:** the Met
+   Office's table, for a well-developed sea in open water, with a dot at each
+   force's mean wind. The bands behind it are the sea states, named in the
+   margin.
+2. **Your wind is the dashed upright.** The circle where it meets the curve is
+   the height the scale expects, and the band with the solid box round it is
+   the sea state that height falls in. Its name is the bold one in the margin.
+3. **Your sea is the thick bar,** over the band you logged. Under the scale,
+   the sea is still building or is short of fetch: the wind has not had the
+   time or the distance to raise all it can. Above it, there is more sea than
+   this wind accounts for, and the report asks whether some of it is swell.
+4. **Your swell is the diamond,** at the height you logged. It stands on its
+   own, because swell is sea that has left the wind that raised it.
+5. **Close to the next state.** When your wind is in the top quarter of the
+   step it is on, measured in knots, the next state gets a dashed box and the
+   report says where the scale turns: at 28 knots, *close to very rough: the
+   scale turns at 30 kt*. The share is yours to set, from 0 (not marked) to 50
+   percent: the two buttons under the figure, or `weather close <percent>`.
+6. **The dashed curve is the fully developed limit:** the sea the same wind
+   would raise if it blew steadily for days over open ocean. Up to about 24
+   knots it and the scale nearly agree. Above that the gap opens, and the gap
+   is time and fetch.
+
+The steps, in knots, are where the scale's curve reaches each sea state's
+height. A wind that has reached a step is in the higher state.
+
+| Sea state | | Height | Wind, by the scale |
+|---|---|---|---|
+| 0 | glassy | flat | under 1 kt |
+| 1 | rippled | under 0.1 m | 1 to 2 |
+| 2 | smooth | 0.1 to 0.5 m | 2 to 8 |
+| 3 | slight | 0.5 to 1.25 m | 8 to 14.5 |
+| 4 | moderate | 1.25 to 2.5 m | 14.5 to 21.5 |
+| 5 | rough | 2.5 to 4 m | 21.5 to 30 |
+| 6 | very rough | 4 to 6 m | 30 to 39.3 |
+| 7 | high | 6 to 9 m | 39.3 to 52 |
+| 8 | very high | 9 to 14 m | 52 to 64 |
+| 9 | phenomenal | over 14 m | 64 and over |
+
+The Met Office's table gives one state for a whole force, and two for forces
+4, 7 and 8. Those are the forces inside which the curve crosses a step. This
+works from your wind itself, so it turns partway through a force.
+
+In the terminal the same thing is words, in `weather what`. The sources are in
+`docs/SOURCES.md`: the Met Office's Beaufort scale, the WMO's sea-state code,
+and Pierson and Moskowitz's limit as Stewart gives it.
+
 ---
 
 ## 4. The forecast loop, and why yours comes first
 
-![**Figure 3** — yours first. Nothing of the machine's until yours is written
+![**Figure 4** — yours first. Nothing of the machine's until yours is written
 down.](fig/weather-forecast.png)
 
 **Nothing of the machine's appears until your own forecast is recorded.** If
 the app prints its guess first, you have not forecast anything: you have
 agreed with something. The loop is deliberate:
 
-1. You write your forecast — wind direction and speed, pressure, and the
-   weather.
+1. You write your forecast — wind direction and speed, pressure, and the sea
+   state.
 2. Only then does the tool show its own two: the **rules** forecaster, and
    **persistence** (tomorrow is like today).
 3. When the verifying observation arrives, all three are scored against it.
@@ -154,12 +210,18 @@ not yet adding anything.
 
 ## 5. The score
 
-![**Figure 4** — you, the rules, and persistence, scored against what actually
+![**Figure 5** — you, the rules, and persistence, scored against what actually
 happened.](fig/weather-score.png)
 
 Weighted error points, from the WxChallenge convention: half a point per knot
-of wind speed, one per millibar, a tenth per degree of wind direction — so a
-near miss costs little and a bad miss costs a lot.
+of wind speed, one per millibar, a tenth per degree of wind direction, two per
+sea state — so a near miss costs little and a bad miss costs a lot.
+
+**The sea state is scored against the state you logged** nearest the valid
+time; an observation with no sea state logged scores nothing for it. The rules
+and persistence take their sea state from their wind, by the Beaufort scale's
+curve in section 3. Before version 1.0.7 the sea state was asked for and never
+scored, so totals that include a sea-state forecast have changed once.
 
 The score exists to answer one question honestly: **are you getting better, and
 are you better than persistence?**
@@ -168,7 +230,7 @@ are you better than persistence?**
 
 ## 6. The 500 millibar chart
 
-![**Figure 5** — reasoning over a chart that arrived by radiofax.](fig/weather-chart.png)
+![**Figure 6** — reasoning over a chart that arrived by radiofax.](fig/weather-chart.png)
 
 **This tool cannot fetch a chart and never will.** But a 500 mb chart does
 arrive at sea, by HF radiofax on an SSB receiver, with no internet involved at
@@ -195,7 +257,7 @@ public domain), and are listed in `docs/SOURCES.md`.
 
 ## 7. The wind from the isobars
 
-![**Figure 6** — the wind from the isobars, 100 nm apart at 50° N. Above, the
+![**Figure 7** — the wind from the isobars, 100 nm apart at 50° N. Above, the
 two isobars at the spacing typed, with the wind aloft along them and the wind on
 deck turned toward the low; close the isobars and the arrows lengthen. Below,
 the scale: wind against spacing, one curve for each latitude, with your reading
@@ -230,7 +292,7 @@ lesson** at the top.
 
 ## 8. The lessons
 
-![**Figure 7** — eleven lessons, each one earning its place.](fig/weather-lessons.png)
+![**Figure 8** — eleven lessons, each one earning its place.](fig/weather-lessons.png)
 
 Each lesson changes either what the tool says or what you would do. One of them
 says plainly where the reasoning stops being reliable, which is the most
@@ -238,26 +300,26 @@ important of the eleven.
 
 `weather learn` lists them; `weather learn <key>` opens one.
 
-![**Figure 8** — friction, in the `gradient` lesson. Over the sea the surface
+![**Figure 9** — friction, in the `gradient` lesson. Over the sea the surface
 wind is backed 10 to 20 degrees toward the low and about 2/3 of the wind
 aloft. Over land it is backed 30 to 40 degrees, and its speed is a band: about
 1/3 over forests, towns and cities, nearer 2/3 over open fields.](fig/weather-friction.png)
 
 Some lessons draw what they say. The `gradient` lesson draws friction (Figure
-6), the turn toward the low and the loss of speed, as a figure in the terminal
+9), the turn toward the low and the loss of speed, as a figure in the terminal
 and in the browser. The land speed is drawn as a band, not one number, because
 the published rules of thumb disagree, from 1/3 (the Royal Meteorological
 Society) to 2/3 (US Navy training), and because the ground decides it: trees
-and buildings drag the wind more than open fields do. Figure 8 is the
+and buildings drag the wind more than open fields do. Figure 9 is the
 northern hemisphere's; south of the equator the turn is the other way.
 
-![**Figure 9** — why the wind turns. The push toward the low, the earth's turn
+![**Figure 10** — why the wind turns. The push toward the low, the earth's turn
 bending the wind to its right, and the drag of the sea or land close into a
 triangle. Drag the friction slider and the corner rides the circle: the drag
 side grows, the bend shrinks, and the wind turns further toward the low and
 slows.](fig/weather-forces.png)
 
-The same lesson then shows **why** the wind turns (Figure 9), in a sailor's
+The same lesson then shows **why** the wind turns (Figure 10), in a sailor's
 terms rather than as equations. Three things act on the wind near the surface:
 the push from high pressure toward low, which is what the isobars show; the
 earth turning beneath, which bends moving air to its right in the north; and
@@ -269,19 +331,19 @@ towns, and a few sentences under it say what is happening at each stage. The
 triangle describes the lowest kilometre or so of air; on deck the wind is slower
 again, which is why the rule of thumb over the sea is about two thirds.
 
-![**Figure 10** — the wind shifts, over time. It veers when it shifts clockwise
+![**Figure 11** — the wind shifts, over time. It veers when it shifts clockwise
 round the compass and backs when it shifts anticlockwise. These are compass
 words, so they mean the same on either side of the equator.](fig/weather-veer-time.png)
 
-![**Figure 11** — the surface wind against the wind aloft. It always turns toward
+![**Figure 12** — the surface wind against the wind aloft. It always turns toward
 the low. North of the equator the low is on the wind's left, so the turn is
 anticlockwise: backed. South of it the low is on the right, and the same turn is
 clockwise: veered.](fig/weather-veer-hemi.png)
 
 **Backing and veering** have a lesson of their own, `weather learn veer`,
-because the words do two jobs. Over time (Figure 10) they say which way the wind
+because the words do two jobs. Over time (Figure 11) they say which way the wind
 has shifted, and the "What the log says" screen uses them in that sense. Against
-the wind aloft (Figure 11) they describe the friction turn, which is backed in
+the wind aloft (Figure 12) they describe the friction turn, which is backed in
 the north and veered in the south. The lesson also says what a shift tells you:
 in the Channel, a depression passing to the north veers the wind from south-west
 through west to north-west as its fronts go through, and the same low south of
@@ -302,6 +364,7 @@ gradient lessons, so it is met more than once.
 | `weather forecast` | yours first, then mine, then both are scored |
 | `weather score` | how you, the rules and persistence are doing |
 | `weather lon <deg>` | your longitude, east positive — for the pressure tide |
+| `weather close <percent>` | how near the next sea state counts as close: 0 to 50, 25 unless set |
 | `weather day` / `night` / `plain` | colour mode |
 | `weather about` / `version` | |
 

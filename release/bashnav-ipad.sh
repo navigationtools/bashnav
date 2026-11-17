@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=004053653
+BASHNAV_BYTES=004063029
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -30496,7 +30496,7 @@ bn_unpack() {
 #  data that is never wrong - what you measured yourself - and the only
 #  one still available when the antenna comes down.
 # =====================================================================
-WEATHER_VERSION=1.0.6
+WEATHER_VERSION=1.0.7
 
 #  the log belongs to deck-log; weather only ever READS it
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"
@@ -30511,6 +30511,9 @@ cmode=day
 #  substitution stdout is a pipe and every terminal is told it is plain.
 ISTTY=0; [ -t 1 ] && ISTTY=1
 lessons=""; lon=""
+#  the share of a sea-state step that counts as "close to the next one"
+#  on What the log says, in percent; empty means the engine's 25
+seaclose=""
 
 awk_has_math() {
   $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1)+cos(1); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
@@ -30535,11 +30538,11 @@ pick_awk() {
 load_conf() {
   [ -f "$CONF" ] || return 0
   while IFS='=' read -r k v; do
-    case "$k" in cmode) cmode="$v" ;; lon) lon="$v" ;; esac
+    case "$k" in cmode) cmode="$v" ;; lon) lon="$v" ;; seaclose) seaclose="$v" ;; esac
   done < "$CONF"
 }
 save_conf() { mkdir -p "$WEATHER_HOME"
-  printf '%s\n' "cmode=$cmode" "lon=$lon" > "$CONF"; }
+  printf '%s\n' "cmode=$cmode" "lon=$lon" "seaclose=$seaclose" > "$CONF"; }
 load_prog() {
   [ -f "$PROG" ] || return 0
   while IFS='=' read -r k v; do case "$k" in lessons) lessons="$v" ;; esac; done < "$PROG"
@@ -30561,7 +30564,7 @@ paint() {
 unpaint() { [ "$cmode" = plain ] || { [ "$ISTTY" = 1 ] && printf '\033[0m\n'; }; }
 cmode_now() { if [ "$ISTTY" = 1 ]; then echo "$cmode"; else echo plain; fi; }
 eng() {
-  $AWK -f "$ENGINE" -v cmode="$(cmode_now)" -v LOG="$LOG" -v lon="$lon" \
+  $AWK -f "$ENGINE" -v cmode="$(cmode_now)" -v LOG="$LOG" -v lon="$lon" -v seaclose="$seaclose" \
        -v now="$(date -u '+%Y-%m-%dT%H:%MZ')" "$@" </dev/null
 }
 
@@ -30775,6 +30778,7 @@ help_text() {
     '  weather forecast         yours first, then mine, then both are scored' \
     '  weather score            how you, the rules and persistence are doing' \
     '  weather lon <deg>        your longitude, E positive - for the pressure tide' \
+    '  weather close <percent>  how near the next sea state counts as close (25)' \
     '  weather day|night|plain  colour mode' \
     '  weather about | version' \
     '' \
@@ -30830,6 +30834,18 @@ case "${1:-}" in
   forecast)  do_forecast ;;
   score)     eng -v cmd=score ;;
   lon)       shift; lon="$1"; save_conf; echo "  longitude: $lon" ;;
+  #  The share of a sea-state step that counts as close to the next one
+  #  (Larry, AOZ).  A whole number from 0 to 50; 0 turns the mark off;
+  #  nothing after the word puts it back to 25.
+  close)     shift
+             case "${1:-}" in
+               "") seaclose=""; save_conf; echo "  close to the next sea state: the top 25% of a step" ;;
+               *[!0-9]*) echo "  weather close: a whole number of percent, 0 to 50"; exit 2 ;;
+               *) if [ "$1" -gt 50 ]; then echo "  weather close: a whole number of percent, 0 to 50"; exit 2; fi
+                  seaclose="$1"; save_conf
+                  if [ "$1" -eq 0 ]; then echo "  close to the next sea state: not marked"
+                  else echo "  close to the next sea state: the top $1% of a step"; fi ;;
+             esac ;;
   day|night|plain) cmode="$1"; save_conf; echo "  colour: $cmode" ;;
   about)     about_text ;;
   help|-h|--help) help_text ;;
@@ -31600,6 +31616,7 @@ function wx_load(logfile,   i, n, lastlat, firstlat){
       WDIR[n]=-9999; WSPD[n]=-9999; WP[n]=-9999; WTEND[n]=""
       WAIR[n]=-9999; WDEW[n]=-9999; WSEA[n]=-9999; WCLD[n]=-9999
       WSWP[n]=-9999; WSWD[n]=-9999; WLAT[n]=lastlat
+      WSST[n]=-9999; WSWH[n]=-9999
       WCL[n]=-1; WCM[n]=-1; WCH[n]=-1; WVIS[n]=-1 }
     if(LG["wdir"]!="") WDIR[n]=wx_num(LG["wdir"])
     if(LG["wspd"]!="") WSPD[n]=wx_num(LG["wspd"])
@@ -31611,6 +31628,12 @@ function wx_load(logfile,   i, n, lastlat, firstlat){
     if(LG["cloud"]!="") WCLD[n]=wx_num(LG["cloud"])
     if(LG["swper"]!="") WSWP[n]=wx_num(LG["swper"])
     if(LG["swdir"]!="") WSWD[n]=wx_num(LG["swdir"])
+    #  the sea state as logged (the Douglas code, 0 to 9) and the swell's
+    #  height.  WSEA above is the sea TEMPERATURE, which took the name
+    #  first; the state of the sea is WSST.  Until weather 1.0.7 neither
+    #  of these was read, so a sea-state forecast could not be scored.
+    if(LG["sea"] ~ /^[0-9]$/) WSST[n]=LG["sea"]+0
+    if(LG["swht"]!="") WSWH[n]=wx_num(LG["swht"])
     if(LG["cl"]!="" && LG["cl"]!="-" && LG["cl"]!="/") WCL[n]=LG["cl"]+0
     if(LG["cm"]!="" && LG["cm"]!="-" && LG["cm"]!="/") WCM[n]=LG["cm"]+0
     if(LG["ch"]!="" && LG["ch"]!="-" && LG["ch"]!="/") WCH[n]=LG["ch"]+0
@@ -31744,6 +31767,143 @@ function wx_glass(lon, hours,   i, j, c, d, lab, day){
 }
 
 # ---------------------------------------------------------------------
+#  THE SEA AGAINST THE WIND (W09; weather 1.0.7).  Larry's rulings of
+#  17 November 2026:
+#     AOU  the curve is a public source's, and the score's rule for
+#          turning a wind into a sea state follows it
+#     AOZ  when the wind is in the top share of the step it is on, the
+#          next step is marked as close; the share can be set (weather
+#          close <percent>), 25 unless set, measured in knots, upward only
+#     APC  the sea state is scored: one state for each wind
+#     APF  the fully developed limit is given too, as a ceiling
+#
+#  THE CURVE is the Beaufort scale's probable wave height, the Met Office's
+#  table ("Beaufort wind force scale"; the WMO's figures): for each force
+#  its mean wind in knots and the probable height in metres, "for
+#  well-developed wind waves of the open sea", joined by straight lines:
+#     kt   2    5    9    13   19   24   30   37   44   52   60    64
+#     m    0.1  0.2  0.6  1.0  2.0  3.0  4.0  5.5  7.0  9.0  11.5  14
+#  (64 kt is where force 12 begins, "14 m and over".)
+#
+#  THE STATES are the WMO's code 3700 (the Douglas scale as NOAA's NCEI
+#  tabulates it): 1 to 0.1 m, 2 to 0.5, 3 slight to 1.25, 4 moderate to
+#  2.5, 5 rough to 4, 6 very rough to 6, 7 high to 9, 8 very high to 14,
+#  9 phenomenal over 14.
+#
+#  THE STEPS are where the curve reaches each of those heights, in knots:
+#  1, 2, 8, 14.5, 21.5, 30, 39 1/3, 52, 64.  They are written out, not
+#  worked from the curve each time, because a step that is found by
+#  comparing two floating-point heights can land either side of its own
+#  edge; tests/wx-check.awk finds each edge again from the curve and
+#  requires it to be the number written here.  A wind that has reached an
+#  edge is in the higher state.
+#
+#  The Met Office's table gives one state for a whole force, and two for
+#  forces 4, 7 and 8, which are the forces inside which the curve crosses
+#  an edge (14.5, 30 and 39 kt).  This works from the wind itself, so it
+#  turns partway through a force where the table cannot.
+#
+#  FULLY DEVELOPED is Pierson and Moskowitz's limit for a steady wind over
+#  open ocean, H = 0.22 U^2 / g with U the wind at 10 m in metres a second
+#  (Stewart, Introduction to Physical Oceanography, 16.4), which takes
+#  "roughly ten-thousand wave periods" of wind over "five-thousand wave
+#  lengths" of sea.  Up to about 24 kt it and the scale agree to a third
+#  of a metre; above that it is well over the scale.
+#
+#  Until 1.0.7 the score used a table of its own (under 7 kt state 1,
+#  under 13 state 2, under 19 state 3, under 25 state 4, under 34 state 5,
+#  ...), which was one state under the Met Office's heights at 4 to 12 and
+#  22 to 24 kt and one over at 56 to 63, and had never been checked
+#  against a source.  docs/SOURCES.md, Weather.
+# ---------------------------------------------------------------------
+function wx_seainit(){
+  if(WXS_N) return 0
+  WXS_N = split("0 2 5 9 13 19 24 30 37 44 52 60 64", WXS_K, " ")
+  split("0 0.1 0.2 0.6 1.0 2.0 3.0 4.0 5.5 7.0 9.0 11.5 14.0", WXS_H, " ")
+  split("1 2 8 14.5 21.5 30 0 52 64", WXE, " "); WXE[7] = 118/3
+  split("rippled|smooth|slight|moderate|rough|very rough|high|very high|phenomenal", WXS_NAME, "|")
+  split("under 0.1 m|0.1 to 0.5 m|0.5 to 1.25 m|1.25 to 2.5 m|2.5 to 4 m|4 to 6 m|6 to 9 m|9 to 14 m|over 14 m", WXS_RNG, "|")
+  return 0
+}
+#  the Beaufort scale's probable wave height at this wind, metres
+function wx_seaht(kt,   i){
+  wx_seainit()
+  if(kt<=0) return 0
+  for(i=2;i<=WXS_N;i++) if(kt <= WXS_K[i]+0)
+    return WXS_H[i-1] + (WXS_H[i]-WXS_H[i-1])*(kt-WXS_K[i-1])/(WXS_K[i]-WXS_K[i-1])
+  return 14.0
+}
+#  the sea state the scale gives this wind, 0 to 9
+function wx_seafor(kt,   i, s){
+  wx_seainit(); s=0
+  for(i=1;i<=9;i++) if(kt >= WXE[i]+0) s=i
+  return s
+}
+#  the state it is close to, or 0: in the top pct percent of its step
+function wx_seaclose(kt, pct,   s){
+  s = wx_seafor(kt)
+  if(s<1 || s>8 || pct<=0) return 0
+  if(kt >= WXE[s+1] - (WXE[s+1]-WXE[s])*pct/100.0) return s+1
+  return 0
+}
+#  fully developed, metres: 0.22 U^2 / g, U in metres a second
+function wx_seafull(kt,   v){ v = kt*0.514444; return 0.22*v*v/9.80665 }
+function wx_seaname(s){ wx_seainit(); return (s<1 ? "glassy" : WXS_NAME[s]) }
+function wx_searange(s){ wx_seainit(); return (s<1 ? "flat" : WXS_RNG[s]) }
+function wx_kt(x){ return (x==int(x)) ? sprintf("%d", x) : sprintf("%.1f", x) }
+#  the share of a step that counts as close: 25 unless set, 0 to 50
+function wx_pct(x){
+  if(x=="") return 25
+  x = int(x+0); if(x<0) x=0; if(x>50) x=50
+  return x
+}
+#  the sea against the wind, in words: the latest observation's wind, the
+#  sea state and the swell logged with it
+function wx_seasay(n, pct,   w, h, s, nx, full, ls){
+  if(!wx_has(WSPD[n]) || WSPD[n]<0) return 0
+  w = WSPD[n]; h = wx_seaht(w); s = wx_seafor(w); pct = wx_pct(pct)
+  print ""
+  if(s==0) wx_say("The sea: no wind to speak of; the scale expects a glassy sea.")
+  else {
+    wx_say(sprintf("The sea: at %s kt the Beaufort scale expects about %.1f m, %s.", wx_kt(w), h, wx_seaname(s)))
+    wx_why("its probable wave height, for a well-developed sea in open water.")
+    wx_why("The sea lags the wind: it builds after the wind does.")
+  }
+  nx = wx_seaclose(w, pct)
+  if(nx>0){
+    wx_say(cw(sprintf("Close to %s: the scale turns at %s kt.", wx_seaname(nx), wx_kt(WXE[nx])), C_ACC))
+    wx_why(sprintf("your wind is in the top %d%% of the %s step, %s to %s kt.", pct, wx_seaname(s), wx_kt(WXE[s]), wx_kt(WXE[nx])))
+  }
+  if(wx_has(WSST[n])){
+    ls = WSST[n]
+    if(ls==s) wx_say(sprintf("You logged a %s sea: what the scale expects.", wx_seaname(ls)))
+    else if(ls<s){
+      wx_say(sprintf("You logged a %s sea, %s: under the scale.", wx_seaname(ls), wx_searange(ls)))
+      wx_why("a sea still building, or short of fetch: the wind has not had the")
+      wx_why("time or the distance to raise all it can.")
+    } else {
+      wx_say(sprintf("You logged a %s sea, %s: above the scale.", wx_seaname(ls), wx_searange(ls)))
+      wx_why("more sea than the scale gives this wind. Is some of it swell?")
+    }
+  }
+  if(wx_has(WSWH[n]) && WSWH[n]>0){
+    if(wx_has(WSWP[n])) wx_say(sprintf("Your swell: %.1f m at %d seconds.", WSWH[n], int(WSWP[n])))
+    else                wx_say(sprintf("Your swell: %.1f m.", WSWH[n]))
+    wx_why("swell is sea that has left the wind that raised it, so it is marked")
+    wx_why("on its own and not held against this wind.")
+  }
+  full = wx_seafull(w)
+  if(full >= h + 0.1){
+    wx_say(sprintf("Fully developed, this wind could raise about %.1f m.", full))
+    wx_why("the limit for a steady wind over open ocean (Pierson and")
+    wx_why("Moskowitz). It takes roughly ten thousand wave periods of wind")
+    wx_why("over five thousand wavelengths of sea; the gap from the scale")
+    wx_why("is time and fetch.")
+  }
+  return 1
+}
+
+# ---------------------------------------------------------------------
 #  Buys Ballot.
 #
 #  Wind direction is where it comes FROM, so with your back to it you
@@ -31770,7 +31930,7 @@ function wx_bb(wdir, north,   b){
 function wx_say(s){ printf "  %s\n", s; return 0 }
 function wx_why(s){ printf "  %s\n", cwd("   " s); return 0 }
 
-function wx_report(logfile, lon, hours,   n, i, j, dt, dp, dw, tide1, tide2, corr, k, b)
+function wx_report(logfile, lon, hours, pct,   n, i, j, dt, dp, dw, tide1, tide2, corr, k, b)
 {
   if(hours!=24 && hours!=72) hours = 48
   n = wx_load(logfile)
@@ -31886,6 +32046,9 @@ function wx_report(logfile, lon, hours,   n, i, j, dt, dp, dw, tide1, tide2, cor
     }
   }
 
+  # ---- the sea against the wind (W09) --------------------------------
+  wx_seasay(n, pct)
+
   # ---- swell, the earliest warning there is --------------------------
   if(wx_has(WSWP[n]) && WSWP[n] >= 12){
     print ""
@@ -31988,21 +32151,16 @@ function sc_short(f){
   return f
 }
 
-#  A fully developed sea for a given wind, roughly.  Used only to turn a
+#  The sea state for a given wind: the one the Beaufort scale's probable
+#  wave height gives it (wx_seafor in wx.awk, where the curve, the states
+#  and their sources are; Larry, AOU, 17 November 2026).  Used to turn a
 #  forecast wind into a forecast sea state; it is a rule of thumb and is
 #  scored like everything else.
-function sc_sea(kt){
-  if(kt<1)  return 0
-  if(kt<7)  return 1
-  if(kt<13) return 2
-  if(kt<19) return 3
-  if(kt<25) return 4
-  if(kt<34) return 5
-  if(kt<41) return 6
-  if(kt<48) return 7
-  if(kt<56) return 8
-  return 9
-}
+#
+#  Until weather 1.0.7 this was a table of its own, never checked against
+#  a source, and one state away from the Met Office's heights in four
+#  bands of wind.  It was also never scored: see sc_verify.
+function sc_sea(kt){ return wx_seafor(kt) }
 
 # ---------------------------------------------------------------------
 #  The two machine forecasters.
@@ -32104,6 +32262,15 @@ function sc_verify(logfile,   i, j, by, fo, o, f, p, nf, any, tot, cnt, fields, 
       if(f=="wdir") p = sc_pts(f, LG[f]+0, WDIR[o])
       else if(f=="wspd") p = sc_pts(f, LG[f]+0, WSPD[o])
       else if(f=="mslp") p = sc_pts(f, LG[f]+0, WP[o])
+      #  THE SEA STATE WAS FORECAST BY ALL THREE AND SCORED FOR NONE.  The
+      #  weight was written (two points a state), the question was asked
+      #  and the answer was stored, but the sea state the log holds was
+      #  never read, so there was nothing to hold a forecast against and
+      #  this branch gave "not comparable" every time.  Scored since
+      #  weather 1.0.7 (Larry, APC): one state for each wind, against the
+      #  state logged nearest the valid time; an observation with no sea
+      #  state logged is still not comparable.
+      else if(f=="sea")  p = sc_pts(f, LG[f]+0, WSST[o])
       else p = -1
       if(p<0) continue
       TOT[by] += p; CNT[by]++
@@ -32127,7 +32294,7 @@ function sc_report(logfile,   n, by, i, f, fields, nfld, j, names, nn){
     return 0
   }
   nn = split("you rules persist", names, " ")
-  nfld = split("wdir wspd mslp", fields, " ")
+  nfld = split("wdir wspd mslp sea", fields, " ")
   printf "  %-10s %8s  %s\n", "", "points", "per field, points per forecast"
   for(i=1;i<=nn;i++){
     by = names[i]
@@ -32142,7 +32309,8 @@ function sc_report(logfile,   n, by, i, f, fields, nfld, j, names, nn){
   }
   hr()
   printf "  %s\n", cwd("Lower is better. Half a point per knot, one per millibar, a tenth")
-  printf "  %s\n", cwd("per degree of wind direction - so a near miss scores like one.")
+  printf "  %s\n", cwd("per degree of wind direction, two per sea state - so a near miss")
+  printf "  %s\n", cwd("scores like one.")
   print ""
   if(("persist" in CNT) && ("rules" in CNT)){
     if(TOT["rules"]/CNT["rules"] > TOT["persist"]/CNT["persist"])
@@ -33181,7 +33349,7 @@ BEGIN{
 
   if(cmd=="version"){ print "weather engine"; exit 0 }
 
-  else if(cmd=="what"){ wx_report(LOG, lon, hours+0) }
+  else if(cmd=="what"){ wx_report(LOG, lon, hours+0, seaclose) }
   else if(cmd=="score"){ sc_report(LOG) }
   else if(cmd=="chart"){ ch_report(brg, dist, orient, w500, (north==""?1:north+0)) }
   else if(cmd=="isobars"){ iso_report(spacing, lat, step, (north==""?1:north+0)) }

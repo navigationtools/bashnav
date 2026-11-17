@@ -72,6 +72,84 @@ BEGIN{
   close("src/weather/teach.awk")
   chk("the tide lesson quotes the working (" want ")", found, 1)
 
+  # ---- the sea against the wind (W09, weather 1.0.7) -----------------
+  #  THE CURVE IS THE MET OFFICE'S TABLE.  At each force's mean wind it
+  #  must give that force's probable wave height, to the figure printed.
+  nmo = split("2:0.1 5:0.2 9:0.6 13:1.0 19:2.0 24:3.0 30:4.0 37:5.5 44:7.0 52:9.0 60:11.5 64:14.0", MO, " ")
+  for(i=1;i<=nmo;i++){ split(MO[i], kv, ":")
+    chk("Beaufort curve at " kv[1] " kt, m", sprintf("%.2f", wx_seaht(kv[1]+0)), sprintf("%.2f", kv[2]+0)) }
+  chk("no wind, no sea", wx_seaht(0), 0)
+  chk("over 64 kt the curve stays at 14 m", wx_seaht(90), 14)
+  #  it never falls as the wind rises, and neither does the state
+  bad=0; lh=-1; ls=-1
+  for(w=0; w<=800; w++){ h=wx_seaht(w/10); s=wx_seafor(w/10)
+    if(h<lh || s<ls || s<0 || s>9) bad++; lh=h; ls=s }
+  chk("height and state never fall as the wind rises, 0 to 80 kt by tenths", bad, 0)
+  #  THE STEPS ARE WRITTEN OUT, AND MUST BE WHERE THE CURVE PUTS THEM.
+  #  Each edge is found again here from the curve, by halving, and held
+  #  to the written number: move a point of the curve and this fails
+  #  until the step is moved with it.
+  ntop = split("0.1 0.5 1.25 2.5 4 6 9 14", TOP, " ")
+  for(s=2; s<=9; s++){
+    lo=0; hi=64
+    for(it=0; it<60; it++){ mid=(lo+hi)/2; if(wx_seaht(mid) >= TOP[s-1]+0) hi=mid; else lo=mid }
+    d = hi - WXE[s]; if(d<0) d=-d
+    chk("state " s " begins where the curve reaches " TOP[s-1] " m (" sprintf("%.2f", WXE[s]) " kt)", (d < 0.000001), 1)
+  }
+  chk("under 1 kt is calm",        wx_seafor(0.9), 0)
+  chk("1 kt is rippled",           wx_seafor(1),   1)
+  chk("7.9 kt is smooth",          wx_seafor(7.9), 2)
+  chk("8 kt is slight",            wx_seafor(8),   3)
+  chk("14 kt is slight",           wx_seafor(14),  3)
+  chk("14.5 kt is moderate",       wx_seafor(14.5),4)
+  chk("21 kt is moderate",         wx_seafor(21),  4)
+  chk("22 kt is rough",            wx_seafor(22),  5)
+  chk("29 kt is rough",            wx_seafor(29),  5)
+  chk("30 kt is very rough",       wx_seafor(30),  6)
+  chk("39 kt is very rough",       wx_seafor(39),  6)
+  chk("40 kt is high",             wx_seafor(40),  7)
+  chk("51 kt is high",             wx_seafor(51),  7)
+  chk("52 kt is very high",        wx_seafor(52),  8)
+  chk("63 kt is very high",        wx_seafor(63),  8)
+  chk("64 kt is phenomenal",       wx_seafor(64),  9)
+  #  the Met Office gives two states for forces 4, 7 and 8: each of those
+  #  forces must hold both of its states, and force 6 only one
+  chk("force 4 (11-16 kt) holds slight and moderate",   wx_seafor(11) "," wx_seafor(16), "3,4")
+  chk("force 7 (28-33 kt) holds rough and very rough",  wx_seafor(28) "," wx_seafor(33), "5,6")
+  chk("force 8 (34-40 kt) holds very rough and high",   wx_seafor(34) "," wx_seafor(40), "6,7")
+  chk("force 6 (22-27 kt) is rough throughout",         wx_seafor(22) "," wx_seafor(27), "5,5")
+  #  CLOSE TO THE NEXT STEP (Larry, AOZ): the top share of the step, in
+  #  knots.  Rough runs 21.5 to 30, so a quarter of it begins at 27.875.
+  chk("27 kt is not yet close at 25%",   wx_seaclose(27, 25), 0)
+  chk("28 kt is close to very rough",    wx_seaclose(28, 25), 6)
+  chk("29 kt is not close at 10%",       wx_seaclose(29, 10), 0)
+  chk("29.5 kt is close at 10%",         wx_seaclose(29.5, 10), 6)
+  chk("a calm is close to nothing",      wx_seaclose(0.9, 50), 0)
+  chk("phenomenal has no next step",     wx_seaclose(70, 50), 0)
+  bad=0; any=0
+  for(w=0; w<=700; w++){ k=w/10
+    if(wx_seaclose(k, 0) != 0) bad++                       # 0 turns it off
+    c = wx_seaclose(k, 25); if(c){ any++; if(c != wx_seafor(k)+1) bad++ }
+    if(wx_seaclose(k, 10) && !wx_seaclose(k, 25)) bad++    # a wider share holds the narrower
+    if(wx_seaclose(k, 25) && !wx_seaclose(k, 50)) bad++ }
+  chk("close is the next state up, nests by share, and 0 turns it off", bad ":" (any>0), "0:1")
+  chk("the share is 25 unless set",   wx_pct(""), 25)
+  chk("the share stops at 50",        wx_pct(70), 50)
+  chk("the share is not negative",    wx_pct(-3), 0)
+  chk("a share that is not a number is off", wx_pct("x"), 0)
+  chk("the share is whole percent",   wx_pct("33.9"), 33)
+  #  FULLY DEVELOPED: 0.22 U^2 / g, worked here in metres a second from
+  #  the definition of the knot, not from the constant the function uses
+  for(k=10; k<=60; k+=10){ u = k*1852/3600; d = wx_seafull(k) - 0.22*u*u/9.80665; if(d<0) d=-d
+    chk("fully developed at " k " kt is 0.22 U^2/g", (d < 0.0001), 1) }
+  chk("fully developed at 34 kt, m", sprintf("%.1f", wx_seafull(34)), "6.9")
+  #  it is drawn and spoken of as a ceiling: from 19 kt up it is over the
+  #  scale by a tenth of a metre or more, and never under it from 15
+  bad=0; for(w=150; w<=700; w++) if(wx_seafull(w/10) < wx_seaht(w/10)) bad++
+  chk("the limit is never under the scale from 15 kt up", bad, 0)
+  bad=0; for(w=190; w<=700; w++) if(wx_seafull(w/10) < wx_seaht(w/10) + 0.1) bad++
+  chk("from 19 kt the limit is over the scale by 0.1 m or more", bad, 0)
+
   # ---- hemisphere from a latitude as a person writes it -------------
   #  the tendency, in the barograph's four words (weather 1.0.5): the
   #  change per three hours, each boundary from both sides

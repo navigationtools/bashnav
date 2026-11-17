@@ -8,7 +8,7 @@
 #
 #   sh docs/web/tests/run-weather-web.sh
 #
-#   1  the reasoning   400 generated observation histories vs `weather what`
+#   1  the reasoning   1,200 generated observation histories vs `weather what`
 #   2  the score       300 generated logs vs `weather score`
 #   3  the 500 mb      1,078 cases vs `weather chart`
 #   4  valid times     every real day 2000-2040, both directions
@@ -16,7 +16,7 @@
 #   6  the page        driven, including the rule that it must not tell
 #                      before it asks
 #   3b the wind from the isobars, vs `weather isobars`
-#   7-13 the gunnery, wind, friction, force, veer, isobar and barograph figures, measured off the drawing
+#   7-14 the gunnery, wind, friction, force, veer, isobar, barograph and sea figures, measured off the drawing
 set -e
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 cd "$ROOT"
@@ -145,6 +145,13 @@ if node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.ex
   #  the strip, the key at its own slopes, the windows - and the carried
   #  latitude, on a log kept the way one is at sea.
   node docs/web/tests/weather-glass.js
+  echo
+  echo "14. the sea against the wind, on What the log says"
+  #  weather 1.0.7 (W09): the scale's dots on the Met Office's table, the
+  #  boxed band the state that height falls in, the close step and its
+  #  adjustable share, your sea and your swell where you logged them, the
+  #  fully developed limit on 0.22 U^2/g, the figure beside its own words.
+  node docs/web/tests/weather-sea.js
   echo
   echo "WEATHER WEB: all stages passed"
 else

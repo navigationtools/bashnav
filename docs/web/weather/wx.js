@@ -67,6 +67,7 @@ var WX = (function () {
         o = { ts: r.ts, wdir: NONE, wspd: NONE, p: NONE, tend: '',
               air: NONE, dew: NONE, sea: NONE, cld: NONE,
               swp: NONE, swd: NONE, lat: lastlat,
+              sst: NONE, swh: NONE,
               cl: -1, cm: -1, ch: -1, vis: -1 };
         W.push(o);
       }
@@ -81,6 +82,11 @@ var WX = (function () {
       if (v.cloud !== undefined && v.cloud !== '') o.cld = num(v.cloud);
       if (v.swper !== undefined && v.swper !== '') o.swp = num(v.swper);
       if (v.swdir !== undefined && v.swdir !== '') o.swd = num(v.swdir);
+      //  the sea state as logged (the Douglas code, 0 to 9) and the swell's
+      //  height.  o.sea above is the sea TEMPERATURE, which took the name
+      //  first; the state of the sea is o.sst.  As wx_load in the awk.
+      if (v.sea !== undefined && /^[0-9]$/.test(v.sea)) o.sst = +v.sea;
+      if (v.swht !== undefined && v.swht !== '') o.swh = num(v.swht);
       if (v.cl !== undefined && v.cl !== '' && v.cl !== '-' && v.cl !== '/') o.cl = +v.cl;
       if (v.cm !== undefined && v.cm !== '' && v.cm !== '-' && v.cm !== '/') o.cm = +v.cm;
       if (v.ch !== undefined && v.ch !== '' && v.ch !== '-' && v.ch !== '/') o.ch = +v.ch;
@@ -203,6 +209,76 @@ var WX = (function () {
   function padl(t, n) { t = String(t); while (t.length < n) t = ' ' + t; return t; }
 
   // ---------------------------------------------------------------
+  //  THE SEA AGAINST THE WIND (W09; weather 1.0.7; Larry, 17 November
+  //  2026: AOU, AOZ, APC, APF).  A port of the same block in wx.awk,
+  //  where the reasoning and the sources are set out in full:
+  //
+  //    the curve   the Beaufort scale's probable wave height (the Met
+  //                Office's table), force mean wind against height,
+  //                joined by straight lines
+  //    the states  the WMO's code 3700 (the Douglas scale)
+  //    the steps   the winds at which the curve reaches each state's
+  //                height: 1, 2, 8, 14.5, 21.5, 30, 39 1/3, 52, 64 kt,
+  //                written out and held to the curve by a test
+  //    close       in the top pct percent of its step, in knots, upward
+  //    full        Pierson and Moskowitz, 0.22 U^2 / g (Stewart, 16.4)
+  //
+  //  Every expression is written in the awk's own order, so the two
+  //  builds land on the same side of every edge.
+  // ---------------------------------------------------------------
+  var SEA_K = [0, 2, 5, 9, 13, 19, 24, 30, 37, 44, 52, 60, 64];
+  var SEA_H = [0, 0.1, 0.2, 0.6, 1.0, 2.0, 3.0, 4.0, 5.5, 7.0, 9.0, 11.5, 14.0];
+  var SEA_E = [0, 1, 2, 8, 14.5, 21.5, 30, 118 / 3, 52, 64];      // SEA_E[s]: where state s begins
+  var SEA_NAME = ['glassy', 'rippled', 'smooth', 'slight', 'moderate', 'rough', 'very rough',
+                  'high', 'very high', 'phenomenal'];
+  var SEA_RNG = ['flat', 'under 0.1 m', '0.1 to 0.5 m', '0.5 to 1.25 m', '1.25 to 2.5 m', '2.5 to 4 m',
+                 '4 to 6 m', '6 to 9 m', '9 to 14 m', 'over 14 m'];
+  //  the top of each state, metres, for a figure's bands (9 has none)
+  var SEA_TOP = [0, 0.1, 0.5, 1.25, 2.5, 4, 6, 9, 14];
+  function seaHt(kt) {
+    if (kt <= 0) return 0;
+    for (var i = 1; i < SEA_K.length; i++) if (kt <= SEA_K[i])
+      return SEA_H[i - 1] + (SEA_H[i] - SEA_H[i - 1]) * (kt - SEA_K[i - 1]) / (SEA_K[i] - SEA_K[i - 1]);
+    return 14.0;
+  }
+  function seaFor(kt) {
+    var s = 0;
+    for (var i = 1; i <= 9; i++) if (kt >= SEA_E[i]) s = i;
+    return s;
+  }
+  function seaClose(kt, pct) {
+    var s = seaFor(kt);
+    if (s < 1 || s > 8 || pct <= 0) return 0;
+    if (kt >= SEA_E[s + 1] - (SEA_E[s + 1] - SEA_E[s]) * pct / 100.0) return s + 1;
+    return 0;
+  }
+  function seaFull(kt) { var v = kt * 0.514444; return 0.22 * v * v / 9.80665; }
+  function seaName(s) { return SEA_NAME[s < 1 ? 0 : s]; }
+  function seaRange(s) { return SEA_RNG[s < 1 ? 0 : s]; }
+  function kts(x) { return x === Math.trunc(x) ? String(x) : cfixed(x, 1); }
+  //  the share of a step that counts as close: 25 unless set, 0 to 50
+  function seaPct(x) {
+    if (x === '' || x === undefined || x === null) return 25;
+    x = Math.trunc(+x || 0); if (x < 0) x = 0; if (x > 50) x = 50;
+    return x;
+  }
+  //  what the figure and the words both come from, for one observation:
+  //  null when it carries no wind
+  function sea(o, pct) {
+    if (!o || !has(o.wspd) || o.wspd < 0) return null;
+    var w = o.wspd, S = { w: w, h: seaHt(w), s: seaFor(w), pct: seaPct(pct) };
+    S.next = seaClose(w, S.pct);
+    S.lo = S.s >= 1 ? SEA_E[S.s] : 0;
+    S.hi = S.s <= 8 ? SEA_E[S.s + 1] : Infinity;
+    S.full = seaFull(w);
+    S.showFull = S.full >= S.h + 0.1;
+    S.logged = has(o.sst) ? o.sst : NONE;
+    S.swh = (has(o.swh) && o.swh > 0) ? o.swh : NONE;
+    S.swp = has(o.swp) ? o.swp : NONE;
+    return S;
+  }
+
+  // ---------------------------------------------------------------
   //  Buys Ballot.
   //
   //  Wind direction is where it comes FROM, so with your back to it you
@@ -292,7 +368,7 @@ var WX = (function () {
   //  working behind it, 'warn' a conclusion that matters, 'acc' one
   //  worth noticing, 'gap' a blank line.
   // ---------------------------------------------------------------
-  function report(W, lon, hours) {
+  function report(W, lon, hours, pct) {
     var out = [], n = W.length;
     hours = +hours; if (hours !== 24 && hours !== 72) hours = 48;
     function say(t) { out.push({ k: 'say', t: t }); }
@@ -427,6 +503,51 @@ var WX = (function () {
       }
     }
 
+    // ---- the sea against the wind (W09) ----------------------------
+    //  the words; the page draws the figure from the same out.sea
+    var S = sea(last, pct), s0 = out.length;
+    out.sea = S;
+    if (S) {
+      gap();
+      if (S.s === 0) say('The sea: no wind to speak of; the scale expects a glassy sea.');
+      else {
+        say('The sea: at ' + kts(S.w) + ' kt the Beaufort scale expects about ' + f1(S.h) + ' m, ' + seaName(S.s) + '.');
+        why('its probable wave height, for a well-developed sea in open water.');
+        why('The sea lags the wind: it builds after the wind does.');
+      }
+      if (S.next > 0) {
+        acc('Close to ' + seaName(S.next) + ': the scale turns at ' + kts(SEA_E[S.next]) + ' kt.');
+        why('your wind is in the top ' + di(S.pct) + '% of the ' + seaName(S.s) + ' step, ' +
+            kts(SEA_E[S.s]) + ' to ' + kts(SEA_E[S.next]) + ' kt.');
+      }
+      if (has(S.logged)) {
+        if (S.logged === S.s) say('You logged a ' + seaName(S.logged) + ' sea: what the scale expects.');
+        else if (S.logged < S.s) {
+          say('You logged a ' + seaName(S.logged) + ' sea, ' + seaRange(S.logged) + ': under the scale.');
+          why('a sea still building, or short of fetch: the wind has not had the');
+          why('time or the distance to raise all it can.');
+        } else {
+          say('You logged a ' + seaName(S.logged) + ' sea, ' + seaRange(S.logged) + ': above the scale.');
+          why('more sea than the scale gives this wind. Is some of it swell?');
+        }
+      }
+      if (has(S.swh)) {
+        if (has(S.swp)) say('Your swell: ' + f1(S.swh) + ' m at ' + di(S.swp) + ' seconds.');
+        else say('Your swell: ' + f1(S.swh) + ' m.');
+        why('swell is sea that has left the wind that raised it, so it is marked');
+        why('on its own and not held against this wind.');
+      }
+      if (S.showFull) {
+        say('Fully developed, this wind could raise about ' + f1(S.full) + ' m.');
+        why('the limit for a steady wind over open ocean (Pierson and');
+        why('Moskowitz). It takes roughly ten thousand wave periods of wind');
+        why('over five thousand wavelengths of sea; the gap from the scale');
+        why('is time and fetch.');
+      }
+      //  marked, so the page can put its figure beside these words
+      for (i = s0; i < out.length; i++) out[i].sea = true;
+    }
+
     // ---- swell, the earliest warning there is ----------------------
     if (has(last.swp) && last.swp >= 12) {
       gap();
@@ -504,6 +625,9 @@ var WX = (function () {
   return { NONE: NONE, num: num, has: has, d180: d180, mins: mins, load: load,
            north: north, latdeg: latdeg, tide: tide, bb: bb,
            tideok: tideok, band: band, glass: glass, runs: runs, day: day,
+           seaHt: seaHt, seaFor: seaFor, seaClose: seaClose, seaFull: seaFull,
+           seaName: seaName, seaRange: seaRange, seaPct: seaPct, sea: sea, kts: kts,
+           SEA_K: SEA_K, SEA_H: SEA_H, SEA_E: SEA_E, SEA_TOP: SEA_TOP,
            report: report, renderTerminal: renderTerminal,
            cfixed: cfixed, cplus: cplus };
 })();

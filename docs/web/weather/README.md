@@ -165,6 +165,23 @@ carried** in `WX.load`: a weather observation on its own takes the position of
 the last deck entry. Checked by `docs/web/tests/weather-glass.js` and the
 second corpus in `weather-wx.js`.
 
+**The sea against the wind** (weather 1.0.7, W09; Larry's rulings AOU, AOZ,
+APC and APF) is a figure beside its own words in "What the log says".
+`WX.sea(observation, percent)` gives, for the latest observation's wind: the
+height and the sea state the Beaufort scale gives it (`WX.seaHt`, `WX.seaFor`),
+the two ends of that step in knots, the state it is close to (`WX.seaClose`:
+the top share of the step, 25 percent unless set, 0 to 50), the fully developed
+height (`WX.seaFull`, Pierson and Moskowitz), and the sea state and swell
+logged with it. The report's words and `seaFigure` in `weather.js` are both
+written from it. The report marks its sea items, and `drawWhat` puts the
+figure in before the first of them, with the two buttons that set the share
+(`weather-sea-close` in the browser's store; `weather close <percent>` in the
+terminal). The steps are written out in knots and held to the curve by
+`tests/wx-check.awk`. `SCORE.sea` is `WX.seaFor`, and the sea state is scored
+against the state logged (`o.sst`; `o.sea` is the sea temperature). Checked by
+`docs/web/tests/weather-sea.js`, the third corpus in `weather-wx.js` and the
+sea-state forecasts in `weather-sc.js`.
+
 **A lesson can open it with an example** (weather 1.0.4, Larry's ruling ALI),
 as the course's lessons open the tides calculators:
 

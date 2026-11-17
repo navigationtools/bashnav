@@ -22,6 +22,13 @@ function rnd(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 10139
 
 function gen(seed) {
   const r = rnd(seed), lines = [];
+  //  THE SEA STATE (weather 1.0.7, APC).  Until then every observation
+  //  here logged exactly the state the old rule gave its wind and no
+  //  forecast ever offered one, so the field that was never scored was
+  //  never missed.  A second stream, so the logs keep their old shape:
+  //  the state observed is the scale's, one either side of it, or not
+  //  logged; and forecasts offer a sea state.
+  const r2 = rnd(seed * 7907 + 3);
   const n = 3 + Math.floor(r() * 12);
   let p = 995 + r() * 30, wd = Math.floor(r() * 360);
   const lat = (20 + r() * 40).toFixed(3), lon = (-80 + r() * 20).toFixed(2);
@@ -33,8 +40,10 @@ function gen(seed) {
     p += -5 + r() * 10;
     wd = (wd + Math.floor(-30 + r() * 60) + 360) % 360;
     const spd = Math.floor(r() * 40);
-    lines.push(LOG.make(ts, 'nav', [['lat', lat], ['lon', lon],
-      ['wdir', String(wd)], ['wspd', String(spd)], ['sea', String(SCORE.sea(spd))]]));
+    const navf = [['lat', lat], ['lon', lon], ['wdir', String(wd)], ['wspd', String(spd)]];
+    const sx = r2();
+    if (sx > 0.15) navf.push(['sea', sx > 0.9 ? '-' : String(Math.max(0, Math.min(9, SCORE.sea(spd) + Math.floor(r2() * 3) - 1)))]);
+    lines.push(LOG.make(ts, 'nav', navf));
     lines.push(LOG.make(ts, 'wx', [['mslp', p.toFixed(1)]]));
   }
   //  forecasts made at earlier slots FOR later ones, by all three
@@ -49,6 +58,8 @@ function gen(seed) {
       if (r() > 0.15) f.push(['wspd', String(Math.floor(r() * 45))]);
       if (r() > 0.2) f.push(['mslp', (990 + r() * 35).toFixed(1)]);
       else if (r() > 0.5) f.push(['mslp', '-']);
+      const fx = r2();
+      if (fx > 0.25) f.push(['sea', fx > 0.92 ? '-' : String(Math.floor(r2() * 10))]);
       lines.push(LOG.make(stamps[i], 'fc', f));
     });
   }
@@ -56,7 +67,7 @@ function gen(seed) {
 }
 
 const TMP = process.env.TMPDIR || '/tmp';
-let bad = 0, n = 0, first = null, withScore = 0;
+let bad = 0, n = 0, first = null, withScore = 0, withSea = 0;
 const N = +(process.argv[2] || 300);
 for (let seed = 1; seed <= N; seed++) {
   const text = gen(seed);
@@ -69,6 +80,7 @@ for (let seed = 1; seed <= N; seed++) {
   const got = SCORE.reportLines(res);
   n++;
   if (res.n > 0) withScore++;
+  if (/  sea [0-9]/.test(want)) withSea++;
   if (got !== want) {
     bad++;
     if (!first) {
@@ -80,7 +92,8 @@ for (let seed = 1; seed <= N; seed++) {
     }
   }
 }
-console.log(n + ' logs scored (' + withScore + ' produced an actual score sheet)');
+console.log(n + ' logs scored (' + withScore + ' produced an actual score sheet, ' + withSea + ' with the sea state scored)');
+if (N >= 100 && withSea < N / 3) { console.log('  THE CORPUS DOES NOT SCORE THE SEA STATE: ' + withSea); bad++; }
 if (first) console.log('  first disagreement:\n' + first);
 console.log(bad ? bad + ' DISAGREEMENTS' : 'the score sheets match the awk exactly');
 process.exit(bad ? 1 : 0);

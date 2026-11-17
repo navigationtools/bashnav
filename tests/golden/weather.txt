@@ -28,6 +28,18 @@
   The cloud has run the whole warm-front sequence: high, then
   middle, and now low stratus. The front is on you or past.
      cirrus -> cirrostratus -> altostratus -> nimbostratus and rain
+
+  The sea: at 32 kt the Beaufort scale expects about 4.4 m, very rough.
+     its probable wave height, for a well-developed sea in open water.
+     The sea lags the wind: it builds after the wind does.
+  You logged a rough sea, 2.5 to 4 m: under the scale.
+     a sea still building, or short of fetch: the wind has not had the
+     time or the distance to raise all it can.
+  Fully developed, this wind could raise about 6.1 m.
+     the limit for a steady wind over open ocean (Pierson and
+     Moskowitz). It takes roughly ten thousand wave periods of wind
+     over five thousand wavelengths of sea; the gap from the scale
+     is time and fetch.
   ----------------------------------------------------------------------
   This reasons only from what you logged. It is not a forecast:
   no model, no chart, no GRIB. It is you, reading your own barometer.
@@ -37,13 +49,16 @@
   THE SCORE
   ----------------------------------------------------------------------
                points  per field, points per forecast
-  you             2.0   dir 0.0  spd 1.0  hPa 1.0
-  rules          13.6   dir 3.6  spd 8.0  hPa 2.0
-  persist        14.0   dir 2.0  spd 5.0  hPa 7.0
+  you             4.0   dir 0.0  spd 1.0  hPa 1.0  sea 2.0
+  rules          17.6   dir 3.6  spd 8.0  hPa 2.0  sea 4.0
+  persist        14.0   dir 2.0  spd 5.0  hPa 7.0  sea 0.0
   ----------------------------------------------------------------------
   Lower is better. Half a point per knot, one per millibar, a tenth
-  per degree of wind direction - so a near miss scores like one.
+  per degree of wind direction, two per sea state - so a near miss
+  scores like one.
 
+  The rules are not beating persistence. That is the honest result
+  so far, and it is worth knowing.
   You are beating the rule set. Trust yourself over it here.
 
 === weather syllabus ===
@@ -1051,113 +1066,138 @@ Because the seasons are the 23.5 degree tilt, not the distance. The northern hem
   This reasons only from what you logged. It is not a forecast:
   no model, no chart, no GRIB. It is you, reading your own barometer.
 
-=== weather isobars, spacing=100 lat=50 north=1 ===
+=== weather what, the sea: 28 kt, moderate logged, a swell ===
 
-  THE WIND FROM THE ISOBARS
+  WHAT THE LOG SAYS
   ----------------------------------------------------------------------
-  Isobars 4 hPa apart and 100 nm between them, at 50 degrees N.
+  Pressure 1008.1, -4.3 hPa in 6.0 hours.
+  Allowing for the daily atmospheric tide: -4.4 hPa.
+     the tide alone accounts for +0.1 of that. It is semidiurnal,
+     about 1.4 hPa in the tropics and much less in high latitudes,
+     and in the tropics it falls 2-3 mb every afternoon in fine weather.
+  A definite fall. Something is coming.
+     a rate matters more than a level: 1000 hPa steady is a quiet day,
+     1015 falling fast is not.
 
-  The wind aloft runs along the isobars at 31 knots.
-     the closer the isobars, the harder the push toward the low; the
-     earth's turn bends the wind until the bend matches the push
-  On deck, over the sea: about 20 knots, backed 10 to 20 degrees.
-     the drag of the sea slows it and turns it in toward the low
-  Over land: 10 to 20 knots, backed 30 to 40 degrees.
-     towns and forests at the slow end, open fields at the fast end
+  The glass, last 48 hours:
+     30 Aug 06:00      1012.4
+     to 12:00          1008.1   falling       -2.2 hPa in 3 h
+     the daily tide alone is 0.6 hPa each way here, and is allowed for
 
-  This is the wind for straight isobars. Round a tight low expect
-  less, round a high more.
-     the curve of the isobars changes the speed; the coriolis lesson's
-     wind panel shows by how much
+  Wind has BACKED 40 degrees, 210 to 170.
+     northern hemisphere: backing with a falling glass puts the centre
+     to your north and closing. This is the one to take seriously.
 
-  The scale: the wind aloft in knots, isobars 4 hPa apart
-     spacing, nm    30 N    40 N    50 N    60 N
-              50      94      73      61      54
-              75      63      49      41      36
-             100      47      37      31      27
-             150      31      24      20      18
-             200      23      18      15      14
-             300      16      12      10       9
+  Back to the wind: the low is roughly 260 from you.
+     Buys Ballot. Stand with your back to the wind: in the northern
+     hemisphere the low is on your left, in the southern, on your right.
 
+
+  The sea: at 28 kt the Beaufort scale expects about 3.7 m, rough.
+     its probable wave height, for a well-developed sea in open water.
+     The sea lags the wind: it builds after the wind does.
+  Close to very rough: the scale turns at 30 kt.
+     your wind is in the top 25% of the rough step, 21.5 to 30 kt.
+  You logged a moderate sea, 1.25 to 2.5 m: under the scale.
+     a sea still building, or short of fetch: the wind has not had the
+     time or the distance to raise all it can.
+  Your swell: 3.6 m at 13 seconds.
+     swell is sea that has left the wind that raised it, so it is marked
+     on its own and not held against this wind.
+  Fully developed, this wind could raise about 4.7 m.
+     the limit for a steady wind over open ocean (Pierson and
+     Moskowitz). It takes roughly ten thousand wave periods of wind
+     over five thousand wavelengths of sea; the gap from the scale
+     is time and fetch.
+
+  A 13-second swell from 250.
+     long-period swell outruns the storm that made it. This can be the
+     first news of a system, with a steady glass and a clear sky.
   ----------------------------------------------------------------------
-  The geostrophic wind: the push toward the low balanced by the
-  earth's turn, air density 1.225 kg/m3. The spacing in nautical
-  miles is minutes of latitude: measure it on the chart's side scale.
+  This reasons only from what you logged. It is not a forecast:
+  no model, no chart, no GRIB. It is you, reading your own barometer.
 
-=== weather isobars, spacing=100 lat=50 north=0 ===
+=== weather what, the sea: the same, close set to 10 ===
+  The sea: at 28 kt the Beaufort scale expects about 3.7 m, rough.
+     its probable wave height, for a well-developed sea in open water.
+     The sea lags the wind: it builds after the wind does.
+  You logged a moderate sea, 1.25 to 2.5 m: under the scale.
+     a sea still building, or short of fetch: the wind has not had the
+     time or the distance to raise all it can.
+  Your swell: 3.6 m at 13 seconds.
+     swell is sea that has left the wind that raised it, so it is marked
+     on its own and not held against this wind.
+  Fully developed, this wind could raise about 4.7 m.
+     the limit for a steady wind over open ocean (Pierson and
+     Moskowitz). It takes roughly ten thousand wave periods of wind
+     over five thousand wavelengths of sea; the gap from the scale
+     is time and fetch.
 
-  THE WIND FROM THE ISOBARS
+=== weather what, the sea: the same, close set to 0 ===
+  The sea: at 28 kt the Beaufort scale expects about 3.7 m, rough.
+     its probable wave height, for a well-developed sea in open water.
+     The sea lags the wind: it builds after the wind does.
+  You logged a moderate sea, 1.25 to 2.5 m: under the scale.
+     a sea still building, or short of fetch: the wind has not had the
+     time or the distance to raise all it can.
+  Your swell: 3.6 m at 13 seconds.
+     swell is sea that has left the wind that raised it, so it is marked
+     on its own and not held against this wind.
+  Fully developed, this wind could raise about 4.7 m.
+     the limit for a steady wind over open ocean (Pierson and
+     Moskowitz). It takes roughly ten thousand wave periods of wind
+     over five thousand wavelengths of sea; the gap from the scale
+     is time and fetch.
+
+=== weather what, the sea: 30 kt, a high sea logged ===
+  The sea: at 30 kt the Beaufort scale expects about 4.0 m, very rough.
+     its probable wave height, for a well-developed sea in open water.
+     The sea lags the wind: it builds after the wind does.
+  You logged a high sea, 6 to 9 m: above the scale.
+     more sea than the scale gives this wind. Is some of it swell?
+  Your swell: 2.0 m.
+     swell is sea that has left the wind that raised it, so it is marked
+     on its own and not held against this wind.
+  Fully developed, this wind could raise about 5.3 m.
+     the limit for a steady wind over open ocean (Pierson and
+     Moskowitz). It takes roughly ten thousand wave periods of wind
+     over five thousand wavelengths of sea; the gap from the scale
+     is time and fetch.
   ----------------------------------------------------------------------
-  Isobars 4 hPa apart and 100 nm between them, at 50 degrees S.
+  This reasons only from what you logged. It is not a forecast:
+  no model, no chart, no GRIB. It is you, reading your own barometer.
 
-  The wind aloft runs along the isobars at 31 knots.
-     the closer the isobars, the harder the push toward the low; the
-     earth's turn bends the wind until the bend matches the push
-  On deck, over the sea: about 20 knots, veered 10 to 20 degrees.
-     the drag of the sea slows it and turns it in toward the low
-  Over land: 10 to 20 knots, veered 30 to 40 degrees.
-     towns and forests at the slow end, open fields at the fast end
-
-  This is the wind for straight isobars. Round a tight low expect
-  less, round a high more.
-     the curve of the isobars changes the speed; the coriolis lesson's
-     wind panel shows by how much
-
-  The scale: the wind aloft in knots, isobars 4 hPa apart
-     spacing, nm    30 S    40 S    50 S    60 S
-              50      94      73      61      54
-              75      63      49      41      36
-             100      47      37      31      27
-             150      31      24      20      18
-             200      23      18      15      14
-             300      16      12      10       9
-
+=== weather what, the sea: 62 kt ===
+  The sea: at 62 kt the Beaufort scale expects about 12.8 m, very high.
+     its probable wave height, for a well-developed sea in open water.
+     The sea lags the wind: it builds after the wind does.
+  Close to phenomenal: the scale turns at 64 kt.
+     your wind is in the top 25% of the very high step, 52 to 64 kt.
+  You logged a very high sea: what the scale expects.
+  Fully developed, this wind could raise about 22.8 m.
+     the limit for a steady wind over open ocean (Pierson and
+     Moskowitz). It takes roughly ten thousand wave periods of wind
+     over five thousand wavelengths of sea; the gap from the scale
+     is time and fetch.
   ----------------------------------------------------------------------
-  The geostrophic wind: the push toward the low balanced by the
-  earth's turn, air density 1.225 kg/m3. The spacing in nautical
-  miles is minutes of latitude: measure it on the chart's side scale.
+  This reasons only from what you logged. It is not a forecast:
+  no model, no chart, no GRIB. It is you, reading your own barometer.
 
-=== weather isobars, spacing=60 lat=30 north=1 ===
-
-  THE WIND FROM THE ISOBARS
+=== weather what, the sea: 5 kt ===
+  The sea: at 5 kt the Beaufort scale expects about 0.2 m, smooth.
+     its probable wave height, for a well-developed sea in open water.
+     The sea lags the wind: it builds after the wind does.
+  You logged a smooth sea: what the scale expects.
   ----------------------------------------------------------------------
-  Isobars 4 hPa apart and 60 nm between them, at 30 degrees N.
+  This reasons only from what you logged. It is not a forecast:
+  no model, no chart, no GRIB. It is you, reading your own barometer.
 
-  The wind aloft runs along the isobars at 78 knots.
-     the closer the isobars, the harder the push toward the low; the
-     earth's turn bends the wind until the bend matches the push
-  On deck, over the sea: about 52 knots, backed 10 to 20 degrees.
-     the drag of the sea slows it and turns it in toward the low
-  Over land: 26 to 52 knots, backed 30 to 40 degrees.
-     towns and forests at the slow end, open fields at the fast end
-
-  This is the wind for straight isobars. Round a tight low expect
-  less, round a high more.
-     the curve of the isobars changes the speed; the coriolis lesson's
-     wind panel shows by how much
-
-  The scale: the wind aloft in knots, isobars 4 hPa apart
-     spacing, nm    30 N    40 N    50 N    60 N
-              50      94      73      61      54
-              75      63      49      41      36
-             100      47      37      31      27
-             150      31      24      20      18
-             200      23      18      15      14
-             300      16      12      10       9
-
+=== weather what, the sea: a calm ===
+  The sea: no wind to speak of; the scale expects a glassy sea.
+  You logged a glassy sea: what the scale expects.
   ----------------------------------------------------------------------
-  The geostrophic wind: the push toward the low balanced by the
-  earth's turn, air density 1.225 kg/m3. The spacing in nautical
-  miles is minutes of latitude: measure it on the chart's side scale.
+  This reasons only from what you logged. It is not a forecast:
+  no model, no chart, no GRIB. It is you, reading your own barometer.
 
-=== weather isobars, spacing=100 lat=3 north=1 ===
-
-  THE WIND FROM THE ISOBARS
-  ----------------------------------------------------------------------
-  Isobars 4 hPa apart and 100 nm between them, at 3 degrees N.
-
-  Within 5 degrees of the equator the isobars do not give the wind.
-     the earth's turn is too weak there to balance the push toward the
-     low, so there is no steady wind along the isobars to work out;
-     believe the wind you can see
-
+=== weather what, the sea: no wind logged, so nothing said ===
+0

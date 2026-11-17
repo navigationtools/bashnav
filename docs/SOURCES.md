@@ -176,6 +176,59 @@ the American Meteorological Society's glossary, "geostrophic wind scale"; US
 Navy aerographer's mate training (tpub weather2 7-10). Air density 1.225 kg/m3.
 The wind on deck from it is W01's rules, above.
 
+**The sea against the wind** (the figure and words in "What the log says",
+and the sea state the score gives a wind; weather 1.0.7, W09; read 17 November
+2026, as the weather gap list's rule 4 requires).
+
+1. **The curve: the Beaufort scale's probable wave height.** The Met Office,
+   "Beaufort wind force scale" (weather.metoffice.gov.uk, coast and sea
+   guides): for each force its limits and mean wind in knots, its probable
+   wave height and probable maximum, and its sea state. The page says: "These
+   values refer to well-developed wind waves of the open sea", and "The lag
+   effect between the wind getting up and the sea increasing should be borne
+   in mind."
+
+   | force | mean wind, kt | probable height, m | sea state it gives |
+   |---|---|---|---|
+   | 1 | 2 | 0.1 | 1 |
+   | 2 | 5 | 0.2 | 2 |
+   | 3 | 9 | 0.6 | 3 |
+   | 4 | 13 | 1.0 | 3 to 4 |
+   | 5 | 19 | 2.0 | 4 |
+   | 6 | 24 | 3.0 | 5 |
+   | 7 | 30 | 4.0 | 5 to 6 |
+   | 8 | 37 | 5.5 | 6 to 7 |
+   | 9 | 44 | 7.0 | 7 |
+   | 10 | 52 | 9.0 | 8 |
+   | 11 | 60 | 11.5 | 8 |
+   | 12 | 64 and over | 14 and over | 9 |
+
+2. **The sea states.** NOAA's National Centers for Environmental Information,
+   World Ocean Database code table "sea state", headed WMO code 3700: 0 calm,
+   glassy, 0 m; 1 calm, rippled, to 0.1; 2 smooth, 0.1 to 0.5; 3 slight, 0.5
+   to 1.25; 4 moderate, 1.25 to 2.5; 5 rough, 2.5 to 4; 6 very rough, 4 to 6;
+   7 high, 6 to 9; 8 very high, 9 to 14; 9 phenomenal, over 14.
+3. **Fully developed.** R. H. Stewart, *Introduction to Physical
+   Oceanography*, section 16.4, "Ocean-Wave Spectra" (LibreTexts; CC BY-NC-SA
+   4.0): Pierson and Moskowitz's significant wave height for a fully developed
+   sea, `0.21 (U19.5)^2 / g`, about `0.22 (U10)^2 / g`; a fully developed sea
+   needs the wind to blow steadily over "roughly ten-thousand wave periods"
+   and an area "roughly five-thousand wave lengths on a side". The app uses
+   the second form with the logged wind.
+
+**What is the app's own, and not the sources'.** The curve joins the table's
+points with straight lines, and the sea state changes at the wind where that
+line reaches each state's height (1, 2, 8, 14.5, 21.5, 30, 39.3, 52 and 64
+knots; a calm is under 1 knot, as force 0 is). The Met Office gives one state
+for a whole force, and two for forces 4, 7 and 8, which are the forces inside
+which the line crosses a step; where the line crosses inside force 3 (at 8
+knots) and force 10 (at 52) the table gives one state. So at 7 knots, and
+from 48 to 51, the app is one state under the table, and at 2 and 3 knots one
+over it. "Close to the next state" and its share of a step are Larry's (AOZ),
+not a published rule. The readings "still building, or short of fetch" for a
+sea under the scale follow from the two notes quoted above; "is some of it
+swell?" for a sea above it is a question, not a finding.
+
 **The daily pressure tide** (the correction in "What the log says", the
 barograph's wave and the `tide` lesson). Confirmed from sources read:
 
