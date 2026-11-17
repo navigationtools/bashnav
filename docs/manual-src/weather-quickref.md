@@ -9,6 +9,7 @@
 | `weather what` | what your log says is coming, with the reasoning |
 | `weather learn [key]` | a lesson; no key lists them |
 | `weather chart` | reason over a 500 mb radiofax chart |
+| `weather isobars [nm lat [N|S] [hPa]]` | the wind from the isobars: aloft, then on deck |
 | `weather forecast` | yours first, then mine, then both scored |
 | `weather score` | you, the rules and persistence |
 | `weather lon <deg>` | your longitude, east positive |

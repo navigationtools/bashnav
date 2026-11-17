@@ -85,3 +85,121 @@ function ch_poleward(brg, north,   b){
   if(north) return (b < 90 || b > 270)     # the line lies to my north
   return (b > 90 && b < 270)               # southern: to my south
 }
+
+# =====================================================================
+#  THE WIND FROM THE ISOBARS (W07; weather 1.0.3; Larry, AKY and ALF,
+#  16 November 2026).  The second chart a navigator reads, the surface
+#  chart: measure the spacing between two isobars, and the balance of
+#  the push toward the low against the earth's turn gives the wind aloft
+#  (the geostrophic wind).  W01's rules then take it down to the deck.
+#  It teaches the course's "Reading the forecast" level (3A).
+#
+#      wind aloft = (isobar interval) / (air density x f x spacing)
+#      f = 2 x 7.292115e-5 x sin(latitude), the earth's turn where you are
+#
+#  Air density 1.225 kg/m3, as the wind panel uses (grid.awk wx_pgf).
+#  Sources: the American Meteorological Society's glossary,
+#  "geostrophic wind scale"; US Navy aerographer's mate training (tpub
+#  weather2 7-10); docs/SOURCES.md.  The deck rules are W01's: about 2/3
+#  backed 10-20 degrees over the sea, 1/3 to 2/3 backed 30-40 over land.
+#  Within 5 degrees of the equator the balance does not hold (the earth's
+#  turn is too weak there), so the tool refuses rather than give a number.
+# =====================================================================
+function iso_wind(sp, lat, step,   f){
+  f = 2 * 7.292115e-5 * sin(wx_rad(lat < 0 ? -lat : lat))
+  return (step * 100.0) / (1.225 * f * sp * 1852.0) * 1.943844
+}
+function iso_table(step, north,   r,c,line,SP,LT,ns,nl,h){
+  ns = split("50 75 100 150 200 300", SP, " ")
+  nl = split("30 40 50 60", LT, " ")
+  h = north ? "N" : "S"
+  ch_say(cw("The scale", C_ACC) sprintf(": the wind aloft in knots, isobars %g hPa apart", step))
+  line = "   spacing, nm"
+  for(c=1;c<=nl;c++) line = line sprintf("%8s", LT[c] " " h)
+  ch_say(line)
+  for(r=1;r<=ns;r++){
+    line = sprintf("%14s", SP[r])
+    for(c=1;c<=nl;c++) line = line sprintf("%8.0f", iso_wind(SP[r], LT[c], step))
+    ch_say(line)
+  }
+  return 0
+}
+#  spacing  nm between two neighbouring isobars (minutes of latitude)
+#  lat      latitude, degrees, 0 to 90
+#  step     the isobar interval, hPa (4 on most charts)
+#  north    1 northern hemisphere, 0 southern
+function iso_report(spacing, lat, step, north,   v, h, turn){
+  print ""
+  printf "  %s\n", cw("THE WIND FROM THE ISOBARS", C_ACC)
+  hr()
+  if(step == "") step = 4
+  h = north ? "N" : "S"
+  turn = north ? "backed" : "veered"
+  if(spacing == "" || lat == ""){
+    ch_say("Give me the spacing between two isobars and your latitude, and I")
+    ch_say("will work the wind.")
+    print ""
+    return 0
+  }
+  if(spacing+0 <= 0){ ch_say("The spacing must be more than nothing: measure it in nautical miles."); print ""; return 0 }
+  if(step+0 <= 0){ ch_say("The isobar interval must be more than nothing: 4 hPa on most charts."); print ""; return 0 }
+  if(lat+0 < 0 || lat+0 > 90){ ch_say("A latitude runs from 0 to 90 degrees; say north or south apart."); print ""; return 0 }
+  ch_say(sprintf("Isobars %g hPa apart and %g nm between them, at %g degrees %s.", step+0, spacing+0, lat+0, h))
+  print ""
+  if(lat+0 < 5){
+    ch_say(cw("Within 5 degrees of the equator the isobars do not give the wind.", C_WARN))
+    ch_why("the earth's turn is too weak there to balance the push toward the")
+    ch_why("low, so there is no steady wind along the isobars to work out;")
+    ch_why("believe the wind you can see")
+    print ""
+    return 0
+  }
+  v = iso_wind(spacing+0, lat+0, step+0)
+  ch_say(cw(sprintf("The wind aloft runs along the isobars at %.0f knots.", v), C_ACC))
+  ch_why("the closer the isobars, the harder the push toward the low; the")
+  ch_why("earth's turn bends the wind until the bend matches the push")
+  ch_say(sprintf("On deck, over the sea: about %.0f knots, %s 10 to 20 degrees.", v*2/3, turn))
+  ch_why("the drag of the sea slows it and turns it in toward the low")
+  ch_say(sprintf("Over land: %.0f to %.0f knots, %s 30 to 40 degrees.", v/3, v*2/3, turn))
+  ch_why("towns and forests at the slow end, open fields at the fast end")
+  print ""
+  ch_say("This is the wind for straight isobars. Round a tight low expect")
+  ch_say("less, round a high more.")
+  ch_why("the curve of the isobars changes the speed; the coriolis lesson's")
+  ch_why("wind panel shows by how much")
+  print ""
+  iso_table(step+0, north)
+  print ""
+  hr()
+  ch_say("The geostrophic wind: the push toward the low balanced by the")
+  ch_say("earth's turn, air density 1.225 kg/m3. The spacing in nautical")
+  ch_say("miles is minutes of latitude: measure it on the chart's side scale.")
+  print ""
+  return 0
+}
+
+#  THE SCALE, IN A LESSON (W07, weather 1.0.3): the wind aloft against the
+#  spacing of the isobars, for the gradient lesson.  The terminal prints it
+#  as a table; the browser draws it as curves (kind "isoscale"), with the
+#  lesson's example marked, 100 nm at 50 N.  It lives here, beside
+#  iso_wind, and not in grid.awk with the other figures: the rule checks
+#  load grid.awk without chart.awk, and mawk refuses a file that calls a
+#  function it cannot see (found by the suite the first time it ran).
+function iso_scale_figure(   w,h,r,c,SP,LT,ns,nl,line){
+  w=64; h=9
+  gclear(w,h)
+  FIGNAME = "isoscale"
+  ns = split("50 75 100 150 200 300", SP, " ")
+  nl = split("30 40 50 60", LT, " ")
+  gputsc(0, 2, "THE WIND ALOFT, KNOTS, ISOBARS 4 hPa APART", C_ACC)
+  line = " spacing, nm"
+  for(c=1;c<=nl;c++) line = line sprintf("%8s", LT[c] " N")
+  gputsc(2, 2, line, C_DIM)
+  for(r=1;r<=ns;r++){
+    line = sprintf("%12s", SP[r])
+    for(c=1;c<=nl;c++) line = line sprintf("%8.0f", iso_wind(SP[r], LT[c], 4))
+    if(SP[r] == 100) gputsc(2 + r, 2, line, C_ACC); else gputs(2 + r, 2, line)
+  }
+  return 0
+}
+

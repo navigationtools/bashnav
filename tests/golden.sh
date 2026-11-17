@@ -485,7 +485,10 @@ WX="-f src/common/log.awk -f src/common/colour.awk -f src/weather/grid.awk -f sr
   $AW $WX -v cmode=plain -v cmd=score -v LOG="$WXD/log" </dev/null
   echo "=== weather syllabus ==="
   $AW $WX -v cmode=plain -v cmd=syllabus </dev/null
-  for k in fluid data tide coriolis gradient lapse cells h500 cyclone seasons; do
+  #  THE LESSONS FROM THE AWK'S OWN LIST, not a list typed here: the typed
+  #  one missed `veer` when weather 1.0.2 added it, so the eleventh lesson
+  #  had no golden copy and a change to it would have passed unseen.
+  for k in $($AW $WX -v cmode=plain -v cmd=lessonlist </dev/null); do
     echo "=== weather learn $k ==="
     $AW $WX -v cmode=plain -v cmd=lesson -v key="$k" </dev/null
     $AW $WX -v cmode=plain -v cmd=lessonq -v key="$k" </dev/null
@@ -500,6 +503,13 @@ WX="-f src/common/log.awk -f src/common/colour.awk -f src/weather/grid.awk -f sr
   for n in 1 0; do
     echo "=== weather chart, north=$n ==="
     $AW $WX -v cmode=plain -v cmd=chart -v brg=000 -v dist=200 -v orient=090 -v w500=60 -v north=$n </dev/null
+  done
+  #  the wind from the isobars (W07, weather 1.0.3): north, south, and the
+  #  refusal near the equator
+  for c in "100 50 1" "100 50 0" "60 30 1" "100 3 1"; do
+    set -- $c
+    echo "=== weather isobars, spacing=$1 lat=$2 north=$3 ==="
+    $AW $WX -v cmode=plain -v cmd=isobars -v spacing="$1" -v lat="$2" -v north="$3" -v step=4 </dev/null
   done
 } | emit weather.txt
 rm -rf "$WXD"

@@ -15,7 +15,8 @@
 #   5  the lessons     reconstructed from lessons.js, vs `weather learn`
 #   6  the page        driven, including the rule that it must not tell
 #                      before it asks
-#   7-11 the gunnery, wind, friction, force and veer figures, measured off the drawing
+#   3b the wind from the isobars, vs `weather isobars`
+#   7-12 the gunnery, wind, friction, force, veer and isobar figures, measured off the drawing
 set -e
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 cd "$ROOT"
@@ -38,6 +39,10 @@ node docs/web/tests/weather-sc.js 300
 echo
 echo "3. the 500 millibar rules, against \`weather chart\`"
 node docs/web/tests/weather-ch.js
+
+echo
+echo "3b. the wind from the isobars, against \`weather isobars\`"
+node docs/web/tests/weather-iso.js
 
 echo
 echo "4. valid times: every real day from 2000 to 2040"
@@ -127,6 +132,12 @@ if node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.ex
   #  anticlockwise; the surface wind turned toward the low, backed in the
   #  north and veered in the south, the drawing and its word agreeing.
   node docs/web/tests/weather-veer.js
+  echo
+  echo "12. the wind from the isobars, on the page"
+  #  weather 1.0.3: the isobars drawn apart in proportion, the arrows as
+  #  long as the speed, the deck wind turned toward the low, the dot on its
+  #  latitude's curve; the refusal near the equator; the lesson's scale.
+  node docs/web/tests/weather-isoui.js
   echo
   echo "WEATHER WEB: all stages passed"
 else

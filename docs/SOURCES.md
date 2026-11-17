@@ -170,3 +170,9 @@ south; the shifts as a depression passes: US Navy aerographer's mate training;
 aircraftpilots.com, *Southern hemisphere winds*; thewisepilot.com, *Veering and
 backing*.
 
+**The wind from the isobars** (weather 1.0.3, W07). The geostrophic wind from
+the spacing of the isobars and the latitude, the scale printed in chart margins:
+the American Meteorological Society's glossary, "geostrophic wind scale"; US
+Navy aerographer's mate training (tpub weather2 7-10). Air density 1.225 kg/m3.
+The wind on deck from it is W01's rules, above.
+

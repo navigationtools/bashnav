@@ -128,7 +128,8 @@ function setMode(m) {
 }
 
 var TITLES = { home: 'weather', what: 'What the log says', fcast: 'Your forecast',
-               score: 'The score', chart: '500 mb chart', learn: 'Lessons',
+               score: 'The score', chart: '500 mb chart', isobars: 'Wind from the isobars',
+               learn: 'Lessons',
                about: 'About' };
 function go(v) {
   VIEW = v;
@@ -140,6 +141,7 @@ function go(v) {
   if (v === 'fcast') startForecast();
   if (v === 'score') drawScore();
   if (v === 'chart') drawChart();
+  if (v === 'isobars') drawIsobars();
   if (v === 'learn') drawLessonIndex();
   if (v === 'about') drawAbout();
 }
@@ -347,6 +349,142 @@ function drawChart() {
 }
 
 /* =====================================================================
+   The wind from the isobars (W07; weather 1.0.3; Larry, AKY and ALF).
+   The reasoning is CHART.isoReport, a port of chart.awk held to it by
+   weather-iso.js.  Above it, two drawings (ALF): the isobars at the
+   spacing typed, with the wind aloft and on deck as arrows whose length
+   is their speed (what is happening), and under them the scale as curves,
+   wind against spacing, one curve per latitude, with the reading marked
+   (the tool).  Drawn by isoPicture and isoCurves, which the gradient
+   lesson reuses for its own copy of the scale.
+   ===================================================================== */
+function drawIsobars() {
+  var sp = $('i-sp').value.trim(), lat = $('i-lat').value.trim();
+  var step = $('i-step').value.trim(), north = $('i-hemi').value === '1';
+  ['i-sp', 'i-lat', 'i-step'].forEach(function (k) { lsSet(k, $(k).value); });
+  lsSet('i-hemi', $('i-hemi').value);
+  var items = CHART.isoReport(sp, lat, step, north);
+  drawReason($('iso-out'), items.filter(function (it) { return it.k !== 'tab'; }));
+  $('iso-term').textContent = CHART.isoTerminal(items, items.wind !== undefined);
+  var box = $('iso-figs');
+  box.textContent = '';
+  if (items.wind !== undefined) {
+    isoPicture(box, +sp, +lat, step === '' ? 4 : +step, north, items.wind);
+    isoCurves(box, +sp, +lat, step === '' ? 4 : +step, north, items.wind);
+    box.hidden = false;
+  } else box.hidden = true;
+}
+/*  THE PICTURE: two isobars at the spacing typed, the wind aloft along them
+    and the wind on deck turned toward the low.  The gap is drawn in
+    proportion to the spacing (held between 26 and 230 px so a very close or
+    very wide pair still fits), and the arrows in proportion to the speed,
+    so closing the isobars visibly lengthens the arrows.  North: the low on
+    the wind's left, above, the deck wind backed; south: the low below,
+    veered.  */
+function isoPicture(host, sp, lat, step, north, v) {
+  /*  the box is as tall as the gap needs, so close isobars do not sit in a
+      sea of empty space  */
+  var gapPx = Math.max(26, Math.min(230, sp * 0.9));
+  /*  and as tall as the deck arrow needs: in a gale between close isobars
+      it rises (north) or falls (south) well past them, with its label  */
+  var rise = Math.min(440, v * 6) * 2 / 3 * Math.sin(15 * Math.PI / 180);
+  var m = Math.max(70, rise + 36 - gapPx / 2), H = gapPx + 2 * m + 10;
+  var D = demoSvg('isodemo', 640, H,
+    'Two isobars ' + sp + ' nautical miles apart. The wind aloft runs along them at ' +
+    Math.round(v) + ' knots; on deck it is about two thirds of that, turned toward the low.');
+  var cy = m + gapPx / 2, top = m, bot = m + gapPx;
+  var yLow = north ? top : bot, yHigh = north ? bot : top;
+  var hi = 1000 + step;
+  [[yLow, 1000], [yHigh, hi]].forEach(function (r, i) {
+    D.e('line', { x1: 40, y1: r[0], x2: 620, y2: r[0], stroke: D.dim, 'stroke-width': 1.4,
+                  'stroke-dasharray': '2 4', 'data-part': i ? 'iso-high' : 'iso-low' });
+    D.t(620, r[0] + (r[0] === top ? -6 : 16), r[1] + ' hPa', D.dim, { 'font-size': 11, 'text-anchor': 'end' });
+  });
+  D.t(620, north ? top - 24 : bot + 34, 'LOW', D.text, { 'font-weight': 700, 'text-anchor': 'end',
+      'data-part': 'low' });
+  D.e('line', { x1: 52, y1: top + 3, x2: 52, y2: bot - 3, stroke: D.dim });
+  D.t(58, cy + 4, sp + ' nm', D.dim, { 'font-size': 12 });
+  /* the arrows: 6 px a knot, held to 440 px so a gale still fits */
+  var L = Math.min(440, v * 6), x0 = 130, y0 = cy + (north ? 14 : -14), s = north ? 1 : -1;
+  D.e('line', { x1: x0, y1: y0, x2: x0 + L - 8, y2: y0, stroke: D.dim, 'stroke-width': 3,
+                'data-part': 'aloft', 'data-len': L });
+  D.head(x0 + L, y0, 0, D.dim);
+  D.t(x0, y0 + (north ? 20 : -10), 'aloft ' + Math.round(v) + ' kn, along the isobars', D.dim, { 'font-size': 12 });
+  var A = 15 * Math.PI / 180, Ls = L * 2 / 3;
+  var ex = x0 + Ls * Math.cos(A), ey = y0 - s * Ls * Math.sin(A);
+  D.e('line', { x1: x0, y1: y0, x2: ex - 7 * Math.cos(A), y2: ey + s * 7 * Math.sin(A), stroke: D.acc,
+                'stroke-width': 3.5, 'data-part': 'deck', 'data-len': Ls });
+  D.head(ex, ey, -s * A, D.acc);
+  D.t(x0, ey + (north ? -14 : 24), 'on deck about ' + Math.round(v * 2 / 3) + ' kn, ' +
+      (north ? 'backed' : 'veered') + ' toward the low', D.acc, { 'font-size': 12, 'font-weight': 600 });
+  if (v * 6 > 440) D.t(620, H - 8, 'arrows shortened to fit', D.dim, { 'font-size': 11, 'text-anchor': 'end' });
+  D.t(40, H - 8, Math.round(lat) + '\u00b0 ' + (north ? 'N' : 'S') + ', isobars ' + step + ' hPa apart',
+      D.dim, { 'font-size': 11 });
+  host.appendChild(D.wrap);
+}
+/*  the gradient lesson's copy of the scale: the same curves, with the
+    lesson's own example marked (100 nm at 50 N, isobars 4 hPa apart)  */
+function isoScaleDemo(host) { isoCurves(host, 100, 50, 4, true, CHART.isoWind(100, 50, 4)); }
+/*  THE SCALE AS CURVES: wind aloft against spacing, one curve for each of
+    30, 40, 50 and 60 degrees, and the reader's own latitude drawn bold if
+    it is not one of them; the reading marked with a dot.  A reading off
+    the scale is pinned to its edge and said so.  */
+function isoCurves(host, sp, lat, step, north, v) {
+  var D = demoSvg('isodemo', 660, 380, 'The geostrophic wind scale: wind aloft against the ' +
+    'spacing of the isobars, one curve for each latitude. Your reading: ' + sp + ' nm at ' + lat +
+    ' degrees gives ' + Math.round(v) + ' knots.');
+  var x0 = 70, y0 = 330, x1 = 590, y1 = 40, h = north ? 'N' : 'S';
+  var X = function (d) { return x0 + (d - 40) / 260 * (x1 - x0); };
+  var Y = function (w) { return y0 - w / 80 * (y0 - y1); };
+  [0, 20, 40, 60, 80].forEach(function (w) {
+    D.e('line', { x1: x0, y1: Y(w), x2: x1, y2: Y(w), stroke: D.line, 'stroke-width': 1 });
+    D.t(x0 - 8, Y(w) + 4, String(w), D.dim, { 'font-size': 12, 'text-anchor': 'end' });
+  });
+  [50, 100, 150, 200, 250, 300].forEach(function (d) {
+    D.t(X(d), y0 + 20, String(d), D.dim, { 'font-size': 12, 'text-anchor': 'middle' });
+  });
+  D.t((x0 + x1) / 2, y0 + 40, 'spacing between isobars, nautical miles (' + step + ' hPa apart)',
+      D.dim, { 'font-size': 12, 'text-anchor': 'middle' });
+  D.t(x0 - 8, y1 - 14, 'wind aloft, knots', D.dim, { 'font-size': 12 });
+  var lats = [30, 40, 50, 60];
+  if (lats.indexOf(Math.round(lat)) < 0 && lat >= 5) lats.push(lat);
+  var labs = [];
+  lats.forEach(function (l) {
+    var pts = [], d;
+    for (d = 40; d <= 300; d += 2) {
+      var w = CHART.isoWind(d, l, step);
+      if (w <= 80) pts.push(X(d).toFixed(1) + ',' + Y(w).toFixed(1));
+    }
+    var mine = Math.abs(l - lat) < 0.5;
+    D.e('polyline', { points: pts.join(' '), fill: 'none', stroke: D.acc,
+                      'stroke-width': mine ? 3 : 1.6, 'stroke-opacity': mine ? 1 : 0.55,
+                      'data-part': 'curve-' + l });
+    labs.push([Y(Math.min(80, CHART.isoWind(300, l, step))) + 4, l]);
+  });
+  labs.sort(function (a, b) { return a[0] - b[0]; });
+  for (var i = 1; i < labs.length; i++) if (labs[i][0] - labs[i - 1][0] < 14) labs[i][0] = labs[i - 1][0] + 14;
+  labs.forEach(function (b) {
+    D.t(X(300) + 6, b[0], (Math.round(b[1] * 10) / 10) + '\u00b0 ' + h, D.acc, { 'font-size': 12 });
+  });
+  var dx = X(Math.max(40, Math.min(300, sp))), dy = Y(Math.min(80, v));
+  D.e('line', { x1: dx, y1: y0, x2: dx, y2: dy, stroke: D.text, 'stroke-dasharray': '3 3' });
+  D.e('line', { x1: x0, y1: dy, x2: dx, y2: dy, stroke: D.text, 'stroke-dasharray': '3 3' });
+  D.e('circle', { cx: dx, cy: dy, r: 6, fill: D.text, 'data-part': 'dot',
+                  'data-sp': sp, 'data-wind': v });
+  var right = dx > 420;
+  D.t(dx + (right ? -12 : 12), dy - 10, 'you: ' + sp + ' nm at ' + lat + '\u00b0 ' + h,
+      D.text, { 'font-weight': 600, 'text-anchor': right ? 'end' : 'start' });
+  D.t(dx + (right ? -12 : 12), dy + 8, Math.round(v) + ' kn aloft, about ' + Math.round(v * 2 / 3) +
+      ' kn on deck', D.acc, { 'text-anchor': right ? 'end' : 'start' });
+  if (sp < 40 || sp > 300 || v > 80)
+    D.t(x1, y1 - 14, 'your reading is off this scale: pinned to its edge', D.text,
+        { 'font-size': 12, 'text-anchor': 'end' });
+  else D.t(x1, y1 - 14, 'nearer the equator, the same spacing blows harder', D.dim,
+        { 'font-size': 12, 'text-anchor': 'end' });
+  host.appendChild(D.wrap);
+}
+
+/* =====================================================================
    The lessons
    ===================================================================== */
 function doneList() {
@@ -534,7 +672,8 @@ function drawLines(box, lines) {
       //  one drawing per kind the shell names in its @@FIG marker; the
       //  gun is the old default and stays the fallback
       wxRepaints(fig, ({ wind: windDemo, friction: frictionDemo, forces: forcesDemo,
-                         veertime: veerTimeDemo, veerhemi: veerHemiDemo })[b.kind] || gunDemo);
+                         veertime: veerTimeDemo, veerhemi: veerHemiDemo,
+                         isoscale: isoScaleDemo })[b.kind] || gunDemo);
       return;
     }
     //  the first printed line of a section is its heading
@@ -675,6 +814,15 @@ window.addEventListener('DOMContentLoaded', function () {
   });
   $('c-hemi').value = lsGet('c-hemi', '1');
   $('c-hemi').addEventListener('change', drawChart);
+  ['i-sp', 'i-lat', 'i-step'].forEach(function (id) {
+    $(id).value = lsGet(id, '');
+    $(id).addEventListener('input', drawIsobars);
+  });
+  $('i-hemi').value = lsGet('i-hemi', '1');
+  $('i-hemi').addEventListener('change', drawIsobars);
+  /*  the two drawings read their colours at draw time, so a change of
+      display mode redraws them while the screen is open  */
+  window.addEventListener('visualmodechange', function () { if (VIEW === 'isobars') drawIsobars(); });
   $('les-back').addEventListener('click', drawLessonIndex);
 
   go('home');

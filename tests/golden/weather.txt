@@ -548,6 +548,25 @@ Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in t
     about 2/3 of the speed aloft     1/3 to 2/3 of the speed aloft
                                      1/3 towns, forests; 2/3 open
 
+  How strong, from the chart. The gradient wind's speed comes from
+  how close the isobars are: the closer they are, the harder the push
+  toward the low and the stronger the wind. Nearer the equator the
+  earth's turn is weaker, so the same spacing blows harder. The scale:
+
+    THE WIND ALOFT, KNOTS, ISOBARS 4 hPa APART
+  
+     spacing, nm    30 N    40 N    50 N    60 N
+              50      94      73      61      54
+              75      63      49      41      36
+             100      47      37      31      27
+             150      31      24      20      18
+             200      23      18      15      14
+             300      16      12      10       9
+
+  At 100 nm apart and 50 degrees north that is 31 knots aloft, so about
+  20 on deck over the sea. Measure the gap on your own chart and the
+  screen The wind from the isobars works it for you, down to the deck.
+
   This is the chart-to-deck translation - what the isobars mean for
   what you will actually get on the wind instrument.
 
@@ -597,6 +616,81 @@ Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in t
   Question: The chart shows a 30 knot gradient wind. What do you expect on deck, offshore, in the northern hemisphere?
 
 Around 20 knots - roughly two thirds - and backed 10 to 20 degrees from the isobar direction, because friction slows the surface air, which weakens Coriolis, so pressure gradient wins a little and the wind blows across the isobars toward the low.
+=== weather learn veer ===
+
+  BACKING AND VEERING, AND WHY THE SOUTH IS THE OTHER WAY ROUND
+  ----------------------------------------------------------------------
+  Two words a sailor uses all the time, and they have two jobs.
+
+  Over time, they say which way the wind has shifted. The wind
+  veers when it shifts clockwise round the compass: west, then
+  north-west, then north. It backs when it shifts anticlockwise:
+  west, then south-west, then south.
+
+    THE WIND SHIFTS, OVER TIME
+  
+      backs: anticlockwise              veers: clockwise
+  
+    S  <--  SW  <--  W   -->  NW  -->  N
+  
+    compass words: the same north and south of the equator
+  
+
+  These are compass words, so they mean the same on either side of the
+  equator. What changes is what a shift is telling you.
+
+  What a shift tells you, in the north. Depressions here mostly run
+  west to east. When one passes on your north side, as most do in
+  the Channel, the wind veers as its fronts go through: south-west
+  ahead of it, west at the warm front, north-west behind the cold front.
+  When the centre passes on your south side, the wind backs
+  steadily instead: east, north-east, north.
+
+  South of the equator it runs the other way. The wind goes round a
+  low clockwise there, so the same picture plays backwards. A low passing
+  on your poleward side - the south - makes the wind back: north, then
+  north-west, then south-west as the cold front comes through.
+
+  Against the wind aloft, the same two words describe the friction
+  turn from the gradient lesson. Down where you are, the sea slows the
+  wind and it turns in toward the low. In the north the low is on the
+  wind's left, so turning toward it is turning anticlockwise: the surface
+  wind is backed from the isobars. In the south the low is on the right,
+  so the same turn is clockwise: veered.
+
+    NORTH OF THE EQUATOR             SOUTH OF THE EQUATOR
+                        LOW side
+                  surface            the wind aloft
+                        //^          ---------------------->
+                    ////
+                ////                 .\\..........................
+           /////                        \\\\
+       ////                                 \\\\
+    .//..........................               \\\\\
+                                                     \\\\
+    ---------------------->                              \\v
+    the wind aloft                                 surface
+                                                         LOW side
+    low on the left: BACKED          low on the right: VEERED
+  
+    the surface wind always turns toward the low
+
+  Why the south is the other way round, without the mathematics. The
+  earth turns under the moving air, and that bends anything moving: to
+  its right in the north, to its left in the south. So air drawn into a
+  low swings round it anticlockwise in the north and clockwise in the
+  south, and the low ends up on the wind's left in one and on its right
+  in the other. Friction always lets the wind slip toward the low - and
+  that is backed in one hemisphere and veered in the other.
+
+  And the rule that carries all of it to the cockpit is Buys Ballot:
+  back to the wind, the low is on your left in the north, and on your
+  right in the south.
+
+  ----------------------------------------------------------------------
+  Question: Off the Isle of Wight the wind goes from south-west to west to north-west over six hours, and the glass starts to rise. Backed or veered - and where did the low go?
+
+Veered: it shifted clockwise round the compass. In the northern hemisphere that is a depression whose centre has passed on your north side, and the shift to north-west with a rising glass says the cold front is through.
 === weather learn lapse ===
 
   LAPSE RATES, STABILITY, AND THE CLOUD BASE
@@ -827,4 +921,114 @@ Because the seasons are the 23.5 degree tilt, not the distance. The northern hem
   Rules from Sienkiewicz and Chesneau, Mariner's Guide to the
   500-Millibar Chart, NOAA. They are rules of thumb: good ones,
   and still rules of thumb.
+
+=== weather isobars, spacing=100 lat=50 north=1 ===
+
+  THE WIND FROM THE ISOBARS
+  ----------------------------------------------------------------------
+  Isobars 4 hPa apart and 100 nm between them, at 50 degrees N.
+
+  The wind aloft runs along the isobars at 31 knots.
+     the closer the isobars, the harder the push toward the low; the
+     earth's turn bends the wind until the bend matches the push
+  On deck, over the sea: about 20 knots, backed 10 to 20 degrees.
+     the drag of the sea slows it and turns it in toward the low
+  Over land: 10 to 20 knots, backed 30 to 40 degrees.
+     towns and forests at the slow end, open fields at the fast end
+
+  This is the wind for straight isobars. Round a tight low expect
+  less, round a high more.
+     the curve of the isobars changes the speed; the coriolis lesson's
+     wind panel shows by how much
+
+  The scale: the wind aloft in knots, isobars 4 hPa apart
+     spacing, nm    30 N    40 N    50 N    60 N
+              50      94      73      61      54
+              75      63      49      41      36
+             100      47      37      31      27
+             150      31      24      20      18
+             200      23      18      15      14
+             300      16      12      10       9
+
+  ----------------------------------------------------------------------
+  The geostrophic wind: the push toward the low balanced by the
+  earth's turn, air density 1.225 kg/m3. The spacing in nautical
+  miles is minutes of latitude: measure it on the chart's side scale.
+
+=== weather isobars, spacing=100 lat=50 north=0 ===
+
+  THE WIND FROM THE ISOBARS
+  ----------------------------------------------------------------------
+  Isobars 4 hPa apart and 100 nm between them, at 50 degrees S.
+
+  The wind aloft runs along the isobars at 31 knots.
+     the closer the isobars, the harder the push toward the low; the
+     earth's turn bends the wind until the bend matches the push
+  On deck, over the sea: about 20 knots, veered 10 to 20 degrees.
+     the drag of the sea slows it and turns it in toward the low
+  Over land: 10 to 20 knots, veered 30 to 40 degrees.
+     towns and forests at the slow end, open fields at the fast end
+
+  This is the wind for straight isobars. Round a tight low expect
+  less, round a high more.
+     the curve of the isobars changes the speed; the coriolis lesson's
+     wind panel shows by how much
+
+  The scale: the wind aloft in knots, isobars 4 hPa apart
+     spacing, nm    30 S    40 S    50 S    60 S
+              50      94      73      61      54
+              75      63      49      41      36
+             100      47      37      31      27
+             150      31      24      20      18
+             200      23      18      15      14
+             300      16      12      10       9
+
+  ----------------------------------------------------------------------
+  The geostrophic wind: the push toward the low balanced by the
+  earth's turn, air density 1.225 kg/m3. The spacing in nautical
+  miles is minutes of latitude: measure it on the chart's side scale.
+
+=== weather isobars, spacing=60 lat=30 north=1 ===
+
+  THE WIND FROM THE ISOBARS
+  ----------------------------------------------------------------------
+  Isobars 4 hPa apart and 60 nm between them, at 30 degrees N.
+
+  The wind aloft runs along the isobars at 78 knots.
+     the closer the isobars, the harder the push toward the low; the
+     earth's turn bends the wind until the bend matches the push
+  On deck, over the sea: about 52 knots, backed 10 to 20 degrees.
+     the drag of the sea slows it and turns it in toward the low
+  Over land: 26 to 52 knots, backed 30 to 40 degrees.
+     towns and forests at the slow end, open fields at the fast end
+
+  This is the wind for straight isobars. Round a tight low expect
+  less, round a high more.
+     the curve of the isobars changes the speed; the coriolis lesson's
+     wind panel shows by how much
+
+  The scale: the wind aloft in knots, isobars 4 hPa apart
+     spacing, nm    30 N    40 N    50 N    60 N
+              50      94      73      61      54
+              75      63      49      41      36
+             100      47      37      31      27
+             150      31      24      20      18
+             200      23      18      15      14
+             300      16      12      10       9
+
+  ----------------------------------------------------------------------
+  The geostrophic wind: the push toward the low balanced by the
+  earth's turn, air density 1.225 kg/m3. The spacing in nautical
+  miles is minutes of latitude: measure it on the chart's side scale.
+
+=== weather isobars, spacing=100 lat=3 north=1 ===
+
+  THE WIND FROM THE ISOBARS
+  ----------------------------------------------------------------------
+  Isobars 4 hPa apart and 100 nm between them, at 3 degrees N.
+
+  Within 5 degrees of the equator the isobars do not give the wind.
+     the earth's turn is too weak there to balance the push toward the
+     low, so there is no steady wind along the isobars to work out;
+     believe the wind you can see
 

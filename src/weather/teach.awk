@@ -213,6 +213,18 @@ function lesson_body(k){
     friction_figure()
     gshow()
     print ""
+    lp(cw("How strong, from the chart.",C_ACC) " The gradient wind's speed comes from")
+    lp("how close the isobars are: the closer they are, the harder the push")
+    lp("toward the low and the stronger the wind. Nearer the equator the")
+    lp("earth's turn is weaker, so the same spacing blows harder. The scale:")
+    print ""
+    iso_scale_figure()
+    gshow()
+    print ""
+    lp("At 100 nm apart and 50 degrees north that is 31 knots aloft, so about")
+    lp("20 on deck over the sea. Measure the gap on your own chart and the")
+    lp("screen " cw("The wind from the isobars",C_ACC) " works it for you, down to the deck.")
+    print ""
     lp(cw("This is the chart-to-deck translation",C_ACC) " - what the isobars mean for")
     lp("what you will actually get on the wind instrument.")
     print ""

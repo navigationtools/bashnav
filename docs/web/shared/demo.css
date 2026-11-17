@@ -32,6 +32,10 @@
 /*  backing and veering (weather 1.0.2): two more full-width figures  */
 .veerdemo { margin: 10px 0 0; padding: 0 12px; }
 .veerdemo svg { display: block; width: 100%; max-width: 640px; margin: 0 auto; }
+/*  the wind from the isobars (W07, weather 1.0.3): its two drawings, on
+    its own screen and in the gradient lesson  */
+.isodemo { margin: 10px 0 0; padding: 0 12px; }
+.isodemo svg { display: block; width: 100%; max-width: 660px; margin: 0 auto; }
 .gunctl { margin-top: 10px; }
 .gunctl label { display: block; margin: 10px 0 0; color: var(--dim); font-size: 13px; }
 .gunctl input[type=range] { display: block; width: 100%; margin: 6px 0 0;

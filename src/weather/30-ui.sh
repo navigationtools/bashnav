@@ -50,6 +50,30 @@ do_chart() {
       -v w500="$w500" -v north="$n"
 }
 
+#  THE WIND FROM THE ISOBARS (W07, weather 1.0.3).  From a surface chart:
+#  the spacing between two isobars and your latitude give the wind aloft,
+#  and W01's rules the wind on deck.  Arguments skip the questions:
+#  weather isobars <spacing nm> <latitude> [N|S] [interval hPa]
+do_isobars() {
+  sp="$1"; la="$2"; hs="$3"; st="$4"
+  if [ -z "$sp" ]; then
+    printf '%s\n' \
+      '' \
+      '  From a surface chart - by radiofax, or one you have on paper. Measure' \
+      '  the gap between two neighbouring isobars where you are, in nautical' \
+      '  miles: minutes of latitude on the side scale of the chart.' \
+      ''
+    printf "  spacing between the isobars, nm: "; IFS= read -r sp
+    printf "  your latitude, degrees: ";           IFS= read -r la
+    printf "  hemisphere, N or S? [N] ";           IFS= read -r hs
+    printf "  isobar interval, hPa [4]: ";         IFS= read -r st
+  fi
+  #  N or S, the same in an argument and an answer: a Y/n question here
+  #  read "N" as no, and turned 50 N into 50 S.
+  n=1; case "$hs" in s|S) n=0 ;; esac
+  eng -v cmd=isobars -v spacing="$sp" -v lat="$la" -v north="$n" -v step="${st:-4}"
+}
+
 #  YOU FORECAST FIRST. Nothing of mine until yours is written down.
 do_forecast() {
   printf "  how many hours ahead? [12] "; IFS= read -r hrs || hrs=12
@@ -104,6 +128,7 @@ help_text() {
     '  weather what             what your log says is coming, with the reasoning' \
     '  weather learn [key]      a lesson; no key lists them' \
     '  weather chart            reason over a 500 mb radiofax chart' \
+    '  weather isobars [nm lat [N|S] [hPa]]  the wind from a surface chart' \
     '  weather forecast         yours first, then mine, then both are scored' \
     '  weather score            how you, the rules and persistence are doing' \
     '  weather lon <deg>        your longitude, E positive - for the pressure tide' \
@@ -128,7 +153,7 @@ menu() {
       '' \
       '    1  What the log says          4  Make a forecast' \
       '    2  A lesson                   5  The score' \
-      '    3  From a 500 mb chart' \
+      '    3  From a 500 mb chart        6  The wind from the isobars' \
       '' \
       '    c  Colour   a  About   h  Help   q  Quit'
     printf "  > "; IFS= read -r c || exit 0
@@ -138,6 +163,7 @@ menu() {
       3) do_chart ;;
       4) do_forecast ;;
       5) eng -v cmd=score ;;
+      6) do_isobars ;;
       c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
            case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
       a|A) about_text ;;
@@ -157,6 +183,7 @@ case "${1:-}" in
   what)      eng -v cmd=what ;;
   learn)     shift; do_learn "$1" ;;
   chart)     do_chart ;;
+  isobars)   shift; do_isobars "$@" ;;
   forecast)  do_forecast ;;
   score)     eng -v cmd=score ;;
   lon)       shift; lon="$1"; save_conf; echo "  longitude: $lon" ;;

@@ -392,6 +392,30 @@ north, the words swapped, the lows swapped.
 **A typed count that went stale.** `weather-ui.js` expected exactly 10 lessons.
 It now counts the awk's own `les()` list, so the next lesson needs no edit here.
 
+### The wind from the isobars (weather 1.0.3)
+
+`docs/web/tests/weather-iso.js` (stage 3b, no browser) compares the page's
+reasoning with `weather isobars` character for character over 280 cases: every
+refusal (no spacing, no latitude, nothing or less, a latitude off the earth,
+within 5 degrees of the equator), both hemispheres, the interval given, left
+out and odd. It then holds the wind to the balance written in the check, not
+in either program: four worked values, halving the spacing doubling the wind,
+and the same spacing blowing harder nearer the equator.
+
+`docs/web/tests/weather-isoui.js` (stage 12) drives the screen in night and
+day at six readings: the isobars drawn apart in proportion to the spacing; the
+wind aloft as long as its speed; the wind on deck two thirds of it, turned 15
+degrees toward the low, up in the north and down in the south; the dot on its
+own latitude's curve at the spacing and the wind; no drawing near the equator;
+nothing outside either box; and the gradient lesson's copy of the scale. 176
+checks. Faults planted and caught: the air density changed in the port, the
+deck wind turned away from the low, the spacing drawn at a fixed gap, the dot
+drawn below its curve.
+
+**The golden file's lesson list was typed, and missed one.** `tests/golden.sh`
+named the ten lessons; `veer`, the eleventh, had no golden copy. It now asks the
+awk for the list, as `weather-ui.js` does.
+
 ### One panel, two pages, and the check that was hiding a gap
 
 Larry: *"It belongs on the main page."* The front page was pure static HTML with

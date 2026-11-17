@@ -3,10 +3,10 @@
 Read your own barometer. A port of `src/weather/`, reasoning from the
 observations `deck-log` keeps, with no network at all.
 
-    index.html        the reasoning, the forecast loop, the score, the chart, the lessons
+    index.html        the reasoning, the forecast loop, the score, the charts, the lessons
     wx.js             the rules, and the atmospheric tide correction
     score.js          the two machine forecasters, and the scoring
-    chart.js          the 500 millibar rules
+    chart.js          the 500 millibar rules, and the wind from the isobars (W07)
     lessons.js        the eleven lessons (generated)
     log.js, store.js  deck-log's record layer (copied, byte-identical)
     weather.js        the app
@@ -140,8 +140,17 @@ that is the nature of the subject, and it is why both scorers exist.
 own figure for that kind: `wind` (the panel in `../shared/winddemo.js`),
 `friction` (`frictionDemo` in `weather.js`, the `gradient` lesson, W01),
 `forces` (`forcesDemo`, the force triangle with its friction slider, in the
-same lesson), `veertime` and `veerhemi` (the lesson `veer`), and the gun for
-anything else. Each reads its colours from the page's tokens when
+same lesson), `veertime` and `veerhemi` (the lesson `veer`), `isoscale` (the
+wind from the isobars, in the same `gradient` lesson), and the gun for
+anything else.
+
+**The wind from the isobars** (weather 1.0.3) is a screen of its own: the
+spacing between two isobars, the latitude and the isobar interval in; the wind
+aloft from the geostrophic balance and the wind on deck from W01's rules out.
+`CHART.isoReport` is a port of `iso_report` in `chart.awk`, held to it
+character for character by `docs/web/tests/weather-iso.js`; its two drawings
+(`isoPicture`, `isoCurves` in `weather.js`) are measured by
+`weather-isoui.js`. Each reads its colours from the page's tokens when
 it draws, and is redrawn when the display mode changes. The friction figure is
 checked by `docs/web/tests/weather-friction.js`, the force triangle by
 `weather-forces.js` and the veer figures by `weather-veer.js`, each measuring

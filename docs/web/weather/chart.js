@@ -129,7 +129,103 @@ var CHART = (function () {
     return L.join('\n') + '\n';
   }
 
-  return { poleward: poleward, report: report, renderTerminal: renderTerminal };
+  /* ===================================================================
+     THE WIND FROM THE ISOBARS (W07; weather 1.0.3; Larry, AKY and ALF).
+     A port of iso_wind, iso_table and iso_report in chart.awk, held to
+     it character for character by docs/web/tests/weather-iso.js.  The
+     surface chart: the spacing between two isobars and the latitude give
+     the wind aloft from the balance of the push toward the low against
+     the earth's turn; W01's rules then give the wind on deck.
+       wind aloft = interval / (1.225 x 2 x 7.292115e-5 x sin(lat) x spacing)
+     Sources: AMS glossary, "geostrophic wind scale"; US Navy aerographer's
+     mate training (tpub weather2 7-10).  Refused within 5 degrees of the
+     equator, where the balance does not hold.
+     =================================================================== */
+  function isoWind(sp, lat, step) {
+    var f = 2 * 7.292115e-5 * Math.sin(Math.abs(lat) * Math.PI / 180);
+    return (step * 100.0) / (1.225 * f * sp * 1852.0) * 1.943844;
+  }
+  var ISO_SP = [50, 75, 100, 150, 200, 300], ISO_LAT = [30, 40, 50, 60];
+  function pad(s, n) { s = String(s); while (s.length < n) s = ' ' + s; return s; }
+  function isoReport(spacing, lat, step, north) {
+    var out = [];
+    function say(t) { out.push({ k: 'say', t: t }); }
+    function warn(t) { out.push({ k: 'warn', t: t }); }
+    function acc(t) { out.push({ k: 'acc', t: t }); }
+    function why(t) { out.push({ k: 'why', t: t }); }
+    function tab(t) { out.push({ k: 'tab', t: t }); }
+    function gap() { out.push({ k: 'gap', t: '' }); }
+    var has = function (v) { return !(v === '' || v === undefined || v === null); };
+    if (!has(step)) step = 4;
+    var h = north ? 'N' : 'S', turn = north ? 'backed' : 'veered';
+    if (!has(spacing) || !has(lat)) {
+      say('Give me the spacing between two isobars and your latitude, and I');
+      say('will work the wind.');
+      return out;
+    }
+    if (+spacing <= 0) { say('The spacing must be more than nothing: measure it in nautical miles.'); return out; }
+    if (+step <= 0) { say('The isobar interval must be more than nothing: 4 hPa on most charts.'); return out; }
+    if (+lat < 0 || +lat > 90) { say('A latitude runs from 0 to 90 degrees; say north or south apart.'); return out; }
+    say('Isobars ' + g(+step) + ' hPa apart and ' + g(+spacing) + ' nm between them, at ' +
+        g(+lat) + ' degrees ' + h + '.');
+    gap();
+    if (+lat < 5) {
+      warn('Within 5 degrees of the equator the isobars do not give the wind.');
+      why("the earth's turn is too weak there to balance the push toward the");
+      why('low, so there is no steady wind along the isobars to work out;');
+      why('believe the wind you can see');
+      return out;
+    }
+    var v = isoWind(+spacing, +lat, +step);
+    acc('The wind aloft runs along the isobars at ' + f0(v) + ' knots.');
+    why('the closer the isobars, the harder the push toward the low; the');
+    why("earth's turn bends the wind until the bend matches the push");
+    say('On deck, over the sea: about ' + f0(v * 2 / 3) + ' knots, ' + turn + ' 10 to 20 degrees.');
+    why('the drag of the sea slows it and turns it in toward the low');
+    say('Over land: ' + f0(v / 3) + ' to ' + f0(v * 2 / 3) + ' knots, ' + turn + ' 30 to 40 degrees.');
+    why('towns and forests at the slow end, open fields at the fast end');
+    gap();
+    say('This is the wind for straight isobars. Round a tight low expect');
+    say('less, round a high more.');
+    why("the curve of the isobars changes the speed; the coriolis lesson's");
+    why('wind panel shows by how much');
+    gap();
+    //  the scale's heading goes with the table: the page draws the scale as
+    //  curves instead, so it leaves out both
+    tab('The scale: the wind aloft in knots, isobars ' + g(+step) + ' hPa apart');
+    var line = '   spacing, nm';
+    ISO_LAT.forEach(function (l) { line += pad(l + ' ' + h, 8); });
+    tab(line);
+    ISO_SP.forEach(function (sp) {
+      var r = pad(sp, 14);
+      ISO_LAT.forEach(function (l) { r += pad(f0(isoWind(sp, l, +step)), 8); });
+      tab(r);
+    });
+    out.wind = v;
+    return out;
+  }
+  function isoTerminal(items, worked) {
+    var L = [''];
+    L.push('  THE WIND FROM THE ISOBARS');
+    L.push(RULE);
+    items.forEach(function (it) {
+      if (it.k === 'gap') L.push('');
+      else if (it.k === 'why') L.push('     ' + it.t);
+      else L.push('  ' + it.t);
+    });
+    L.push('');
+    if (!worked) return L.join('\n') + '\n';
+    L.push(RULE);
+    L.push('  The geostrophic wind: the push toward the low balanced by the');
+    L.push("  earth's turn, air density 1.225 kg/m3. The spacing in nautical");
+    L.push("  miles is minutes of latitude: measure it on the chart's side scale.");
+    L.push('');
+    return L.join('\n') + '\n';
+  }
+
+  return { poleward: poleward, report: report, renderTerminal: renderTerminal,
+           isoWind: isoWind, isoReport: isoReport, isoTerminal: isoTerminal,
+           ISO_SP: ISO_SP, ISO_LAT: ISO_LAT };
 })();
 
 if (typeof module !== 'undefined') module.exports = CHART;

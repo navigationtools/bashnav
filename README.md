@@ -339,6 +339,8 @@ backing and veering, Buys Ballot, fog, cloud base, the warm-front cloud
 sequence, and swell as the earliest warning there is. Then you forecast, it
 forecasts, and both are scored against what happened — including against
 simple persistence, so you can see whether you actually beat doing nothing.
+From a surface chart it works the wind from the isobars, aloft and then on
+deck.
 
 ### drill
 
@@ -509,9 +511,9 @@ app are rebuilt from the built program by `capture.sh`.
 |---|---|---|---|---|
 | `celnav` | 1.6 | `docs/celnav-manual.pdf` | `docs/celnav-quickref.pdf` | owed |
 | `colregs` | 1.15 | `docs/colregs-manual.pdf` | `docs/colregs-quickref.pdf` | owed |
-| `tides` | 1.4 | `docs/tides-manual.pdf` | `docs/tides-quickref.pdf` | owed |
+| `tides` | 1.5.2 | `docs/tides-manual.pdf` | `docs/tides-quickref.pdf` | owed |
 | `deck-log` | 1.1 | `docs/deck-log-manual.pdf` | `docs/deck-log-quickref.pdf` | owed |
-| `weather` | 1.0 | `docs/weather-manual.pdf` | `docs/weather-quickref.pdf` | owed |
+| `weather` | 1.0.3 | `docs/weather-manual.pdf` | `docs/weather-quickref.pdf` | owed |
 | `bashnav` (launcher) | 1.0 | `docs/bashnav-manual.pdf` | `docs/bashnav-quickref.pdf` | owed |
 | `drill` | build 26 | `docs/drill-manual.pdf`, carrying the **pack-format reference** | `docs/drill-quickref.pdf` | owed |
 | `route` | being built | owed at its first release | owed | owed |

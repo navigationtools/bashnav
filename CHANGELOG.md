@@ -1,5 +1,68 @@
 # Changelog
 
+## weather 1.0.3: the wind from the isobars (W07)
+
+**What.** A screen of its own, "The wind from the isobars", on the home menu and
+as `weather isobars` in the terminal. From a surface chart: the spacing between
+two isobars (nautical miles, so minutes of latitude on the chart's side scale),
+the latitude and the isobar interval in; out come the wind aloft, along the
+isobars, from the balance of the push toward the low against the earth's turn,
+and then the wind on deck from W01's rules (about 2/3 over the sea, turned 10 to
+20 degrees toward the low: backed in the north, veered in the south). Two
+drawings (Larry, ALF): the isobars at the spacing typed, with the two winds as
+arrows as long as their speed; and the scale as curves, one per latitude, with
+the reading marked. The `gradient` lesson prints the same scale.
+
+```
+   spacing, nm    30 N    40 N    50 N    60 N      (isobars 4 hPa apart,
+          100      47      37      31      27        wind aloft in knots)
+          200      23      18      15      14
+   100 nm at 50 N: 31 kn aloft, about 20 on deck over the sea
+```
+
+**Why.** The weather gap list's W07 (estimating the gradient wind from the
+isobars) was only implied. It is the first thing the course's new "Reading the
+forecast" level (3A) teaches, and it joins W01 into one chain: isobars, the wind
+aloft, the wind on deck.
+
+**Larry's rulings, 16 November 2026.**
+
+| | the choice | what was ruled |
+|---|---|---|
+| AKY | where it lives | a screen of its own, the gradient lesson showing the scale too; used to teach level 3A |
+| ALF | how it is drawn | both: the isobar picture for what is happening, the curves as the scale |
+
+**Honest limits, stated on the screen.** Straight isobars only (round a tight
+low less, round a high more). Within 5 degrees of the equator the balance does
+not hold, and the screen refuses rather than give a number.
+
+**What it affects.**
+
+1. **`weather` is 1.0.3.** New menu entry (6) and command `weather isobars [nm
+   lat [N|S] [hPa]]`; the hemisphere is N or S both as an argument and as an
+   answer, after a first draft asked "northern? [Y/n]" and read an argument of
+   N as no.
+2. **`chart.awk`** gains `iso_wind`, `iso_table`, `iso_report`; `chart.js` the
+   port; `weather.js` the screen and its drawings; `index.html` the screen; the
+   lesson figure kind `isoscale`.
+3. **Checks:** `weather-iso.js` (stage 3b, 280 cases against the awk, and the
+   balance written in the check) and `weather-isoui.js` (stage 12, 176 checks
+   measured off the drawings). The golden file takes its lessons from the awk's
+   own list (it had a typed list that missed `veer`) and holds four isobar cases.
+4. **The manual** gains section 7 and Figure 5; the later sections and figures
+   move up one. The README's table of versions said tides 1.4 and weather 1.0;
+   it says 1.5.2 and 1.0.3.
+5. **The service worker's cache is `weather-v20`.**
+
+**Sources.** The American Meteorological Society's glossary, "geostrophic wind
+scale"; US Navy aerographer's mate training (tpub weather2 7-10). Air density
+1.225 kg/m3, as the wind panel uses.
+
+**Checked.** 280 cases character for character; the drawings measured in night
+and day at six readings, both hemispheres; five faults planted, each caught (the
+air density changed, the deck wind turned away from the low, the spacing not in
+proportion, the dot off its curve, and one that crashed the page).
+
 ## weather 1.0.2: why the wind turns, and backing and veering
 
 **What.** Two additions on top of 1.0.1's friction figure, both asked for by

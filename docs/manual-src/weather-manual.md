@@ -154,9 +154,42 @@ public domain), and are listed in `docs/SOURCES.md`.
 
 ---
 
-## 7. The lessons
+## 7. The wind from the isobars
 
-![**Figure 5** — eleven lessons, each one earning its place.](fig/weather-lessons.png)
+![**Figure 5** — the wind from the isobars, 100 nm apart at 50° N. Above, the
+two isobars at the spacing typed, with the wind aloft along them and the wind on
+deck turned toward the low; close the isobars and the arrows lengthen. Below,
+the scale: wind against spacing, one curve for each latitude, with your reading
+marked.](fig/weather-isobars.png)
+
+The second chart a navigator reads is the surface chart, and the wind on it is
+in the isobars. Measure the gap between two neighbouring isobars where you are,
+in nautical miles: on a paper chart, that is minutes of latitude on its side
+scale. Give the screen that gap, your latitude and the isobar interval (4 hPa on
+most charts), and it works the rest:
+
+1. **The wind aloft**, along the isobars. The closer they are, the harder the
+   push toward the low and the stronger the wind; the earth's turn bends it until
+   the bend matches the push. At 100 nm apart and 50° N that is 31 knots.
+2. **Nearer the equator the same spacing blows harder,** because the earth's
+   turn is weaker there: 100 nm at 30° N is 47 knots. Within 5° of the equator
+   the balance does not hold at all, and the screen says so rather than give a
+   number.
+3. **The wind on deck,** from the friction rules of the `gradient` lesson: about
+   two thirds over the sea, turned 10 to 20 degrees toward the low (backed in the
+   north, veered in the south); a third to two thirds over land.
+4. **Straight isobars only.** Round a tight low the wind is less than this and
+   round a high more; the Coriolis lesson's wind panel shows by how much.
+
+The same scale is printed in the `gradient` lesson, so it is met twice. In the
+terminal it is `weather isobars`, with the questions asked in turn, or the
+answers given at once: `weather isobars 100 50 N 4`.
+
+---
+
+## 8. The lessons
+
+![**Figure 6** — eleven lessons, each one earning its place.](fig/weather-lessons.png)
 
 Each lesson changes either what the tool says or what you would do. One of them
 says plainly where the reasoning stops being reliable, which is the most
@@ -164,7 +197,7 @@ important of the eleven.
 
 `weather learn` lists them; `weather learn <key>` opens one.
 
-![**Figure 6** — friction, in the `gradient` lesson. Over the sea the surface
+![**Figure 7** — friction, in the `gradient` lesson. Over the sea the surface
 wind is backed 10 to 20 degrees toward the low and about 2/3 of the wind
 aloft. Over land it is backed 30 to 40 degrees, and its speed is a band: about
 1/3 over forests, towns and cities, nearer 2/3 over open fields.](fig/weather-friction.png)
@@ -174,16 +207,16 @@ Some lessons draw what they say. The `gradient` lesson draws friction (Figure
 and in the browser. The land speed is drawn as a band, not one number, because
 the published rules of thumb disagree, from 1/3 (the Royal Meteorological
 Society) to 2/3 (US Navy training), and because the ground decides it: trees
-and buildings drag the wind more than open fields do. Figure 6 is the
+and buildings drag the wind more than open fields do. Figure 7 is the
 northern hemisphere's; south of the equator the turn is the other way.
 
-![**Figure 7** — why the wind turns. The push toward the low, the earth's turn
+![**Figure 8** — why the wind turns. The push toward the low, the earth's turn
 bending the wind to its right, and the drag of the sea or land close into a
 triangle. Drag the friction slider and the corner rides the circle: the drag
 side grows, the bend shrinks, and the wind turns further toward the low and
 slows.](fig/weather-forces.png)
 
-The same lesson then shows **why** the wind turns (Figure 7), in a sailor's
+The same lesson then shows **why** the wind turns (Figure 8), in a sailor's
 terms rather than as equations. Three things act on the wind near the surface:
 the push from high pressure toward low, which is what the isobars show; the
 earth turning beneath, which bends moving air to its right in the north; and
@@ -195,19 +228,19 @@ towns, and a few sentences under it say what is happening at each stage. The
 triangle describes the lowest kilometre or so of air; on deck the wind is slower
 again, which is why the rule of thumb over the sea is about two thirds.
 
-![**Figure 8** — the wind shifts, over time. It veers when it shifts clockwise
+![**Figure 9** — the wind shifts, over time. It veers when it shifts clockwise
 round the compass and backs when it shifts anticlockwise. These are compass
 words, so they mean the same on either side of the equator.](fig/weather-veer-time.png)
 
-![**Figure 9** — the surface wind against the wind aloft. It always turns toward
+![**Figure 10** — the surface wind against the wind aloft. It always turns toward
 the low. North of the equator the low is on the wind's left, so the turn is
 anticlockwise: backed. South of it the low is on the right, and the same turn is
 clockwise: veered.](fig/weather-veer-hemi.png)
 
 **Backing and veering** have a lesson of their own, `weather learn veer`,
-because the words do two jobs. Over time (Figure 8) they say which way the wind
+because the words do two jobs. Over time (Figure 9) they say which way the wind
 has shifted, and the "What the log says" screen uses them in that sense. Against
-the wind aloft (Figure 9) they describe the friction turn, which is backed in
+the wind aloft (Figure 10) they describe the friction turn, which is backed in
 the north and veered in the south. The lesson also says what a shift tells you:
 in the Channel, a depression passing to the north veers the wind from south-west
 through west to north-west as its fronts go through, and the same low south of
@@ -216,7 +249,7 @@ gradient lessons, so it is met more than once.
 
 ---
 
-## 8. Commands
+## 9. Commands
 
 | | |
 |---|---|
@@ -224,6 +257,7 @@ gradient lessons, so it is met more than once.
 | `weather what` | what your log says is coming, with the reasoning |
 | `weather learn [key]` | a lesson; no key lists them |
 | `weather chart` | reason over a 500 mb radiofax chart |
+| `weather isobars [nm lat [N|S] [hPa]]` | the wind from a surface chart: aloft and on deck |
 | `weather forecast` | yours first, then mine, then both are scored |
 | `weather score` | how you, the rules and persistence are doing |
 | `weather lon <deg>` | your longitude, east positive — for the pressure tide |
@@ -235,13 +269,13 @@ model, because there is no network here and never will be.
 
 ---
 
-## 9. The display modes
+## 10. The display modes
 
 {{INCLUDE:common-display-modes.md}}
 
 ---
 
-## 10. Cautions
+## 11. Cautions
 
 1. **This is not a forecast service.** It reasons from what you logged. It has
    no model, no satellite and no warning of anything over the horizon that has
