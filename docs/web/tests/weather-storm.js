@@ -79,7 +79,7 @@ for (let i = 0; i < north; i++) {
   cases.push(Object.assign({}, c, { clat: (-lat).toFixed(2) + 'S', blat: '21.6S', clon: lon }));
 }
 /*  the forms a position can take, the dateline, the south, and the refusals  */
-cases.push({ age: 4, clat: 17.2, clon: -62.4, mdir: 330, mkn: 12, r34: 120, blat: 21.6, blon: -63.2, bcse: 270, bkn: 6, wind: 48 });
+cases.push({ age: 4, clat: 17.2, clon: -62.4, mdir: 330, mkn: 12, r34: 120, blat: 21.6, blon: -63.2, bcse: 270, bkn: 6, wind: 65 });
 cases.push({ age: 4, clat: '17.2 n', clon: '62.4 w', mdir: 330, mkn: 12, blat: '+21.6', blon: '-63.2' });
 cases.push({ age: 2, clat: '15N', clon: '179.5E', mdir: 270, mkn: 10, blat: '16N', blon: '179.5W', wind: 90 });
 cases.push({ age: 2, clat: '15S', clon: '160E', mdir: 200, mkn: 10, blat: '16S', blon: '161E' });
@@ -266,7 +266,7 @@ function checkCallouts(svg) {
   await page.addScriptTag({ content: checkStorm.toString() });
   await page.addScriptTag({ content: checkCallouts.toString() });
   const sets = [
-    { age: 4, clat: '17.2N', clon: '62.4W', mdir: 330, mkn: 12, r34: 120, blat: '21.6N', blon: '63.2W', bcse: 270, bkn: 6, wind: 48 },
+    { age: 4, clat: '17.2N', clon: '62.4W', mdir: 330, mkn: 12, r34: 120, blat: '21.6N', blon: '63.2W', bcse: 270, bkn: 6, wind: 65 },
     { age: 6, clat: '30N', clon: '70W', mdir: 45, mkn: 15, r34: '', blat: '31N', blon: '72W', bcse: '', bkn: '', wind: 300 },
     { age: 0, clat: '25N', clon: '80W', mdir: 290, mkn: 8, r34: 90, blat: '24N', blon: '82W', bcse: 90, bkn: 5, wind: '' },
     { age: 2, clat: '15S', clon: '160E', mdir: 200, mkn: 10, r34: 60, blat: '16S', blon: '161E', bcse: '', bkn: '', wind: 60 }

@@ -1533,7 +1533,7 @@ Because the seasons are the 23.5 degree tilt, not the distance. The northern hem
      low, so there is no steady wind along the isobars to work out;
      believe the wind you can see
 
-=== weather storm, 4 17.2N 62.4W 330 12 120 21.6N 63.2W 270 6 048 ===
+=== weather storm, 4 17.2N 62.4W 330 12 120 21.6N 63.2W 270 6 065 ===
 
   A REPORTED STORM
   ----------------------------------------------------------------------
@@ -1555,14 +1555,12 @@ Because the seasons are the 23.5 degree tilt, not the distance. The northern hem
   That is inside its 34-knot winds, which reach 120 nm.
      a storm can turn, speed up or stop; work it again with each advisory
 
-  Your wind from 048 puts the centre between 136 and 158.
+  Your wind from 065 puts the centre between 153 and 175.
      face the wind: north of the equator the centre is about 110 degrees to
      your right ahead of the storm, and 120 to 135 behind it; south of the
      equator, to your left. Nearer the centre, a point or two less (Bowditch)
      you are ahead of it: 110, or a point or two less
-  The report and your wind disagree, by 17 degrees.
-     one of them is wrong or old: the advisory's age, a storm that has
-     turned, or your log. The wind on deck is the newer evidence.
+  The report agrees with your wind.
 
   ----------------------------------------------------------------------
   Not a forecast. An advisory is hours old when it arrives, and a storm

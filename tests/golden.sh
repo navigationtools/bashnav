@@ -612,7 +612,7 @@ WXLOG2
   #  stopped with no wind, on the track; since weather 1.0.15 (TAWG) a
   #  storm south of the equator, worked, and a storm and a boat on
   #  opposite sides of it, refused
-  for c in "4 17.2N 62.4W 330 12 120 21.6N 63.2W 270 6 048" \
+  for c in "4 17.2N 62.4W 330 12 120 21.6N 63.2W 270 6 065" \
            "6 30N 70W 45 15 - 31N 72W - - 300" \
            "12.5 21.6N 69.12W 90 5.5 60 21.6N 63.2W - - -" \
            "2 15S 160E 200 10 - 16S 161E - - 060" \

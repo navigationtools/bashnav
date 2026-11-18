@@ -1,5 +1,31 @@
 # Changelog
 
+## weather 1.0.16: the worked storm example agrees with the rule (TAWS)
+
+**What.** The worked example on "A reported storm" (the storm at 17.2 N, 62.4 W
+moving 330 at 12 knots, the boat at 21.6 N, 63.2 W) now has a wind from 065,
+not 048. The form's grey hint says "e.g. 065", the manual's Figure 9 is
+recaptured with it, and the golden case and the storm test's picture case use
+it. With the centre at 175, a wind from 065 puts it 109.5 degrees off the wind:
+Bowditch's 110 for a boat ahead of a storm, inside the band, so the report
+agrees with the wind and the low sits inside the shaded wedge.
+
+**Why.** Larry's ruling TAWS. The wind of 048 was chosen for the example in
+weather 1.0.11 to sit inside the old single band of 110 to 135 degrees. Under
+the shared words (1.0.15) a boat ahead of a storm should find the centre about
+110 degrees off the wind, and 048 put it at 127, so the example disagreed by 17
+degrees. A student who typed the form's hints in met a disagreement on the
+first try, and Figure 9 showed the low outside the wedge while the caption
+under the picture says the two agree when it sits inside. An example should
+show the rule working; a disagreement is one changed wind away.
+
+**What it touches.** `docs/web/weather/index.html` (the hint),
+`docs/manual-src/fig/weather-storm.png` and the manual, `tests/golden.sh` and
+its golden file, `docs/web/tests/weather-storm.js` (the example as a typed
+case and as the picture case). No rule, word or calculation changes. A wind of
+048 stays in the test grid, so a disagreement is still worked and checked.
+Cache `weather-v33`.
+
 ## weather 1.0.15: a storm in the crew's shared words, south included (TAWG)
 
 **What.** "A reported storm" and the lesson `cyclone` now use the six lines the
