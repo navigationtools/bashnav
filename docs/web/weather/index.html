@@ -84,6 +84,7 @@ try {
       <button class="btn" data-go="score" style="min-height:64px">The score</button>
       <button class="btn" data-go="chart" style="min-height:64px">From a 500&nbsp;mb chart</button>
       <button class="btn" data-go="isobars" style="min-height:64px">The wind from the isobars</button>
+      <button class="btn" data-go="storm" style="min-height:64px">A reported storm</button>
       <button class="btn" data-go="learn" style="min-height:64px">Lessons</button>
       <button class="btn" data-go="about" style="min-height:64px">About</button>
     </nav>
@@ -263,6 +264,49 @@ try {
     <details class="asterm">
       <summary>Show it as the terminal does</summary>
       <pre id="iso-term" aria-label="Terminal rendering"></pre>
+    </details>
+  </section>
+
+  <!-- ================= a reported storm (I20, weather 1.0.11) ================= -->
+  <section class="view" id="v-storm" hidden>
+    <div class="panel">
+      <h2>A reported storm</h2>
+      <p>From an official advisory, by NAVTEX, SafetyNET or radiofax. It is moved on
+        to now along its track and set beside the wind you have, which is the newer
+        evidence. Latitudes and longitudes as numbers with N, S, E or W after them.
+        Northern hemisphere for now.</p>
+      <div class="fields" style="margin-top:12px">
+        <div class="f"><label for="s-age">Hours since the advisory was issued</label>
+          <input type="text" id="s-age" inputmode="decimal" placeholder="e.g. 4"></div>
+        <div class="f"><label for="s-clat">The centre's latitude</label>
+          <input type="text" id="s-clat" inputmode="decimal" placeholder="e.g. 17.2N"></div>
+        <div class="f"><label for="s-clon">The centre's longitude</label>
+          <input type="text" id="s-clon" inputmode="decimal" placeholder="e.g. 62.4W"></div>
+        <div class="f"><label for="s-mdir">Its movement, direction &deg;T</label>
+          <input type="text" id="s-mdir" inputmode="decimal" placeholder="e.g. 330"></div>
+        <div class="f"><label for="s-mkn">Its movement, speed, knots</label>
+          <input type="text" id="s-mkn" inputmode="decimal" placeholder="e.g. 12"></div>
+        <div class="f"><label for="s-r34">Its 34-knot winds reach, nm (optional)</label>
+          <input type="text" id="s-r34" inputmode="decimal" placeholder="e.g. 120"></div>
+        <div class="f"><label for="s-blat">Your latitude</label>
+          <input type="text" id="s-blat" inputmode="decimal" placeholder="e.g. 21.6N"></div>
+        <div class="f"><label for="s-blon">Your longitude</label>
+          <input type="text" id="s-blon" inputmode="decimal" placeholder="e.g. 63.2W"></div>
+        <div class="f"><label for="s-bcse">Your course &deg;T (optional)</label>
+          <input type="text" id="s-bcse" inputmode="decimal" placeholder="stopped"></div>
+        <div class="f"><label for="s-bkn">Your speed, knots (optional)</label>
+          <input type="text" id="s-bkn" inputmode="decimal" placeholder="stopped"></div>
+        <div class="f"><label for="s-wind">Your wind, from &deg;T (optional)</label>
+          <input type="text" id="s-wind" inputmode="decimal" placeholder="e.g. 048"></div>
+      </div>
+    </div>
+    <div class="panel" id="storm-fig"></div>
+    <div class="panel">
+      <div class="reason" id="storm-out"></div>
+    </div>
+    <details class="asterm">
+      <summary>Show it as the terminal does</summary>
+      <pre id="storm-term" aria-label="Terminal rendering"></pre>
     </details>
   </section>
 

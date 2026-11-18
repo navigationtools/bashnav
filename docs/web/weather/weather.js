@@ -128,7 +128,7 @@ function setMode(m) {
 }
 
 var TITLES = { home: 'weather', what: 'What the log says', fcast: 'Your forecast',
-               score: 'The score', chart: '500 mb chart', isobars: 'Wind from the isobars',
+               score: 'The score', chart: '500 mb chart', isobars: 'Wind from the isobars', storm: 'A reported storm',
                learn: 'Lessons',
                about: 'About' };
 function go(v) {
@@ -142,6 +142,7 @@ function go(v) {
   if (v === 'score') drawScore();
   if (v === 'chart') drawChart();
   if (v === 'isobars') drawIsobars();
+  if (v === 'storm') drawStorm();
   if (v === 'learn') drawLessonIndex();
   if (v === 'about') drawAbout();
 }
@@ -1018,6 +1019,125 @@ function drawIsobars() {
     box.hidden = false;
   } else box.hidden = true;
 }
+/* =====================================================================
+   A REPORTED STORM (I20; weather 1.0.11; Larry, ATZ).  An official
+   advisory typed in, moved on to now, and set beside your own wind.  The
+   reasoning is CHART.stormReport, a port of st_report in chart.awk held to
+   it character for character by weather-storm.js.  Above it, the picture
+   of the mock Larry admitted: north up, the boat at the centre, the storm
+   drawn as a low with its own wind (his rule of 18 November), where it was
+   reported and where it is now, its track ahead with a dot every six
+   hours, its 34-knot circle, the closest approach, and the band your own
+   wind gives as a wedge from the boat.
+   ===================================================================== */
+var ST_IDS = ['s-age', 's-clat', 's-clon', 's-mdir', 's-mkn', 's-r34', 's-blat', 's-blon', 's-bcse', 's-bkn', 's-wind'];
+function drawStorm() {
+  var f = {}, v = {};
+  ST_IDS.forEach(function (id) { v[id] = $(id).value.trim(); lsSet(id, $(id).value); });
+  f.age = v['s-age']; f.clat = v['s-clat']; f.clon = v['s-clon']; f.mdir = v['s-mdir']; f.mkn = v['s-mkn'];
+  f.r34 = v['s-r34']; f.blat = v['s-blat']; f.blon = v['s-blon']; f.bcse = v['s-bcse']; f.bkn = v['s-bkn']; f.wind = v['s-wind'];
+  var items = CHART.stormReport(f);
+  drawReason($('storm-out'), items);
+  $('storm-term').textContent = CHART.stormTerminal(items);
+  var box = $('storm-fig');
+  box.textContent = '';
+  if (items.geo) { stormPicture(box, items.geo); box.hidden = false; } else box.hidden = true;
+}
+function stormPicture(host, G) {
+  var RAD = Math.PI / 180, W = 640, H = 600, cx = W / 2, cy = 300;
+  var pts = [G.then, G.now, [G.now[0] + G.v[0] * 24, G.now[1] + G.v[1] * 24]];
+  if (G.cpa) pts.push([G.u[0] * G.cpa.t, G.u[1] * G.cpa.t]);
+  var reach = 60;
+  pts.forEach(function (p) { reach = Math.max(reach, Math.hypot(p[0], p[1])); });
+  if (G.r34) reach = Math.max(reach, Math.hypot(G.now[0], G.now[1]) + G.r34);
+  var ring = reach <= 120 ? 25 : reach <= 300 ? 50 : reach <= 600 ? 100 : 200;
+  var RMAX = ring * Math.ceil(reach / ring), K = 250 / RMAX;
+  var X = function (e) { return cx + e * K; }, Y = function (n) { return cy - n * K; };
+  var f1 = function (x) { return x.toFixed(1); };
+  var D = demoSvg('stormfig', W, H, 'A reported storm, north up, the boat at the centre. The centre now bears ' +
+    String(Math.round((G.brg % 360 + 360) % 360)).padStart(3, '0') + ', ' + Math.round(G.dist) + ' nautical miles' +
+    (G.cpa ? '; if both hold on it comes within ' + Math.round(G.cpa.d) + ' miles in ' + Math.round(G.cpa.t) + ' hours.' : '.'));
+  var cs = getComputedStyle(document.documentElement), tk = function (k) { return cs.getPropertyValue(k).trim(); };
+  var warn = tk('--warn') || tk('--bad') || '#e23a2c', ground = tk('--ground') || '#07090b';
+  D.svg.setAttribute('data-k', K); D.svg.setAttribute('data-cx', cx); D.svg.setAttribute('data-cy', cy);
+  var arrow = function (x1, y1, x2, y2, col, w, op, attrs) {
+    var o = { x1: f1(x1), y1: f1(y1), x2: f1(x2), y2: f1(y2), stroke: col, 'stroke-width': w, 'stroke-linecap': 'round', 'stroke-opacity': op }, k;
+    for (k in (attrs || {})) o[k] = attrs[k];
+    D.e('line', o);
+    var an = Math.atan2(y2 - y1, x2 - x1), h = w * 2.2 + 3;
+    D.e('path', { d: 'M' + f1(x2) + ',' + f1(y2) + 'L' + f1(x2 - h * Math.cos(an - 0.45)) + ',' + f1(y2 - h * Math.sin(an - 0.45)) +
+                     'L' + f1(x2 - h * Math.cos(an + 0.45)) + ',' + f1(y2 - h * Math.sin(an + 0.45)) + 'Z', fill: col, 'fill-opacity': op });
+  };
+  /*  range rings, and north  */
+  for (var r = ring; r <= RMAX + 0.01; r += ring) {
+    D.e('circle', { cx: cx, cy: cy, r: f1(r * K), fill: 'none', stroke: D.line, 'stroke-width': 1, 'data-part': 'ring', 'data-nm': r });
+    D.t(cx + r * K * 0.707 + 3, cy - r * K * 0.707 - 3, r + ' nm', D.dim, { 'font-size': 10 });
+  }
+  [['N', 0], ['E', 90], ['S', 180], ['W', 270]].forEach(function (c) {
+    D.t(cx + (RMAX * K + 16) * Math.sin(c[1] * RAD), cy - (RMAX * K + 16) * Math.cos(c[1] * RAD) + 4, c[0], D.dim,
+        { 'text-anchor': 'middle', 'font-weight': 700, 'font-size': 12 });
+  });
+  /*  your own wind's band, as a wedge from the boat  */
+  if (G.band) {
+    var a0 = G.band[0] * RAD, a1 = G.band[1] * RAD, rw = RMAX * K;
+    D.e('path', { d: 'M' + cx + ',' + cy + 'L' + f1(cx + rw * Math.sin(a0)) + ',' + f1(cy - rw * Math.cos(a0)) +
+                     'A' + f1(rw) + ',' + f1(rw) + ' 0 0 1 ' + f1(cx + rw * Math.sin(a1)) + ',' + f1(cy - rw * Math.cos(a1)) + 'Z',
+                  fill: D.acc, 'fill-opacity': 0.12, stroke: D.acc, 'stroke-width': 1.2, 'stroke-dasharray': '6 5',
+                  'data-part': 'band', 'data-lo': ((G.band[0] % 360) + 360) % 360, 'data-hi': ((G.band[1] % 360) + 360) % 360 });
+    var am = (G.band[0] + 12.5) * RAD;
+    D.t(cx + rw * 0.72 * Math.sin(am), cy - rw * 0.72 * Math.cos(am) + 4, 'where your wind puts it', D.acc,
+        { 'font-size': 11, 'font-weight': 700, 'text-anchor': 'middle' });
+    var wf = G.wind * RAD;
+    arrow(cx + 60 * Math.sin(wf), cy - 60 * Math.cos(wf), cx + 16 * Math.sin(wf), cy - 16 * Math.cos(wf), D.acc, 3.5, 1,
+          { 'data-part': 'wind', 'data-from': G.wind });
+  }
+  /*  the storm: its 34-knot circle, its track ahead, where it was reported  */
+  var nx = X(G.now[0]), ny = Y(G.now[1]);
+  if (G.r34) D.e('circle', { cx: f1(nx), cy: f1(ny), r: f1(G.r34 * K), fill: warn, 'fill-opacity': 0.08, stroke: warn,
+                             'stroke-width': 1.2, 'stroke-dasharray': '2 4', 'data-part': 'r34', 'data-nm': G.r34 });
+  if (G.v[0] || G.v[1]) {
+    var ex = X(G.now[0] + G.v[0] * 24), ey = Y(G.now[1] + G.v[1] * 24);
+    arrow(nx, ny, ex, ey, warn, 2.2, 0.9, { 'stroke-dasharray': '7 5', 'data-part': 'track', 'data-dir': G.mdir });
+    [6, 12, 18].forEach(function (h) {
+      var px = X(G.now[0] + G.v[0] * h), py = Y(G.now[1] + G.v[1] * h);
+      D.e('circle', { cx: f1(px), cy: f1(py), r: 3, fill: warn });
+      D.t(px + (px > cx ? -7 : 7), py + 4, '+' + h + 'h', warn, { 'font-size': 10, 'text-anchor': px > cx ? 'end' : 'start' });
+    });
+  }
+  D.e('circle', { cx: f1(X(G.then[0])), cy: f1(Y(G.then[1])), r: 5, fill: ground, stroke: warn, 'stroke-width': 2, 'data-part': 'reported' });
+  D.t(X(G.then[0]) + (X(G.then[0]) > cx ? -9 : 9), Y(G.then[1]) + 14, 'reported ' + G.age + ' h ago', warn,
+      { 'font-size': 10.5, 'text-anchor': X(G.then[0]) > cx ? 'end' : 'start' });
+  /*  the low itself, with its own wind round it: anticlockwise, turned in  */
+  D.e('circle', { cx: f1(nx), cy: f1(ny), r: 26, fill: ground, 'fill-opacity': 0.8 });
+  for (var be = 0; be < 360; be += 45) {
+    var px2 = nx + 20 * Math.sin(be * RAD), py2 = ny - 20 * Math.cos(be * RAD), hd = (be - 105) * RAD;
+    arrow(px2 - 5 * Math.sin(hd), py2 + 5 * Math.cos(hd), px2 + 5 * Math.sin(hd), py2 - 5 * Math.cos(hd), warn, 1.6, 1, { 'data-part': 'spin', 'data-b': be });
+  }
+  D.e('circle', { cx: f1(nx), cy: f1(ny), r: 10.5, fill: ground, stroke: warn, 'stroke-width': 2.5, 'data-part': 'low' });
+  D.t(nx, ny + 4.5, 'L', warn, { 'font-size': 13, 'font-weight': 700, 'text-anchor': 'middle' });
+  D.t(nx + (nx > cx ? -30 : 30), ny - 14, 'the centre now', warn, { 'font-size': 11, 'font-weight': 700, 'text-anchor': nx > cx ? 'end' : 'start' });
+  /*  the boat, a hull on her course, her run, and the closest approach  */
+  if (G.bkn > 0) {
+    var ub = G.bcse * RAD;
+    D.e('line', { x1: cx, y1: cy, x2: f1(cx + 70 * Math.sin(ub)), y2: f1(cy - 70 * Math.cos(ub)), stroke: D.text, 'stroke-width': 1.2, 'stroke-dasharray': '3 4' });
+  }
+  if (G.cpa) {
+    var bx = X(G.u[0] * G.cpa.t), by = Y(G.u[1] * G.cpa.t);
+    var sx = X(G.u[0] * G.cpa.t + G.cpa.rel[0]), sy = Y(G.u[1] * G.cpa.t + G.cpa.rel[1]);
+    if (G.bkn > 0) D.e('line', { x1: cx, y1: cy, x2: f1(bx), y2: f1(by), stroke: D.text, 'stroke-width': 1, 'stroke-dasharray': '1 4' });
+    D.e('line', { x1: f1(bx), y1: f1(by), x2: f1(sx), y2: f1(sy), stroke: D.text, 'stroke-width': 1.6, 'data-part': 'cpa', 'data-nm': G.cpa.d.toFixed(2) });
+    D.e('circle', { cx: f1(sx), cy: f1(sy), r: 4, fill: warn });
+    D.t(Math.min(bx, sx), Math.max(by, sy) + 22, 'closest: ' + Math.round(G.cpa.d) + ' nm in ' + Math.round(G.cpa.t) + ' h', D.text,
+        { 'font-size': 11, 'font-weight': 700, 'text-anchor': 'end', 'data-part': 'cpa-label' });
+  }
+  var hb = (G.bkn > 0 ? G.bcse : 0) * RAD, rot = function (x, y) { return [cx + x * Math.cos(hb) - y * Math.sin(hb), cy + x * Math.sin(hb) + y * Math.cos(hb)]; };
+  var hp = [[0, -12], [5, -5], [5, 9], [-5, 9], [-5, -5]].map(function (p) { return rot(p[0], p[1]); });
+  D.e('path', { d: 'M' + hp.map(function (p) { return f1(p[0]) + ',' + f1(p[1]); }).join('L') + 'Z', fill: D.text, stroke: ground, 'stroke-width': 1, 'data-part': 'boat' });
+  D.t(16, H - 12, 'North up, the boat at the centre. Not a forecast: an advisory is hours old when it arrives, and a storm can turn.',
+      D.dim, { 'font-size': 10.5 });
+  host.appendChild(D.wrap);
+}
+
 /*  THE PICTURE: two isobars at the spacing typed, the wind aloft along them
     and the wind on deck turned toward the low.  The gap is drawn in
     proportion to the spacing (held between 26 and 230 px so a very close or
@@ -1475,10 +1595,15 @@ window.addEventListener('DOMContentLoaded', function () {
   });
   $('i-hemi').value = lsGet('i-hemi', '1');
   $('i-hemi').addEventListener('change', drawIsobars);
+  ST_IDS.forEach(function (id) {
+    $(id).value = lsGet(id, '');
+    $(id).addEventListener('input', drawStorm);
+  });
   /*  the two drawings read their colours at draw time, so a change of
       display mode redraws them while the screen is open  */
   window.addEventListener('visualmodechange', function () {
     if (VIEW === 'isobars') drawIsobars();
+    if (VIEW === 'storm') drawStorm();
     if (VIEW === 'what') drawWhat();
   });
   /*  the barograph's window: 24, 48 or 72 hours, remembered  */

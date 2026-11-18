@@ -203,3 +203,186 @@ function iso_scale_figure(   w,h,r,c,SP,LT,ns,nl,line){
   return 0
 }
 
+# ---------------------------------------------------------------------
+#  A REPORTED STORM, AS A CHECK ON YOUR OWN WIND (I20, weather 1.0.11;
+#  Larry, ATZ, 18 November 2026).  You type in an official advisory: how
+#  long ago it was issued, the centre's position, its movement, and how far
+#  out its 34-knot winds reach; and where you are, your course and speed,
+#  and the wind you have.  It answers five things:
+#
+#    1. where the centre is NOW: the advisory's position moved on along its
+#       track for the hours since it was issued;
+#    2. which side of the track you are on, looking the way the storm goes,
+#       and so which semicircle: in the north the right is the dangerous one
+#       (Bowditch 2017, 3913, pp. 657-658);
+#    3. how close it comes, and when, if both hold their course and speed,
+#       and whether that is inside its 34-knot winds;
+#    4. whether your own wind agrees.  With your back to the wind the centre
+#       lies about 110 degrees round from dead astern in front of a storm and
+#       120 to 135 behind it (Bowditch, p. 655): so between wind+110 and
+#       wind+135.  Within the band it agrees; within 15 degrees of it, near
+#       enough for a wind read by eye; further off, the two disagree and one
+#       of them is wrong or old;
+#    5. that it is not a forecast: an advisory is hours old when it arrives,
+#       and a storm can turn (Bowditch, p. 658).
+#
+#  THE CHART IS FLAT, ROUND YOU: east and north in nautical miles, a degree
+#  of latitude 60 nm and of longitude 60 cos(mean latitude).  Within a few
+#  hundred miles that is good to a few miles, and the report says so.
+#
+#  NEAR ITS PATH means ahead of the centre and closer to its track than its
+#  34-knot winds reach (30 nm when the advisory gives no radius): a line of
+#  the app's own, said as a fact and not as an order, since what to do
+#  there is seamanship (PILOT's) and not this tool's.
+#
+#  NORTHERN HEMISPHERE ONLY, for now.  Which side is dangerous in the south
+#  and the words for it wait for Larry (card I19, part three), so a boat
+#  south of the equator is told so and nothing is worked.
+#
+#  chart.js holds the same reasoning (CHART.stormReport) and
+#  docs/web/tests/weather-storm.js holds the two to each other character
+#  for character, and the closest approach to a brute-force search.
+# ---------------------------------------------------------------------
+function st_r(x){ return int(x + 0.5) }
+function st_b(x){ x = (x % 360 + 360) % 360; return int(x + 0.5) % 360 }
+#  a latitude or longitude typed as signed degrees, or with N S E W after
+function st_deg(s, lim,   t, sg, v){
+  t = s; gsub(/[ \t]/, "", t); sg = 1
+  if(t ~ /[NnEe]$/){ t = substr(t, 1, length(t) - 1) }
+  else if(t ~ /[SsWw]$/){ t = substr(t, 1, length(t) - 1); sg = -1 }
+  if(t !~ /^[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)$/) return "x"
+  v = sg * (t + 0)
+  if(v < -lim || v > lim) return "x"
+  return v
+}
+function st_num(s,   t){
+  t = s; gsub(/[ \t]/, "", t)
+  if(t == "") return ""
+  if(t !~ /^[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)$/) return "x"
+  return t + 0
+}
+function st_report(age, clat, clon, mdir, mkn, r34, blat, blon, bcse, bkn, wind,
+                   a, cy, cx, by, bx, md, mk, rr, cs, bk, wd, k, dx, dy, vx, vy, ux, uy,
+                   nx, ny, dist, brg, rel, cross, along, rx, ry, vv, t, px, py, cpa, lo, hi, off){
+  print ""
+  printf "  %s\n", cw("A REPORTED STORM", C_ACC)
+  hr()
+  a = st_num(age); cy = st_deg(clat, 90); cx = st_deg(clon, 180); md = st_num(mdir); mk = st_num(mkn)
+  rr = st_num(r34); by = st_deg(blat, 90); bx = st_deg(blon, 180); cs = st_num(bcse); bk = st_num(bkn); wd = st_num(wind)
+  if(a == "" || clat == "" || clon == "" || md == "" || mk == "" || blat == "" || blon == ""){
+    ch_say("Give me the advisory - how many hours ago it was issued, the centre's")
+    ch_say("latitude and longitude, its direction and speed of movement - and your")
+    ch_say("own position, and I will set it beside your wind.")
+    print ""
+    return 0
+  }
+  if(a == "x" || a < 0){ ch_say("The advisory's age is a number of hours, 0 or more."); print ""; return 0 }
+  if(cy == "x" || by == "x"){ ch_say("A latitude runs from 90 S to 90 N: a number, or one with N or S after it."); print ""; return 0 }
+  if(cx == "x" || bx == "x"){ ch_say("A longitude runs from 180 W to 180 E: a number, or one with E or W after it."); print ""; return 0 }
+  if(md == "x" || md < 0 || md >= 360 || mk == "x" || mk < 0){ ch_say("The movement is a direction, 0 to 359, and a speed in knots."); print ""; return 0 }
+  if(rr == "x" || (rr != "" && rr < 0)){ ch_say("The 34-knot radius is in nautical miles; leave it out if the advisory has none."); print ""; return 0 }
+  if(cs == "x" || bk == "x" || (cs != "" && (cs < 0 || cs >= 360)) || (bk != "" && bk < 0)){ ch_say("Your course is 0 to 359 and your speed knots; leave both out if you are stopped."); print ""; return 0 }
+  if(wd == "x" || (wd != "" && (wd < 0 || wd >= 360))){ ch_say("Your wind is the direction it blows from, 0 to 359; leave it out if you have none."); print ""; return 0 }
+  if(by < 0 || cy < 0){
+    ch_say(cw("South of the equator this is not worked yet.", C_WARN))
+    ch_why("which side of a storm is dangerous there, and the words for it, wait")
+    ch_why("for a decision; the rule from your own wind still holds in reverse")
+    print ""
+    return 0
+  }
+  if(cs == "") cs = 0; if(bk == "") bk = 0
+  k = cos((cy + by) / 2 * 3.141592653589793 / 180)
+  dx = cx - bx; if(dx > 180) dx -= 360; if(dx < -180) dx += 360
+  dx = dx * 60 * k; dy = (cy - by) * 60
+  vx = mk * sin(md * 3.141592653589793 / 180); vy = mk * cos(md * 3.141592653589793 / 180)
+  ux = bk * sin(cs * 3.141592653589793 / 180); uy = bk * cos(cs * 3.141592653589793 / 180)
+  nx = dx + vx * a; ny = dy + vy * a
+  dist = sqrt(nx * nx + ny * ny); brg = atan2(nx, ny) * 57.29577951308232
+  ch_say(sprintf("Reported %g hours ago: the centre at %s, %s, moving %03d at %g knots.", a, st_ll(cy, "N", "S"), st_ll(cx, "E", "W"), st_b(md), mk))
+  if(rr != "") ch_say(sprintf("Its 34-knot winds reach %g nm from the centre.", rr))
+  ch_say(sprintf("You: %s, %s, %s.", st_ll(by, "N", "S"), st_ll(bx, "E", "W"), (bk > 0 ? sprintf("steering %03d at %g knots", st_b(cs), bk) : "stopped")))
+  print ""
+  ch_say(cw(sprintf("The centre now: %03d, %d nm from you.", st_b(brg), st_r(dist)), C_ACC))
+  ch_why(sprintf("the advisory's position moved on %g hours along its track", a))
+  #  the side: you from the centre, against the way it goes
+  if(mk > 0){
+    rel = atan2(-nx, -ny) * 57.29577951308232 - md
+    cross = dist * sin(rel * 3.141592653589793 / 180); along = dist * cos(rel * 3.141592653589793 / 180)
+    off = (cross < 0 ? -cross : cross)
+    #  ON ITS TRACK: under half a mile off it, where the sign of a
+    #  cross product is only rounding, it is neither side
+    if(off < 0.5){
+      ch_say(cw(sprintf("You are on its track, %s it.", (along > 0 ? "ahead of" : "behind")), C_WARN))
+      ch_why("neither semicircle: ahead of it the centre is coming at you, behind")
+      ch_why("it the centre is going away (Bowditch)")
+    } else if(cross > 0){
+      ch_say(cw(sprintf("You are on the right of its track, %d nm off it: the dangerous semicircle.", st_r(off)), C_WARN))
+      ch_why("looking the way it goes; on the right its own speed adds to its wind")
+      ch_why("and the wind and sea carry you toward its path (Bowditch)")
+    } else {
+      ch_say(sprintf("You are on the left of its track, %d nm off it: the less dangerous semicircle.", st_r(off)))
+      ch_why("looking the way it goes; on the left its speed takes from its wind,")
+      ch_why("and the wind carries you away from its path (Bowditch)")
+    }
+    #  NEAR ITS PATH: ahead of it and within its 34-knot radius of the
+    #  track (30 nm when the advisory gives no radius), the app's own line
+    if(along > 0 && ((rr != "" && off < rr) || (rr == "" && off < 30)))
+      ch_say(cw("And you are ahead of it, near its path: its winds reach your water.", C_WARN))
+  } else ch_say("It is reported stationary, so it has no track to be either side of.")
+  print ""
+  #  the closest approach, both holding course and speed
+  rx = vx - ux; ry = vy - uy; vv = rx * rx + ry * ry
+  if(vv < 0.25){
+    ch_say(sprintf("It is keeping its distance from you: about %d nm while both hold on.", st_r(dist)))
+  } else {
+    t = -(nx * rx + ny * ry) / vv
+    if(t <= 0){
+      ch_say("It is drawing away from you: its closest was before now.")
+      if(rr != "" && dist < rr) ch_say(cw("You are inside its 34-knot winds.", C_WARN))
+    } else {
+      px = nx + rx * t; py = ny + ry * t; cpa = sqrt(px * px + py * py)
+      if(cpa < 0.5) ch_say(cw(sprintf("If both hold on, its centre passes over you in %d hours.", st_r(t)), C_WARN))
+      else ch_say(cw(sprintf("If both hold on, it comes closest in %d hours: %d nm, bearing %03d.", st_r(t), st_r(cpa), st_b(atan2(px, py) * 57.29577951308232)), C_ACC))
+      if(rr != ""){
+        if(dist < rr) ch_say(cw("You are inside its 34-knot winds now.", C_WARN))
+        else if(cpa < rr) ch_say(cw(sprintf("That is inside its 34-knot winds, which reach %g nm.", rr), C_WARN))
+        else ch_say(sprintf("That is outside its 34-knot winds, which reach %g nm.", rr))
+      }
+      ch_why("a storm can turn, speed up or stop; work it again with each advisory")
+    }
+  }
+  print ""
+  #  your own wind
+  if(wd == ""){
+    ch_say("Give me your wind and I will check the report against it.")
+  } else {
+    lo = wd + 110; hi = wd + 135
+    ch_say(sprintf("Your wind from %03d puts the centre between %03d and %03d.", st_b(wd), st_b(lo), st_b(hi)))
+    ch_why("back to the wind, the centre about 110 degrees round from dead astern")
+    ch_why("in front of a storm and 120 to 135 behind it (Bowditch)")
+    off = st_out(brg, lo, hi)
+    if(off == 0) ch_say(cw("The report agrees with your wind.", C_ACC))
+    else if(off <= 15) ch_say(sprintf("The report is %d degrees outside that: near enough, for a wind read by eye.", st_r(off)))
+    else {
+      ch_say(cw(sprintf("The report and your wind disagree, by %d degrees.", st_r(off)), C_WARN))
+      ch_why("one of them is wrong or old: the advisory's age, a storm that has")
+      ch_why("turned, or your log. The wind on deck is the newer evidence.")
+    }
+  }
+  print ""
+  hr()
+  ch_say("Not a forecast. An advisory is hours old when it arrives, and a storm")
+  ch_say("can turn; plot each one as it comes (Bowditch). Worked on a flat chart")
+  ch_say("round you: good to a few miles within a few hundred.")
+  print ""
+  return 0
+}
+#  how far a bearing lies outside a band, lo clockwise to hi; 0 inside
+function st_out(b, lo, hi,   w, d, e){
+  w = ((hi - lo) % 360 + 360) % 360
+  d = ((b - lo) % 360 + 360) % 360
+  if(d <= w) return 0
+  e = 360 - d
+  return (d - w < e ? d - w : e)
+}
+function st_ll(v, p, n){ return sprintf("%g %s", (v < 0 ? -v : v), (v < 0 ? n : p)) }

@@ -1,5 +1,81 @@
 # Changelog
 
+## weather 1.0.11: a reported storm, as a check on your own wind (I20)
+
+**What.** A new screen and command, `weather storm` (menu item 7; "A reported
+storm" in the browser). You type in an official advisory, by NAVTEX, SafetyNET or
+radiofax: how many hours ago it was issued, the centre's position, its movement
+and how far out its 34-knot winds reach; and your position, course, speed and
+wind. It answers:
+
+1. where the centre is now, the advisory moved on along its track;
+2. which side of its track you are on, looking the way it goes, and so which
+   semicircle; on the track ahead or behind; near its path;
+3. how close it comes and when, if both hold on, and whether inside its
+   34-knot winds;
+4. whether your own wind agrees: the centre between wind+110 and wind+135;
+5. that it is not a forecast.
+
+```
+  The centre now: 175, 223 nm from you.
+  You are on the right of its track, 93 nm off it: the dangerous semicircle.
+  And you are ahead of it, near its path: its winds reach your water.
+  If both hold on, it comes closest in 21 hours: 21 nm, bearing 090.
+  That is inside its 34-knot winds, which reach 120 nm.
+  Your wind from 048 puts the centre between 158 and 183.
+  The report agrees with your wind.
+```
+
+The browser draws the mock Larry admitted: north up, the boat at the centre,
+the storm as a low with its own wind (his rule of 18 November), where it was
+reported and where it is now, its track ahead every six hours, its 34-knot
+circle, the closest approach, and the band from your wind as a wedge.
+
+**Why.** Larry's rulings I20 (admitted, 11:00 window) and ATZ (build it as in
+the mock), 18 November 2026. It began as NAV's opinion on CelestialGlass's
+Tropical Cyclones mode: the report gives the centre, the wind on deck checks it.
+
+**Choices made in it, said where they are made.**
+
+1. Northern hemisphere only: south of the equator it says so and works nothing,
+   until the southern words are decided (card I19, part three).
+2. Facts, not orders: which semicircle and how close, not what to steer, which
+   is seamanship (the XO's caution on the CelestialGlass face).
+3. "Near its path" is ahead of the centre and closer to its track than its
+   34-knot winds reach (30 nm when the advisory gives no radius); "on its
+   track" is within half a mile of it.
+4. Agreement with the wind: inside the band agrees, within 15 degrees of it is
+   near enough for a wind read by eye, further off disagrees.
+5. A flat chart round the boat: good to a few miles within a few hundred.
+6. The danger area for forecast error is not drawn: the National Hurricane
+   Center's guidance is to be read first, and Bowditch now calls the 1-2-3 rule
+   graphic "former". That is for Larry.
+
+**What it touches.**
+
+1. The engine: `chart.awk` (`st_report` and its helpers), `screens.awk`
+   (`cmd=storm`), `30-ui.sh` (`do_storm`, the menu, the help).
+2. The browser: `chart.js` (`CHART.stormReport`, `stormTerminal`),
+   `weather.js` (`drawStorm`, `stormPicture`), `index.html` (the screen and its
+   button), `shared/demo.css` (`.stormfig`), cache `weather-v28`.
+3. The weather manual: a new section 8, "A reported storm", with Figure 9;
+   the lessons are section 9 now, and their figures 10 to 17. The quick
+   reference and the commands table.
+4. Nothing in "What the log says", the score, the lessons, the tides engine or
+   the course.
+
+**Checked.** `docs/web/tests/weather-storm.js` (stage 18, 26 checks). The page
+against the awk, character for character, over 144 advisories (every eighth of
+the compass for the centre and its movement, near and far, old and new, with
+and without a radius, a course or a wind, the dateline, the south) and every
+refusal, under mawk and gawk. The closest approach and the side worked again by
+the test's own arithmetic: time stepped a hundredth of an hour, and a cross
+product. The picture read back off the drawing: the low's wind round it
+anticlockwise and turned in, the low where the report says, moved on along its
+movement, the band from wind+110 to wind+135, the closest approach as long as
+the report says, night and day. Four planted faults, each caught. Four cases in
+the golden file.
+
 ## weather 1.0.10: fronts, what passes over you and in what order (W20)
 
 **What.** A twelfth lesson, `fronts`, after `veer`. It takes the passing low of

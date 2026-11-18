@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="580" height="181" viewBox="0 0 580 181">
+<svg xmlns="http://www.w3.org/2000/svg" width="580" height="198" viewBox="0 0 580 198">
 <title>weather: read your own barometer</title>
-<rect width="580" height="181" fill="#0b1a22"/>
+<rect width="580" height="198" fill="#0b1a22"/>
 <g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,DejaVu Sans Mono,monospace" font-size="13">
 <text x="38.0 46.0 54.0 62.0 70.0 78.0 86.0" y="27.0" fill="#c9d6dc">WEATHER</text>
-<text x="102.0 110.0 118.0 126.0 134.0 142.0" y="27.0" fill="#c9d6dc">1.0.10</text>
+<text x="102.0 110.0 118.0 126.0 134.0 142.0" y="27.0" fill="#c9d6dc">1.0.11</text>
 <text x="174.0 182.0 190.0 198.0" y="27.0" fill="#c9d6dc">read</text>
 <text x="214.0 222.0 230.0 238.0" y="27.0" fill="#c9d6dc">your</text>
 <text x="254.0 262.0 270.0" y="27.0" fill="#c9d6dc">own</text>
@@ -47,13 +47,17 @@
 <text x="382.0 390.0 398.0 406.0" y="129.0" fill="#c9d6dc">from</text>
 <text x="422.0 430.0 438.0" y="129.0" fill="#c9d6dc">the</text>
 <text x="454.0 462.0 470.0 478.0 486.0 494.0 502.0" y="129.0" fill="#c9d6dc">isobars</text>
-<text x="46.0" y="163.0" fill="#c9d6dc">c</text>
-<text x="70.0 78.0 86.0 94.0 102.0 110.0" y="163.0" fill="#c9d6dc">Colour</text>
-<text x="142.0" y="163.0" fill="#c9d6dc">a</text>
-<text x="166.0 174.0 182.0 190.0 198.0" y="163.0" fill="#c9d6dc">About</text>
-<text x="230.0" y="163.0" fill="#c9d6dc">h</text>
-<text x="254.0 262.0 270.0 278.0" y="163.0" fill="#c9d6dc">Help</text>
-<text x="310.0" y="163.0" fill="#c9d6dc">q</text>
-<text x="334.0 342.0 350.0 358.0" y="163.0" fill="#c9d6dc">Quit</text>
+<text x="286.0" y="146.0" fill="#c9d6dc">7</text>
+<text x="310.0" y="146.0" fill="#c9d6dc">A</text>
+<text x="326.0 334.0 342.0 350.0 358.0 366.0 374.0 382.0" y="146.0" fill="#c9d6dc">reported</text>
+<text x="398.0 406.0 414.0 422.0 430.0" y="146.0" fill="#c9d6dc">storm</text>
+<text x="46.0" y="180.0" fill="#c9d6dc">c</text>
+<text x="70.0 78.0 86.0 94.0 102.0 110.0" y="180.0" fill="#c9d6dc">Colour</text>
+<text x="142.0" y="180.0" fill="#c9d6dc">a</text>
+<text x="166.0 174.0 182.0 190.0 198.0" y="180.0" fill="#c9d6dc">About</text>
+<text x="230.0" y="180.0" fill="#c9d6dc">h</text>
+<text x="254.0 262.0 270.0 278.0" y="180.0" fill="#c9d6dc">Help</text>
+<text x="310.0" y="180.0" fill="#c9d6dc">q</text>
+<text x="334.0 342.0 350.0 358.0" y="180.0" fill="#c9d6dc">Quit</text>
 </g>
 </svg>

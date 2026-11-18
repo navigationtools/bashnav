@@ -10,6 +10,7 @@
 | `weather learn [key]` | a lesson; no key lists them |
 | `weather chart` | reason over a 500 mb radiofax chart |
 | `weather isobars [nm lat [N|S] [hPa]]` | the wind from the isobars: aloft, then on deck |
+| `weather storm` | a reported storm, moved on to now and set beside your wind |
 | `weather forecast` | yours first, then mine, then both scored |
 | `weather score` | you, the rules and persistence |
 | `weather lon <deg>` | your longitude, east positive |
@@ -53,6 +54,10 @@ looking the way it is going, in both hemispheres. Backing: it passes south of
 you if it is going east, north if west. **A falling glass: it is closing. A
 rising glass: it is drawing away.** `weather learn veer` draws it from above,
 going east and going west, north and south of the equator.
+
+**A reported storm** (`weather storm`): back to the wind, the centre lies wind
++110 in front of a storm, +120 to +135 behind it; north of the equator the right
+of its track is the dangerous side. The advisory is old when it arrives.
 
 **Fronts** (`weather learn fronts`), south of a low going east: glass falling,
 cirrus then a grey sheet, steady rain; the warm front passes, the wind veers S

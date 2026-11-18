@@ -1515,4 +1515,92 @@ Because the seasons are the 23.5 degree tilt, not the distance. The northern hem
      low, so there is no steady wind along the isobars to work out;
      believe the wind you can see
 
+=== weather storm, 4 17.2N 62.4W 330 12 120 21.6N 63.2W 270 6 048 ===
+
+  A REPORTED STORM
+  ----------------------------------------------------------------------
+  Reported 4 hours ago: the centre at 17.2 N, 62.4 W, moving 330 at 12 knots.
+  Its 34-knot winds reach 120 nm from the centre.
+  You: 21.6 N, 63.2 W, steering 270 at 6 knots.
+
+  The centre now: 175, 223 nm from you.
+     the advisory's position moved on 4 hours along its track
+  You are on the right of its track, 93 nm off it: the dangerous semicircle.
+     looking the way it goes; on the right its own speed adds to its wind
+     and the wind and sea carry you toward its path (Bowditch)
+  And you are ahead of it, near its path: its winds reach your water.
+
+  If both hold on, it comes closest in 21 hours: 21 nm, bearing 090.
+  That is inside its 34-knot winds, which reach 120 nm.
+     a storm can turn, speed up or stop; work it again with each advisory
+
+  Your wind from 048 puts the centre between 158 and 183.
+     back to the wind, the centre about 110 degrees round from dead astern
+     in front of a storm and 120 to 135 behind it (Bowditch)
+  The report agrees with your wind.
+
+  ----------------------------------------------------------------------
+  Not a forecast. An advisory is hours old when it arrives, and a storm
+  can turn; plot each one as it comes (Bowditch). Worked on a flat chart
+  round you: good to a few miles within a few hundred.
+
+=== weather storm, 6 30N 70W 45 15 - 31N 72W - - 300 ===
+
+  A REPORTED STORM
+  ----------------------------------------------------------------------
+  Reported 6 hours ago: the centre at 30 N, 70 W, moving 045 at 15 knots.
+  You: 31 N, 72 W, stopped.
+
+  The centre now: 089, 167 nm from you.
+     the advisory's position moved on 6 hours along its track
+  You are on the left of its track, 116 nm off it: the less dangerous semicircle.
+     looking the way it goes; on the left its speed takes from its wind,
+     and the wind carries you away from its path (Bowditch)
+
+  It is drawing away from you: its closest was before now.
+
+  Your wind from 300 puts the centre between 050 and 075.
+     back to the wind, the centre about 110 degrees round from dead astern
+     in front of a storm and 120 to 135 behind it (Bowditch)
+  The report is 14 degrees outside that: near enough, for a wind read by eye.
+
+  ----------------------------------------------------------------------
+  Not a forecast. An advisory is hours old when it arrives, and a storm
+  can turn; plot each one as it comes (Bowditch). Worked on a flat chart
+  round you: good to a few miles within a few hundred.
+
+=== weather storm, 12.5 21.6N 69.12W 90 5.5 60 21.6N 63.2W - - - ===
+
+  A REPORTED STORM
+  ----------------------------------------------------------------------
+  Reported 12.5 hours ago: the centre at 21.6 N, 69.12 W, moving 090 at 5.5 knots.
+  Its 34-knot winds reach 60 nm from the centre.
+  You: 21.6 N, 63.2 W, stopped.
+
+  The centre now: 270, 262 nm from you.
+     the advisory's position moved on 12.5 hours along its track
+  You are on its track, ahead of it.
+     neither semicircle: ahead of it the centre is coming at you, behind
+     it the centre is going away (Bowditch)
+  And you are ahead of it, near its path: its winds reach your water.
+
+  If both hold on, its centre passes over you in 48 hours.
+  That is inside its 34-knot winds, which reach 60 nm.
+     a storm can turn, speed up or stop; work it again with each advisory
+
+  Give me your wind and I will check the report against it.
+
+  ----------------------------------------------------------------------
+  Not a forecast. An advisory is hours old when it arrives, and a storm
+  can turn; plot each one as it comes (Bowditch). Worked on a flat chart
+  round you: good to a few miles within a few hundred.
+
+=== weather storm, 2 15S 160E 200 10 - 16S 161E - - - ===
+
+  A REPORTED STORM
+  ----------------------------------------------------------------------
+  South of the equator this is not worked yet.
+     which side of a storm is dangerous there, and the words for it, wait
+     for a decision; the rule from your own wind still holds in reverse
+
 === end of the weather cases ===

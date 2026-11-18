@@ -11,6 +11,7 @@ BEGIN{
   else if(cmd=="chart"){ ch_report(brg, dist, orient, w500, (north==""?1:north+0)) }
   else if(cmd=="isobars"){ iso_report(spacing, lat, step, (north==""?1:north+0)) }
   else if(cmd=="frontsdump"){ fr_dump() }
+  else if(cmd=="storm"){ st_report(age, clat, clon, mdir, mkn, r34, blat, blon, bcse, bkn, wind) }
 
   else if(cmd=="syllabus"){
     print ""

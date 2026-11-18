@@ -416,6 +416,31 @@ drawn below its curve.
 named the ten lessons; `veer`, the eleventh, had no golden copy. It now asks the
 awk for the list, as `weather-ui.js` does.
 
+### A reported storm: the words, the geometry worked again, and the picture (weather 1.0.11)
+
+**The words.** `docs/web/tests/weather-storm.js` (stage 18) runs `weather` with
+`cmd=storm` and `CHART.stormReport` over 144 advisories and 15 more cases, and
+requires the two to print the same characters, under mawk and gawk. The grid
+puts the centre at every eighth of the compass, 80 and 330 nm off, moving every
+eighth of the compass, with and without a 34-knot radius, a course or a wind, at
+ages of 0, 4 and 12.5 hours. The extra cases are the ways a position can be
+typed, the dateline, the south's refusal, and each refusal of a bad number.
+
+**The geometry, worked again.** The test does not trust either program for the
+closest approach: it steps time a hundredth of an hour at a time over 400 hours
+and finds the nearest the two come, and that must match the report's hours and
+miles to within one. It finds the side of the track by the sign of a cross
+product, with half a mile either side counting as on the track.
+
+**The picture.** Three advisories, night and day: the low's eight arrows go
+round it anticlockwise, turned in (between 60 and 90 degrees from the way to the
+low); the low is drawn at the report's bearing and distance; it was moved on
+from where it was reported along its movement, and its track points that way;
+the band from the wind runs from wind+110 to wind+135; the closest approach is
+drawn as long as the report says. Four planted faults, each caught: the low's
+wind turned the wrong way, the track drawn backwards, the low in the wrong place,
+the closest approach too long.
+
 ### One model in two builds, and the fronts read back off the drawing (weather 1.0.10)
 
 **The model, character for character.** The fronts figure is drawn from a model

@@ -74,6 +74,32 @@ do_isobars() {
   eng -v cmd=isobars -v spacing="$sp" -v lat="$la" -v north="$n" -v step="${st:-4}"
 }
 
+#  A REPORTED STORM (I20, weather 1.0.11; Larry, ATZ).  An official
+#  advisory typed in, moved on to now, and set beside your own wind.  The
+#  questions are the advisory's lines in the order an advisory gives them;
+#  return leaves the optional ones out.  The reasoning is st_report in
+#  chart.awk.
+do_storm() {
+  printf '%s\n' \
+    '' \
+    '  From an official advisory - by NAVTEX, SafetyNET or radiofax. Latitudes' \
+    '  and longitudes as numbers with N S E W after them, or signed.' \
+    ''
+  printf "  hours since the advisory was issued: ";    IFS= read -r sa
+  printf "  the centre's latitude: ";                  IFS= read -r scy
+  printf "  the centre's longitude: ";                 IFS= read -r scx
+  printf "  its movement, direction (degrees true): "; IFS= read -r smd
+  printf "  its movement, speed (knots): ";            IFS= read -r smk
+  printf "  its 34-knot winds reach, nm [none]: ";     IFS= read -r sr
+  printf "  your latitude: ";                          IFS= read -r sby
+  printf "  your longitude: ";                         IFS= read -r sbx
+  printf "  your course [stopped]: ";                  IFS= read -r sbc
+  printf "  your speed, knots [stopped]: ";            IFS= read -r sbk
+  printf "  your wind, from (degrees true) [none]: ";  IFS= read -r sw
+  eng -v cmd=storm -v age="$sa" -v clat="$scy" -v clon="$scx" -v mdir="$smd" -v mkn="$smk" \
+      -v r34="$sr" -v blat="$sby" -v blon="$sbx" -v bcse="$sbc" -v bkn="$sbk" -v wind="$sw"
+}
+
 #  YOU FORECAST FIRST. Nothing of mine until yours is written down.
 do_forecast() {
   printf "  how many hours ahead? [12] "; IFS= read -r hrs || hrs=12
@@ -130,6 +156,7 @@ help_text() {
     '  weather learn [key]      a lesson; no key lists them' \
     '  weather chart            reason over a 500 mb radiofax chart' \
     '  weather isobars [nm lat [N|S] [hPa]]  the wind from a surface chart' \
+    '  weather storm            a reported storm, set beside your own wind' \
     '  weather forecast         yours first, then mine, then both are scored' \
     '  weather score            how you, the rules and persistence are doing' \
     '  weather lon <deg>        your longitude, E positive - for the pressure tide' \
@@ -156,6 +183,7 @@ menu() {
       '    1  What the log says          4  Make a forecast' \
       '    2  A lesson                   5  The score' \
       '    3  From a 500 mb chart        6  The wind from the isobars' \
+      '                                  7  A reported storm' \
       '' \
       '    c  Colour   a  About   h  Help   q  Quit'
     printf "  > "; IFS= read -r c || exit 0
@@ -166,6 +194,7 @@ menu() {
       4) do_forecast ;;
       5) eng -v cmd=score ;;
       6) do_isobars ;;
+      7) do_storm ;;
       c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
            case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
       a|A) about_text ;;
@@ -186,6 +215,7 @@ case "${1:-}" in
   learn)     shift; do_learn "$1" ;;
   chart)     do_chart ;;
   isobars)   shift; do_isobars "$@" ;;
+  storm)     do_storm ;;
   forecast)  do_forecast ;;
   score)     eng -v cmd=score ;;
   lon)       shift; lon="$1"; save_conf; echo "  longitude: $lon" ;;

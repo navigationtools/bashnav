@@ -193,6 +193,15 @@ feels at each time, from the same model and geometry as `pass_figure()` in
 numbers. An unknown figure kind now draws nothing; until 1.0.9 it drew the
 gun. Checked by `docs/web/tests/weather-pass.js`.
 
+**A reported storm** (weather 1.0.11; Larry's rulings I20 and ATZ) is a screen
+of its own, `v-storm`. `CHART.stormReport(fields)` in `chart.js` is a port of
+`st_report` in `chart.awk`, word for word: the advisory moved on to now, the
+side of its track, the closest approach, and your wind's band, wind+110 to
+wind+135. Its `geo` carries the numbers `stormPicture` draws: north up, the boat
+at the centre, the storm as a low with its own wind, the track, the 34-knot
+circle, the closest approach and the band. Northern hemisphere only for now.
+Checked by `docs/web/tests/weather-storm.js`.
+
 **Fronts** (weather 1.0.10; Larry's ruling ATR, W20) is the lesson `fronts`
 and its figure, kind `fronts`. The model is in `wx.js` (`WX.frP`, `frFrom`,
 `frGlass`, `frBand`, the stations `FR_A` and `FR_B`) and is the same as

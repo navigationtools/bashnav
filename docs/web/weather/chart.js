@@ -223,9 +223,171 @@ var CHART = (function () {
     return L.join('\n') + '\n';
   }
 
+
+  /* ===================================================================
+     A REPORTED STORM, AS A CHECK ON YOUR OWN WIND (I20, weather 1.0.11;
+     Larry, ATZ).  A port of st_report in chart.awk, word for word, held
+     to it character for character by docs/web/tests/weather-storm.js.
+     The reasoning and its sources are written there.  out.geo carries the
+     numbers the page's picture draws: east and north in nautical miles
+     from the boat, the centre then and now, both movements, the closest
+     approach, and the wind's band.
+     =================================================================== */
+  var DR = Math.PI / 180;
+  function stR(x) { return Math.trunc(x + 0.5); }
+  function stB(x) { x = (x % 360 + 360) % 360; return Math.trunc(x + 0.5) % 360; }
+  var NUM = /^[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)$/;
+  function stDeg(s, lim) {
+    var t = String(s === undefined || s === null ? '' : s).replace(/[ \t]/g, ''), sg = 1;
+    if (/[NnEe]$/.test(t)) t = t.slice(0, -1);
+    else if (/[SsWw]$/.test(t)) { t = t.slice(0, -1); sg = -1; }
+    if (!NUM.test(t)) return 'x';
+    var v = sg * (+t);
+    return (v < -lim || v > lim) ? 'x' : v;
+  }
+  function stNum(s) {
+    var t = String(s === undefined || s === null ? '' : s).replace(/[ \t]/g, '');
+    if (t === '') return '';
+    return NUM.test(t) ? +t : 'x';
+  }
+  function stLL(v, p, n) { return g(v < 0 ? -v : v) + ' ' + (v < 0 ? n : p); }
+  function stOut(b, lo, hi) {
+    var w = ((hi - lo) % 360 + 360) % 360, d = ((b - lo) % 360 + 360) % 360;
+    if (d <= w) return 0;
+    var e = 360 - d;
+    return d - w < e ? d - w : e;
+  }
+  function stormReport(f) {
+    var out = [];
+    function say(t) { out.push({ k: 'say', t: t }); }
+    function warn(t) { out.push({ k: 'warn', t: t }); }
+    function acc(t) { out.push({ k: 'acc', t: t }); }
+    function why(t) { out.push({ k: 'why', t: t }); }
+    function gap() { out.push({ k: 'gap', t: '' }); }
+    var blank = function (v) { return v === undefined || v === null || String(v) === ''; };
+    var a = stNum(f.age), cy = stDeg(f.clat, 90), cx = stDeg(f.clon, 180), md = stNum(f.mdir), mk = stNum(f.mkn);
+    var rr = stNum(f.r34), by = stDeg(f.blat, 90), bx = stDeg(f.blon, 180), cs = stNum(f.bcse), bk = stNum(f.bkn), wd = stNum(f.wind);
+    if (a === '' || blank(f.clat) || blank(f.clon) || md === '' || mk === '' || blank(f.blat) || blank(f.blon)) {
+      say("Give me the advisory - how many hours ago it was issued, the centre's");
+      say('latitude and longitude, its direction and speed of movement - and your');
+      say('own position, and I will set it beside your wind.');
+      return out;
+    }
+    if (a === 'x' || a < 0) { say("The advisory's age is a number of hours, 0 or more."); return out; }
+    if (cy === 'x' || by === 'x') { say('A latitude runs from 90 S to 90 N: a number, or one with N or S after it.'); return out; }
+    if (cx === 'x' || bx === 'x') { say('A longitude runs from 180 W to 180 E: a number, or one with E or W after it.'); return out; }
+    if (md === 'x' || md < 0 || md >= 360 || mk === 'x' || mk < 0) { say('The movement is a direction, 0 to 359, and a speed in knots.'); return out; }
+    if (rr === 'x' || (rr !== '' && rr < 0)) { say('The 34-knot radius is in nautical miles; leave it out if the advisory has none.'); return out; }
+    if (cs === 'x' || bk === 'x' || (cs !== '' && (cs < 0 || cs >= 360)) || (bk !== '' && bk < 0)) { say('Your course is 0 to 359 and your speed knots; leave both out if you are stopped.'); return out; }
+    if (wd === 'x' || (wd !== '' && (wd < 0 || wd >= 360))) { say('Your wind is the direction it blows from, 0 to 359; leave it out if you have none.'); return out; }
+    if (by < 0 || cy < 0) {
+      warn('South of the equator this is not worked yet.');
+      why('which side of a storm is dangerous there, and the words for it, wait');
+      why('for a decision; the rule from your own wind still holds in reverse');
+      return out;
+    }
+    if (cs === '') cs = 0; if (bk === '') bk = 0;
+    var k = Math.cos((cy + by) / 2 * 3.141592653589793 / 180);
+    var dx = cx - bx; if (dx > 180) dx -= 360; if (dx < -180) dx += 360;
+    dx = dx * 60 * k; var dy = (cy - by) * 60;
+    var vx = mk * Math.sin(md * 3.141592653589793 / 180), vy = mk * Math.cos(md * 3.141592653589793 / 180);
+    var ux = bk * Math.sin(cs * 3.141592653589793 / 180), uy = bk * Math.cos(cs * 3.141592653589793 / 180);
+    var nx = dx + vx * a, ny = dy + vy * a;
+    var dist = Math.sqrt(nx * nx + ny * ny), brg = Math.atan2(nx, ny) * 57.29577951308232;
+    var geo = { then: [dx, dy], now: [nx, ny], v: [vx, vy], u: [ux, uy], r34: rr === '' ? null : rr, wind: wd === '' ? null : wd,
+                mdir: md, bcse: cs, bkn: bk, age: a, dist: dist, brg: brg, cpa: null };
+    say('Reported ' + g(a) + ' hours ago: the centre at ' + stLL(cy, 'N', 'S') + ', ' + stLL(cx, 'E', 'W') + ', moving ' + d3(stB(md)) + ' at ' + g(mk) + ' knots.');
+    if (rr !== '') say('Its 34-knot winds reach ' + g(rr) + ' nm from the centre.');
+    say('You: ' + stLL(by, 'N', 'S') + ', ' + stLL(bx, 'E', 'W') + ', ' + (bk > 0 ? 'steering ' + d3(stB(cs)) + ' at ' + g(bk) + ' knots' : 'stopped') + '.');
+    gap();
+    acc('The centre now: ' + d3(stB(brg)) + ', ' + stR(dist) + ' nm from you.');
+    why("the advisory's position moved on " + g(a) + ' hours along its track');
+    if (mk > 0) {
+      var rel = Math.atan2(-nx, -ny) * 57.29577951308232 - md;
+      var cross = dist * Math.sin(rel * 3.141592653589793 / 180), along = dist * Math.cos(rel * 3.141592653589793 / 180);
+      var off = cross < 0 ? -cross : cross;
+      geo.right = cross > 0; geo.off = off;
+      if (off < 0.5) {
+        warn('You are on its track, ' + (along > 0 ? 'ahead of' : 'behind') + ' it.');
+        why('neither semicircle: ahead of it the centre is coming at you, behind');
+        why('it the centre is going away (Bowditch)');
+      } else if (cross > 0) {
+        warn('You are on the right of its track, ' + stR(off) + ' nm off it: the dangerous semicircle.');
+        why('looking the way it goes; on the right its own speed adds to its wind');
+        why('and the wind and sea carry you toward its path (Bowditch)');
+      } else {
+        say('You are on the left of its track, ' + stR(off) + ' nm off it: the less dangerous semicircle.');
+        why('looking the way it goes; on the left its speed takes from its wind,');
+        why('and the wind carries you away from its path (Bowditch)');
+      }
+      if (along > 0 && ((rr !== '' && off < rr) || (rr === '' && off < 30)))
+        warn('And you are ahead of it, near its path: its winds reach your water.');
+    } else say('It is reported stationary, so it has no track to be either side of.');
+    gap();
+    var rx = vx - ux, ry = vy - uy, vv = rx * rx + ry * ry;
+    if (vv < 0.25) {
+      say('It is keeping its distance from you: about ' + stR(dist) + ' nm while both hold on.');
+    } else {
+      var t = -(nx * rx + ny * ry) / vv;
+      if (t <= 0) {
+        say('It is drawing away from you: its closest was before now.');
+        if (rr !== '' && dist < rr) warn('You are inside its 34-knot winds.');
+      } else {
+        var px = nx + rx * t, py = ny + ry * t, cpa = Math.sqrt(px * px + py * py);
+        geo.cpa = { t: t, d: cpa, rel: [px, py] };
+        if (cpa < 0.5) warn('If both hold on, its centre passes over you in ' + stR(t) + ' hours.');
+        else acc('If both hold on, it comes closest in ' + stR(t) + ' hours: ' + stR(cpa) + ' nm, bearing ' + d3(stB(Math.atan2(px, py) * 57.29577951308232)) + '.');
+        if (rr !== '') {
+          if (dist < rr) warn('You are inside its 34-knot winds now.');
+          else if (cpa < rr) warn('That is inside its 34-knot winds, which reach ' + g(rr) + ' nm.');
+          else say('That is outside its 34-knot winds, which reach ' + g(rr) + ' nm.');
+        }
+        why('a storm can turn, speed up or stop; work it again with each advisory');
+      }
+    }
+    gap();
+    if (wd === '') {
+      say('Give me your wind and I will check the report against it.');
+    } else {
+      var lo = wd + 110, hi = wd + 135;
+      say('Your wind from ' + d3(stB(wd)) + ' puts the centre between ' + d3(stB(lo)) + ' and ' + d3(stB(hi)) + '.');
+      why('back to the wind, the centre about 110 degrees round from dead astern');
+      why('in front of a storm and 120 to 135 behind it (Bowditch)');
+      var o = stOut(brg, lo, hi);
+      geo.band = [lo, hi]; geo.bandOff = o;
+      if (o === 0) acc('The report agrees with your wind.');
+      else if (o <= 15) say('The report is ' + stR(o) + ' degrees outside that: near enough, for a wind read by eye.');
+      else {
+        warn('The report and your wind disagree, by ' + stR(o) + ' degrees.');
+        why("one of them is wrong or old: the advisory's age, a storm that has");
+        why('turned, or your log. The wind on deck is the newer evidence.');
+      }
+    }
+    out.geo = geo;
+    return out;
+  }
+  function stormTerminal(items) {
+    var L = [''];
+    L.push('  A REPORTED STORM');
+    L.push(RULE);
+    items.forEach(function (it) {
+      if (it.k === 'gap') L.push('');
+      else if (it.k === 'why') L.push('     ' + it.t);
+      else L.push('  ' + it.t);
+    });
+    L.push('');
+    if (!items.geo) return L.join('\n') + '\n';
+    L.push(RULE);
+    L.push('  Not a forecast. An advisory is hours old when it arrives, and a storm');
+    L.push('  can turn; plot each one as it comes (Bowditch). Worked on a flat chart');
+    L.push('  round you: good to a few miles within a few hundred.');
+    L.push('');
+    return L.join('\n') + '\n';
+  }
+
   return { poleward: poleward, report: report, renderTerminal: renderTerminal,
            isoWind: isoWind, isoReport: isoReport, isoTerminal: isoTerminal,
-           ISO_SP: ISO_SP, ISO_LAT: ISO_LAT };
+           ISO_SP: ISO_SP, ISO_LAT: ISO_LAT, stormReport: stormReport, stormTerminal: stormTerminal };
 })();
 
 if (typeof module !== 'undefined') module.exports = CHART;

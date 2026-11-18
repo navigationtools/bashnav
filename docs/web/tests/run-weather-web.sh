@@ -180,6 +180,14 @@ if node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.ex
   #  strip's words the drawn winds.  Five planted faults, each caught.
   node docs/web/tests/weather-fronts.js
   echo
+  echo "18. a reported storm, against the awk, arithmetic and the drawing"
+  #  weather 1.0.11 (I20, Larry ATZ): an advisory moved on to now and set
+  #  beside your own wind; the page against the awk character for
+  #  character over 144 advisories and every refusal; the closest approach
+  #  and the side worked again by stepping time and a cross product; the
+  #  picture read back off the drawing.  Four planted faults, each caught.
+  node docs/web/tests/weather-storm.js
+  echo
   echo "WEATHER WEB: all stages passed"
 else
   echo

@@ -328,9 +328,49 @@ lesson** at the top.
 
 ---
 
-## 8. The lessons
+## 8. A reported storm
 
-![**Figure 9** — twelve lessons, each one earning its place.](fig/weather-lessons.png)
+![**Figure 9** — a reported storm, north up, the boat at the centre. The storm is
+drawn as a low with its own wind, where the advisory put it (the small ring) and
+where it is now, with its track ahead marked every six hours and its 34-knot
+winds shaded. The dashed wedge from the boat is where your own wind puts the
+centre. The black line is the closest approach.](fig/weather-storm.png)
+
+When an official advisory comes in, by NAVTEX, SafetyNET or radiofax, type it in:
+how many hours ago it was issued, the centre's latitude and longitude, its
+direction and speed of movement, and how far out its 34-knot winds reach; then
+your position, and your course, speed and wind if you have them (Figure 9).
+`weather storm` asks the same questions in the terminal. It answers five things:
+
+1. **Where the centre is now:** the advisory's position moved on along its track
+   for the hours since it was issued.
+2. **Which side of its track you are on,** looking the way it goes. In the
+   northern hemisphere the right is the dangerous semicircle: the storm's own
+   speed adds to its wind there, and the wind and sea carry you toward its path.
+   Within half a mile of the track you are on it, ahead or behind; ahead of it
+   and closer than its 34-knot winds reach, it says you are near its path.
+3. **How close it comes, and when,** if both of you hold course and speed, and
+   whether that is inside its 34-knot winds.
+4. **Whether your own wind agrees.** With your back to the wind the centre lies
+   about 110 degrees round from dead astern in front of a storm and 120 to 135
+   behind it, so between your wind plus 110 and plus 135. Inside that band the
+   report agrees; within 15 degrees of it, near enough for a wind read by eye;
+   further off, the two disagree and one of them is wrong or old.
+5. **That it is not a forecast.** An advisory is hours old when it arrives and a
+   storm can turn: plot each one as it comes. The wind on deck is the newer
+   evidence.
+
+The positions are worked on a flat chart round you, good to a few miles within a
+few hundred. It covers the northern hemisphere for now: south of the equator it
+says so and works nothing, until the southern words are decided. It gives facts,
+not orders: what to steer is seamanship. The rules are Bowditch's (*The American
+Practical Navigator*, 2017, chapter 39).
+
+---
+
+## 9. The lessons
+
+![**Figure 10** — twelve lessons, each one earning its place.](fig/weather-lessons.png)
 
 Each lesson changes either what the tool says or what you would do. One of them
 says plainly where the reasoning stops being reliable, which is the most
@@ -338,7 +378,7 @@ important of the eleven.
 
 `weather learn` lists them; `weather learn <key>` opens one.
 
-![**Figure 10** — friction, in the `gradient` lesson. Over the sea the surface
+![**Figure 11** — friction, in the `gradient` lesson. Over the sea the surface
 wind is backed 10 to 20 degrees toward the low and about 2/3 of the wind
 aloft. Over land it is backed 30 to 40 degrees, and its speed is a band: about
 1/3 over forests, towns and cities, nearer 2/3 over open fields.](fig/weather-friction.png)
@@ -348,16 +388,16 @@ Some lessons draw what they say. The `gradient` lesson draws friction (Figure
 and in the browser. The land speed is drawn as a band, not one number, because
 the published rules of thumb disagree, from 1/3 (the Royal Meteorological
 Society) to 2/3 (US Navy training), and because the ground decides it: trees
-and buildings drag the wind more than open fields do. Figure 10 is the
+and buildings drag the wind more than open fields do. Figure 11 is the
 northern hemisphere's; south of the equator the turn is the other way.
 
-![**Figure 11** — why the wind turns. The push toward the low, the earth's turn
+![**Figure 12** — why the wind turns. The push toward the low, the earth's turn
 bending the wind to its right, and the drag of the sea or land close into a
 triangle. Drag the friction slider and the corner rides the circle: the drag
 side grows, the bend shrinks, and the wind turns further toward the low and
 slows.](fig/weather-forces.png)
 
-The same lesson then shows **why** the wind turns (Figure 11), in a sailor's
+The same lesson then shows **why** the wind turns (Figure 12), in a sailor's
 terms rather than as equations. Three things act on the wind near the surface:
 the push from high pressure toward low, which is what the isobars show; the
 earth turning beneath, which bends moving air to its right in the north; and
@@ -369,35 +409,35 @@ towns, and a few sentences under it say what is happening at each stage. The
 triangle describes the lowest kilometre or so of air; on deck the wind is slower
 again, which is why the rule of thumb over the sea is about two thirds.
 
-![**Figure 12** — the wind shifts, over time. It veers when it shifts clockwise
+![**Figure 13** — the wind shifts, over time. It veers when it shifts clockwise
 round the compass and backs when it shifts anticlockwise. These are compass
 words, so they mean the same on either side of the equator.](fig/weather-veer-time.png)
 
-![**Figure 13** — the surface wind against the wind aloft. It always turns toward
+![**Figure 14** — the surface wind against the wind aloft. It always turns toward
 the low. North of the equator the low is on the wind's left, so the turn is
 anticlockwise: backed. South of it the low is on the right, and the same turn is
 clockwise: veered.](fig/weather-veer-hemi.png)
 
 **Backing and veering** have a lesson of their own, `weather learn veer`,
-because the words do two jobs. Over time (Figure 12) they say which way the wind
+because the words do two jobs. Over time (Figure 13) they say which way the wind
 has shifted, and the "What the log says" screen uses them in that sense. Against
-the wind aloft (Figure 13) they describe the friction turn, which is backed in
+the wind aloft (Figure 14) they describe the friction turn, which is backed in
 the north and veered in the south. The lesson also says what a shift tells you:
 in the Channel, a depression passing to the north veers the wind from south-west
 through west to north-west as its fronts go through, and the same low south of
 the equator backs it instead. The short form is repeated in the Coriolis and
 gradient lessons, so it is met more than once.
 
-![**Figure 14** — a low passing a boat, looked down on, north of the equator.
+![**Figure 15** — a low passing a boat, looked down on, north of the equator.
 The low is drawn at three times, each with its isobars and its wind; the boats stay
 where they are, and each boat's three arrows are the wind it feels at those
 times. Above, the low going east; below, going west.](fig/weather-pass-north.png)
 
-![**Figure 15** — the same, south of the equator, where the low's wind goes
+![**Figure 16** — the same, south of the equator, where the low's wind goes
 round it clockwise. The words under each boat do not
 change.](fig/weather-pass-south.png)
 
-The lesson draws a shift from above (Figures 14 and 15), with the low at three
+The lesson draws a shift from above (Figures 15 and 16), with the low at three
 times and its wind round it, and a boat on each side of its track. One rule
 covers both hemispheres and both directions: **look the way the low is going;
 on its right the wind veers, on its left it backs.** A depression going east
@@ -407,14 +447,14 @@ turns, has its left on the south side. The "What the log says" screen reads a
 shift the same way, and each boat's winds in the figures are worked from the
 low drawn beside them, in the terminal and in the browser alike.
 
-![**Figure 16** — fronts, in the `fronts` lesson. The same low, going east, now
+![**Figure 17** — fronts, in the `fronts` lesson. The same low, going east, now
 with its warm front (round barbs) and cold front (triangles), each lying in a
 trough where the isobars kink. Boat A, south of its track, meets both fronts in
 turn; boat B, north of it, meets neither. Under the map, what boat A meets, in
 order.](fig/weather-fronts.png)
 
 **Fronts** have a lesson of their own, `weather learn fronts`, built on the
-passing low (Figure 16). A front lies in a trough, so the isobars kink where they
+passing low (Figure 17). A front lies in a trough, so the isobars kink where they
 cross it, and a kink in the isobars is a shift in the wind: that is why the wind
 shifts at a front, and why a trough with no front, like the one behind the veer
 of the 2025 race, does the same. The lesson takes boat A through a depression in
@@ -430,7 +470,7 @@ own is still to be decided.
 
 ---
 
-## 9. Commands
+## 10. Commands
 
 | | |
 |---|---|
@@ -439,6 +479,7 @@ own is still to be decided.
 | `weather learn [key]` | a lesson; no key lists them |
 | `weather chart` | reason over a 500 mb radiofax chart |
 | `weather isobars [nm lat [N|S] [hPa]]` | the wind from a surface chart: aloft and on deck |
+| `weather storm` | a reported storm: where it is now, which side you are on, how close it comes, and whether your wind agrees |
 | `weather forecast` | yours first, then mine, then both are scored |
 | `weather score` | how you, the rules and persistence are doing |
 | `weather lon <deg>` | your longitude, east positive — for the pressure tide |
@@ -451,13 +492,13 @@ model, because there is no network here and never will be.
 
 ---
 
-## 10. The display modes
+## 11. The display modes
 
 {{INCLUDE:common-display-modes.md}}
 
 ---
 
-## 11. Cautions
+## 12. Cautions
 
 1. **This is not a forecast service.** It reasons from what you logged. It has
    no model, no satellite and no warning of anything over the horizon that has

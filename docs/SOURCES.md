@@ -176,6 +176,19 @@ the American Meteorological Society's glossary, "geostrophic wind scale"; US
 Navy aerographer's mate training (tpub weather2 7-10). Air density 1.225 kg/m3.
 The wind on deck from it is W01's rules, above.
 
+**A reported storm** (`weather storm`; weather 1.0.11, I20, Larry's ruling
+ATZ; read 18 November 2026). Bowditch, *The American Practical Navigator*, 2017,
+chapter 39, as below under "Where the low lies": the centre 110 degrees round
+from dead astern in front of a storm and 120 to 135 behind it (p. 655); the
+dangerous semicircle on the right of the track in the north (pp. 657 to 658);
+on the storm's track, ahead of the centre or behind it, as cases of their own
+(pp. 659 to 661); and that a plot of reported positions lags, since the
+bulletin is hours old and a storm can turn (p. 658). Worked, not read: the
+flat chart round the boat, the closest approach, and the app's own lines for
+"near its path" and for how near counts as agreeing. **Still to read before a
+danger area is drawn:** the National Hurricane Center's guidance for mariners;
+Bowditch's Figure 3912a calls the 1-2-3 rule graphic "former".
+
 **Fronts** (the lesson `fronts` and its figure; weather 1.0.10, W20, Larry's
 ruling ATR; read 18 November 2026). Bowditch, *The American Practical
 Navigator*, 2017 edition, Volume 1, chapter 38, "Weather Elements"
