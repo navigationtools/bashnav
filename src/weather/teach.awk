@@ -434,7 +434,7 @@ function lesson_body(k){
     print ""
     lp("400, not 333. " cw("It is not the lapse rate, it is the DIFFERENCE",C_WARN) " between")
     lp("two of them. Divide by the lapse rate alone and you put the base a")
-    lp("fifth too low. And it is " cw("air",C_ACC) " temperature, not sea temperature - the")
+    lp("sixth too low. And it is " cw("air",C_ACC) " temperature, not sea temperature - the")
     lp("sea is a fair proxy offshore and badly wrong near a front.")
     print ""
     lp("A field of cumulus with flat bases all at one height IS that level made")

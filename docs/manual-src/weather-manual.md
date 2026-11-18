@@ -164,7 +164,7 @@ moving glass, the card says the course cannot be told yet.
 2. **Cloud base**: the spread between temperature and dew point closes at
    about 2.5 °C per 1000 ft — a parcel cools at 3 and its dew point falls at
    0.5, and the *difference* is what counts. Using the lapse rate alone puts
-   the base about a fifth too low.
+   the base about a sixth too low.
 
 ### The cloud sequence
 

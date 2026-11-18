@@ -214,7 +214,7 @@ function wx_report(logfile, lon,   n, i, j, dt, dp, dw, tide1, tide2, corr, k, r
            int((WAIR[n]-WDEW[n])*400), int((WAIR[n]-WDEW[n])*125)))
     wx_why("the spread closes at about 2.5 C per 1000 ft - a parcel cools at 3,")
     wx_why("its dew point falls at 0.5, and the difference is what counts. Not")
-    wx_why("the lapse rate alone: that would put the base a fifth too low.")
+    wx_why("the lapse rate alone: that would put the base a sixth too low.")
   }
 
   # ---- swell, the earliest warning there is --------------------------

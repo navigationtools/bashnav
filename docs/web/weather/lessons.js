@@ -628,7 +628,7 @@ var LESSONS = [
     { s: 'gap' },
     { s: 'line', p: [, { t: '  400, not 333. ', s: 'plain' }, { t: 'It is not the lapse rate, it is the DIFFERENCE', s: 'warn' }, { t: ' between', s: 'plain' }] },
     { s: 'line', p: [, { t: '  two of them. Divide by the lapse rate alone and you put the base a', s: 'plain' }] },
-    { s: 'line', p: [, { t: '  fifth too low. And it is ', s: 'plain' }, { t: 'air', s: 'acc' }, { t: ' temperature, not sea temperature - the', s: 'plain' }] },
+    { s: 'line', p: [, { t: '  sixth too low. And it is ', s: 'plain' }, { t: 'air', s: 'acc' }, { t: ' temperature, not sea temperature - the', s: 'plain' }] },
     { s: 'line', p: [, { t: '  sea is a fair proxy offshore and badly wrong near a front.', s: 'plain' }] },
     { s: 'gap' },
     { s: 'line', p: [, { t: '  A field of cumulus with flat bases all at one height IS that level made', s: 'plain' }] },

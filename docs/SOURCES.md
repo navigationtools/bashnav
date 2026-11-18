@@ -388,3 +388,57 @@ deg", which the working never did; it now says 1.4 at the equator and 0.5 at
 45 degrees, gives Bowditch for the tropics, and says the fall-off is the app's
 own rule. `tests/wx-check.awk` holds the lesson's line to `wx_tide`.
 
+**Read before launch: the cloud sequence, stability, and the three kinds of
+data** (gap list W05, W08 and W30; Larry's ruling TAUW, 18 November 2026, that
+the sources December's pages lean on are read first; read 18 November 2026).
+
+1. **W05, the warm-front cloud sequence** (the cloud rule in "What the log
+   says", `wx_cloud`). Bowditch, *American Practical Navigator*, 2017, article
+   3812, p. 616: a well-developed warm front is heralded by falling pressure
+   and "a more-or-less regular sequence of clouds": cirrus, then cirrostratus,
+   altostratus, altocumulus and nimbostratus, with brief showers before the
+   steady rain. The rule's own order (high, then middle, then low; cirrus,
+   cirrostratus, altostratus, nimbostratus and rain) is that sequence, with
+   altocumulus left out because the log's middle-cloud code counts both.
+2. **W08, lapse rates, stability and the cloud base** (the lesson `lapse`, and
+   the cloud base in "What the log says").
+   1. The FAA's *Pilot's Handbook of Aeronautical Knowledge*, chapter 12,
+      "Weather Theory" (US Government, public domain;
+      <https://www.faa.gov/sites/faa.gov/files/14_phak_ch12.pdf>): the dry
+      adiabatic lapse rate is 3 °C per 1,000 ft; the moist rate varies from
+      1.1 to 2.8 °C per 1,000 ft; an inversion is where the temperature rises
+      with height, and is stable; the cloud base is the temperature-dew point
+      spread divided by 4.4 °F per 1,000 ft (a 5.4 °F lapse less a 1 °F fall in
+      dew point). In Celsius that is 2.5 °C per 1,000 ft: the lesson's "x 400".
+      The lesson's "about 1.5" for the saturated rate is inside the FAA's range.
+   2. Bowditch 2017, article 3809, p. 611: air colder than the surface beneath
+      it is unstable, the temperature falling markedly with height; air warmer
+      than the surface is stable, the temperature rising with height.
+   3. NOAA, *JetStream*, "Severe Weather" (<https://www.noaa.gov/jetstream/upperair/severe-weather>):
+      CAPE, the convective available potential energy, is the potential energy
+      per kilogram of a lifted parcel, in J/kg; a large CAPE means an unstable
+      atmosphere aloft; a strong low inversion, the "cap", holds convection
+      down until it is broken. This is the source for the gap list's "add CAPE
+      and inversions" when the lesson gains them.
+   4. **Corrected with this reading (weather 1.0.14):** the lesson and the
+      cloud-base line said that dividing by the lapse rate alone puts the base
+      "a fifth too low". It puts it a sixth too low: 2,000 ft against 2,400
+      for a 6 °C spread. Now "a sixth".
+   5. **Not yet confirmed from a source read:** the lesson's "trade inversion"
+      capping the marine layer under flat-topped cumulus.
+3. **W30, observation, analysis and model** (the lesson `data`).
+   1. Bowditch 2017, article 3826, p. 631: observations from stations and
+      ships are plotted on synoptic charts; analyses and prognoses are drawn
+      from them; numerical models analyse and forecast; and the accuracy of a
+      forecast falls with its length, a 12-hour forecast being likely to be
+      more reliable than a 24-hour one.
+   2. NOAA, *Unified Surface Analysis Manual* (21 November 2013;
+      <https://www.nhc.noaa.gov/pdf/UASfcManualVersion1.pdf>): the surface
+      analysis is drawn by analysts at NHC, WPC, OPC and HFO, is "subjective in
+      nature", and uses model fields only with corroboration from other tools.
+      That is the lesson's "a chart drawn from observations and then edited and
+      verified by a human forecaster".
+   3. **The app's own words:** "Nobody has looked at it" for model output is
+      the lesson's way of saying that a GRIB is the model's numbers with no
+      analyst between them and the reader. No source read says it in those
+      words.

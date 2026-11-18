@@ -1,5 +1,25 @@
 # Changelog
 
+## weather 1.0.14 and deck log 1.1.2: a sixth, not a fifth
+
+**What.** The cloud base's reasoning, in the lesson `lapse`, in "What the log
+says" and in the deck log, said that dividing the temperature-dew point spread
+by the lapse rate alone "would put the base a fifth too low". It puts it a
+sixth too low (2,000 ft against 2,400 for a 6 °C spread), and now says so. The
+manual's line is corrected with it.
+
+**Why.** Found while reading the public sources for W08 before launch (Larry's
+ruling TAUW). The FAA's *Pilot's Handbook of Aeronautical Knowledge*, chapter
+12, confirms the rest of the working: 3 °C per 1,000 ft dry, the spread closing
+at 4.4 °F (2.5 °C) per 1,000 ft. The sources for W05 (the warm-front cloud
+sequence), W08 (lapse rates, stability, CAPE and inversions) and W30
+(observation, analysis and model) are recorded in `docs/SOURCES.md`, with what
+each confirms and the two things no source read says yet.
+
+**What it touches.** One word in `wx.awk`, `teach.awk`, `wx.js`,
+`src/decklog/wx.awk` and the manual; `lessons.js` and the golden file follow.
+Cache `weather-v31`.
+
 ## weather 1.0.13 and deck log 1.1.1: the glass in the Met Office's words
 
 **What.** The barometer's three-hour change is now graded on the Met Office's

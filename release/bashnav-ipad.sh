@@ -29212,7 +29212,7 @@ bn_unpack() {
 #  corrections are new entries that reference the old one, and every
 #  timestamp is UTC.  See docs/DECK-LOG.md.
 # =====================================================================
-DECKLOG_VERSION=1.1.1
+DECKLOG_VERSION=1.1.2
 
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"
 LOG="$DECKLOG_HOME/log"
@@ -30496,7 +30496,7 @@ bn_unpack() {
 #  data that is never wrong - what you measured yourself - and the only
 #  one still available when the antenna comes down.
 # =====================================================================
-WEATHER_VERSION=1.0.13
+WEATHER_VERSION=1.0.14
 
 #  the log belongs to deck-log; weather only ever READS it
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"
@@ -32419,7 +32419,7 @@ function wx_report(logfile, lon, hours, pct,   n, i, j, dt, dp, dw, tide1, tide2
            int((WAIR[n]-WDEW[n])*400), int((WAIR[n]-WDEW[n])*125)))
     wx_why("the spread closes at about 2.5 C per 1000 ft - a parcel cools at 3,")
     wx_why("its dew point falls at 0.5, and the difference is what counts. Not")
-    wx_why("the lapse rate alone: that would put the base a fifth too low.")
+    wx_why("the lapse rate alone: that would put the base a sixth too low.")
   }
 
   # ---- the cloud sequence -------------------------------------------
@@ -33577,7 +33577,7 @@ function lesson_body(k){
     print ""
     lp("400, not 333. " cw("It is not the lapse rate, it is the DIFFERENCE",C_WARN) " between")
     lp("two of them. Divide by the lapse rate alone and you put the base a")
-    lp("fifth too low. And it is " cw("air",C_ACC) " temperature, not sea temperature - the")
+    lp("sixth too low. And it is " cw("air",C_ACC) " temperature, not sea temperature - the")
     lp("sea is a fair proxy offshore and badly wrong near a front.")
     print ""
     lp("A field of cumulus with flat bases all at one height IS that level made")

@@ -615,7 +615,7 @@ var WX = (function () {
           di((last.air - last.dew) * 125) + ' m).');
       why('the spread closes at about 2.5 C per 1000 ft - a parcel cools at 3,');
       why('its dew point falls at 0.5, and the difference is what counts. Not');
-      why('the lapse rate alone: that would put the base a fifth too low.');
+      why('the lapse rate alone: that would put the base a sixth too low.');
     }
 
     // ---- the cloud sequence ---------------------------------------
