@@ -1,5 +1,37 @@
 # Changelog
 
+## tides 1.6: verified with the Practical Navigator course again (rule 13)
+
+**What.** `tides`' version line moves from 1.5.3 to 1.6. No code, data or
+wording changes: this is the same tool as 1.5.3, whose code last changed in
+bashnav `e44b05c`.
+
+**Why.** Under rule 13 `tides` and the course share their first two numbers,
+and the middle number moves only when the whole set has been verified
+together. Since 1.5 the tool gained `depth`, the ninth calculator (1.5.1), the
+sea on `depth` with `swell=` and `waves=` (1.5.2), and one rule for lesson
+names in `docs/web/shared/lesson.js` (1.5.3). The verification passed on 18
+November 2026 and Larry accepted it (ASH):
+
+1. **bashnav's full suite:** 152 of 152 on five pairs of shell and awk, and
+   every stage of the browser's tides tests.
+2. **PILOT's re-run of the tide check,** six ports over 10 May to 9 June 2025:
+   every prediction and comparison file byte for byte the same as at 1.5. No
+   tide prediction has changed.
+3. **The lesson links that call a calculator,** nine distinct, each giving the
+   answer its lesson prints. No lesson links `depth` yet, so the suite is its
+   check.
+
+The record is `spec/contracts/manifests/tides-and-course.md`.
+
+**What it affects.** The number `tides version` prints, the name of the engine
+an installed copy unpacks (`engine-1.6.awk`, so an installed copy unpacks it
+afresh on first run), and the manual and quick reference, which are rebuilt and
+say 1.6. The course takes 1.6 as its first number. The next change to `tides`
+takes a third number (1.6.1) until the set is verified again. Cherbourg is
+still checked two ways, not four, until the almanac gives its published mean
+level.
+
 ## weather 1.0.9: a low passing a boat, looked down on
 
 **What.** The lesson `veer` draws what a shift tells you, from above, north at
