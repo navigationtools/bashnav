@@ -176,6 +176,39 @@ the American Meteorological Society's glossary, "geostrophic wind scale"; US
 Navy aerographer's mate training (tpub weather2 7-10). Air density 1.225 kg/m3.
 The wind on deck from it is W01's rules, above.
 
+**Fronts** (the lesson `fronts` and its figure; weather 1.0.10, W20, Larry's
+ruling ATR; read 18 November 2026). Bowditch, *The American Practical
+Navigator*, 2017 edition, Volume 1, chapter 38, "Weather Elements"
+(PILOT's copy of Part 10; see the next entry for where it came from).
+
+1. **Air masses** (3809, p. 611): named for where they formed, warm or cold,
+   maritime or continental.
+2. **Why the wind shifts at a front** (3810 to 3811, pp. 611 to 612): the
+   fronts lie in troughs, where the isobars change direction, and the wind
+   follows the isobars. In the northern hemisphere the wind shifts clockwise
+   as a warm or a cold front passes; on the poleward side of the path of a
+   frontal wave the shifts are reversed. That is boat B.
+3. **What passes over a boat, in order** (3812, pp. 613 to 617): the falling
+   glass and the cloud sequence ahead of a warm front (cirrus, cirrostratus,
+   altostratus, altocumulus, nimbostratus, steady rain); the warm front's
+   veer, rising temperature and the end of the rain; the warm sector's
+   little change in glass or temperature, its stratus, drizzle, haze or fog;
+   the cold front's squalls, convective cloud, sharp veer, falling temperature
+   and rising glass; squalls up to 200 miles ahead of it; clearing behind it;
+   the occlusion; the chart symbols; and "no two are ever exactly alike".
+   With the centre passing on the equator side of the observer the abrupt
+   changes are not felt.
+
+**What is worked, not read.** The figure's numbers (the wind at each boat, and
+the glass in the barograph's four words) come from a model of one tidy low, in
+`wx.awk` and `wx.js`: a round low, each front in a trough, the wind 75 degrees
+round from the way the pressure rises (Buys Ballot, turned 15 in), and the low
+moving east at 30 knots, which is an assumption of the figure and is said in it.
+The model agrees with Bowditch's sequence: south of the track the wind is south,
+south, south-west, north-west, north-west and the glass falling, falling fast,
+steady, rising, rising; north of it the wind backs, south-east, east-north-east,
+north.
+
 **Where the low lies, and what a wind shift tells you** (the compass card and
 its words in "What the log says"; weather 1.0.8; read 17 November 2026).
 

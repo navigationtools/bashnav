@@ -591,3 +591,69 @@ function pass_figure(north,   w,h){
   return 0
 }
 
+#  FRONTS, LOOKED DOWN ON (W20, weather 1.0.10; Larry, ATR, 18 November
+#  2026).  The terminal's drawing of the model in wx.awk (fr_p): north at
+#  the top, a column 25 nm and a row 50 nm, so the map is to scale on a
+#  terminal's two-to-one characters.  The isobars are where the 4-hPa band
+#  changes between neighbouring cells; the fronts are sampled every 10 nm
+#  along their lines; the low has its own wind round it (Larry, 18
+#  November: a figure that describes the wind in a low shows the low).
+#  Boat A runs through it along the row south of the centre, boat B north,
+#  and the two tables under the map are worked from the same model: the
+#  wind by fr_from(), the glass by fr_band(), the barograph's own words.
+function fr_c(x){ return int((x + 760) / 25 + 0.5) }
+function fr_r(y){ return int((480 - y) / 50 + 0.5) }
+function fr_line(L, n, ch, col,   i, k, m, x, y){
+  for(i = 1; i < n; i++){
+    m = int(sqrt((L[2*i+1]-L[2*i-1])^2 + (L[2*i+2]-L[2*i])^2) / 10)
+    for(k = 0; k <= m; k++){
+      x = L[2*i-1] + (L[2*i+1] - L[2*i-1]) * k / m
+      y = L[2*i]   + (L[2*i+2] - L[2*i])   * k / m
+      if(fr_r(y) >= 0 && fr_r(y) < 22) gputc(fr_r(y), fr_c(x), ch, col)
+    }
+  }
+  return 0
+}
+function fronts_figure(   w, h, r, c, lv, lr, ld, i, rA, rB, s, f){
+  fr_init()
+  w = 66; h = 37
+  gclear(w, h)
+  FIGNAME = "fronts"
+  for(r = 0; r < 22; r++) for(c = 0; c < w; c++) LV[r, c] = int((fr_p(-760 + 25*c, 480 - 50*r) - 988) / 4)
+  #  a cell is on an isobar when a neighbour (right, left, above or below)
+  #  is in a LOWER band: one cell wide, on the high side of the line
+  for(r = 0; r < 22; r++) for(c = 0; c < w; c++)
+    if((c + 1 < w && LV[r, c] > LV[r, c+1]) || (c > 0 && LV[r, c] > LV[r, c-1]) ||
+       (r + 1 < 22 && LV[r, c] > LV[r+1, c]) || (r > 0 && LV[r, c] > LV[r-1, c])) gputc(r, c, ".", C_DIM)
+  fr_line(FRW, FRWN, "o", C_WARN)
+  fr_line(FRC, FRCN, "#", C_ACC)
+  #  the low, with its wind round it: anticlockwise in the north
+  r = fr_r(0); c = fr_c(0)
+  gputsc(r, c - 1, " L ", C_WARN)
+  gputsc(r - 1, c - 1, "<-", C_DIM); gputsc(r + 1, c, "->", C_DIM)
+  gputc(r, c - 2, "v", C_DIM); gputc(r, c + 2, "^", C_DIM)
+  gputsc(0, 44, "the low moves east -->", C_WARN)
+  #  the boats' runs through it, right to left
+  rA = fr_r(FRA_Y); rB = fr_r(FRB_Y)
+  for(c = 7; c < w; c++){ gputc(rA, c, "-", C_DIM); gputc(rB, c, "-", C_DIM) }
+  gputc(rA, 7, "<", C_DIM); gputc(rB, 7, "<", C_DIM)
+  gputsc(rA, 0, "boat A", C_ACC); gputsc(rB, 0, "boat B", C_ACC)
+  for(i = 1; i <= FRA_N; i++) gputc(rA, fr_c(FRAX[i]), i, C_ACC)
+  split("a b c", s, " ")
+  for(i = 1; i <= FRB_N; i++) gputc(rB, fr_c(FRBX[i]), s[i], C_ACC)
+  #  what each boat meets, in order
+  gputsc(23, 0, "boat A, south of the track: the fronts pass over her", C_ACC)
+  gputsc(24, 0, "     where                      wind glass        air", C_DIM)
+  for(i = 1; i <= FRA_N; i++){
+    f = fr_from(FRAX[i], FRA_Y)
+    gputsc(24 + i, 0, sprintf("  %d  %-26s %-4s %-12s %s", i, FRAS[i], fr_pt16(f), fr_band(FRAX[i], FRA_Y), FRAT[i]), "")
+  }
+  gputsc(31, 0, "boat B, north of the track: no front passes over her", C_ACC)
+  for(i = 1; i <= FRB_N; i++){
+    f = fr_from(FRBX[i], FRB_Y)
+    gputsc(31 + i, 0, sprintf("  %s  %-26s %-4s %s", s[i], FRBS[i], fr_pt16(f), fr_band(FRBX[i], FRB_Y)), "")
+  }
+  gputsc(35, 0, "o o warm front   # # cold front   . . isobars every 4 hPa", C_DIM)
+  gputsc(36, 0, "the low moving east at 30 knots; each boat stays put", C_DIM)
+  return 0
+}

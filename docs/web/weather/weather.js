@@ -1326,6 +1326,7 @@ function drawLines(box, lines) {
                     veertime: veerTimeDemo, veerhemi: veerHemiDemo,
                     passnorth: function (h) { passDemo(h, true); },
                     passsouth: function (h) { passDemo(h, false); },
+                    fronts: frontsDemo,
                     isoscale: isoScaleDemo })[b.kind];
       if (draw) wxRepaints(fig, draw);
       return;
@@ -2160,6 +2161,158 @@ function passDemo(host, north) {
   panel(TOP + PH, false);
   D.t(16, H - 14, 'Looking the way the low goes: on its right the wind veers, on its left it backs.', D.text,
       { 'font-size': 13, 'font-weight': 600, 'data-part': 'rule' });
+  host.appendChild(D.wrap);
+}
+
+/*  FRONTS, LOOKED DOWN ON (W20, weather 1.0.10; Larry, ATR, 18 November
+    2026).  The browser's drawing of the model in wx.js (WX.frP, frFrom,
+    frGlass), the one fronts_figure() in grid.awk draws in characters: a
+    northern-hemisphere low going east, its warm and cold fronts, its
+    isobars every 4 hPa (traced from the model by marching squares), its
+    own wind (Larry, 18 November: a figure that describes the wind in a low
+    shows the low itself, with its wind arrows), and two boats drawn as
+    hulls (Larry, ATR) that stay put while the low goes by: boat A south of
+    its track, boat B north.  Under the map, what each boat meets, in
+    order.  The wind and the glass are worked from the model; the sky and
+    the air are Bowditch's (2017, 3812).  docs/web/tests/weather-fronts.js
+    holds the model to the awk's and reads the figure back off the drawing.  */
+function frontsDemo(host) {
+  var W = 640, X0 = -760, X1 = 860, Y0 = -600, Y1 = 480, K = W / (X1 - X0);
+  var MT = 58, MH = (Y1 - Y0) * K, ST = MT + MH + 18, H = ST + 300;
+  var RAD = Math.PI / 180;
+  var A = WX.FR_A, B = WX.FR_B;
+  var D = demoSvg('frontdemo', W, H,
+    'A low going east with a warm front and a cold front, looked down on, northern hemisphere. ' +
+    'Boat A, south of its track, has both fronts pass over her and the wind veers in two jumps, ' +
+    A.x.map(function (x) { return WX.pt16(WX.frFrom(x, A.y)); }).join(', ') + '. Boat B, north of it, has no front ' +
+    'pass and the wind backs steadily, ' + B.x.map(function (x) { return WX.pt16(WX.frFrom(x, B.y)); }).join(', ') + '.');
+  var cs = getComputedStyle(document.documentElement);
+  var tk = function (k) { return cs.getPropertyValue(k).trim(); };
+  var warn = tk('--warn') || tk('--bad') || '#e23a2c', ground = tk('--ground') || '#07090b';
+  var X = function (x) { return (x - X0) * K; }, Y = function (y) { return MT + (Y1 - y) * K; };
+  var f1 = function (v) { return v.toFixed(1); };
+  D.svg.setAttribute('data-k', K); D.svg.setAttribute('data-x0', X0); D.svg.setAttribute('data-y1', Y1); D.svg.setAttribute('data-mt', MT);
+  var arrow = function (x1, y1, x2, y2, col, w, op, attrs) {
+    var o = { x1: f1(x1), y1: f1(y1), x2: f1(x2), y2: f1(y2), stroke: col, 'stroke-width': w,
+              'stroke-linecap': 'round', 'stroke-opacity': op }, k;
+    for (k in (attrs || {})) o[k] = attrs[k];
+    D.e('line', o);
+    var an = Math.atan2(y2 - y1, x2 - x1), h = w * 2.2 + 3;
+    D.e('path', { d: 'M' + f1(x2) + ',' + f1(y2) + 'L' + f1(x2 - h * Math.cos(an - 0.45)) + ',' + f1(y2 - h * Math.sin(an - 0.45)) +
+                     'L' + f1(x2 - h * Math.cos(an + 0.45)) + ',' + f1(y2 - h * Math.sin(an + 0.45)) + 'Z', fill: col, 'fill-opacity': op });
+  };
+  D.t(16, 22, 'A FRONTAL LOW PASSING TWO BOATS, LOOKED DOWN ON', D.text, { 'font-weight': 600 });
+  D.t(16, 40, 'northern hemisphere; the low moves east at 30 knots and the boats stay put, so each runs through it right to left',
+      D.dim, { 'font-size': 11 });
+
+  /*  the isobars: marching squares on a 20 nm lattice, every 4 hPa  */
+  var S = 20, nx = (X1 - X0) / S, ny = (Y1 - Y0) / S, P = [], i, j;
+  for (j = 0; j <= ny; j++) { P[j] = []; for (i = 0; i <= nx; i++) P[j][i] = WX.frP(X0 + i * S, Y1 - j * S); }
+  for (var lv = 992; lv <= 1028; lv += 4) {
+    var d = '';
+    for (j = 0; j < ny; j++) for (i = 0; i < nx; i++) {
+      var c = [P[j][i], P[j][i + 1], P[j + 1][i + 1], P[j + 1][i]];
+      var q = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]], pts = [];
+      for (var e = 0; e < 4; e++) {
+        var a = c[e], b = c[(e + 1) % 4];
+        if ((a < lv) !== (b < lv)) {
+          var t = (lv - a) / (b - a), A0 = q[e], B0 = q[(e + 1) % 4];
+          pts.push([X(X0 + (A0[0] + t * (B0[0] - A0[0])) * S), Y(Y1 - (A0[1] + t * (B0[1] - A0[1])) * S)]);
+        }
+      }
+      for (var m = 0; m + 1 < pts.length; m += 2) d += 'M' + f1(pts[m][0]) + ',' + f1(pts[m][1]) + 'L' + f1(pts[m + 1][0]) + ',' + f1(pts[m + 1][1]);
+    }
+    if (d) D.e('path', { d: d, fill: 'none', stroke: D.dim, 'stroke-width': 1, 'stroke-opacity': 0.8, 'data-part': 'isobar', 'data-hpa': lv });
+  }
+  /*  the low's own wind, on a lattice  */
+  for (var gx = -600; gx <= 800; gx += 160) for (var gy = 400; gy >= -560; gy -= 160) {
+    if (Math.abs(gx) < 100 && Math.abs(gy) < 100) continue;
+    var f = WX.frFrom(gx, gy) * RAD, L = 11;
+    var cx = X(gx), cy = Y(gy), dx = -L * Math.sin(f), dy = L * Math.cos(f);
+    arrow(cx - dx, cy - dy, cx + dx, cy + dy, warn, 1.3, 0.5, { 'data-part': 'spin', 'data-x': gx, 'data-y': gy });
+  }
+  /*  the fronts, with their barbs on the side they move toward (east)  */
+  function front(L, warm) {
+    var col = warm ? warn : D.acc, dd = '', s, k;
+    L.forEach(function (p, n) { dd += (n ? 'L' : 'M') + f1(X(p[0])) + ',' + f1(Y(p[1])); });
+    D.e('path', { d: dd, fill: 'none', stroke: col, 'stroke-width': 3, 'stroke-linecap': 'round',
+                  'data-part': warm ? 'warm-front' : 'cold-front' });
+    var segs = [], tot = 0;
+    for (k = 0; k + 1 < L.length; k++) {
+      var ax = X(L[k][0]), ay = Y(L[k][1]), bx = X(L[k + 1][0]), by = Y(L[k + 1][1]), len = Math.hypot(bx - ax, by - ay);
+      segs.push([ax, ay, bx, by, len]); tot += len;
+    }
+    for (s = 22; s < tot - 8; s += 34) {
+      var acc = 0;
+      for (k = 0; k < segs.length; k++) { if (acc + segs[k][4] >= s) break; acc += segs[k][4]; }
+      var g = segs[Math.min(k, segs.length - 1)], tt = (s - acc) / g[4];
+      var px = g[0] + tt * (g[2] - g[0]), py = g[1] + tt * (g[3] - g[1]);
+      var ux = (g[2] - g[0]) / g[4], uy = (g[3] - g[1]) / g[4], vx = -uy, vy = ux;
+      if (vx < 0) { vx = -vx; vy = -vy; }
+      if (warm) D.e('path', { d: 'M' + f1(px - 7 * ux) + ',' + f1(py - 7 * uy) + 'A7,7 0 0 ' + (vx * uy - vy * ux > 0 ? 1 : 0) + ' ' +
+                                  f1(px + 7 * ux) + ',' + f1(py + 7 * uy) + 'Z', fill: col });
+      else D.e('path', { d: 'M' + f1(px - 7 * ux) + ',' + f1(py - 7 * uy) + 'L' + f1(px + 7 * ux) + ',' + f1(py + 7 * uy) +
+                             'L' + f1(px + 11 * vx) + ',' + f1(py + 11 * vy) + 'Z', fill: col });
+    }
+  }
+  front(WX.FR_W, true); front(WX.FR_C, false);
+  D.e('circle', { cx: X(0), cy: Y(0), r: 11, fill: ground, stroke: warn, 'stroke-width': 2.5, 'data-part': 'low' });
+  D.t(X(0), Y(0) + 4.5, 'L', warn, { 'font-size': 13, 'font-weight': 700, 'text-anchor': 'middle' });
+  D.t(X(380), Y(-60), 'warm front', warn, { 'font-size': 11, 'font-weight': 700 });
+  D.t(X(-330), Y(-470), 'cold front', D.acc, { 'font-size': 11, 'font-weight': 700, 'text-anchor': 'end' });
+  D.t(X(240), Y(-450), 'warm sector', warn, { 'font-size': 11 });
+  D.t(X(-700), Y(80), 'cold air', D.dim, { 'font-size': 11 });
+  arrow(X(480), Y(420), X(720), Y(420), warn, 3, 1, { 'data-part': 'motion' });
+  D.t(X(600), Y(420) - 8, 'the low moves east', warn, { 'font-size': 11, 'font-weight': 700, 'text-anchor': 'middle' });
+  D.t(W - 18, MT + 16, 'N', D.dim, { 'text-anchor': 'middle', 'font-weight': 700 });
+  arrow(W - 18, MT + 40, W - 18, MT + 22, D.dim, 1.4, 1);
+
+  /*  the boats' runs and the boats, drawn as hulls, bow to the north  */
+  function hull(cx, cy, attrs) {
+    var o = { d: 'M' + f1(cx) + ',' + f1(cy - 11) + 'C' + f1(cx + 5) + ',' + f1(cy - 6) + ' ' + f1(cx + 5.5) + ',' + f1(cy + 2) + ' ' +
+                 f1(cx + 4.5) + ',' + f1(cy + 9) + 'L' + f1(cx - 4.5) + ',' + f1(cy + 9) + 'C' + f1(cx - 5.5) + ',' + f1(cy + 2) + ' ' +
+                 f1(cx - 5) + ',' + f1(cy - 6) + ' ' + f1(cx) + ',' + f1(cy - 11) + 'Z', fill: D.text, stroke: ground, 'stroke-width': 1 }, k;
+    for (k in attrs) o[k] = attrs[k];
+    D.e('path', o);
+  }
+  [[A, 'A', ['1', '2', '3', '4', '5']], [B, 'B', ['a', 'b', 'c']]].forEach(function (bt) {
+    var R = bt[0], yy = Y(R.y);
+    D.e('line', { x1: X(X1 - 45), y1: yy, x2: X(X0 + 30), y2: yy, stroke: D.text, 'stroke-width': 1, 'stroke-dasharray': '5 4', 'stroke-opacity': 0.7 });
+    D.t(X(X1 - 20), yy + 4, bt[1], D.text, { 'font-size': 13, 'font-weight': 700, 'text-anchor': 'end', 'data-part': 'run-label' });
+    R.x.forEach(function (x, n) {
+      var fr = WX.frFrom(x, R.y), fb = fr * RAD, cx = X(x), cy = yy;
+      arrow(cx + 40 * Math.sin(fb), cy - 40 * Math.cos(fb), cx + 13 * Math.sin(fb), cy - 13 * Math.cos(fb), D.acc, 2.6, 1,
+            { 'data-part': 'wind', 'data-boat': bt[1], 'data-i': n + 1, 'data-from': fr.toFixed(2) });
+      hull(cx, cy, { 'data-part': 'boat', 'data-boat': bt[1], 'data-i': n + 1, 'data-x': x, 'data-y': R.y });
+      var lx = cx + (Math.sin(fb) < 0 ? 9 : -9);
+      D.t(lx, cy + 18, bt[2][n], D.text, { 'font-size': 11, 'font-weight': 700, 'text-anchor': 'middle', 'data-part': 'boat-label' });
+    });
+  });
+
+  /*  what boat A meets, in order; then boat B  */
+  var wrap = function (s, n) { var w = s.split(' '), out = [], cur = ''; w.forEach(function (x) { if ((cur + ' ' + x).trim().length > n) { out.push(cur); cur = x; } else cur = (cur + ' ' + x).trim(); }); if (cur) out.push(cur); return out; };
+  D.e('line', { x1: 0, y1: ST - 10, x2: W, y2: ST - 10, stroke: D.line, 'stroke-width': 1 });
+  D.t(16, ST + 8, 'What boat A meets, in order: she is south of the track, and both fronts pass over her', D.text, { 'font-weight': 600, 'font-size': 13 });
+  A.x.forEach(function (x, n) {
+    var cx = 16 + n * 125, y = ST + 34, fr = WX.frFrom(x, A.y);
+    D.t(cx, y, (n + 1) + '', D.text, { 'font-size': 13, 'font-weight': 700 });
+    wrap(A.stage[n], 17).forEach(function (s, k) { D.t(cx + 13, y + k * 14, s, D.text, { 'font-size': 11, 'font-weight': 700 }); });
+    D.t(cx, y + 42, 'wind from ' + WX.pt16(fr), D.acc, { 'font-size': 12, 'font-weight': 700, 'data-part': 'strip-wind', 'data-i': n + 1 });
+    D.t(cx, y + 60, 'glass ' + WX.frBand(x, A.y), D.text, { 'font-size': 11, 'data-part': 'strip-glass', 'data-i': n + 1 });
+    wrap(A.sky[n], 21).forEach(function (s, k) { D.t(cx, y + 78 + k * 14, s, D.text, { 'font-size': 11 }); });
+    D.t(cx, y + 112, 'air: ' + A.air[n], D.dim, { 'font-size': 11 });
+  });
+  var bw = B.x.map(function (x) { return WX.pt16(WX.frFrom(x, B.y)); });
+  D.t(16, ST + 178, 'Boat A: the wind VEERS, in two jumps, at the warm front and at the cold front.', D.acc,
+      { 'font-size': 12, 'font-weight': 700, 'data-part': 'a-word' });
+  D.t(16, ST + 200, 'Boat B, north of the track: no front passes over her; the wind BACKS steadily, ' + bw.join(', ') + '.', D.acc,
+      { 'font-size': 12, 'font-weight': 700, 'data-part': 'b-word' });
+  D.t(16, ST + 226, 'Looking the way the low goes: on its right the wind veers, on its left it backs.', D.text,
+      { 'font-size': 12, 'font-weight': 600, 'data-part': 'rule' });
+  D.t(16, ST + 246, 'The wind and the glass are worked from the drawn pressure; the sky and the air are Bowditch’s (2017, 3812).',
+      D.dim, { 'font-size': 10.5 });
+  D.t(16, ST + 262, 'Isobars every 4 hPa. Thin arrows: the low’s own wind. Bold arrows: the wind at each boat.',
+      D.dim, { 'font-size': 10.5 });
   host.appendChild(D.wrap);
 }
 

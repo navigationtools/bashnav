@@ -431,6 +431,100 @@ function wx_pt8(b,   n, P){
 }
 
 # ---------------------------------------------------------------------
+#  A FRONTAL LOW, LOOKED DOWN ON (W20, weather 1.0.10; Larry, ATR, 18
+#  November 2026).  The model behind the lesson `fronts` and its figure:
+#  one depression of the northern hemisphere going east, with a warm front
+#  running east and south-east from its centre and a cold front running
+#  south-west, and the two boats of the figure, one each side of its track.
+#
+#  THE PRESSURE.  A round low, 990 hPa at the centre and 26 hPa shallower
+#  far out, falling off as exp(-(r/700)^2), r in nautical miles from the
+#  centre.  EACH FRONT LIES IN A TROUGH (Bowditch 2017, 3810 to 3812): on
+#  top of the round low, 2.5 hPa times tanh(d/150), d the distance to the
+#  front, so the pressure is lowest along the front and the isobars kink
+#  there.  That kink is why the wind shifts at a front.  The fronts only
+#  reach south of the centre, so the trough term is weighted by
+#  1/(1+exp(y/40)), which is near 1 south of the centre and near 0 north.
+#
+#  THE WIND.  Along the isobars with the low on its left (Buys Ballot),
+#  turned 15 degrees in toward lower pressure: it blows from 75 degrees
+#  round from the direction the pressure rises, taken from the local
+#  gradient.  So a kink in the isobars is a shift in the wind, and nothing
+#  about the shift is written in: it is worked.
+#
+#  THE GLASS.  The low moves east at 30 knots (an assumption of the
+#  figure, said so in it), so a boat that stays put runs west through it,
+#  90 nm in three hours.  Its change over those three hours is graded by
+#  wx_band(), the barograph's own rule.
+#
+#  wx.js holds the same model (WX.frP, WX.frFrom, WX.frGlass), and
+#  docs/web/tests/weather-fronts.js holds the two to each other character
+#  for character over a grid of points (`weather` cmd=frontsdump).
+# ---------------------------------------------------------------------
+function fr_init(){
+  if(FR_READY) return 0
+  FRWN = split("0 0 180 -40 330 -150 450 -330 520 -520", FRW, " ") / 2
+  FRCN = split("0 0 -60 -160 -110 -330 -140 -520", FRC, " ") / 2
+  #  the stations: boat A south of the track, boat B north of it, in the
+  #  order the low brings them (x is the low's position east of the boat)
+  FRA_N = split("680 440 160 -130 -450", FRAX, " "); FRA_Y = -250
+  FRB_N = split("560 0 -560", FRBX, " ");            FRB_Y = 250
+  split("ahead of the warm front|the warm front coming|the warm sector|just behind the cold front|well behind the cold front", FRAS, "|")
+  split("cirrus, then cirrostratus|altostratus, nimbostratus, rain|stratus, drizzle, haze or fog|cumulonimbus, squalls, showers|clearing, showers, good visibility", FRAK, "|")
+  split("cool|cool, warming|warm, moist|turning cold|cold, clear", FRAT, "|")
+  split("the low ahead|the low at its nearest|the low past", FRBS, "|")
+  FR_READY = 1
+  return 0
+}
+function fr_tanh(x,   e){ e = exp(-2 * (x < 0 ? -x : x)); return (x < 0 ? -1 : 1) * (1 - e) / (1 + e) }
+function fr_segd(px, py, ax, ay, bx, by,   dx, dy, t){
+  dx = bx - ax; dy = by - ay
+  t = ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)
+  if(t < 0) t = 0; if(t > 1) t = 1
+  dx = px - (ax + t * dx); dy = py - (ay + t * dy)
+  return sqrt(dx * dx + dy * dy)
+}
+function fr_dist(px, py, L, n,   i, d, m){
+  m = -1
+  for(i = 1; i < n; i++){
+    d = fr_segd(px, py, L[2*i-1], L[2*i], L[2*i+1], L[2*i+2])
+    if(m < 0 || d < m) m = d
+  }
+  return m
+}
+function fr_p(x, y,   p, s){
+  fr_init()
+  p = 990 + 26 * (1 - exp(-(x * x + y * y) / 490000))
+  s = 1 / (1 + exp(y / 40))
+  p += s * 2.5 * fr_tanh(fr_dist(x, y, FRW, FRWN) / 150)
+  p += s * 2.5 * fr_tanh(fr_dist(x, y, FRC, FRCN) / 150)
+  return p
+}
+#  the bearing the wind blows FROM, degrees true
+function fr_from(x, y,   gx, gy, gb){
+  gx = (fr_p(x + 1, y) - fr_p(x - 1, y)) / 2
+  gy = (fr_p(x, y + 1) - fr_p(x, y - 1)) / 2
+  gb = atan2(gx, gy) * 57.29577951308232
+  return ((gb + 75) % 360 + 360) % 360
+}
+#  the glass at a boat over three hours, in hPa: the low moving east at 30 kn
+function fr_glass(x, y){ return fr_p(x - 45, y) - fr_p(x + 45, y) }
+#  the same, in the barograph's words
+function fr_band(x, y){ return wx_band(fr_glass(x, y), 3) }
+#  sixteen points
+function fr_pt16(b,   P){
+  split("N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW", P, " ")
+  return P[int((b % 360 + 360) % 360 / 22.5 + 0.5) % 16 + 1]
+}
+#  the dump the browser's model is held to
+function fr_dump(   x, y){
+  for(y = 450; y >= -550; y -= 50)
+    for(x = -750; x <= 850; x += 50)
+      printf "%d %d %.3f %.2f %.3f %s\n", x, y, fr_p(x, y), fr_from(x, y), fr_glass(x, y), fr_band(x, y)
+  return 0
+}
+
+# ---------------------------------------------------------------------
 #  The report
 # ---------------------------------------------------------------------
 function wx_say(s){ printf "  %s\n", s; return 0 }

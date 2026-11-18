@@ -1,5 +1,74 @@
 # Changelog
 
+## weather 1.0.10: fronts, what passes over you and in what order (W20)
+
+**What.** A twelfth lesson, `fronts`, after `veer`. It takes the passing low of
+1.0.9 and puts its fronts on: a depression of the northern hemisphere going
+east, its warm front running east and south-east from the centre, its cold
+front south-west, and two boats either side of its track.
+
+```
+  boat A, south of the track: the fronts pass over her
+       where                      wind glass        air
+    1  ahead of the warm front    S    falling      cool
+    2  the warm front coming      S    falling fast cool, warming
+    3  the warm sector            SW   steady       warm, moist
+    4  just behind the cold front NW   rising       turning cold
+    5  well behind the cold front NW   rising       cold, clear
+
+  boat B, north of the track: no front passes over her
+    a  the low ahead              SE   falling
+    b  the low at its nearest     ENE  steady
+    c  the low past               N    rising
+```
+
+The lesson says why the wind shifts at a front (it lies in a trough, so the
+isobars kink and the wind follows them), that a trough with no front does the
+same (the 2025 race's veer), what boat A meets in order, cloud, rain, wind,
+glass and air, that boat B has no front and her wind backs, the occlusion, the
+chart symbols, and that no two lows are alike. The figure draws the low with its
+isobars and its own wind (Larry's rule of 18 November), and the boats as hulls
+(Larry, ATR).
+
+**Why.** Larry's rulings ASR (11:00 window: start the fronts material, from the
+passing-low figure) and ATR (build the lesson around the mock, boats as hulls),
+18 November 2026. Fronts and troughs were the largest gap in the December
+weather analysis: a student met the veer before the low and the trough that make
+it.
+
+**The words are worked, not written.** One model in both builds (`fr_p`,
+`fr_from`, `fr_glass` in `wx.awk`; `WX.frP`, `frFrom`, `frGlass` in `wx.js`): a
+round low of 990 hPa, each front in a trough of 2.5 hPa that makes the isobars
+kink, the wind 75 degrees round from the way the pressure rises, and the low
+moving east at 30 knots for the glass, graded by the barograph's own rule. The
+terminal draws it as a character map with the two tables; the browser traces its
+isobars by marching squares. The sky and the air are Bowditch's (2017, chapter
+38).
+
+**What it touches.**
+
+1. The engine: `wx.awk` (the model and `fr_dump`), `grid.awk`
+   (`fronts_figure`), `teach.awk` (the lesson and its question), `screens.awk`
+   (`cmd=frontsdump`, for the test).
+2. The browser: `wx.js` (the same model), `weather.js` (`frontsDemo`, and kind
+   `fronts` in the figure table), `lessons.js` regenerated, `shared/demo.css`
+   (`.frontdemo`), cache `weather-v27`.
+3. The weather manual (section 8: Figure 16 and a paragraph; Figure 9, the
+   lessons list, recaptured with twelve) and the quick reference, rebuilt. The
+   README, ARCHITECTURE and the web README say twelve lessons.
+4. Nothing in "What the log says", the score, the tides engine or the course.
+   The southern hemisphere is not drawn: whether the south needs words of its
+   own waits for Larry (card I19, part three).
+
+**Checked.** `docs/web/tests/weather-fronts.js` (stage 17, 19 checks) holds the
+browser's model to the awk's character for character at 693 points, under mawk
+and gawk. It then reads the figure back off the drawing: every arrow of the
+low's own wind has the low on its left, facing downwind; five hulls of boat A
+south of the low and three of boat B north; each boat's wind, measured, named in
+the strip; boat A veering in two jumps at the fronts, boat B backing at every
+step; and the rule. Five planted faults, each caught. The lesson's terminal text
+and figure are in the golden file; the reflow check holds the new figure.
+
 ## Sources: the rule for a wind shift, read in Bowditch (no version change)
 
 **What.** `docs/SOURCES.md` no longer says the rule for a backing or veering

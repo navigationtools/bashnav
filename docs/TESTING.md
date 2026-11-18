@@ -416,6 +416,31 @@ drawn below its curve.
 named the ten lessons; `veer`, the eleventh, had no golden copy. It now asks the
 awk for the list, as `weather-ui.js` does.
 
+### One model in two builds, and the fronts read back off the drawing (weather 1.0.10)
+
+**The model, character for character.** The fronts figure is drawn from a model
+of a frontal low, and the terminal and the browser each have their own copy of
+it (`fr_p`, `fr_from`, `fr_glass` in `wx.awk`; `WX.frP`, `frFrom`, `frGlass` in
+`wx.js`). `docs/web/tests/weather-fronts.js` asks the awk for 693 points
+(`weather` with `cmd=frontsdump`: the pressure, the wind's bearing, the
+three-hour glass and its word) and prints the same from the browser's model.
+The two must be identical, under mawk and under gawk. So the terminal's tables
+and the browser's strip cannot say different things.
+
+**The figure, measured.** Then the test reads the figure back off the drawing:
+the low drawn with at least six isobars; every arrow of its own wind with the
+low on its left, facing downwind; the low going east, from its motion arrow;
+five hulls of boat A south of the low and three of boat B north; each boat's
+wind measured from its arrow, and the strip naming that point; boat A turning
+less than 20 degrees before the warm front, then veering more than 30 at each
+front; boat B backing more than 20 at every step; the words VEERS and BACKS;
+and the rule, that the boat on the low's right veers. Night and day, colours
+from the page, nothing outside the box. 19 checks.
+
+**Five planted faults**, each caught: a word swapped, one of boat B's arrows
+turned round, one strip label changed, one of the low's arrows reversed, and
+the low drawn going west.
+
 ### A figure read back off the drawing, and a checker shown to catch things (weather 1.0.9)
 
 **The passing low, measured.** `docs/web/tests/weather-pass.js` (stage 16 of

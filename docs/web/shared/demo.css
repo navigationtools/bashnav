@@ -36,6 +36,9 @@
     hemisphere in the lesson `veer`, the same width as the two above  */
 .passdemo { margin: 10px 0 0; padding: 0 12px; }
 .passdemo svg { display: block; width: 100%; max-width: 640px; margin: 0 auto; }
+/*  fronts, looked down on (weather 1.0.10, W20): the lesson `fronts`  */
+.frontdemo { margin: 10px 0 0; padding: 0 12px; }
+.frontdemo svg { display: block; width: 100%; max-width: 640px; margin: 0 auto; }
 /*  the wind from the isobars (W07, weather 1.0.3): its two drawings, on
     its own screen and in the gradient lesson  */
 .isodemo { margin: 10px 0 0; padding: 0 12px; }

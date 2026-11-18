@@ -171,6 +171,15 @@ if node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.ex
   #  faults, each caught.
   node docs/web/tests/weather-pass.js
   echo
+  echo "17. fronts, in the lesson fronts: the model against the awk, and the figure"
+  #  weather 1.0.10 (W20, Larry ATR): the browser's model of the frontal
+  #  low against the awk's, character for character at 693 points; then
+  #  the figure read back off the drawing: the low with its isobars and its
+  #  own wind (Buys Ballot), the boats as hulls each side of the track,
+  #  boat A veering in two jumps at the fronts and boat B backing, the
+  #  strip's words the drawn winds.  Five planted faults, each caught.
+  node docs/web/tests/weather-fronts.js
+  echo
   echo "WEATHER WEB: all stages passed"
 else
   echo

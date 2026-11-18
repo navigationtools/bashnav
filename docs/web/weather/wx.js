@@ -339,6 +339,58 @@ var WX = (function () {
   var PT8 = ['north', 'north-east', 'east', 'south-east', 'south', 'south-west', 'west', 'north-west'];
   function pt8(b) { return PT8[Math.trunc((b % 360 + 360) % 360 / 45 + 0.5) % 8]; }
 
+  // ---------------------------------------------------------------
+  //  A FRONTAL LOW, LOOKED DOWN ON (W20, weather 1.0.10; Larry, ATR).
+  //  The same model as fr_p, fr_from and fr_glass in wx.awk, word for
+  //  word, and held to it character for character by
+  //  docs/web/tests/weather-fronts.js: a round low (990 hPa, 26 hPa
+  //  shallower far out, exp(-(r/700)^2)), each front in a trough of 2.5
+  //  hPa times tanh(d/150) south of the centre, the wind 75 degrees round
+  //  from the way the pressure rises, the low moving east at 30 knots.
+  // ---------------------------------------------------------------
+  var FR_W = [[0, 0], [180, -40], [330, -150], [450, -330], [520, -520]];
+  var FR_C = [[0, 0], [-60, -160], [-110, -330], [-140, -520]];
+  var FR_A = { y: -250, x: [680, 440, 160, -130, -450],
+               stage: ['ahead of the warm front', 'the warm front coming', 'the warm sector',
+                       'just behind the cold front', 'well behind the cold front'],
+               sky: ['cirrus, then cirrostratus', 'altostratus, nimbostratus, rain', 'stratus, drizzle, haze or fog',
+                     'cumulonimbus, squalls, showers', 'clearing, showers, good visibility'],
+               air: ['cool', 'cool, warming', 'warm, moist', 'turning cold', 'cold, clear'] };
+  var FR_B = { y: 250, x: [560, 0, -560],
+               stage: ['the low ahead', 'the low at its nearest', 'the low past'] };
+  function frTanh(x) { var e = Math.exp(-2 * (x < 0 ? -x : x)); return (x < 0 ? -1 : 1) * (1 - e) / (1 + e); }
+  function frSegd(px, py, ax, ay, bx, by) {
+    var dx = bx - ax, dy = by - ay;
+    var t = ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy);
+    if (t < 0) t = 0; if (t > 1) t = 1;
+    dx = px - (ax + t * dx); dy = py - (ay + t * dy);
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+  function frDist(px, py, L) {
+    var m = -1, i, d;
+    for (i = 0; i + 1 < L.length; i++) {
+      d = frSegd(px, py, L[i][0], L[i][1], L[i + 1][0], L[i + 1][1]);
+      if (m < 0 || d < m) m = d;
+    }
+    return m;
+  }
+  function frP(x, y) {
+    var p = 990 + 26 * (1 - Math.exp(-(x * x + y * y) / 490000));
+    var s = 1 / (1 + Math.exp(y / 40));
+    p += s * 2.5 * frTanh(frDist(x, y, FR_W) / 150);
+    p += s * 2.5 * frTanh(frDist(x, y, FR_C) / 150);
+    return p;
+  }
+  function frFrom(x, y) {
+    var gx = (frP(x + 1, y) - frP(x - 1, y)) / 2, gy = (frP(x, y + 1) - frP(x, y - 1)) / 2;
+    var gb = Math.atan2(gx, gy) * 57.29577951308232;
+    return ((gb + 75) % 360 + 360) % 360;
+  }
+  function frGlass(x, y) { return frP(x - 45, y) - frP(x + 45, y); }
+  function frBand(x, y) { return band(frGlass(x, y), 3); }
+  var PT16 = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+  function pt16(b) { return PT16[Math.trunc((b % 360 + 360) % 360 / 22.5 + 0.5) % 16]; }
+
   // ---- the printf forms the awk uses ------------------------------
   // ---------------------------------------------------------------
   //  C's printf, not JavaScript's toFixed.
@@ -700,7 +752,8 @@ var WX = (function () {
            seaName: seaName, seaRange: seaRange, seaPct: seaPct, sea: sea, kts: kts,
            SEA_K: SEA_K, SEA_H: SEA_H, SEA_E: SEA_E, SEA_TOP: SEA_TOP,
            report: report, renderTerminal: renderTerminal,
-           cfixed: cfixed, cplus: cplus };
+           cfixed: cfixed, cplus: cplus,
+           FR_W: FR_W, FR_C: FR_C, FR_A: FR_A, FR_B: FR_B, frP: frP, frFrom: frFrom, frGlass: frGlass, frBand: frBand, pt16: pt16 };
 })();
 
 if (typeof module !== 'undefined') module.exports = WX;

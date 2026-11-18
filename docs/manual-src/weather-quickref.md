@@ -54,6 +54,11 @@ you if it is going east, north if west. **A falling glass: it is closing. A
 rising glass: it is drawing away.** `weather learn veer` draws it from above,
 going east and going west, north and south of the equator.
 
+**Fronts** (`weather learn fronts`), south of a low going east: glass falling,
+cirrus then a grey sheet, steady rain; the warm front passes, the wind veers S
+to SW, the glass steadies; the cold front: squalls, the wind veers to NW, the
+glass rises, the air clears. North of its track: no fronts, the wind backs.
+
 ## Cloud base and fog
 
 | | |

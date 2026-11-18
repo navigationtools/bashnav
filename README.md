@@ -14,7 +14,7 @@ the device.
 | **[colregs](https://bashnav.navigationtools.org/web/colregs/)** | The rules of the road. Lights and shapes drawn from any angle, 28 encounter scenarios, sound signals, contact management, and lessons on the rules themselves. |
 | **[tides](https://bashnav.navigationtools.org/web/tides/)** | Harmonic prediction for 8,334 stations worldwide: the day's table, the curve, the moon and sun, and the question a tide table exists to answer — is there enough water. |
 | **[deck-log](https://bashnav.navigationtools.org/web/deck-log/)** | The boat's records — deck, engine, provisions — kept append-only in UTC, with the spares worked out by replaying the log rather than stored. |
-| **[weather](https://bashnav.navigationtools.org/web/weather/)** | Read your own barometer. It will not show you its forecast until yours is written down, then scores both against what happened. Eleven lessons on the physics underneath. |
+| **[weather](https://bashnav.navigationtools.org/web/weather/)** | Read your own barometer. It will not show you its forecast until yours is written down, then scores both against what happened. Twelve lessons on the physics underneath. |
 | **[drill](https://bashnav.navigationtools.org/web/drill/)** | A study machine with no material in it. You load a content pack from your own device; it is read in the browser and never leaves it. |
 
 **[Open the launcher](https://bashnav.navigationtools.org/web/)** to reach all
@@ -514,7 +514,7 @@ app are rebuilt from the built program by `capture.sh`.
 | `colregs` | 1.15 | `docs/colregs-manual.pdf` | `docs/colregs-quickref.pdf` | owed |
 | `tides` | 1.6 | `docs/tides-manual.pdf` | `docs/tides-quickref.pdf` | owed |
 | `deck-log` | 1.1 | `docs/deck-log-manual.pdf` | `docs/deck-log-quickref.pdf` | owed |
-| `weather` | 1.0.9 | `docs/weather-manual.pdf` | `docs/weather-quickref.pdf` | owed |
+| `weather` | 1.0.10 | `docs/weather-manual.pdf` | `docs/weather-quickref.pdf` | owed |
 | `bashnav` (launcher) | 1.0 | `docs/bashnav-manual.pdf` | `docs/bashnav-quickref.pdf` | owed |
 | `drill` | build 26 | `docs/drill-manual.pdf`, carrying the **pack-format reference** | `docs/drill-quickref.pdf` | owed |
 | `route` | being built | owed at its first release | owed | owed |

@@ -330,7 +330,7 @@ lesson** at the top.
 
 ## 8. The lessons
 
-![**Figure 9** — eleven lessons, each one earning its place.](fig/weather-lessons.png)
+![**Figure 9** — twelve lessons, each one earning its place.](fig/weather-lessons.png)
 
 Each lesson changes either what the tool says or what you would do. One of them
 says plainly where the reasoning stops being reliable, which is the most
@@ -406,6 +406,27 @@ centre passes to its south. A storm going west, in the trade-wind belt before it
 turns, has its left on the south side. The "What the log says" screen reads a
 shift the same way, and each boat's winds in the figures are worked from the
 low drawn beside them, in the terminal and in the browser alike.
+
+![**Figure 16** — fronts, in the `fronts` lesson. The same low, going east, now
+with its warm front (round barbs) and cold front (triangles), each lying in a
+trough where the isobars kink. Boat A, south of its track, meets both fronts in
+turn; boat B, north of it, meets neither. Under the map, what boat A meets, in
+order.](fig/weather-fronts.png)
+
+**Fronts** have a lesson of their own, `weather learn fronts`, built on the
+passing low (Figure 16). A front lies in a trough, so the isobars kink where they
+cross it, and a kink in the isobars is a shift in the wind: that is why the wind
+shifts at a front, and why a trough with no front, like the one behind the veer
+of the 2025 race, does the same. The lesson takes boat A through a depression in
+order: the glass falling and the high cloud thickening ahead of the warm front,
+steady rain, the wind veering from south to south-west as the warm front passes,
+the warm sector's steady glass and murk, then the cold front's squalls, the
+sharp veer to north-west, the cold air and the rising glass. Boat B, on the
+other side of the track, has no front pass over her, and her wind backs
+steadily. Both boats' winds and glass are worked from one model of the low,
+the same in the terminal and the browser; the cloud and the air are Bowditch's.
+The lesson covers the northern hemisphere: whether the south needs words of its
+own is still to be decided.
 
 ---
 

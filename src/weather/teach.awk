@@ -21,6 +21,7 @@ function les_init(){
   les("coriolis", "Coriolis, which is not a force")
   les("gradient", "Gradient wind, surface wind, and friction")
   les("veer",     "Backing and veering, and why the south is the other way round")
+  les("fronts",   "Fronts: what passes over you, and in what order")
   les("lapse",    "Lapse rates, stability, and where the cloud base is")
   les("cells",    "The heat engine, and the three cells")
   les("h500",     "The 500 millibar chart and the 564 line")
@@ -346,6 +347,68 @@ function lesson_body(k){
     return 1
   }
   # ------------------------------------------------------------------
+  #  FRONTS (W20, weather 1.0.10; Larry, ATR, 18 November 2026).  Built
+  #  on the passing low of the lesson `veer`: the same low, now with its
+  #  fronts, and the same two boats either side of its track.  The words
+  #  for each stage are Bowditch's (2017, 3809 to 3812), in our own words;
+  #  the wind and the glass in the figure are worked from wx.awk's model.
+  #  Northern hemisphere only, until Larry rules on the south's own words.
+  if(k=="fronts"){
+    lph("FRONTS: WHAT PASSES OVER YOU, AND IN WHAT ORDER")
+    lp("A body of air takes on the character of where it sat: cold or warm,")
+    lp("wet over the sea or dry over land. That is an " cw("air mass",C_ACC) ". Where two")
+    lp("meet there is a zone of change, drawn on the chart as a line: a " cw("front",C_ACC) ".")
+    print ""
+    lp(cw("Why the wind shifts at a front.",C_ACC) " A front lies in a trough: the")
+    lp("pressure is lower along it, so the isobars kink where they cross it.")
+    lp("The wind follows the isobars, so a kink in the isobars is a shift in")
+    lp("the wind. A trough with no front does the same, and that is the veer")
+    lp("of the 2025 race: a trough swinging past, the isobar through the boat")
+    lp("turning clockwise.")
+    print ""
+    lp("Here is the low from the lesson " cw("veer",C_ACC) " with its fronts on, going east.")
+    lp("The boats stay put, so each runs through it, right to left.")
+    print ""
+    fronts_figure()
+    gshow()
+    print ""
+    lp(cw("Boat A, on the low's right, south of its track.",C_ACC) " Both fronts pass")
+    lp("over her, in this order:")
+    lp("  1  The glass starts to fall. High cloud comes first, mares' tails")
+    lp("     of cirrus, then a milky sheet of cirrostratus.")
+    lp("  2  The cloud lowers and thickens to altostratus, then nimbostratus")
+    lp("     and steady rain. The glass falls faster.")
+    lp("  3  The warm front passes: the wind " cw("veers",C_ACC) ", south to south-west, the")
+    lp("     rain stops and it turns warmer. In the warm sector the glass is")
+    lp("     about steady; low stratus, drizzle, haze or fog are usual.")
+    lp("  4  The cold front: cumulonimbus, squalls, heavy showers, perhaps")
+    lp("     thunder. The wind " cw("veers",C_ACC) " sharply to north-west, the air turns")
+    lp("     cold, and the glass rises, often quickly. Squalls can run up to")
+    lp("     200 miles ahead of the front itself.")
+    lp("  5  Behind it: cold, clear air, scattered showers, good visibility.")
+    print ""
+    lp(cw("Boat B, on the low's left, north of its track.",C_ACC) " No front passes over")
+    lp("her. The weather changes slowly, and the wind " cw("backs",C_ACC) ": south-east,")
+    lp("east-north-east, north.")
+    print ""
+    lp("It is the rule from the passing low, with the fronts added: looking")
+    lp("the way the low goes, on its right the wind " cw("veers",C_ACC) ", in two jumps at")
+    lp("the two fronts; on its left it " cw("backs",C_ACC) ", steadily.")
+    print ""
+    lp(cw("Later in its life",C_ACC) " the cold front catches the warm front, lifting the")
+    lp("warm sector off the surface: an " cw("occluded front",C_ACC) ". The low is near its")
+    lp("deepest then, and soon starts to fill.")
+    print ""
+    lp(cw("On a chart:",C_ACC) " a warm front has round barbs, a cold front triangles,")
+    lp("both on the side it is moving toward; an occluded front has both,")
+    lp("alternating; a stationary front has both, on opposite sides.")
+    print ""
+    lp("No two lows are alike. The figure's numbers come from a model of one")
+    lp("tidy low; a real glass and a real sky are the evidence.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
   if(k=="lapse"){
     lph("LAPSE RATES, STABILITY, AND THE CLOUD BASE")
     lp("Air cools as it rises, because it expands. How fast is the whole game.")
@@ -516,6 +579,7 @@ function lesson_q(k){
   if(k=="coriolis") return "Why does no hurricane ever form on the equator?|Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in the world, and nothing to start it rotating. About 5 degrees is the practical minimum."
   if(k=="gradient") return "The chart shows a 30 knot gradient wind. What do you expect on deck, offshore, in the northern hemisphere?|Around 20 knots - roughly two thirds - and backed 10 to 20 degrees from the isobar direction, because friction slows the surface air, which weakens Coriolis, so pressure gradient wins a little and the wind blows across the isobars toward the low."
   if(k=="veer")     return "Off the Isle of Wight the wind goes from south-west to west to north-west over six hours, and the glass starts to rise. Backed or veered - and where did the low go?|Veered: it shifted clockwise round the compass. In the northern hemisphere that is a depression whose centre has passed on your north side, and the shift to north-west with a rising glass says the cold front is through."
+  if(k=="fronts")   return "Off Start Point the glass has been falling for six hours. Mares' tails became a grey sheet, and now it is raining steadily with the wind at south. What comes next, and which way will the wind go?|The warm front is close. When it passes the rain stops, the wind veers to south-west and it turns warm and muggy, with drizzle or fog and a steady glass: the warm sector. Then the cold front: squalls and heavy showers, the wind veering to north-west, the glass rising and the air clearing. If instead the wind backs steadily, the centre is passing on your south side and the fronts will miss you."
   if(k=="lapse")    return "Air 18 C, dew point 12 C. How high is the cloud base?|About 2,400 ft: a spread of 6 C, and the spread closes at 2.5 C per 1000 ft, so 6 x 400. Not 6 x 333 - the divisor is the DIFFERENCE between the parcel's lapse rate and the dew point's, not the lapse rate itself."
   if(k=="cells")    return "Why are so many of the world's deserts near 30 degrees latitude?|That is where the Hadley cell descends. The air rose at the equator, rained out everything it had, and comes back down warm and dry. The subtropical highs, the horse latitudes and the deserts are all the same descending branch."
   if(k=="h500")     return "The 564 line runs east-west 200 nm north of you. Where is the storm track, and are you in the gales?|The track is 300 to 600 nm poleward of the 564 line and parallel to it, so well north of you. And all the gale force winds are poleward of that line - so at 200 nm south of it you are on the right side of it. That is the routing rule."

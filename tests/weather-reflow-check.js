@@ -70,12 +70,14 @@ const m = { exports: {} };
 /*  chart.js too, since weather 1.0.3: the gradient lesson's scale is drawn
     by isoCurves from CHART.isoWind, as the page loads chart.js before
     weather.js.  */
+/*  wx.js too, since weather 1.0.10: the fronts figure draws the model
+    WX.frP and its wind, as the page loads wx.js before weather.js.  */
 /*  ONE Function, BOTH SOURCES, because each new Function() gets a scope of
     its own: loading them separately left windDemo invisible to weather.js
     and threw the same ReferenceError as before. A browser puts both in the
     shared global scope, and joining the sources is what reproduces that.  */
 new Function('module', 'window', 'document',
-             ['docs/web/weather/chart.js', 'docs/web/shared/winddemo.js', 'docs/web/weather/weather.js']
+             ['docs/web/weather/wx.js', 'docs/web/weather/chart.js', 'docs/web/shared/winddemo.js', 'docs/web/weather/weather.js']
                .map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n'))
             (m, global.window, global.document);
 const drawLines = m.exports.drawLines;
@@ -121,7 +123,7 @@ function treeText(n) {                 /* inside a block: no gaps */
 /*  and the friction figure (W01) and the force triangle (weather 1.0.2)
     have classes of their own, .fricdemo and .forcedemo, because they take
     the full lesson width - so all three are named  */
-function isDemo(n) { return n.className && /\b(gundemo|fricdemo|forcedemo|veerdemo|passdemo|isodemo)\b/.test(n.className); }
+function isDemo(n) { return n.className && /\b(gundemo|fricdemo|forcedemo|veerdemo|passdemo|frontdemo|isodemo)\b/.test(n.className); }
 function countDemos(n, acc) {
   acc = acc || { n: 0 };
   if (isDemo(n)) { acc.n++; return acc; }

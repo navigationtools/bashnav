@@ -7,7 +7,7 @@ observations `deck-log` keeps, with no network at all.
     wx.js             the rules, and the atmospheric tide correction
     score.js          the two machine forecasters, and the scoring
     chart.js          the 500 millibar rules, and the wind from the isobars (W07)
-    lessons.js        the eleven lessons (generated)
+    lessons.js        the twelve lessons (generated)
     log.js, store.js  deck-log's record layer (copied, byte-identical)
     weather.js        the app
     gen/              the generator
@@ -192,6 +192,18 @@ feels at each time, from the same model and geometry as `pass_figure()` in
 `grid.awk`. The words under each boat are worked from the drawing's own
 numbers. An unknown figure kind now draws nothing; until 1.0.9 it drew the
 gun. Checked by `docs/web/tests/weather-pass.js`.
+
+**Fronts** (weather 1.0.10; Larry's ruling ATR, W20) is the lesson `fronts`
+and its figure, kind `fronts`. The model is in `wx.js` (`WX.frP`, `frFrom`,
+`frGlass`, `frBand`, the stations `FR_A` and `FR_B`) and is the same as
+`fr_p`, `fr_from` and `fr_glass` in `wx.awk`: a round low with each front in a
+trough, the wind 75 degrees round from the way the pressure rises, and the
+low moving east at 30 knots for the glass. `frontsDemo(host)` in `weather.js`
+traces its isobars by marching squares, draws the fronts with their barbs, the
+low's own wind, the two boats as hulls with their winds, and a strip of what
+boat A meets in order. Checked by `docs/web/tests/weather-fronts.js`, which
+holds the model to the awk's character for character and reads the figure
+back off the drawing.
 
 **The sea against the wind** (weather 1.0.7, W09; Larry's rulings AOU, AOZ,
 APC and APF) is a figure beside its own words in "What the log says".

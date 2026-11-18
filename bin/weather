@@ -117,7 +117,7 @@ bn_unpack() {
 #  data that is never wrong - what you measured yourself - and the only
 #  one still available when the antenna comes down.
 # =====================================================================
-WEATHER_VERSION=1.0.9
+WEATHER_VERSION=1.0.10
 
 #  the log belongs to deck-log; weather only ever READS it
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"
@@ -1271,6 +1271,72 @@ function pass_figure(north,   w,h){
   return 0
 }
 
+#  FRONTS, LOOKED DOWN ON (W20, weather 1.0.10; Larry, ATR, 18 November
+#  2026).  The terminal's drawing of the model in wx.awk (fr_p): north at
+#  the top, a column 25 nm and a row 50 nm, so the map is to scale on a
+#  terminal's two-to-one characters.  The isobars are where the 4-hPa band
+#  changes between neighbouring cells; the fronts are sampled every 10 nm
+#  along their lines; the low has its own wind round it (Larry, 18
+#  November: a figure that describes the wind in a low shows the low).
+#  Boat A runs through it along the row south of the centre, boat B north,
+#  and the two tables under the map are worked from the same model: the
+#  wind by fr_from(), the glass by fr_band(), the barograph's own words.
+function fr_c(x){ return int((x + 760) / 25 + 0.5) }
+function fr_r(y){ return int((480 - y) / 50 + 0.5) }
+function fr_line(L, n, ch, col,   i, k, m, x, y){
+  for(i = 1; i < n; i++){
+    m = int(sqrt((L[2*i+1]-L[2*i-1])^2 + (L[2*i+2]-L[2*i])^2) / 10)
+    for(k = 0; k <= m; k++){
+      x = L[2*i-1] + (L[2*i+1] - L[2*i-1]) * k / m
+      y = L[2*i]   + (L[2*i+2] - L[2*i])   * k / m
+      if(fr_r(y) >= 0 && fr_r(y) < 22) gputc(fr_r(y), fr_c(x), ch, col)
+    }
+  }
+  return 0
+}
+function fronts_figure(   w, h, r, c, lv, lr, ld, i, rA, rB, s, f){
+  fr_init()
+  w = 66; h = 37
+  gclear(w, h)
+  FIGNAME = "fronts"
+  for(r = 0; r < 22; r++) for(c = 0; c < w; c++) LV[r, c] = int((fr_p(-760 + 25*c, 480 - 50*r) - 988) / 4)
+  #  a cell is on an isobar when a neighbour (right, left, above or below)
+  #  is in a LOWER band: one cell wide, on the high side of the line
+  for(r = 0; r < 22; r++) for(c = 0; c < w; c++)
+    if((c + 1 < w && LV[r, c] > LV[r, c+1]) || (c > 0 && LV[r, c] > LV[r, c-1]) ||
+       (r + 1 < 22 && LV[r, c] > LV[r+1, c]) || (r > 0 && LV[r, c] > LV[r-1, c])) gputc(r, c, ".", C_DIM)
+  fr_line(FRW, FRWN, "o", C_WARN)
+  fr_line(FRC, FRCN, "#", C_ACC)
+  #  the low, with its wind round it: anticlockwise in the north
+  r = fr_r(0); c = fr_c(0)
+  gputsc(r, c - 1, " L ", C_WARN)
+  gputsc(r - 1, c - 1, "<-", C_DIM); gputsc(r + 1, c, "->", C_DIM)
+  gputc(r, c - 2, "v", C_DIM); gputc(r, c + 2, "^", C_DIM)
+  gputsc(0, 44, "the low moves east -->", C_WARN)
+  #  the boats' runs through it, right to left
+  rA = fr_r(FRA_Y); rB = fr_r(FRB_Y)
+  for(c = 7; c < w; c++){ gputc(rA, c, "-", C_DIM); gputc(rB, c, "-", C_DIM) }
+  gputc(rA, 7, "<", C_DIM); gputc(rB, 7, "<", C_DIM)
+  gputsc(rA, 0, "boat A", C_ACC); gputsc(rB, 0, "boat B", C_ACC)
+  for(i = 1; i <= FRA_N; i++) gputc(rA, fr_c(FRAX[i]), i, C_ACC)
+  split("a b c", s, " ")
+  for(i = 1; i <= FRB_N; i++) gputc(rB, fr_c(FRBX[i]), s[i], C_ACC)
+  #  what each boat meets, in order
+  gputsc(23, 0, "boat A, south of the track: the fronts pass over her", C_ACC)
+  gputsc(24, 0, "     where                      wind glass        air", C_DIM)
+  for(i = 1; i <= FRA_N; i++){
+    f = fr_from(FRAX[i], FRA_Y)
+    gputsc(24 + i, 0, sprintf("  %d  %-26s %-4s %-12s %s", i, FRAS[i], fr_pt16(f), fr_band(FRAX[i], FRA_Y), FRAT[i]), "")
+  }
+  gputsc(31, 0, "boat B, north of the track: no front passes over her", C_ACC)
+  for(i = 1; i <= FRB_N; i++){
+    f = fr_from(FRBX[i], FRB_Y)
+    gputsc(31 + i, 0, sprintf("  %s  %-26s %-4s %s", s[i], FRBS[i], fr_pt16(f), fr_band(FRBX[i], FRB_Y)), "")
+  }
+  gputsc(35, 0, "o o warm front   # # cold front   . . isobars every 4 hPa", C_DIM)
+  gputsc(36, 0, "the low moving east at 30 knots; each boat stays put", C_DIM)
+  return 0
+}
 # =====================================================================
 #  deck-log -- the weather reasoning.
 #
@@ -1701,6 +1767,100 @@ function wx_course(lo, hi, dw, band,   t, tr, c0){
 function wx_pt8(b,   n, P){
   n = split("north north-east east south-east south south-west west north-west", P, " ")
   return P[int((b%360+360)%360/45 + 0.5)%8 + 1]
+}
+
+# ---------------------------------------------------------------------
+#  A FRONTAL LOW, LOOKED DOWN ON (W20, weather 1.0.10; Larry, ATR, 18
+#  November 2026).  The model behind the lesson `fronts` and its figure:
+#  one depression of the northern hemisphere going east, with a warm front
+#  running east and south-east from its centre and a cold front running
+#  south-west, and the two boats of the figure, one each side of its track.
+#
+#  THE PRESSURE.  A round low, 990 hPa at the centre and 26 hPa shallower
+#  far out, falling off as exp(-(r/700)^2), r in nautical miles from the
+#  centre.  EACH FRONT LIES IN A TROUGH (Bowditch 2017, 3810 to 3812): on
+#  top of the round low, 2.5 hPa times tanh(d/150), d the distance to the
+#  front, so the pressure is lowest along the front and the isobars kink
+#  there.  That kink is why the wind shifts at a front.  The fronts only
+#  reach south of the centre, so the trough term is weighted by
+#  1/(1+exp(y/40)), which is near 1 south of the centre and near 0 north.
+#
+#  THE WIND.  Along the isobars with the low on its left (Buys Ballot),
+#  turned 15 degrees in toward lower pressure: it blows from 75 degrees
+#  round from the direction the pressure rises, taken from the local
+#  gradient.  So a kink in the isobars is a shift in the wind, and nothing
+#  about the shift is written in: it is worked.
+#
+#  THE GLASS.  The low moves east at 30 knots (an assumption of the
+#  figure, said so in it), so a boat that stays put runs west through it,
+#  90 nm in three hours.  Its change over those three hours is graded by
+#  wx_band(), the barograph's own rule.
+#
+#  wx.js holds the same model (WX.frP, WX.frFrom, WX.frGlass), and
+#  docs/web/tests/weather-fronts.js holds the two to each other character
+#  for character over a grid of points (`weather` cmd=frontsdump).
+# ---------------------------------------------------------------------
+function fr_init(){
+  if(FR_READY) return 0
+  FRWN = split("0 0 180 -40 330 -150 450 -330 520 -520", FRW, " ") / 2
+  FRCN = split("0 0 -60 -160 -110 -330 -140 -520", FRC, " ") / 2
+  #  the stations: boat A south of the track, boat B north of it, in the
+  #  order the low brings them (x is the low's position east of the boat)
+  FRA_N = split("680 440 160 -130 -450", FRAX, " "); FRA_Y = -250
+  FRB_N = split("560 0 -560", FRBX, " ");            FRB_Y = 250
+  split("ahead of the warm front|the warm front coming|the warm sector|just behind the cold front|well behind the cold front", FRAS, "|")
+  split("cirrus, then cirrostratus|altostratus, nimbostratus, rain|stratus, drizzle, haze or fog|cumulonimbus, squalls, showers|clearing, showers, good visibility", FRAK, "|")
+  split("cool|cool, warming|warm, moist|turning cold|cold, clear", FRAT, "|")
+  split("the low ahead|the low at its nearest|the low past", FRBS, "|")
+  FR_READY = 1
+  return 0
+}
+function fr_tanh(x,   e){ e = exp(-2 * (x < 0 ? -x : x)); return (x < 0 ? -1 : 1) * (1 - e) / (1 + e) }
+function fr_segd(px, py, ax, ay, bx, by,   dx, dy, t){
+  dx = bx - ax; dy = by - ay
+  t = ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)
+  if(t < 0) t = 0; if(t > 1) t = 1
+  dx = px - (ax + t * dx); dy = py - (ay + t * dy)
+  return sqrt(dx * dx + dy * dy)
+}
+function fr_dist(px, py, L, n,   i, d, m){
+  m = -1
+  for(i = 1; i < n; i++){
+    d = fr_segd(px, py, L[2*i-1], L[2*i], L[2*i+1], L[2*i+2])
+    if(m < 0 || d < m) m = d
+  }
+  return m
+}
+function fr_p(x, y,   p, s){
+  fr_init()
+  p = 990 + 26 * (1 - exp(-(x * x + y * y) / 490000))
+  s = 1 / (1 + exp(y / 40))
+  p += s * 2.5 * fr_tanh(fr_dist(x, y, FRW, FRWN) / 150)
+  p += s * 2.5 * fr_tanh(fr_dist(x, y, FRC, FRCN) / 150)
+  return p
+}
+#  the bearing the wind blows FROM, degrees true
+function fr_from(x, y,   gx, gy, gb){
+  gx = (fr_p(x + 1, y) - fr_p(x - 1, y)) / 2
+  gy = (fr_p(x, y + 1) - fr_p(x, y - 1)) / 2
+  gb = atan2(gx, gy) * 57.29577951308232
+  return ((gb + 75) % 360 + 360) % 360
+}
+#  the glass at a boat over three hours, in hPa: the low moving east at 30 kn
+function fr_glass(x, y){ return fr_p(x - 45, y) - fr_p(x + 45, y) }
+#  the same, in the barograph's words
+function fr_band(x, y){ return wx_band(fr_glass(x, y), 3) }
+#  sixteen points
+function fr_pt16(b,   P){
+  split("N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW", P, " ")
+  return P[int((b % 360 + 360) % 360 / 22.5 + 0.5) % 16 + 1]
+}
+#  the dump the browser's model is held to
+function fr_dump(   x, y){
+  for(y = 450; y >= -550; y -= 50)
+    for(x = -750; x <= 850; x += 50)
+      printf "%d %d %.3f %.2f %.3f %s\n", x, y, fr_p(x, y), fr_from(x, y), fr_glass(x, y), fr_band(x, y)
+  return 0
 }
 
 # ---------------------------------------------------------------------
@@ -2396,6 +2556,7 @@ function les_init(){
   les("coriolis", "Coriolis, which is not a force")
   les("gradient", "Gradient wind, surface wind, and friction")
   les("veer",     "Backing and veering, and why the south is the other way round")
+  les("fronts",   "Fronts: what passes over you, and in what order")
   les("lapse",    "Lapse rates, stability, and where the cloud base is")
   les("cells",    "The heat engine, and the three cells")
   les("h500",     "The 500 millibar chart and the 564 line")
@@ -2721,6 +2882,68 @@ function lesson_body(k){
     return 1
   }
   # ------------------------------------------------------------------
+  #  FRONTS (W20, weather 1.0.10; Larry, ATR, 18 November 2026).  Built
+  #  on the passing low of the lesson `veer`: the same low, now with its
+  #  fronts, and the same two boats either side of its track.  The words
+  #  for each stage are Bowditch's (2017, 3809 to 3812), in our own words;
+  #  the wind and the glass in the figure are worked from wx.awk's model.
+  #  Northern hemisphere only, until Larry rules on the south's own words.
+  if(k=="fronts"){
+    lph("FRONTS: WHAT PASSES OVER YOU, AND IN WHAT ORDER")
+    lp("A body of air takes on the character of where it sat: cold or warm,")
+    lp("wet over the sea or dry over land. That is an " cw("air mass",C_ACC) ". Where two")
+    lp("meet there is a zone of change, drawn on the chart as a line: a " cw("front",C_ACC) ".")
+    print ""
+    lp(cw("Why the wind shifts at a front.",C_ACC) " A front lies in a trough: the")
+    lp("pressure is lower along it, so the isobars kink where they cross it.")
+    lp("The wind follows the isobars, so a kink in the isobars is a shift in")
+    lp("the wind. A trough with no front does the same, and that is the veer")
+    lp("of the 2025 race: a trough swinging past, the isobar through the boat")
+    lp("turning clockwise.")
+    print ""
+    lp("Here is the low from the lesson " cw("veer",C_ACC) " with its fronts on, going east.")
+    lp("The boats stay put, so each runs through it, right to left.")
+    print ""
+    fronts_figure()
+    gshow()
+    print ""
+    lp(cw("Boat A, on the low's right, south of its track.",C_ACC) " Both fronts pass")
+    lp("over her, in this order:")
+    lp("  1  The glass starts to fall. High cloud comes first, mares' tails")
+    lp("     of cirrus, then a milky sheet of cirrostratus.")
+    lp("  2  The cloud lowers and thickens to altostratus, then nimbostratus")
+    lp("     and steady rain. The glass falls faster.")
+    lp("  3  The warm front passes: the wind " cw("veers",C_ACC) ", south to south-west, the")
+    lp("     rain stops and it turns warmer. In the warm sector the glass is")
+    lp("     about steady; low stratus, drizzle, haze or fog are usual.")
+    lp("  4  The cold front: cumulonimbus, squalls, heavy showers, perhaps")
+    lp("     thunder. The wind " cw("veers",C_ACC) " sharply to north-west, the air turns")
+    lp("     cold, and the glass rises, often quickly. Squalls can run up to")
+    lp("     200 miles ahead of the front itself.")
+    lp("  5  Behind it: cold, clear air, scattered showers, good visibility.")
+    print ""
+    lp(cw("Boat B, on the low's left, north of its track.",C_ACC) " No front passes over")
+    lp("her. The weather changes slowly, and the wind " cw("backs",C_ACC) ": south-east,")
+    lp("east-north-east, north.")
+    print ""
+    lp("It is the rule from the passing low, with the fronts added: looking")
+    lp("the way the low goes, on its right the wind " cw("veers",C_ACC) ", in two jumps at")
+    lp("the two fronts; on its left it " cw("backs",C_ACC) ", steadily.")
+    print ""
+    lp(cw("Later in its life",C_ACC) " the cold front catches the warm front, lifting the")
+    lp("warm sector off the surface: an " cw("occluded front",C_ACC) ". The low is near its")
+    lp("deepest then, and soon starts to fill.")
+    print ""
+    lp(cw("On a chart:",C_ACC) " a warm front has round barbs, a cold front triangles,")
+    lp("both on the side it is moving toward; an occluded front has both,")
+    lp("alternating; a stationary front has both, on opposite sides.")
+    print ""
+    lp("No two lows are alike. The figure's numbers come from a model of one")
+    lp("tidy low; a real glass and a real sky are the evidence.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
   if(k=="lapse"){
     lph("LAPSE RATES, STABILITY, AND THE CLOUD BASE")
     lp("Air cools as it rises, because it expands. How fast is the whole game.")
@@ -2891,6 +3114,7 @@ function lesson_q(k){
   if(k=="coriolis") return "Why does no hurricane ever form on the equator?|Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in the world, and nothing to start it rotating. About 5 degrees is the practical minimum."
   if(k=="gradient") return "The chart shows a 30 knot gradient wind. What do you expect on deck, offshore, in the northern hemisphere?|Around 20 knots - roughly two thirds - and backed 10 to 20 degrees from the isobar direction, because friction slows the surface air, which weakens Coriolis, so pressure gradient wins a little and the wind blows across the isobars toward the low."
   if(k=="veer")     return "Off the Isle of Wight the wind goes from south-west to west to north-west over six hours, and the glass starts to rise. Backed or veered - and where did the low go?|Veered: it shifted clockwise round the compass. In the northern hemisphere that is a depression whose centre has passed on your north side, and the shift to north-west with a rising glass says the cold front is through."
+  if(k=="fronts")   return "Off Start Point the glass has been falling for six hours. Mares' tails became a grey sheet, and now it is raining steadily with the wind at south. What comes next, and which way will the wind go?|The warm front is close. When it passes the rain stops, the wind veers to south-west and it turns warm and muggy, with drizzle or fog and a steady glass: the warm sector. Then the cold front: squalls and heavy showers, the wind veering to north-west, the glass rising and the air clearing. If instead the wind backs steadily, the centre is passing on your south side and the fronts will miss you."
   if(k=="lapse")    return "Air 18 C, dew point 12 C. How high is the cloud base?|About 2,400 ft: a spread of 6 C, and the spread closes at 2.5 C per 1000 ft, so 6 x 400. Not 6 x 333 - the divisor is the DIFFERENCE between the parcel's lapse rate and the dew point's, not the lapse rate itself."
   if(k=="cells")    return "Why are so many of the world's deserts near 30 degrees latitude?|That is where the Hadley cell descends. The air rose at the equator, rained out everything it had, and comes back down warm and dry. The subtropical highs, the horse latitudes and the deserts are all the same descending branch."
   if(k=="h500")     return "The 564 line runs east-west 200 nm north of you. Where is the storm track, and are you in the gales?|The track is 300 to 600 nm poleward of the 564 line and parallel to it, so well north of you. And all the gale force winds are poleward of that line - so at 200 nm south of it you are on the right side of it. That is the routing rule."
@@ -3172,6 +3396,7 @@ BEGIN{
   else if(cmd=="score"){ sc_report(LOG) }
   else if(cmd=="chart"){ ch_report(brg, dist, orient, w500, (north==""?1:north+0)) }
   else if(cmd=="isobars"){ iso_report(spacing, lat, step, (north==""?1:north+0)) }
+  else if(cmd=="frontsdump"){ fr_dump() }
 
   else if(cmd=="syllabus"){
     print ""
