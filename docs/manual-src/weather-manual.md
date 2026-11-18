@@ -331,10 +331,11 @@ lesson** at the top.
 ## 8. A reported storm
 
 ![**Figure 9** — a reported storm, north up, the boat at the centre. The storm is
-drawn as a low with its own wind, where the advisory put it (the small ring) and
-where it is now, with its track ahead marked every six hours and its 34-knot
-winds shaded. The dashed wedge from the boat is where your own wind puts the
-centre. The black line is the closest approach.](fig/weather-storm.png)
+drawn as a low with its own wind, where it is now, with where the advisory put
+it, its track ahead marked every six hours and its 34-knot winds shaded. The
+dashed wedge from the boat is where your own wind puts the centre. Each thing is
+named in the margin, with a line to it, and the caption under the picture says
+how to read it.](fig/weather-storm.png)
 
 When an official advisory comes in, by NAVTEX, SafetyNET or radiofax, type it in:
 how many hours ago it was issued, the centre's latitude and longitude, its

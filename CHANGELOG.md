@@ -1,5 +1,35 @@
 # Changelog
 
+## weather 1.0.12: the reported storm's picture, its words moved off it
+
+**What.** In the picture on "A reported storm", every label is now a callout in
+the margin, on the side its mark is on, with a thin leader line and a dot on the
+thing it names: the centre now, where it was reported, its track, its 34-knot
+winds, where your wind puts it, your wind, you, and the closest it comes. The
+callouts on each side are stacked in the order of their marks, never touching.
+Each callout has a title and a line of detail: bearings, distances and hours. A
+caption under the picture says what it shows and how to read it. The plot is a
+little smaller, to leave the margins free; E and W sit just inside the outer
+ring, and the outer ring's distance is in the caption.
+
+**Why.** Larry, 18 November 2026: "the text underneath the cyclone is all on top
+of it ... move it out and point to the areas where it's relevant ... I'm a visual
+learner ... having the text saying what you're trying to depict is also
+important." In 1.0.11 each label sat beside its mark, and round the storm the
+centre now, the reported position, the track's hours and the wind's band fell in
+one small place, so they could not be read.
+
+**What it touches.** `weather.js` only: `stormPicture`, and `demoSvg`'s text
+helper, which can now put a text in a group. The report, the terminal and the
+reasoning are unchanged. The manual's Figure 9 is recaptured, with its caption,
+and the manual rebuilt. Cache `weather-v29`.
+
+**Checked.** `docs/web/tests/weather-storm.js` (29 checks, were 26) now also
+requires every callout to lie outside the plot's circle, clear of every other,
+with a leader line to its mark. Two planted faults, a callout moved onto the
+plot and one moved onto another, are each caught, and the picture is clean again
+when they are put back.
+
 ## weather 1.0.11: a reported storm, as a check on your own wind (I20)
 
 **What.** A new screen and command, `weather storm` (menu item 7; "A reported

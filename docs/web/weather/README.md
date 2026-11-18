@@ -199,7 +199,11 @@ of its own, `v-storm`. `CHART.stormReport(fields)` in `chart.js` is a port of
 side of its track, the closest approach, and your wind's band, wind+110 to
 wind+135. Its `geo` carries the numbers `stormPicture` draws: north up, the boat
 at the centre, the storm as a low with its own wind, the track, the 34-knot
-circle, the closest approach and the band. Northern hemisphere only for now.
+circle, the closest approach and the band. Since 1.0.12 every label is a
+callout in the margin, on its mark's side, with a leader line to the mark,
+stacked so none touches another, and a caption under the picture says how to
+read it (Larry: the labels round the storm were on top of each other).
+Northern hemisphere only for now.
 Checked by `docs/web/tests/weather-storm.js`.
 
 **Fronts** (weather 1.0.10; Larry's ruling ATR, W20) is the lesson `fronts`

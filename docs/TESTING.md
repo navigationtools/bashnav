@@ -416,6 +416,17 @@ drawn below its curve.
 named the ten lessons; `veer`, the eleventh, had no golden copy. It now asks the
 awk for the list, as `weather-ui.js` does.
 
+### The words off the picture (weather 1.0.12)
+
+**Every callout outside the plot, clear of every other.** Larry found the labels
+round the reported storm on top of each other. 1.0.12 moved them into the
+margins as callouts with leader lines. `weather-storm.js` now measures each
+callout's box on the page, as laid out. Each box must lie outside the plot's
+circle, must not overlap any other callout, and must have its leader line. The
+check is shown to work on the page's own drawing: a callout moved onto the plot
+is caught, a callout moved onto another is caught, and with both put back the
+picture is clean again. 29 checks.
+
 ### A reported storm: the words, the geometry worked again, and the picture (weather 1.0.11)
 
 **The words.** `docs/web/tests/weather-storm.js` (stage 18) runs `weather` with

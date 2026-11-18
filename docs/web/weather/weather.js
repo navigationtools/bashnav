@@ -1044,22 +1044,36 @@ function drawStorm() {
   if (items.geo) { stormPicture(box, items.geo); box.hidden = false; } else box.hidden = true;
 }
 function stormPicture(host, G) {
-  var RAD = Math.PI / 180, W = 640, H = 600, cx = W / 2, cy = 300;
+  /*  THE WORDS GO OUTSIDE THE PICTURE, WITH A LINE TO WHAT THEY NAME
+      (weather 1.0.12; Larry, 18 November 2026: "the text underneath the
+      cyclone is all on top of it ... move it out and point to the areas
+      where it's relevant").  In 1.0.11 each label sat beside its mark, and
+      round the storm the centre now, the reported position, its track
+      hours and the wind's band all fell in one small place.  Now the plot
+      is a circle in the middle, and every label is a callout in the margin
+      on the side its mark is on, stacked so none touches another, with a
+      leader line and a dot at the thing it names.  And a caption under it
+      says what the picture shows and how to read it.
+      tests/weather-storm.js requires every callout outside the plot's
+      circle and clear of every other.  */
+  var RAD = Math.PI / 180, W = 640, R = 140, cx = W / 2, cy = 214, TOP = 40;
   var pts = [G.then, G.now, [G.now[0] + G.v[0] * 24, G.now[1] + G.v[1] * 24]];
   if (G.cpa) pts.push([G.u[0] * G.cpa.t, G.u[1] * G.cpa.t]);
   var reach = 60;
   pts.forEach(function (p) { reach = Math.max(reach, Math.hypot(p[0], p[1])); });
   if (G.r34) reach = Math.max(reach, Math.hypot(G.now[0], G.now[1]) + G.r34);
   var ring = reach <= 120 ? 25 : reach <= 300 ? 50 : reach <= 600 ? 100 : 200;
-  var RMAX = ring * Math.ceil(reach / ring), K = 250 / RMAX;
+  var RMAX = ring * Math.ceil(reach / ring), K = R / RMAX;
   var X = function (e) { return cx + e * K; }, Y = function (n) { return cy - n * K; };
   var f1 = function (x) { return x.toFixed(1); };
+  var d3 = function (x) { x = Math.round(((x % 360) + 360) % 360) % 360; return String(x).padStart(3, '0'); };
+  var CAPY = cy + R + 40, H = CAPY + 76;
   var D = demoSvg('stormfig', W, H, 'A reported storm, north up, the boat at the centre. The centre now bears ' +
-    String(Math.round((G.brg % 360 + 360) % 360)).padStart(3, '0') + ', ' + Math.round(G.dist) + ' nautical miles' +
+    d3(G.brg) + ', ' + Math.round(G.dist) + ' nautical miles' +
     (G.cpa ? '; if both hold on it comes within ' + Math.round(G.cpa.d) + ' miles in ' + Math.round(G.cpa.t) + ' hours.' : '.'));
   var cs = getComputedStyle(document.documentElement), tk = function (k) { return cs.getPropertyValue(k).trim(); };
   var warn = tk('--warn') || tk('--bad') || '#e23a2c', ground = tk('--ground') || '#07090b';
-  D.svg.setAttribute('data-k', K); D.svg.setAttribute('data-cx', cx); D.svg.setAttribute('data-cy', cy);
+  D.svg.setAttribute('data-k', K); D.svg.setAttribute('data-cx', cx); D.svg.setAttribute('data-cy', cy); D.svg.setAttribute('data-r', R);
   var arrow = function (x1, y1, x2, y2, col, w, op, attrs) {
     var o = { x1: f1(x1), y1: f1(y1), x2: f1(x2), y2: f1(y2), stroke: col, 'stroke-width': w, 'stroke-linecap': 'round', 'stroke-opacity': op }, k;
     for (k in (attrs || {})) o[k] = attrs[k];
@@ -1068,45 +1082,53 @@ function stormPicture(host, G) {
     D.e('path', { d: 'M' + f1(x2) + ',' + f1(y2) + 'L' + f1(x2 - h * Math.cos(an - 0.45)) + ',' + f1(y2 - h * Math.sin(an - 0.45)) +
                      'L' + f1(x2 - h * Math.cos(an + 0.45)) + ',' + f1(y2 - h * Math.sin(an + 0.45)) + 'Z', fill: col, 'fill-opacity': op });
   };
-  /*  range rings, and north  */
+  D.t(16, 22, 'A REPORTED STORM, AND WHERE YOUR OWN WIND PUTS IT', D.text, { 'font-weight': 600 });
+  /*  range rings, labelled up the north line, and the compass points  */
   for (var r = ring; r <= RMAX + 0.01; r += ring) {
     D.e('circle', { cx: cx, cy: cy, r: f1(r * K), fill: 'none', stroke: D.line, 'stroke-width': 1, 'data-part': 'ring', 'data-nm': r });
-    D.t(cx + r * K * 0.707 + 3, cy - r * K * 0.707 - 3, r + ' nm', D.dim, { 'font-size': 10 });
+    if (r < RMAX - 0.01) D.t(cx + 3, cy - r * K - 3, r + ' nm', D.dim, { 'font-size': 9.5 });
   }
-  [['N', 0], ['E', 90], ['S', 180], ['W', 270]].forEach(function (c) {
-    D.t(cx + (RMAX * K + 16) * Math.sin(c[1] * RAD), cy - (RMAX * K + 16) * Math.cos(c[1] * RAD) + 4, c[0], D.dim,
+  /*  N and S outside the ring, E and W just inside it, so the margins
+      stay free for the callouts  */
+  [['N', 0, R + 13], ['E', 90, R - 10], ['S', 180, R + 13], ['W', 270, R - 10]].forEach(function (c) {
+    D.t(cx + c[2] * Math.sin(c[1] * RAD), cy - c[2] * Math.cos(c[1] * RAD) + 4, c[0], D.dim,
         { 'text-anchor': 'middle', 'font-weight': 700, 'font-size': 12 });
   });
+  var notes = [];          /* [anchor x, anchor y, title, detail, colour, what] */
   /*  your own wind's band, as a wedge from the boat  */
   if (G.band) {
-    var a0 = G.band[0] * RAD, a1 = G.band[1] * RAD, rw = RMAX * K;
+    var a0 = G.band[0] * RAD, a1 = G.band[1] * RAD, rw = R;
     D.e('path', { d: 'M' + cx + ',' + cy + 'L' + f1(cx + rw * Math.sin(a0)) + ',' + f1(cy - rw * Math.cos(a0)) +
                      'A' + f1(rw) + ',' + f1(rw) + ' 0 0 1 ' + f1(cx + rw * Math.sin(a1)) + ',' + f1(cy - rw * Math.cos(a1)) + 'Z',
                   fill: D.acc, 'fill-opacity': 0.12, stroke: D.acc, 'stroke-width': 1.2, 'stroke-dasharray': '6 5',
                   'data-part': 'band', 'data-lo': ((G.band[0] % 360) + 360) % 360, 'data-hi': ((G.band[1] % 360) + 360) % 360 });
     var am = (G.band[0] + 12.5) * RAD;
-    D.t(cx + rw * 0.72 * Math.sin(am), cy - rw * 0.72 * Math.cos(am) + 4, 'where your wind puts it', D.acc,
-        { 'font-size': 11, 'font-weight': 700, 'text-anchor': 'middle' });
+    notes.push([cx + rw * 0.82 * Math.sin(am), cy - rw * 0.82 * Math.cos(am), 'where your wind puts it',
+                d3(G.band[0]) + ' to ' + d3(G.band[1]) + ': the shaded wedge', D.acc, 'band']);
     var wf = G.wind * RAD;
-    arrow(cx + 60 * Math.sin(wf), cy - 60 * Math.cos(wf), cx + 16 * Math.sin(wf), cy - 16 * Math.cos(wf), D.acc, 3.5, 1,
+    arrow(cx + 52 * Math.sin(wf), cy - 52 * Math.cos(wf), cx + 15 * Math.sin(wf), cy - 15 * Math.cos(wf), D.acc, 3.5, 1,
           { 'data-part': 'wind', 'data-from': G.wind });
+    notes.push([cx + 50 * Math.sin(wf), cy - 50 * Math.cos(wf), 'your wind', 'from ' + d3(G.wind), D.acc, 'wind']);
   }
   /*  the storm: its 34-knot circle, its track ahead, where it was reported  */
   var nx = X(G.now[0]), ny = Y(G.now[1]);
-  if (G.r34) D.e('circle', { cx: f1(nx), cy: f1(ny), r: f1(G.r34 * K), fill: warn, 'fill-opacity': 0.08, stroke: warn,
-                             'stroke-width': 1.2, 'stroke-dasharray': '2 4', 'data-part': 'r34', 'data-nm': G.r34 });
+  if (G.r34) {
+    D.e('circle', { cx: f1(nx), cy: f1(ny), r: f1(G.r34 * K), fill: warn, 'fill-opacity': 0.08, stroke: warn,
+                    'stroke-width': 1.2, 'stroke-dasharray': '2 4', 'data-part': 'r34', 'data-nm': G.r34 });
+    var ea = (nx > cx ? 90 : 270) * RAD;
+    notes.push([nx + G.r34 * K * Math.sin(ea), ny, 'its 34-knot winds', 'out to ' + G.r34 + ' nm, now', warn, 'r34']);
+  }
   if (G.v[0] || G.v[1]) {
     var ex = X(G.now[0] + G.v[0] * 24), ey = Y(G.now[1] + G.v[1] * 24);
     arrow(nx, ny, ex, ey, warn, 2.2, 0.9, { 'stroke-dasharray': '7 5', 'data-part': 'track', 'data-dir': G.mdir });
     [6, 12, 18].forEach(function (h) {
-      var px = X(G.now[0] + G.v[0] * h), py = Y(G.now[1] + G.v[1] * h);
-      D.e('circle', { cx: f1(px), cy: f1(py), r: 3, fill: warn });
-      D.t(px + (px > cx ? -7 : 7), py + 4, '+' + h + 'h', warn, { 'font-size': 10, 'text-anchor': px > cx ? 'end' : 'start' });
+      D.e('circle', { cx: f1(X(G.now[0] + G.v[0] * h)), cy: f1(Y(G.now[1] + G.v[1] * h)), r: 3, fill: warn, 'data-part': 'track-dot', 'data-h': h });
     });
+    notes.push([X(G.now[0] + G.v[0] * 12), Y(G.now[1] + G.v[1] * 12), 'its track, if it holds on',
+                'moving ' + d3(G.mdir) + '; a dot every 6 hours', warn, 'track']);
   }
   D.e('circle', { cx: f1(X(G.then[0])), cy: f1(Y(G.then[1])), r: 5, fill: ground, stroke: warn, 'stroke-width': 2, 'data-part': 'reported' });
-  D.t(X(G.then[0]) + (X(G.then[0]) > cx ? -9 : 9), Y(G.then[1]) + 14, 'reported ' + G.age + ' h ago', warn,
-      { 'font-size': 10.5, 'text-anchor': X(G.then[0]) > cx ? 'end' : 'start' });
+  notes.push([X(G.then[0]), Y(G.then[1]), 'where it was reported', G.age + ' hours ago', warn, 'reported']);
   /*  the low itself, with its own wind round it: anticlockwise, turned in  */
   D.e('circle', { cx: f1(nx), cy: f1(ny), r: 26, fill: ground, 'fill-opacity': 0.8 });
   for (var be = 0; be < 360; be += 45) {
@@ -1115,11 +1137,11 @@ function stormPicture(host, G) {
   }
   D.e('circle', { cx: f1(nx), cy: f1(ny), r: 10.5, fill: ground, stroke: warn, 'stroke-width': 2.5, 'data-part': 'low' });
   D.t(nx, ny + 4.5, 'L', warn, { 'font-size': 13, 'font-weight': 700, 'text-anchor': 'middle' });
-  D.t(nx + (nx > cx ? -30 : 30), ny - 14, 'the centre now', warn, { 'font-size': 11, 'font-weight': 700, 'text-anchor': nx > cx ? 'end' : 'start' });
+  notes.push([nx, ny, 'the centre now', d3(G.brg) + ', ' + Math.round(G.dist) + ' nm from you', warn, 'now']);
   /*  the boat, a hull on her course, her run, and the closest approach  */
   if (G.bkn > 0) {
     var ub = G.bcse * RAD;
-    D.e('line', { x1: cx, y1: cy, x2: f1(cx + 70 * Math.sin(ub)), y2: f1(cy - 70 * Math.cos(ub)), stroke: D.text, 'stroke-width': 1.2, 'stroke-dasharray': '3 4' });
+    D.e('line', { x1: cx, y1: cy, x2: f1(cx + 60 * Math.sin(ub)), y2: f1(cy - 60 * Math.cos(ub)), stroke: D.text, 'stroke-width': 1.2, 'stroke-dasharray': '3 4' });
   }
   if (G.cpa) {
     var bx = X(G.u[0] * G.cpa.t), by = Y(G.u[1] * G.cpa.t);
@@ -1127,14 +1149,45 @@ function stormPicture(host, G) {
     if (G.bkn > 0) D.e('line', { x1: cx, y1: cy, x2: f1(bx), y2: f1(by), stroke: D.text, 'stroke-width': 1, 'stroke-dasharray': '1 4' });
     D.e('line', { x1: f1(bx), y1: f1(by), x2: f1(sx), y2: f1(sy), stroke: D.text, 'stroke-width': 1.6, 'data-part': 'cpa', 'data-nm': G.cpa.d.toFixed(2) });
     D.e('circle', { cx: f1(sx), cy: f1(sy), r: 4, fill: warn });
-    D.t(Math.min(bx, sx), Math.max(by, sy) + 22, 'closest: ' + Math.round(G.cpa.d) + ' nm in ' + Math.round(G.cpa.t) + ' h', D.text,
-        { 'font-size': 11, 'font-weight': 700, 'text-anchor': 'end', 'data-part': 'cpa-label' });
+    notes.push([(bx + sx) / 2, (by + sy) / 2, 'the closest it comes', Math.round(G.cpa.d) + ' nm, in ' + Math.round(G.cpa.t) + ' hours', D.text, 'cpa']);
   }
   var hb = (G.bkn > 0 ? G.bcse : 0) * RAD, rot = function (x, y) { return [cx + x * Math.cos(hb) - y * Math.sin(hb), cy + x * Math.sin(hb) + y * Math.cos(hb)]; };
   var hp = [[0, -12], [5, -5], [5, 9], [-5, 9], [-5, -5]].map(function (p) { return rot(p[0], p[1]); });
   D.e('path', { d: 'M' + hp.map(function (p) { return f1(p[0]) + ',' + f1(p[1]); }).join('L') + 'Z', fill: D.text, stroke: ground, 'stroke-width': 1, 'data-part': 'boat' });
-  D.t(16, H - 12, 'North up, the boat at the centre. Not a forecast: an advisory is hours old when it arrives, and a storm can turn.',
-      D.dim, { 'font-size': 10.5 });
+  notes.push([cx, cy, 'you', G.bkn > 0 ? 'steering ' + d3(G.bcse) + ' at ' + G.bkn + ' kn' : 'stopped', D.text, 'boat']);
+
+  /*  THE CALLOUTS: each on the side its mark is on, in the order of their
+      marks down the page, 36 px apart at least, the title bold and the
+      detail under it, a leader line to a dot on the mark  */
+  var COLX = { L: 14, R: W - 14 }, GAP = 36, top0 = TOP + 14, bot0 = CAPY - 46;
+  /*  how wide a line of text is, near enough, so the leader starts where
+      the words end rather than through them  */
+  var wide = function (s, size, bold) { return s.length * size * (bold ? 0.6 : 0.53); };
+  ['L', 'R'].forEach(function (side) {
+    var list = notes.filter(function (n) { return (side === 'L') === (n[0] < cx || (n[0] === cx && n[5] === 'boat')); })
+      .sort(function (a, b) { return a[1] - b[1]; });
+    var ys = list.map(function (n) { return Math.max(top0, Math.min(bot0, n[1])); });
+    for (var i = 1; i < ys.length; i++) if (ys[i] < ys[i - 1] + GAP) ys[i] = ys[i - 1] + GAP;
+    for (i = ys.length - 1; i >= 0; i--) if (ys[i] > bot0 - (ys.length - 1 - i) * GAP) ys[i] = bot0 - (ys.length - 1 - i) * GAP;
+    list.forEach(function (n, i) {
+      var tx = COLX[side], y = ys[i], anchor = side === 'L' ? 'start' : 'end';
+      var g = D.e('g', { 'data-part': 'callout', 'data-for': n[5] });
+      D.t(tx, y, n[2], n[4], { 'font-size': 11, 'font-weight': 700, 'text-anchor': anchor }, g);
+      D.t(tx, y + 14, n[3], D.dim, { 'font-size': 10.5, 'text-anchor': anchor }, g);
+      var tw = Math.max(wide(n[2], 11, true), wide(n[3], 10.5, false)) + 6;
+      var lx = side === 'L' ? tx + tw : tx - tw;
+      D.e('line', { x1: f1(lx), y1: f1(y - 4), x2: f1(n[0]), y2: f1(n[1]), stroke: n[4], 'stroke-width': 0.9, 'stroke-opacity': 0.7,
+                    'data-part': 'leader', 'data-for': n[5] });
+      D.e('circle', { cx: f1(n[0]), cy: f1(n[1]), r: 2.4, fill: n[4], 'data-part': 'leader-dot', 'data-for': n[5] });
+    });
+  });
+  /*  what it shows, in words  */
+  D.e('line', { x1: 0, y1: CAPY - 14, x2: W, y2: CAPY - 14, stroke: D.line, 'stroke-width': 1 });
+  [ 'North up, the boat at the centre, rings every ' + ring + ' nm. The storm is drawn where the advisory put it,',
+    'moved on to now along its track, as a low with its own wind round it. The shaded wedge is where',
+    'your own wind says the centre should be: when the low sits inside it, the two agree.',
+    'Not a forecast: an advisory is hours old when it arrives, and a storm can turn.'
+  ].forEach(function (s, i) { D.t(16, CAPY + 4 + i * 15, s, i < 3 ? D.text : D.dim, { 'font-size': 11, 'data-part': 'caption' }); });
   host.appendChild(D.wrap);
 }
 
@@ -2081,10 +2134,12 @@ function demoSvg(cls, W, H, label) {
     (p || svg).appendChild(x);
     return x;
   }
-  function t(x, y, s, fill, o) {
+  /*  p, when given, is the group the text goes in (the storm picture's
+      callouts, weather 1.0.12); otherwise the svg itself  */
+  function t(x, y, s, fill, o, p) {
     var a = { x: x, y: y, fill: fill, 'font-size': 13 }, q;
     for (q in (o || {})) a[q] = o[q];
-    e('text', a).textContent = s;
+    e('text', a, p).textContent = s;
   }
   function head(x, y, ang, col) {        /* screen radians */
     e('path', { d: 'M' + x + ',' + y +

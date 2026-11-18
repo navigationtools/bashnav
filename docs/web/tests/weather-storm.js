@@ -13,7 +13,9 @@
        at a time, and the side of the track by the sign of a cross product,
        held to what the report says.
 
-    3. THE PICTURE, read back off the drawing: the low with its own wind
+    3. THE PICTURE, read back off the drawing (and its words off it, since
+       weather 1.0.12: every callout outside the plot, clear of the others,
+       with a leader line to its mark): the low with its own wind
        going round it with the low on each arrow's left (Buys Ballot), the
        track drawn the way the storm moves, the centre moved on from where
        it was reported along that track, the wind's band from wind+110 to
@@ -187,6 +189,32 @@ function checkStorm(svg, want) {
   }
   return F;
 }
+/*  THE WORDS ARE NOT ON THE PICTURE (weather 1.0.12; Larry: "the text
+    underneath the cyclone is all on top of it").  Every callout lies
+    outside the plot's circle and clear of every other, and has a leader
+    line to its mark.  getBBox needs the drawing laid out, so this runs on
+    the page's own svg.  */
+function checkCallouts(svg) {
+  const F = [];
+  const cx = +svg.getAttribute('data-cx'), cy = +svg.getAttribute('data-cy'), R = +svg.getAttribute('data-r');
+  const cs = Array.from(svg.querySelectorAll('[data-part="callout"]'));
+  if (cs.length < 5) F.push('fewer than five callouts (' + cs.length + ')');
+  const boxes = cs.map(g => {
+    const b = g.getBBox(), m = g.getCTM && g.transform && g.transform.baseVal.numberOfItems ? g.transform.baseVal.consolidate().matrix : null;
+    const dx = m ? m.e : 0, dy = m ? m.f : 0;
+    return { x: b.x + dx, y: b.y + dy, w: b.width, h: b.height, f: g.getAttribute('data-for') };
+  });
+  boxes.forEach(b => {
+    const nx = Math.max(b.x, Math.min(cx, b.x + b.w)), ny = Math.max(b.y, Math.min(cy, b.y + b.h));
+    if (Math.hypot(nx - cx, ny - cy) < R + 2) F.push('the callout for ' + b.f + ' lies on the plot');
+    if (!svg.querySelector('[data-part="leader"][data-for="' + b.f + '"]')) F.push('the callout for ' + b.f + ' has no leader line');
+  });
+  for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
+    const a = boxes[i], b = boxes[j];
+    if (a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h) F.push('the callouts for ' + a.f + ' and ' + b.f + ' overlap');
+  }
+  return F;
+}
 
 (async () => {
   const browser = await chromium.launch();
@@ -197,6 +225,7 @@ function checkStorm(svg, want) {
   await page.click('[data-go="storm"]');
   await page.waitForTimeout(200);
   await page.addScriptTag({ content: checkStorm.toString() });
+  await page.addScriptTag({ content: checkCallouts.toString() });
   const sets = [
     { age: 4, clat: '17.2N', clon: '62.4W', mdir: 330, mkn: 12, r34: 120, blat: '21.6N', blon: '63.2W', bcse: 270, bkn: 6, wind: 48 },
     { age: 6, clat: '30N', clon: '70W', mdir: 45, mkn: 15, r34: '', blat: '31N', blon: '72W', bcse: '', bkn: '', wind: 300 },
@@ -214,7 +243,7 @@ function checkStorm(svg, want) {
       const r = await page.evaluate(w => {
         const s = document.querySelector('#storm-fig svg');
         const b = s.getBBox(), v = s.getAttribute('viewBox').split(' ').map(Number);
-        return { faults: checkStorm(s, w), box: b.x >= -0.5 && b.y >= -0.5 && b.x + b.width <= v[2] + 0.5 && b.y + b.height <= v[3] + 0.5,
+        return { faults: checkStorm(s, w).concat(checkCallouts(s)), box: b.x >= -0.5 && b.y >= -0.5 && b.x + b.width <= v[2] + 0.5 && b.y + b.height <= v[3] + 0.5,
                  text: document.getElementById('storm-term').textContent };
       }, want);
       const tag = mode + ', ' + s.clat + ' ' + s.clon + ': ';
@@ -241,6 +270,22 @@ function checkStorm(svg, want) {
   ok('planted: the track drawn backwards is caught', planted.track > 0);
   ok('planted: the low drawn in the wrong place is caught', planted.low > 0);
   ok('planted: the closest approach drawn too long is caught', planted.cpa > 0);
+  /*  and the callouts' check, on the page's own drawing, put back after  */
+  const plantedC = await page.evaluate(() => {
+    const s = document.querySelector('#storm-fig svg'), cs = s.querySelectorAll('[data-part="callout"]'), out = {};
+    const cx = +s.getAttribute('data-cx'), cy = +s.getAttribute('data-cy');
+    const b0 = cs[0].getBBox();
+    cs[0].setAttribute('transform', 'translate(' + (cx - b0.x - b0.width / 2) + ',' + (cy - b0.y - b0.height / 2) + ')');
+    out.onplot = checkCallouts(s).length; cs[0].removeAttribute('transform');
+    const b1 = cs[1].getBBox();
+    cs[0].setAttribute('transform', 'translate(' + (b1.x - b0.x) + ',' + (b1.y - b0.y) + ')');
+    out.overlap = checkCallouts(s).length; cs[0].removeAttribute('transform');
+    out.clean = checkCallouts(s).length;
+    return out;
+  });
+  ok('planted: a callout moved onto the plot is caught', plantedC.onplot > 0);
+  ok('planted: a callout moved onto another is caught', plantedC.overlap > 0);
+  ok('and put back, the callouts are clean again', plantedC.clean === 0);
   ok('no script errors', errs.length === 0, errs.join(' | '));
   await browser.close();
   console.log(checks + ' checks on a reported storm' + (bad ? ': ' + bad + ' FAILED' : ', all hold'));
