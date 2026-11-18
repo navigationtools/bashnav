@@ -1,5 +1,26 @@
 # Changelog
 
+## Sources: the rule for a wind shift, read in Bowditch (no version change)
+
+**What.** `docs/SOURCES.md` no longer says the rule for a backing or veering
+wind is "not yet read in a source". It quotes Bowditch, *The American
+Practical Navigator* (2017, chapter 39, "Tropical Cyclones"), with page
+numbers: the shift rule (p. 658), the dangerous semicircle in each hemisphere
+(pp. 657 to 658), where the centre lies (p. 655), a boat under way (p. 658),
+and a steady wind (p. 659). The 2002 single volume, chapter 35, was the
+cross-check.
+
+**Why.** Larry's ruling ATP, 18 November 2026. Since weather 1.0.8 the rule
+had been worked from Buys Ballot and tested, and Bowditch was named as the
+source still to read.
+
+**What it affects.** Only the source list. Nothing in the tool, the browser,
+the manual or the tests changes, and no version moves. Two things Bowditch says
+are recorded and not yet in the app, each a separate choice for Larry: the
+centre lies further round behind a storm (120 to 135 degrees) than in front
+of it (110, the app's figure), and a boat under way can see the opposite shift
+from her own motion.
+
 ## tides 1.6: verified with the Practical Navigator course again (rule 13)
 
 **What.** `tides`' version line moves from 1.5.3 to 1.6. No code, data or

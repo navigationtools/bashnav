@@ -192,23 +192,55 @@ its words in "What the log says"; weather 1.0.8; read 17 November 2026).
    Wave Distribution around a Tropical Cyclone*: in the northern hemisphere
    "the right-hand side of the moving cyclone" is the dangerous semicircle; in
    the southern "the dangerous semicircle is to the left and the navigable
-   semicircle to the right". The app does not name a dangerous side; this is
-   recorded for the card with the XO on the southern hemisphere's words.
+   semicircle to the right". Bowditch says the same (item 3.2). The app does
+   not name a dangerous side; this is recorded for the card with the XO on the
+   southern hemisphere's words.
 
-**Worked, tested, and not yet read in a source.** That a wind which goes on
-backing puts you on the left of a storm's track, and one which goes on veering
-on its right, in both hemispheres (Larry's rulings APO and APP); and the
-quarter of the compass a low is heading into, from that and a glass that is
-falling or rising (APR). Both follow from Buys Ballot for a low on a straight
-track past a boat that is slow against it: `tests/wx-check.awk` works the
-eight cases, and moves a low past a boat on every course. The report says the
-quarter is "where to watch, not a fix", because a low can deepen without
-moving or fill where it lies. **To read before this is called confirmed:**
-Bowditch, *American Practical Navigator*, the chapter on tropical cyclones.
-weather 1.0.9 draws the same rule in the lesson `veer` (the passing low, both
-hemispheres, both directions); it is the same claim, worked the same way, and
-no more confirmed by being drawn. The American Meteorological Society's glossary entry for Buys Ballot's law
-would not load on 17 November.
+3. **Bowditch, read 18 November 2026** (Larry's ruling ATP). *The American
+   Practical Navigator*, Pub. No. 9, 2017 edition, National Geospatial-
+   Intelligence Agency, Volume 1, chapter 39, "Tropical Cyclones"; the copy
+   read is PILOT's, of Part 10, from TheNauticalAlmanac.com's free copy of
+   NGA's text (`~/Downloads/claude_downloads/practical-navigator/sources/`).
+   The same material is chapter 35 of the 2002 single volume, which was used to
+   cross-check it.
+   1. **What a shift tells you** (p. 658): "a wind shifting to the right in the
+      northern hemisphere and to the left in the southern hemisphere indicates
+      the vessel is probably in the dangerous semicircle. A steady wind shift
+      opposite to this indicates the vessel is probably in the less dangerous
+      semicircle." Shifting right is veering, and shifting left is backing.
+   2. **Which semicircle is dangerous** (pp. 657 to 658): the part to the right
+      of the storm track, facing the way the storm is moving, in the northern
+      hemisphere; "In the Southern Hemisphere, the dangerous semicircle is to
+      the left of the storm track". With item 1, that is the rule the app
+      teaches: on the right of the track the wind veers, on the left it backs,
+      in both hemispheres.
+   3. **Where the centre lies** (p. 655): with your back to the wind, the
+      centre is "between perhaps 90° to 135°" from dead astern; "A good average
+      is perhaps 110° in front and 120-135° in the rear", while the storm is
+      several hundred miles away, and less closer to the eye. The card's sector,
+      from the arm to 20 degrees forward of it (90 to 110 from dead astern), is
+      Bowditch's figure for the front of a storm.
+   4. **A boat under way** (p. 658): her own motion can give the opposite
+      effect, and "If in doubt, the safest action is usually to stop long enough
+      to define the proper semicircle."
+   5. **Steady wind** (p. 659): steady with increasing speed and a falling
+      glass, in or near the storm's path; steady with decreasing speed and a
+      rising glass, near the track, behind the centre.
+
+**Read, as well as worked and tested.** That a wind which goes on backing puts
+you on the left of a storm's track, and one which goes on veering on its right,
+in both hemispheres (Larry's rulings APO and APP), is Bowditch's rule (item 3
+above). The quarter of the compass a low is heading into, from that and a glass
+that is falling or rising (APR), is built on it and on item 3.5. Both follow
+from Buys Ballot for a low on a straight track past a boat that is slow against
+it: `tests/wx-check.awk` works the eight cases, and moves a low past a boat on
+every course. The report says the quarter is "where to watch, not a fix",
+because a low can deepen without moving or fill where it lies. weather 1.0.9
+draws the same rule in the lesson `veer` (the passing low, both hemispheres,
+both directions). Bowditch's wider angle behind a storm (120 to 135 degrees)
+and his caution for a boat under way (item 3.4) are not yet in the app; each
+is a separate choice for Larry. The American Meteorological Society's glossary
+entry for Buys Ballot's law would not load on 17 November.
 
 **The sea against the wind** (the figure and words in "What the log says",
 and the sea state the score gives a wind; weather 1.0.7, W09; read 17 November

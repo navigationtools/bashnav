@@ -485,6 +485,10 @@ says.
 3. **The sector** is 20 degrees wide, starts at Buys Ballot's arm and runs
    forward, for every wind in both hemispheres.
 
+The rule these cases test has since been read in Bowditch (2017, chapter 39;
+`docs/SOURCES.md`, Weather). The tests did not change: they test what the rule
+says, and the source confirms the rule rather than altering it.
+
 **The card, measured.** `docs/web/tests/weather-low.js` (stage 15): the wind's
 arrow on its bearing through the centre; the wedge from the arm to 20 degrees
 forward in each hemisphere; the low on the middle of its bearing at the one
