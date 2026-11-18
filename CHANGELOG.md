@@ -1,5 +1,21 @@
 # Changelog
 
+## Sources: the weather's effect on the height of tide, read (no version change)
+
+**What.** `docs/SOURCES.md`, under Tides, records two public sources for gap
+list W48. The Permanent Service for Mean Sea Level gives the inverse barometer
+effect: a fall of 1 hPa raises the sea about 1 cm, to within about half a
+percent. NOAA's National Hurricane Center describes the surge: the water a
+storm drives "over and above the predicted astronomical tide", mostly by onshore
+wind. It also records the sentence the course can use in Level 2.
+
+**Why.** Larry's ruling TAUU put W48 into December's Level 2, and TAUW's rule
+is that a figure is read in a public source before a page uses it. The
+centimetre per hectopascal was a rule of thumb until now.
+
+**What it touches.** `docs/SOURCES.md` only. No tool says or calculates
+anything new: `tides` still predicts the tide alone.
+
 ## weather 1.0.16: the worked storm example agrees with the rule (TAWS)
 
 **What.** The worked example on "A reported storm" (the storm at 17.2 N, 62.4 W
