@@ -533,8 +533,29 @@ function lesson_body(k){
     lp("A storm centre has a position, a course and a speed. So do you. You")
     lp("want the largest possible closest point of approach. " cw("That is exactly",C_ACC))
     lp(cw("the relative-motion problem from colregs",C_ACC) " - the same vector triangle,")
-    lp("the same bearing drift, the same answer. The dangerous semicircle is")
-    lp("just the half where the storm's own motion adds to its wind.")
+    lp("the same bearing drift, the same answer. The dangerous side is just")
+    lp("the half where the storm's own motion adds to its wind.")
+    print ""
+    #  THE CREW'S SHARED WORDS (Larry, TAWG, 18 November 2026): copied as
+    #  they stand in the navigationtools design system, "Shared words", so
+    #  the lesson, "weather storm", the watch faces and the course say the
+    #  same thing.  From Bowditch 2017, chapter 39, pp. 655-659.
+    lp(cw("WHICH SIDE YOU ARE ON, IN EITHER HEMISPHERE",C_ACC))
+    print ""
+    lp("  1. Look the way the storm is going: on its right the wind veers, on")
+    lp("     its left it backs.")
+    lp("  2. North of the equator its right is the dangerous side; south of")
+    lp("     it, its left.")
+    lp("  3. A steady shift says " cw("probably",C_ACC) ". A boat under way can see the")
+    lp("     opposite shift from her own motion; if in doubt, stop and watch.")
+    lp("  4. Face the wind: north of the equator the centre is about 110")
+    lp("     degrees to your right ahead of the storm, and 120 to 135 behind")
+    lp("     it; south of the equator, to your left. Nearer the centre, a")
+    lp("     point or two less.")
+    lp("  5. " cw("The navigable side is not safe, only less dangerous.",C_WARN))
+    print ""
+    lpd("Bowditch, The American Practical Navigator, 2017, chapter 39. Given an")
+    lpd("advisory, \"weather storm\" sets these beside your own wind.")
     print ""
     lpd("Which is why the tools in this suite keep turning out to be the same")
     lpd("few ideas wearing different hats.")

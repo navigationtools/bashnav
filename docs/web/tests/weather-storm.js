@@ -6,20 +6,28 @@
        advisories (every eighth of the compass for the centre and for its
        movement, near and far, old and new, with and without a 34-knot
        radius, a course or a wind), the forms a position can be typed in,
-       the dateline, the south, and every refusal.
+       the dateline, the south (worked since weather 1.0.15, Larry's TAWG:
+       a mirror of the whole grid at 21.6 S), and every refusal.
 
     2. THE GEOMETRY, worked again here and not taken from either program:
        the closest approach found by stepping time a hundredth of an hour
        at a time, and the side of the track by the sign of a cross product,
-       held to what the report says.
+       held to what the report says.  Since weather 1.0.15 (TAWG, the
+       crew's shared words) also: the dangerous side is the right of the
+       track in the north and the left in the south; the shift to expect
+       is a veer on the right and a back on the left; and the band the
+       wind puts the centre in is 110 ahead of the storm and 120 to 135
+       behind it, to the right in the north and the left in the south, a
+       point or two less (22.5 degrees) allowed on its near edge.
 
     3. THE PICTURE, read back off the drawing (and its words off it, since
        weather 1.0.12: every callout outside the plot, clear of the others,
        with a leader line to its mark): the low with its own wind
-       going round it with the low on each arrow's left (Buys Ballot), the
+       going round it, anticlockwise in the north and clockwise in the
+       south, turned in (Buys Ballot), the
        track drawn the way the storm moves, the centre moved on from where
-       it was reported along that track, the wind's band from wind+110 to
-       wind+135, the closest approach as long as the report says.  Night
+       it was reported along that track, the wind's band as section 2
+       works it, the closest approach as long as the report says.  Night
        and day; nothing outside the box.  Four planted faults, each caught.
 
       node weather-storm.js   (needs the server on $PORT)  */
@@ -63,11 +71,21 @@ for (let b = 0; b < 360; b += 45) for (const d of [80, 330]) for (let m = 0; m <
     age: [4, 0, 12.5][n % 3], r34: ['', 120, 60][n % 3], bcse: ['', 270, 45][(n >> 1) % 3], bkn: ['', 6, 0][(n >> 1) % 3],
     wind: ['', 48, 200, 315][n % 4] }));
 }
+/*  THE SOUTH (weather 1.0.15): the same grid mirrored to 21.6 S, the boat
+    there, so every case above has a southern twin  */
+const north = cases.length;
+for (let i = 0; i < north; i++) {
+  const c = cases[i], lat = -(+String(c.clat).replace(/[NS]$/, '')), lon = c.clon;
+  cases.push(Object.assign({}, c, { clat: (-lat).toFixed(2) + 'S', blat: '21.6S', clon: lon }));
+}
 /*  the forms a position can take, the dateline, the south, and the refusals  */
 cases.push({ age: 4, clat: 17.2, clon: -62.4, mdir: 330, mkn: 12, r34: 120, blat: 21.6, blon: -63.2, bcse: 270, bkn: 6, wind: 48 });
 cases.push({ age: 4, clat: '17.2 n', clon: '62.4 w', mdir: 330, mkn: 12, blat: '+21.6', blon: '-63.2' });
 cases.push({ age: 2, clat: '15N', clon: '179.5E', mdir: 270, mkn: 10, blat: '16N', blon: '179.5W', wind: 90 });
 cases.push({ age: 2, clat: '15S', clon: '160E', mdir: 200, mkn: 10, blat: '16S', blon: '161E' });
+cases.push({ age: 2, clat: '15S', clon: '160E', mdir: 200, mkn: 10, blat: '16S', blon: '161E', wind: 60 });
+cases.push({ age: 2, clat: '2S', clon: '160E', mdir: 200, mkn: 10, blat: '1N', blon: '161E' });
+cases.push({ age: 2, clat: '2N', clon: '160E', mdir: 200, mkn: 10, blat: '1S', blon: '161E', wind: 90 });
 cases.push({});
 cases.push({ age: 4, clat: '17.2N' });
 cases.push({ age: -1, clat: 17, clon: -62, mdir: 0, mkn: 10, blat: 20, blon: -62 });
@@ -94,7 +112,8 @@ cases.forEach(c => {
   if (items.geo) parsed.push({ c, items, text: want });
 });
 ok(cases.length + ' advisories: the page says what the terminal says, character for character (' + AWK + ')', diff === 0, first);
-ok('most of them are worked, not refused', parsed.length >= 120, String(parsed.length));
+ok('most of them are worked, not refused', parsed.length >= 240, String(parsed.length));
+ok('a storm and a boat across the equator from each other are refused', /opposite sides of the equator/.test(awk({ age: 2, clat: '2S', clon: '160E', mdir: 200, mkn: 10, blat: '1N', blon: '161E' })));
 
 /* ---- 2. the geometry, again ------------------------------------------- */
 function deg(s, lim) {
@@ -132,9 +151,28 @@ parsed.forEach(({ c, text }) => {
         within half a mile of the track it is on it, neither side  */
     const exp = Math.abs(cr) < 0.5 ? 0 : (cr < 0 ? 1 : -1);
     if (says !== exp) { gbad++; if (!gfirst) gfirst = JSON.stringify(c) + ': the side is wrong'; }
+    /*  the shared words (TAWG): the right is dangerous in the north, the
+        left in the south; a veer on the right, a back on the left  */
+    const south = cy < 0;
+    if (exp !== 0) {
+      const danger = (exp === 1) !== south;
+      if (danger !== /: the dangerous side\./.test(text) || danger === /: the navigable side\./.test(text)) { gbad++; if (!gfirst) gfirst = JSON.stringify(c) + ': the dangerous side is wrong'; }
+      if (!new RegExp('expect yours to ' + (exp === 1 ? 'veer' : 'back') + ' as it passes').test(text)) { gbad++; if (!gfirst) gfirst = JSON.stringify(c) + ': the shift to expect is wrong'; }
+    }
+    /*  the band from the wind: ahead of it (the boat from the centre along
+        its movement) 87.5 to 110, behind it 97.5 to 135; to the right of
+        the wind in the north, the left in the south  */
+    const wb = text.match(/puts the centre between (\d+) and (\d+)\./);
+    if (c.wind !== '' && c.wind !== undefined) {
+      const along = -(p[0] * Math.sin(md * Math.PI / 180) + p[1] * Math.cos(md * Math.PI / 180));
+      const lo = along > 0 ? 87.5 : 97.5, hi = along > 0 ? 110 : 135, w = +c.wind;
+      const elo = south ? w - hi : w + lo, ehi = south ? w - lo : w + hi;
+      const nrm = x => Math.trunc(((x % 360) + 360) % 360 + 0.5) % 360;
+      if (!wb || +wb[1] !== nrm(elo) || +wb[2] !== nrm(ehi)) { gbad++; if (!gfirst) gfirst = JSON.stringify(c) + ': the band is ' + (wb ? wb[1] + ' to ' + wb[2] : 'missing') + ', the rule gives ' + nrm(elo) + ' to ' + nrm(ehi); }
+    }
   }
 });
-ok(parsed.length + ' worked advisories: the closest approach and the side, against arithmetic of the test\'s own (' + nCpa + ' approaches)', gbad === 0, gfirst);
+ok(parsed.length + ' worked advisories: the closest approach, the side, the dangerous side, the shift and the band, against arithmetic of the test\'s own (' + nCpa + ' approaches)', gbad === 0, gfirst);
 
 /* ---- 3. the picture ---------------------------------------------------- */
 function checkStorm(svg, want) {
@@ -154,7 +192,8 @@ function checkStorm(svg, want) {
     const go = brg(num(s, 'x2') - num(s, 'x1'), num(s, 'y2') - num(s, 'y1'));
     const toLow = brg(LX - (num(s, 'x1') + num(s, 'x2')) / 2, LY - (num(s, 'y1') + num(s, 'y2')) / 2);
     const rel = diff(toLow, go);
-    if (!(rel < -60 && rel > -90)) bad('an arrow of the low\'s wind is not round it anticlockwise and turned in (' + rel.toFixed(0) + ')');
+    if (want.south ? !(rel > 60 && rel < 90) : !(rel < -60 && rel > -90))
+      bad('an arrow of the low\'s wind is not round it ' + (want.south ? 'clockwise' : 'anticlockwise') + ' and turned in (' + rel.toFixed(0) + ')');
   });
   /*  the centre now, against the report's bearing and distance  */
   const b = brg(LX - cx, LY - cy), d = Math.hypot(LX - cx, LY - cy) / K;
@@ -175,7 +214,7 @@ function checkStorm(svg, want) {
     else {
       const m = band.getAttribute('d').match(/^M([\d.]+),([\d.]+)L([\d.]+),([\d.]+)A[\d.]+,[\d.]+ 0 0 1 ([\d.]+),([\d.]+)Z$/);
       const lo = brg(+m[3] - +m[1], +m[4] - +m[2]), hi = brg(+m[5] - +m[1], +m[6] - +m[2]);
-      if (Math.abs(diff(lo, want.wind + 110)) > 1 || Math.abs(diff(hi, want.wind + 135)) > 1) bad('the band runs ' + lo.toFixed(0) + ' to ' + hi.toFixed(0) + ', not wind+110 to wind+135');
+      if (Math.abs(diff(lo, want.band[0])) > 1 || Math.abs(diff(hi, want.band[1])) > 1) bad('the band runs ' + lo.toFixed(0) + ' to ' + hi.toFixed(0) + ', not ' + want.band[0].toFixed(1) + ' to ' + want.band[1].toFixed(1));
     }
   }
   /*  the closest approach  */
@@ -229,14 +268,24 @@ function checkCallouts(svg) {
   const sets = [
     { age: 4, clat: '17.2N', clon: '62.4W', mdir: 330, mkn: 12, r34: 120, blat: '21.6N', blon: '63.2W', bcse: 270, bkn: 6, wind: 48 },
     { age: 6, clat: '30N', clon: '70W', mdir: 45, mkn: 15, r34: '', blat: '31N', blon: '72W', bcse: '', bkn: '', wind: 300 },
-    { age: 0, clat: '25N', clon: '80W', mdir: 290, mkn: 8, r34: 90, blat: '24N', blon: '82W', bcse: 90, bkn: 5, wind: '' }
+    { age: 0, clat: '25N', clon: '80W', mdir: 290, mkn: 8, r34: 90, blat: '24N', blon: '82W', bcse: 90, bkn: 5, wind: '' },
+    { age: 2, clat: '15S', clon: '160E', mdir: 200, mkn: 10, r34: 60, blat: '16S', blon: '161E', bcse: '', bkn: '', wind: 60 }
   ];
+  /*  the band the picture should draw, worked here from the test's own
+      geometry: ahead of the storm or behind it, north or south  */
+  const bandOf = (s, G) => {
+    if (s.wind === '') return null;
+    const md = +s.mdir * Math.PI / 180, along = -(G.now[0] * Math.sin(md) + G.now[1] * Math.cos(md));
+    const lo = +s.mkn > 0 && along > 0 ? 87.5 : +s.mkn > 0 ? 97.5 : 87.5, hi = +s.mkn > 0 && along > 0 ? 110 : 135, w = +s.wind;
+    return /S$/.test(s.clat) ? [w - hi, w - lo] : [w + lo, w + hi];
+  };
   for (const s of sets) {
     for (const k of KEYS) await page.fill('#s-' + k, String(s[k]));
     await page.waitForTimeout(150);
     const items = CHART.stormReport(s), G = items.geo;
     const want = { brg: Math.round(((G.brg % 360) + 360) % 360), dist: Math.round(G.dist), mdir: +s.mdir, mkn: +s.mkn, age: +s.age,
-                   wind: s.wind === '' ? null : +s.wind, cpa: G.cpa ? G.cpa.d : null };
+                   wind: s.wind === '' ? null : +s.wind, cpa: G.cpa ? G.cpa.d : null,
+                   south: /S$/.test(s.clat), band: bandOf(s, G) };
     for (const mode of ['night', 'day']) {
       await page.evaluate(m => setMode(m), mode);
       await page.waitForTimeout(120);
@@ -256,7 +305,8 @@ function checkCallouts(svg) {
   const S = sets[0], G0 = CHART.stormReport(S).geo;
   for (const k of KEYS) await page.fill('#s-' + k, String(S[k]));
   await page.waitForTimeout(150);
-  const want0 = { brg: Math.round(((G0.brg % 360) + 360) % 360), dist: Math.round(G0.dist), mdir: S.mdir, mkn: S.mkn, age: S.age, wind: S.wind, cpa: G0.cpa.d };
+  const want0 = { brg: Math.round(((G0.brg % 360) + 360) % 360), dist: Math.round(G0.dist), mdir: S.mdir, mkn: S.mkn, age: S.age, wind: S.wind, cpa: G0.cpa.d,
+                  south: false, band: bandOf(S, G0) };
   const planted = await page.evaluate(w => {
     const src = document.querySelector('#storm-fig svg'), copy = () => src.cloneNode(true), out = {};
     const flip = e => { const a = [e.getAttribute('x1'), e.getAttribute('y1')]; e.setAttribute('x1', e.getAttribute('x2')); e.setAttribute('y1', e.getAttribute('y2')); e.setAttribute('x2', a[0]); e.setAttribute('y2', a[1]); };

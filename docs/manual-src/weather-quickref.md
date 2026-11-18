@@ -57,9 +57,11 @@ you if it is going east, north if west. **A falling glass: it is closing. A
 rising glass: it is drawing away.** `weather learn veer` draws it from above,
 going east and going west, north and south of the equator.
 
-**A reported storm** (`weather storm`): back to the wind, the centre lies wind
-+110 in front of a storm, +120 to +135 behind it; north of the equator the right
-of its track is the dangerous side. The advisory is old when it arrives.
+**A reported storm** (`weather storm`): face the wind; north of the equator the
+centre is about 110° to your right ahead of the storm, 120 to 135° behind it;
+south of it, to your left; nearer the centre, a point or two less. Its right is
+the dangerous side in the north, its left in the south; the navigable side is not
+safe, only less dangerous. The advisory is old when it arrives.
 
 **Fronts** (`weather learn fronts`), south of a low going east: glass falling,
 cirrus then a grey sheet, steady rain; the warm front passes, the wind veers S

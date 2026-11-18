@@ -352,27 +352,33 @@ your position, and your course, speed and wind if you have them (Figure 9).
 
 1. **Where the centre is now:** the advisory's position moved on along its track
    for the hours since it was issued.
-2. **Which side of its track you are on,** looking the way it goes. In the
-   northern hemisphere the right is the dangerous semicircle: the storm's own
-   speed adds to its wind there, and the wind and sea carry you toward its path.
-   Within half a mile of the track you are on it, ahead or behind; ahead of it
-   and closer than its 34-knot winds reach, it says you are near its path.
+2. **Which side of its track you are on,** looking the way it goes. North of the
+   equator its right is the dangerous side; south of it, its left. The storm's
+   own speed adds to its wind there, and the wind and sea carry you toward its
+   path. The navigable side is not safe, only less dangerous. It also says which
+   way to expect your wind to shift as it passes: on its right the wind veers,
+   on its left it backs. Within half a mile of the track you are on it, ahead or
+   behind; ahead of it and closer than its 34-knot winds reach, it says you are
+   near its path.
 3. **How close it comes, and when,** if both of you hold course and speed, and
    whether that is inside its 34-knot winds.
-4. **Whether your own wind agrees.** With your back to the wind the centre lies
-   about 110 degrees round from dead astern in front of a storm and 120 to 135
-   behind it, so between your wind plus 110 and plus 135. Inside that band the
-   report agrees; within 15 degrees of it, near enough for a wind read by eye;
-   further off, the two disagree and one of them is wrong or old.
+4. **Whether your own wind agrees.** Face the wind: north of the equator the
+   centre is about 110 degrees to your right ahead of the storm, and 120 to 135
+   behind it; south of the equator, to your left. Nearer the centre, a point or
+   two less. So ahead of it the band runs from 87.5 to 110 degrees off the wind,
+   behind it from 97.5 to 135. Inside the band the report agrees; within 15
+   degrees of it, near enough for a wind read by eye; further off, the two
+   disagree and one of them is wrong or old.
 5. **That it is not a forecast.** An advisory is hours old when it arrives and a
    storm can turn: plot each one as it comes. The wind on deck is the newer
    evidence.
 
 The positions are worked on a flat chart round you, good to a few miles within a
-few hundred. It covers the northern hemisphere for now: south of the equator it
-says so and works nothing, until the southern words are decided. It gives facts,
-not orders: what to steer is seamanship. The rules are Bowditch's (*The American
-Practical Navigator*, 2017, chapter 39).
+few hundred. It works in both hemispheres; a storm and a boat on opposite sides
+of the equator it refuses. It gives facts, not orders: what to steer is
+seamanship. The rules are Bowditch's (*The American Practical Navigator*, 2017,
+chapter 39), in the words the crew shares across bashnav, the watch faces and the
+course (Larry's ruling TAWG); the lesson `cyclone` lists them.
 
 ---
 

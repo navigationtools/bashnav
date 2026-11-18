@@ -280,12 +280,14 @@ var CHART = (function () {
     if (rr === 'x' || (rr !== '' && rr < 0)) { say('The 34-knot radius is in nautical miles; leave it out if the advisory has none.'); return out; }
     if (cs === 'x' || bk === 'x' || (cs !== '' && (cs < 0 || cs >= 360)) || (bk !== '' && bk < 0)) { say('Your course is 0 to 359 and your speed knots; leave both out if you are stopped.'); return out; }
     if (wd === 'x' || (wd !== '' && (wd < 0 || wd >= 360))) { say('Your wind is the direction it blows from, 0 to 359; leave it out if you have none.'); return out; }
-    if (by < 0 || cy < 0) {
-      warn('South of the equator this is not worked yet.');
-      why('which side of a storm is dangerous there, and the words for it, wait');
-      why('for a decision; the rule from your own wind still holds in reverse');
+    //  both hemispheres (TAWG, weather 1.0.15), the storm's deciding; a
+    //  storm and a boat across the equator from each other are refused
+    if ((by < 0 && cy > 0) || (by > 0 && cy < 0)) {
+      warn('You and the storm are on opposite sides of the equator.');
+      why('its side and its wind turn the other way across it: not worked');
       return out;
     }
+    var sh = (cy < 0 || (cy === 0 && by < 0)) ? -1 : 1, pos = 0;
     if (cs === '') cs = 0; if (bk === '') bk = 0;
     var k = Math.cos((cy + by) / 2 * 3.141592653589793 / 180);
     var dx = cx - bx; if (dx > 180) dx -= 360; if (dx < -180) dx += 360;
@@ -295,7 +297,7 @@ var CHART = (function () {
     var nx = dx + vx * a, ny = dy + vy * a;
     var dist = Math.sqrt(nx * nx + ny * ny), brg = Math.atan2(nx, ny) * 57.29577951308232;
     var geo = { then: [dx, dy], now: [nx, ny], v: [vx, vy], u: [ux, uy], r34: rr === '' ? null : rr, wind: wd === '' ? null : wd,
-                mdir: md, bcse: cs, bkn: bk, age: a, dist: dist, brg: brg, cpa: null };
+                mdir: md, bcse: cs, bkn: bk, age: a, dist: dist, brg: brg, cpa: null, south: sh < 0, pos: 0 };
     say('Reported ' + g(a) + ' hours ago: the centre at ' + stLL(cy, 'N', 'S') + ', ' + stLL(cx, 'E', 'W') + ', moving ' + d3(stB(md)) + ' at ' + g(mk) + ' knots.');
     if (rr !== '') say('Its 34-knot winds reach ' + g(rr) + ' nm from the centre.');
     say('You: ' + stLL(by, 'N', 'S') + ', ' + stLL(bx, 'E', 'W') + ', ' + (bk > 0 ? 'steering ' + d3(stB(cs)) + ' at ' + g(bk) + ' knots' : 'stopped') + '.');
@@ -306,19 +308,28 @@ var CHART = (function () {
       var rel = Math.atan2(-nx, -ny) * 57.29577951308232 - md;
       var cross = dist * Math.sin(rel * 3.141592653589793 / 180), along = dist * Math.cos(rel * 3.141592653589793 / 180);
       var off = cross < 0 ? -cross : cross;
-      geo.right = cross > 0; geo.off = off;
+      pos = along > 0 ? 1 : (along < 0 ? -1 : 0);
+      geo.right = cross > 0; geo.off = off; geo.pos = pos;
       if (off < 0.5) {
         warn('You are on its track, ' + (along > 0 ? 'ahead of' : 'behind') + ' it.');
-        why('neither semicircle: ahead of it the centre is coming at you, behind');
+        why('neither side: ahead of it the centre is coming at you, behind');
         why('it the centre is going away (Bowditch)');
-      } else if (cross > 0) {
-        warn('You are on the right of its track, ' + stR(off) + ' nm off it: the dangerous semicircle.');
-        why('looking the way it goes; on the right its own speed adds to its wind');
-        why('and the wind and sea carry you toward its path (Bowditch)');
       } else {
-        say('You are on the left of its track, ' + stR(off) + ' nm off it: the less dangerous semicircle.');
-        why('looking the way it goes; on the left its speed takes from its wind,');
-        why('and the wind carries you away from its path (Bowditch)');
+        //  the crew's shared words (TAWG): lines 2, 5 and 1
+        var sd = cross > 0 ? 'right' : 'left';
+        if ((sh > 0) === (cross > 0)) {
+          warn('You are on the ' + sd + ' of its track, ' + stR(off) + ' nm off it: the dangerous side.');
+          why('north of the equator its right is the dangerous side; south of it,');
+          why('its left. Its own speed adds to its wind there, and the wind and sea');
+          why('carry you toward its path (Bowditch)');
+        } else {
+          say('You are on the ' + sd + ' of its track, ' + stR(off) + ' nm off it: the navigable side.');
+          why('the navigable side is not safe, only less dangerous. Its speed takes');
+          why('from its wind there, and the wind carries you away from its path');
+          why('(Bowditch)');
+        }
+        why('look the way the storm is going: on its right the wind veers, on its');
+        why('left it backs. Here, expect yours to ' + (cross > 0 ? 'veer' : 'back') + ' as it passes');
       }
       if (along > 0 && ((rr !== '' && off < rr) || (rr === '' && off < 30)))
         warn('And you are ahead of it, near its path: its winds reach your water.');
@@ -349,10 +360,18 @@ var CHART = (function () {
     if (wd === '') {
       say('Give me your wind and I will check the report against it.');
     } else {
-      var lo = wd + 110, hi = wd + 135;
+      //  the shared words' line 4: 110 ahead, 120 to 135 behind, to your
+      //  right in the north and left in the south, a point or two less
+      //  nearer the centre (two points, 22.5 degrees, off the low edge)
+      var alo = pos > 0 ? 87.5 : pos < 0 ? 97.5 : 87.5, ahi = pos > 0 ? 110 : 135;
+      var lo = sh > 0 ? wd + alo : wd - ahi, hi = sh > 0 ? wd + ahi : wd - alo;
       say('Your wind from ' + d3(stB(wd)) + ' puts the centre between ' + d3(stB(lo)) + ' and ' + d3(stB(hi)) + '.');
-      why('back to the wind, the centre about 110 degrees round from dead astern');
-      why('in front of a storm and 120 to 135 behind it (Bowditch)');
+      why('face the wind: north of the equator the centre is about 110 degrees to');
+      why('your right ahead of the storm, and 120 to 135 behind it; south of the');
+      why('equator, to your left. Nearer the centre, a point or two less (Bowditch)');
+      if (pos > 0) why('you are ahead of it: 110, or a point or two less');
+      else if (pos < 0) why('you are behind it: 120 to 135, or a point or two less');
+      else why('it has no track to be ahead of or behind: 110 to 135, or two points less');
       var o = stOut(brg, lo, hi);
       geo.band = [lo, hi]; geo.bandOff = o;
       if (o === 0) acc('The report agrees with your wind.');

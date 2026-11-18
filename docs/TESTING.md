@@ -416,6 +416,20 @@ drawn below its curve.
 named the ten lessons; `veer`, the eleventh, had no golden copy. It now asks the
 awk for the list, as `weather-ui.js` does.
 
+### A storm in the shared words, both hemispheres (weather 1.0.15)
+
+**The words, the side and the band, worked again by the test.** Every advisory
+in `weather-storm.js`'s grid is also run mirrored to 21.6 S, so more than 240 are
+worked, and the page must print what the awk prints. The test then works out for
+itself: the dangerous side (the right of the track in the north, the left in the
+south) against "the dangerous side" or "the navigable side" in the text; the
+shift to expect (a veer on the right, a back on the left); and the band the wind
+puts the centre in, from whether the boat is ahead of the storm or behind it and
+from the hemisphere, against the bearings printed. On the picture, each of the
+low's eight arrows must turn round it anticlockwise in the north and clockwise
+in the south, turned in, and the wedge must be that band. A storm and a boat on
+opposite sides of the equator must be refused.
+
 ### The glass in the Met Office's bands (weather 1.0.13)
 
 **Each boundary from both sides, and the figure as printed.** `tests/wx-check.awk`

@@ -213,14 +213,19 @@ function iso_scale_figure(   w,h,r,c,SP,LT,ns,nl,line){
 #    1. where the centre is NOW: the advisory's position moved on along its
 #       track for the hours since it was issued;
 #    2. which side of the track you are on, looking the way the storm goes,
-#       and so which semicircle: in the north the right is the dangerous one
-#       (Bowditch 2017, 3913, pp. 657-658);
+#       and so which side is dangerous: north of the equator its right,
+#       south of it its left (Bowditch 2017, 3913, pp. 657-658), and which
+#       way your wind will shift as it passes: veer on its right, back on
+#       its left;
 #    3. how close it comes, and when, if both hold their course and speed,
 #       and whether that is inside its 34-knot winds;
-#    4. whether your own wind agrees.  With your back to the wind the centre
-#       lies about 110 degrees round from dead astern in front of a storm and
-#       120 to 135 behind it (Bowditch, p. 655): so between wind+110 and
-#       wind+135.  Within the band it agrees; within 15 degrees of it, near
+#    4. whether your own wind agrees.  Facing the wind, the centre is about
+#       110 degrees to your right ahead of the storm and 120 to 135 behind
+#       it, to your left south of the equator; nearer the centre, a point or
+#       two less (Bowditch, p. 655).  So ahead of it the band runs from 110
+#       less two points (22.5 degrees) to 110; behind it, from 120 less two
+#       points to 135; with no track to be ahead of or behind, from 87.5 to
+#       135.  Within the band it agrees; within 15 degrees of it, near
 #       enough for a wind read by eye; further off, the two disagree and one
 #       of them is wrong or old;
 #    5. that it is not a forecast: an advisory is hours old when it arrives,
@@ -235,9 +240,18 @@ function iso_scale_figure(   w,h,r,c,SP,LT,ns,nl,line){
 #  the app's own, said as a fact and not as an order, since what to do
 #  there is seamanship (PILOT's) and not this tool's.
 #
-#  NORTHERN HEMISPHERE ONLY, for now.  Which side is dangerous in the south
-#  and the words for it wait for Larry (card I19, part three), so a boat
-#  south of the equator is told so and nothing is worked.
+#  THE WORDS ARE THE CREW'S SHARED WORDS (Larry, TAWG, 18 November 2026;
+#  the navigationtools design system, "Shared words"): lines 1, 2, 4 and 5
+#  are printed as they stand there, and the angle is the one used on the
+#  watch faces and in the course, 110 ahead and 120 to 135 behind.
+#  weather 1.0.15.  Before it this screen used one band, 110 to 135,
+#  whether ahead or behind, and refused the south.
+#
+#  BOTH HEMISPHERES (TAWG settled card I19, part three): the same rule,
+#  its left the dangerous side in the south, the centre to your left.
+#  Which hemisphere is the storm's; a storm and a boat on opposite sides
+#  of the equator are refused, since its side and its wind turn the other
+#  way across it.
 #
 #  chart.js holds the same reasoning (CHART.stormReport) and
 #  docs/web/tests/weather-storm.js holds the two to each other character
@@ -263,7 +277,8 @@ function st_num(s,   t){
 }
 function st_report(age, clat, clon, mdir, mkn, r34, blat, blon, bcse, bkn, wind,
                    a, cy, cx, by, bx, md, mk, rr, cs, bk, wd, k, dx, dy, vx, vy, ux, uy,
-                   nx, ny, dist, brg, rel, cross, along, rx, ry, vv, t, px, py, cpa, lo, hi, off){
+                   nx, ny, dist, brg, rel, cross, along, rx, ry, vv, t, px, py, cpa, lo, hi, off,
+                   sh, pos, sd, alo, ahi){
   print ""
   printf "  %s\n", cw("A REPORTED STORM", C_ACC)
   hr()
@@ -283,13 +298,15 @@ function st_report(age, clat, clon, mdir, mkn, r34, blat, blon, bcse, bkn, wind,
   if(rr == "x" || (rr != "" && rr < 0)){ ch_say("The 34-knot radius is in nautical miles; leave it out if the advisory has none."); print ""; return 0 }
   if(cs == "x" || bk == "x" || (cs != "" && (cs < 0 || cs >= 360)) || (bk != "" && bk < 0)){ ch_say("Your course is 0 to 359 and your speed knots; leave both out if you are stopped."); print ""; return 0 }
   if(wd == "x" || (wd != "" && (wd < 0 || wd >= 360))){ ch_say("Your wind is the direction it blows from, 0 to 359; leave it out if you have none."); print ""; return 0 }
-  if(by < 0 || cy < 0){
-    ch_say(cw("South of the equator this is not worked yet.", C_WARN))
-    ch_why("which side of a storm is dangerous there, and the words for it, wait")
-    ch_why("for a decision; the rule from your own wind still holds in reverse")
+  if((by < 0 && cy > 0) || (by > 0 && cy < 0)){
+    ch_say(cw("You and the storm are on opposite sides of the equator.", C_WARN))
+    ch_why("its side and its wind turn the other way across it: not worked")
     print ""
     return 0
   }
+  #  the storm's hemisphere: 1 north, -1 south
+  sh = (cy < 0 || (cy == 0 && by < 0)) ? -1 : 1
+  pos = 0
   if(cs == "") cs = 0; if(bk == "") bk = 0
   k = cos((cy + by) / 2 * 3.141592653589793 / 180)
   dx = cx - bx; if(dx > 180) dx -= 360; if(dx < -180) dx += 360
@@ -309,20 +326,28 @@ function st_report(age, clat, clon, mdir, mkn, r34, blat, blon, bcse, bkn, wind,
     rel = atan2(-nx, -ny) * 57.29577951308232 - md
     cross = dist * sin(rel * 3.141592653589793 / 180); along = dist * cos(rel * 3.141592653589793 / 180)
     off = (cross < 0 ? -cross : cross)
+    pos = (along > 0 ? 1 : (along < 0 ? -1 : 0))
     #  ON ITS TRACK: under half a mile off it, where the sign of a
     #  cross product is only rounding, it is neither side
     if(off < 0.5){
       ch_say(cw(sprintf("You are on its track, %s it.", (along > 0 ? "ahead of" : "behind")), C_WARN))
-      ch_why("neither semicircle: ahead of it the centre is coming at you, behind")
+      ch_why("neither side: ahead of it the centre is coming at you, behind")
       ch_why("it the centre is going away (Bowditch)")
-    } else if(cross > 0){
-      ch_say(cw(sprintf("You are on the right of its track, %d nm off it: the dangerous semicircle.", st_r(off)), C_WARN))
-      ch_why("looking the way it goes; on the right its own speed adds to its wind")
-      ch_why("and the wind and sea carry you toward its path (Bowditch)")
     } else {
-      ch_say(sprintf("You are on the left of its track, %d nm off it: the less dangerous semicircle.", st_r(off)))
-      ch_why("looking the way it goes; on the left its speed takes from its wind,")
-      ch_why("and the wind carries you away from its path (Bowditch)")
+      sd = (cross > 0 ? "right" : "left")
+      if((sh > 0) == (cross > 0)){
+        ch_say(cw(sprintf("You are on the %s of its track, %d nm off it: the dangerous side.", sd, st_r(off)), C_WARN))
+        ch_why("north of the equator its right is the dangerous side; south of it,")
+        ch_why("its left. Its own speed adds to its wind there, and the wind and sea")
+        ch_why("carry you toward its path (Bowditch)")
+      } else {
+        ch_say(sprintf("You are on the %s of its track, %d nm off it: the navigable side.", sd, st_r(off)))
+        ch_why("the navigable side is not safe, only less dangerous. Its speed takes")
+        ch_why("from its wind there, and the wind carries you away from its path")
+        ch_why("(Bowditch)")
+      }
+      ch_why("look the way the storm is going: on its right the wind veers, on its")
+      ch_why(sprintf("left it backs. Here, expect yours to %s as it passes", (cross > 0 ? "veer" : "back")))
     }
     #  NEAR ITS PATH: ahead of it and within its 34-knot radius of the
     #  track (30 nm when the advisory gives no radius), the app's own line
@@ -356,10 +381,15 @@ function st_report(age, clat, clon, mdir, mkn, r34, blat, blon, bcse, bkn, wind,
   if(wd == ""){
     ch_say("Give me your wind and I will check the report against it.")
   } else {
-    lo = wd + 110; hi = wd + 135
+    if(pos > 0){ alo = 87.5; ahi = 110 } else if(pos < 0){ alo = 97.5; ahi = 135 } else { alo = 87.5; ahi = 135 }
+    if(sh > 0){ lo = wd + alo; hi = wd + ahi } else { lo = wd - ahi; hi = wd - alo }
     ch_say(sprintf("Your wind from %03d puts the centre between %03d and %03d.", st_b(wd), st_b(lo), st_b(hi)))
-    ch_why("back to the wind, the centre about 110 degrees round from dead astern")
-    ch_why("in front of a storm and 120 to 135 behind it (Bowditch)")
+    ch_why("face the wind: north of the equator the centre is about 110 degrees to")
+    ch_why("your right ahead of the storm, and 120 to 135 behind it; south of the")
+    ch_why("equator, to your left. Nearer the centre, a point or two less (Bowditch)")
+    if(pos > 0)      ch_why("you are ahead of it: 110, or a point or two less")
+    else if(pos < 0) ch_why("you are behind it: 120 to 135, or a point or two less")
+    else             ch_why("it has no track to be ahead of or behind: 110 to 135, or two points less")
     off = st_out(brg, lo, hi)
     if(off == 0) ch_say(cw("The report agrees with your wind.", C_ACC))
     else if(off <= 15) ch_say(sprintf("The report is %d degrees outside that: near enough, for a wind read by eye.", st_r(off)))

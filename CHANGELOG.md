@@ -1,5 +1,53 @@
 # Changelog
 
+## weather 1.0.15: a storm in the crew's shared words, south included (TAWG)
+
+**What.** "A reported storm" and the lesson `cyclone` now use the six lines the
+crew agreed and Larry adopted (TAWG, 18 November 2026), copied from the
+navigationtools design system's "Shared words":
+
+1. **The side** says "the dangerous side" or "the navigable side" (it said
+   "semicircle"): north of the equator the right, south of it the left. The
+   navigable side carries "not safe, only less dangerous", and both say which
+   way to expect your wind to shift as the storm passes: a veer on its right, a
+   back on its left.
+2. **The angle is split** as Bowditch splits it: facing the wind, the centre is
+   about 110 degrees to your right ahead of the storm and 120 to 135 behind it,
+   to your left in the south; nearer the centre a point or two less, taken as up
+   to 22.5 degrees off the near edge. So ahead of it the band runs 87.5 to 110
+   off the wind, behind it 97.5 to 135; a storm with no track, 87.5 to 135. It
+   was one band, 110 to 135, whether ahead or behind.
+3. **The south is worked.** A storm south of the equator is worked with its
+   left the dangerous side and the centre to the left of the wind; its picture
+   draws the low's own wind going round clockwise. A storm and a boat on
+   opposite sides of the equator are refused. Before, the south was refused.
+4. **The lesson `cyclone`** lists the five lines that are words (the sixth is
+   the watch's), under "Which side you are on, in either hemisphere".
+
+**Why.** Larry's ruling TAWG at the 17:00 window: one set of words for a storm
+across bashnav, the WeatherGlass and CelestialGlass faces, their guides and the
+course, south included, with one angle everywhere. It settles card I19, part
+three.
+
+**What it touches.** `st_report` in `src/weather/chart.awk` and
+`CHART.stormReport` in `chart.js`, the same words character for character; the
+storm picture's low turns clockwise in the south (`weather.js`); the lesson
+`cyclone` (`teach.awk`, `lessons.js`); the manual's section 8, the quick
+reference, `docs/SOURCES.md`. **One case reads differently:** the worked example
+(the boat ahead of the storm, wind from 048) agreed with the old band, 158 to
+183, and now disagrees by 17 degrees: ahead of a storm the rule puts the centre
+110 degrees off the wind, and the example's centre is 127 off it. Cache
+`weather-v32`.
+
+**Checked.** `docs/web/tests/weather-storm.js` now runs every advisory twice,
+north and mirrored to the south (more than 240 worked), page against awk
+character for character; and works again, by its own arithmetic, the dangerous
+side in each hemisphere, the shift to expect, and the band, ahead or behind and
+right or left. The picture's low turns the right way for its hemisphere, and its
+wedge is the band the test works out. Golden: the lesson, the storm cases, a
+southern storm worked and one across the equator refused, the same under mawk
+and gawk.
+
 ## weather 1.0.14 and deck log 1.1.2: a sixth, not a fifth
 
 **What.** The cloud base's reasoning, in the lesson `lapse`, in "What the log

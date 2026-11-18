@@ -1130,10 +1130,11 @@ function stormPicture(host, G) {
   }
   D.e('circle', { cx: f1(X(G.then[0])), cy: f1(Y(G.then[1])), r: 5, fill: ground, stroke: warn, 'stroke-width': 2, 'data-part': 'reported' });
   notes.push([X(G.then[0]), Y(G.then[1]), 'where it was reported', G.age + ' hours ago', warn, 'reported']);
-  /*  the low itself, with its own wind round it: anticlockwise, turned in  */
+  /*  the low itself, with its own wind round it, turned in: anticlockwise
+      north of the equator, clockwise south of it (weather 1.0.15, TAWG)  */
   D.e('circle', { cx: f1(nx), cy: f1(ny), r: 26, fill: ground, 'fill-opacity': 0.8 });
   for (var be = 0; be < 360; be += 45) {
-    var px2 = nx + 20 * Math.sin(be * RAD), py2 = ny - 20 * Math.cos(be * RAD), hd = (be - 105) * RAD;
+    var px2 = nx + 20 * Math.sin(be * RAD), py2 = ny - 20 * Math.cos(be * RAD), hd = (be + (G.south ? 105 : -105)) * RAD;
     arrow(px2 - 5 * Math.sin(hd), py2 + 5 * Math.cos(hd), px2 + 5 * Math.sin(hd), py2 - 5 * Math.cos(hd), warn, 1.6, 1, { 'data-part': 'spin', 'data-b': be });
   }
   D.e('circle', { cx: f1(nx), cy: f1(ny), r: 10.5, fill: ground, stroke: warn, 'stroke-width': 2.5, 'data-part': 'low' });

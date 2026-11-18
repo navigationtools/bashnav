@@ -609,11 +609,14 @@ WXLOG2
     $AW $WX -v cmode=plain -v cmd=isobars -v spacing="$1" -v lat="$2" -v north="$3" -v step=4 </dev/null
   done
   #  a reported storm (I20, weather 1.0.11): the mock's case, the boat
-  #  stopped with no wind, on the track, and the south's refusal
+  #  stopped with no wind, on the track; since weather 1.0.15 (TAWG) a
+  #  storm south of the equator, worked, and a storm and a boat on
+  #  opposite sides of it, refused
   for c in "4 17.2N 62.4W 330 12 120 21.6N 63.2W 270 6 048" \
            "6 30N 70W 45 15 - 31N 72W - - 300" \
            "12.5 21.6N 69.12W 90 5.5 60 21.6N 63.2W - - -" \
-           "2 15S 160E 200 10 - 16S 161E - - -"; do
+           "2 15S 160E 200 10 - 16S 161E - - 060" \
+           "2 2S 160E 200 10 - 1N 161E - - -"; do
     set -- $c
     echo "=== weather storm, $c ==="
     $AW $WX -v cmode=plain -v cmd=storm -v age="$1" -v clat="$2" -v clon="$3" -v mdir="$4" -v mkn="$5" \

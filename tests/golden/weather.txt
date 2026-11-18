@@ -1005,8 +1005,25 @@ The track is 300 to 600 nm poleward of the 564 line and parallel to it, so well 
   A storm centre has a position, a course and a speed. So do you. You
   want the largest possible closest point of approach. That is exactly
   the relative-motion problem from colregs - the same vector triangle,
-  the same bearing drift, the same answer. The dangerous semicircle is
-  just the half where the storm's own motion adds to its wind.
+  the same bearing drift, the same answer. The dangerous side is just
+  the half where the storm's own motion adds to its wind.
+
+  WHICH SIDE YOU ARE ON, IN EITHER HEMISPHERE
+
+    1. Look the way the storm is going: on its right the wind veers, on
+       its left it backs.
+    2. North of the equator its right is the dangerous side; south of
+       it, its left.
+    3. A steady shift says probably. A boat under way can see the
+       opposite shift from her own motion; if in doubt, stop and watch.
+    4. Face the wind: north of the equator the centre is about 110
+       degrees to your right ahead of the storm, and 120 to 135 behind
+       it; south of the equator, to your left. Nearer the centre, a
+       point or two less.
+    5. The navigable side is not safe, only less dangerous.
+
+  Bowditch, The American Practical Navigator, 2017, chapter 39. Given an
+  advisory, "weather storm" sets these beside your own wind.
 
   Which is why the tools in this suite keep turning out to be the same
   few ideas wearing different hats.
@@ -1526,19 +1543,26 @@ Because the seasons are the 23.5 degree tilt, not the distance. The northern hem
 
   The centre now: 175, 223 nm from you.
      the advisory's position moved on 4 hours along its track
-  You are on the right of its track, 93 nm off it: the dangerous semicircle.
-     looking the way it goes; on the right its own speed adds to its wind
-     and the wind and sea carry you toward its path (Bowditch)
+  You are on the right of its track, 93 nm off it: the dangerous side.
+     north of the equator its right is the dangerous side; south of it,
+     its left. Its own speed adds to its wind there, and the wind and sea
+     carry you toward its path (Bowditch)
+     look the way the storm is going: on its right the wind veers, on its
+     left it backs. Here, expect yours to veer as it passes
   And you are ahead of it, near its path: its winds reach your water.
 
   If both hold on, it comes closest in 21 hours: 21 nm, bearing 090.
   That is inside its 34-knot winds, which reach 120 nm.
      a storm can turn, speed up or stop; work it again with each advisory
 
-  Your wind from 048 puts the centre between 158 and 183.
-     back to the wind, the centre about 110 degrees round from dead astern
-     in front of a storm and 120 to 135 behind it (Bowditch)
-  The report agrees with your wind.
+  Your wind from 048 puts the centre between 136 and 158.
+     face the wind: north of the equator the centre is about 110 degrees to
+     your right ahead of the storm, and 120 to 135 behind it; south of the
+     equator, to your left. Nearer the centre, a point or two less (Bowditch)
+     you are ahead of it: 110, or a point or two less
+  The report and your wind disagree, by 17 degrees.
+     one of them is wrong or old: the advisory's age, a storm that has
+     turned, or your log. The wind on deck is the newer evidence.
 
   ----------------------------------------------------------------------
   Not a forecast. An advisory is hours old when it arrives, and a storm
@@ -1554,15 +1578,20 @@ Because the seasons are the 23.5 degree tilt, not the distance. The northern hem
 
   The centre now: 089, 167 nm from you.
      the advisory's position moved on 6 hours along its track
-  You are on the left of its track, 116 nm off it: the less dangerous semicircle.
-     looking the way it goes; on the left its speed takes from its wind,
-     and the wind carries you away from its path (Bowditch)
+  You are on the left of its track, 116 nm off it: the navigable side.
+     the navigable side is not safe, only less dangerous. Its speed takes
+     from its wind there, and the wind carries you away from its path
+     (Bowditch)
+     look the way the storm is going: on its right the wind veers, on its
+     left it backs. Here, expect yours to back as it passes
 
   It is drawing away from you: its closest was before now.
 
-  Your wind from 300 puts the centre between 050 and 075.
-     back to the wind, the centre about 110 degrees round from dead astern
-     in front of a storm and 120 to 135 behind it (Bowditch)
+  Your wind from 300 puts the centre between 038 and 075.
+     face the wind: north of the equator the centre is about 110 degrees to
+     your right ahead of the storm, and 120 to 135 behind it; south of the
+     equator, to your left. Nearer the centre, a point or two less (Bowditch)
+     you are behind it: 120 to 135, or a point or two less
   The report is 14 degrees outside that: near enough, for a wind read by eye.
 
   ----------------------------------------------------------------------
@@ -1581,7 +1610,7 @@ Because the seasons are the 23.5 degree tilt, not the distance. The northern hem
   The centre now: 270, 262 nm from you.
      the advisory's position moved on 12.5 hours along its track
   You are on its track, ahead of it.
-     neither semicircle: ahead of it the centre is coming at you, behind
+     neither side: ahead of it the centre is coming at you, behind
      it the centre is going away (Bowditch)
   And you are ahead of it, near its path: its winds reach your water.
 
@@ -1596,12 +1625,42 @@ Because the seasons are the 23.5 degree tilt, not the distance. The northern hem
   can turn; plot each one as it comes (Bowditch). Worked on a flat chart
   round you: good to a few miles within a few hundred.
 
-=== weather storm, 2 15S 160E 200 10 - 16S 161E - - - ===
+=== weather storm, 2 15S 160E 200 10 - 16S 161E - - 060 ===
 
   A REPORTED STORM
   ----------------------------------------------------------------------
-  South of the equator this is not worked yet.
-     which side of a storm is dangerous there, and the words for it, wait
-     for a decision; the rule from your own wind still holds in reverse
+  Reported 2 hours ago: the centre at 15 S, 160 E, moving 200 at 10 knots.
+  You: 16 S, 161 E, stopped.
+
+  The centre now: 303, 77 nm from you.
+     the advisory's position moved on 2 hours along its track
+  You are on the left of its track, 75 nm off it: the dangerous side.
+     north of the equator its right is the dangerous side; south of it,
+     its left. Its own speed adds to its wind there, and the wind and sea
+     carry you toward its path (Bowditch)
+     look the way the storm is going: on its right the wind veers, on its
+     left it backs. Here, expect yours to back as it passes
+
+  If both hold on, it comes closest in 2 hours: 75 nm, bearing 290.
+     a storm can turn, speed up or stop; work it again with each advisory
+
+  Your wind from 060 puts the centre between 310 and 333.
+     face the wind: north of the equator the centre is about 110 degrees to
+     your right ahead of the storm, and 120 to 135 behind it; south of the
+     equator, to your left. Nearer the centre, a point or two less (Bowditch)
+     you are ahead of it: 110, or a point or two less
+  The report is 7 degrees outside that: near enough, for a wind read by eye.
+
+  ----------------------------------------------------------------------
+  Not a forecast. An advisory is hours old when it arrives, and a storm
+  can turn; plot each one as it comes (Bowditch). Worked on a flat chart
+  round you: good to a few miles within a few hundred.
+
+=== weather storm, 2 2S 160E 200 10 - 1N 161E - - - ===
+
+  A REPORTED STORM
+  ----------------------------------------------------------------------
+  You and the storm are on opposite sides of the equator.
+     its side and its wind turn the other way across it: not worked
 
 === end of the weather cases ===

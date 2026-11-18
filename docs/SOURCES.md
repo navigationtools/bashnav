@@ -185,7 +185,22 @@ on the storm's track, ahead of the centre or behind it, as cases of their own
 (pp. 659 to 661); and that a plot of reported positions lags, since the
 bulletin is hours old and a storm can turn (p. 658). Worked, not read: the
 flat chart round the boat, the closest approach, and the app's own lines for
-"near its path" and for how near counts as agreeing. **Still to read before a
+"near its path" and for how near counts as agreeing.
+
+**Since weather 1.0.15 (Larry's ruling TAWG, 18 November 2026)** the screen and
+the lesson `cyclone` use the crew's shared words, kept in the navigationtools
+design system under "Shared words" and checked line by line against the 2017
+chapter by PILOT: the rule (from p. 658), which side is dangerous in each
+hemisphere (p. 658; the south's words are Bowditch's own, "the dangerous
+semicircle is to the left"), how firm a shift is (pp. 658 to 659), the centre
+facing the wind (p. 655, with its limit that nearer the centre the angle is "a
+point or two less"), and that the navigable side is not safe, only less
+dangerous. The angle is split as Bowditch splits it, 110 ahead of the storm and
+120 to 135 behind it, the same on the watch faces and in the course. **The
+app's own reading of the words:** "a point or two less" is taken as up to 22.5
+degrees off the near edge of each band, at any distance, since the screen
+cannot tell how near "nearer" is; and a storm and a boat on opposite sides of
+the equator are refused. **Still to read before a
 danger area is drawn:** the National Hurricane Center's guidance for mariners;
 Bowditch's Figure 3912a calls the 1-2-3 rule graphic "former".
 
