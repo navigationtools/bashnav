@@ -649,8 +649,9 @@ function seaFigure(host, S) {
    each pair with the tide allowed for, the tendency word, the tide's size)
    and WX.runs, which the terminal's table is printed from too, so the
    figure and the words cannot disagree.  The tendency key is drawn AT ITS
-   OWN SLOPES on this figure's scale: the line for "falling" falls 1.5 hPa
-   in 3 hours as measured on the axes beside it.
+   OWN SLOPES on this figure's scale: the line for "falling" falls 1.6 hPa
+   in 3 hours as measured on the axes beside it (the Met Office's bands,
+   weather 1.0.13, Larry TAVL; were 1.5 and 3).
 
    The tide: ref + amp * cos(2 pi (solar - 10) / 12), solar the local sun
    time from the longitude, amp = 1.4 cos^3(latitude) hPa (wx.js tide()),
@@ -765,8 +766,8 @@ function glassFigure(host, W, G, lon) {
   /*  the key, each line drawn at its own slope for three hours  */
   var ky = sy + 44, kx = x0, dx = Math.max(24, Math.min(60, X(t0 + 180) - X(t0)));
   var perPx = (bot - top) / (ymax - ymin), hrs = dx / ((x1 - x0) / (spanH || 1));
-  [['steady', 0, 'steady'], ['falling', -1.5, 'falling, 1.5+'], ['falling fast', -3, 'falling fast, 3+'],
-   ['rising', 1.5, 'rising, 1.5+']].forEach(function (k) {
+  [['steady', 0, 'steady'], ['falling', -1.6, 'falling, 1.6+'], ['falling fast', -3.6, 'falling fast, 3.6+'],
+   ['rising', 1.6, 'rising, 1.6+']].forEach(function (k) {
     var st = GLASS_STY[k[0]], dy = -(k[1] * hrs / 3) * perPx;
     D.e('line', { x1: kx, y1: ky - dy / 2, x2: kx + dx, y2: ky + dy / 2, stroke: tok(st[0]),
                   'stroke-width': st[1], 'stroke-linecap': 'round', 'data-part': 'key', 'data-band': k[0],

@@ -232,15 +232,22 @@ BEGIN{
 
   # ---- hemisphere from a latitude as a person writes it -------------
   #  the tendency, in the barograph's four words (weather 1.0.5): the
-  #  change per three hours, each boundary from both sides
-  chk("3.0 down in 3 h is falling fast",  wx_band(-3.0, 3), "falling fast")
-  chk("2.9 down in 3 h is falling",       wx_band(-2.9, 3), "falling")
-  chk("1.5 down in 3 h is falling",       wx_band(-1.5, 3), "falling")
-  chk("1.4 down in 3 h is steady",        wx_band(-1.4, 3), "steady")
-  chk("1.4 up in 3 h is steady",          wx_band( 1.4, 3), "steady")
-  chk("1.5 up in 3 h is rising",          wx_band( 1.5, 3), "rising")
-  chk("5.9 down in 6 h is falling",       wx_band(-5.9, 6), "falling")
-  chk("6.0 down in 6 h is falling fast",  wx_band(-6.0, 6), "falling fast")
+  #  change per three hours, each boundary from both sides.  The Met
+  #  Office's bands (weather 1.0.13, Larry TAVL): slowly 0.1-1.5 is steady
+  #  here, 1.6-3.5 rising or falling, quickly 3.6 and more falling fast
+  chk("3.6 down in 3 h is falling fast",  wx_band(-3.6, 3), "falling fast")
+  chk("3.5 down in 3 h is falling",       wx_band(-3.5, 3), "falling")
+  chk("1.6 down in 3 h is falling",       wx_band(-1.6, 3), "falling")
+  chk("1.5 down in 3 h is steady",        wx_band(-1.5, 3), "steady")
+  chk("1.5 up in 3 h is steady",          wx_band( 1.5, 3), "steady")
+  chk("1.6 up in 3 h is rising",          wx_band( 1.6, 3), "rising")
+  chk("7.0 down in 6 h is falling",       wx_band(-7.0, 6), "falling")
+  chk("7.2 down in 6 h is falling fast",  wx_band(-7.2, 6), "falling fast")
+  #  the word follows the figure printed, to a tenth: 1.56 prints +1.6
+  chk("1.56 up in 3 h prints 1.6: rising", wx_band( 1.56, 3), "rising")
+  chk("1.54 up in 3 h prints 1.5: steady", wx_band( 1.54, 3), "steady")
+  chk("3.56 down in 3 h is falling fast",  wx_band(-3.56, 3), "falling fast")
+  chk("3.54 down in 3 h is falling",       wx_band(-3.54, 3), "falling")
   chk("no time between is steady",        wx_band(-9.0, 0), "steady")
   #  the tide is allowed for only with a longitude and both latitudes
   chk("tide: longitude and latitudes known", wx_tideok(-3, "50 00.0N", "50 10.0N"), 1)

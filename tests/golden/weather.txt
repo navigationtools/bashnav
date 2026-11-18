@@ -13,8 +13,7 @@
 
   The glass, last 48 hours:
      30 Aug 06:00      1016.4
-     to 12:00          1010.1   falling fast  -3.2 hPa in 3 h
-     to 31 Aug 00:00   1003.0   falling       -1.8 hPa in 3 h
+     to 31 Aug 00:00   1003.0   falling       -2.3 hPa in 3 h
      the daily tide alone is 0.6 hPa each way here, and is allowed for
 
   Wind has BACKED 20 degrees, 170 to 150.
@@ -1118,8 +1117,9 @@ Because the seasons are the 23.5 degree tilt, not the distance. The northern hem
   The glass, last 48 hours:
      29 Aug 00:00      1018.4
      to 12:00          1015.8   steady        -0.6 hPa in 3 h
-     to 15:00          1013.1   falling       -2.2 hPa in 3 h
-     to 30 Aug 03:00    998.5   falling fast  -3.6 hPa in 3 h
+     to 18:00          1010.0   falling       -2.7 hPa in 3 h
+     to 30 Aug 00:00   1002.1   falling fast  -4.2 hPa in 3 h
+     to 03:00           998.5   falling       -3.1 hPa in 3 h
      to 09:00           998.4   steady        -0.4 hPa in 3 h
      to 31 Aug 00:00   1009.8   rising        +2.3 hPa in 3 h
      the daily tide alone is 0.4 hPa each way here, and is allowed for
@@ -1143,7 +1143,7 @@ Because the seasons are the 23.5 degree tilt, not the distance. The northern hem
 
   The glass, last 24 hours:
      30 Aug 00:00      1002.1
-     to 03:00           998.5   falling fast  -3.1 hPa in 3 h
+     to 03:00           998.5   falling       -3.1 hPa in 3 h
      to 09:00           998.4   steady        -0.4 hPa in 3 h
      to 31 Aug 00:00   1009.8   rising        +2.3 hPa in 3 h
      the daily tide alone is 0.4 hPa each way here, and is allowed for
@@ -1157,17 +1157,18 @@ Because the seasons are the 23.5 degree tilt, not the distance. The northern hem
   WHAT THE LOG SAYS
   ----------------------------------------------------------------------
   Pressure 1009.8, +1.5 hPa in 3.0 hours.
-  Rising. The gradient is easing or a ridge is building.
+  Near steady.
      a rate matters more than a level: 1000 hPa steady is a quiet day,
      1015 falling fast is not.
 
   The glass, last 48 hours:
      29 Aug 00:00      1018.4
      to 12:00          1015.8   steady        -0.7 hPa in 3 h
-     to 15:00          1013.1   falling       -2.7 hPa in 3 h
-     to 30 Aug 03:00    998.5   falling fast  -3.7 hPa in 3 h
+     to 18:00          1010.0   falling       -2.9 hPa in 3 h
+     to 30 Aug 03:00    998.5   falling fast  -3.8 hPa in 3 h
      to 09:00           998.4   steady        -0.1 hPa in 3 h
-     to 31 Aug 00:00   1009.8   rising        +2.3 hPa in 3 h
+     to 21:00          1008.3   rising        +2.5 hPa in 3 h
+     to 31 Aug 00:00   1009.8   steady        +1.5 hPa in 3 h
      no longitude set, so the daily tide is not allowed for
 
   ----------------------------------------------------------------------

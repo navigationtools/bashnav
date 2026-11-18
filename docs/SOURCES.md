@@ -341,6 +341,28 @@ not a published rule. The readings "still building, or short of fetch" for a
 sea under the scale follow from the two notes quoted above; "is some of it
 swell?" for a sea above it is a question, not a finding.
 
+**The glass's four words: the Met Office's bands** (`wx_band` in `wx.awk`,
+`band` in `wx.js`, the deck log's pressure sentence; weather 1.0.13 and deck log
+1.1.1, Larry's ruling TAVL, 18 November 2026). The Met Office's *Marine forecasts
+glossary*, "Pressure tendency in station reports"
+(<https://weather.metoffice.gov.uk/guides/coast-and-sea/glossary>, read 18
+November 2026), grades the change in the preceding three hours:
+
+| Met Office | change in 3 h | `weather` |
+|---|---|---|
+| rising or falling slowly | 0.1 to 1.5 hPa | steady |
+| rising or falling | 1.6 to 3.5 | rising, falling |
+| rising or falling quickly | 3.6 to 6.0 | falling fast (a rise stays "rising") |
+| rising or falling very rapidly | more than 6.0 | falling fast |
+
+The rate is graded as it is printed, to a tenth of a hectopascal, because the
+Met Office's bands are written in tenths: "+1.6 hPa in 3 h" is always rising.
+The WeatherGlass and CelestialGlass watch faces use the same 1.6 for their
+trend and 3.6 and 6.0 for their pressure figure's colours, so the watch and
+`weather` read one log alike. What is the app's own: joining *slowly* to
+*steady* and *quickly* to *very rapidly*, so that the barograph keeps four
+words.
+
 **The daily pressure tide** (the correction in "What the log says", the
 barograph's wave and the `tide` lesson). Confirmed from sources read:
 

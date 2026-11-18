@@ -121,7 +121,7 @@ function wx_bb(wdir, north,   b){
 function wx_say(s){ printf "  %s\n", s; return 0 }
 function wx_why(s){ printf "  %s\n", cwd("   " s); return 0 }
 
-function wx_report(logfile, lon,   n, i, j, dt, dp, dw, tide1, tide2, corr, k)
+function wx_report(logfile, lon,   n, i, j, dt, dp, dw, tide1, tide2, corr, k, r3)
 {
   n = wx_load(logfile)
   print ""
@@ -154,9 +154,14 @@ function wx_report(logfile, lon,   n, i, j, dt, dp, dw, tide1, tide2, corr, k)
       wx_why("and in the tropics it falls 2-3 mb every afternoon in fine weather.")
     } else corr = dp
     if(dt>0){
-      if(corr <= -3.0*(dt/3.0))      wx_say(cw("That is a serious fall. Expect a deepening system and a rising wind.", C_WARN))
-      else if(corr <= -1.5*(dt/3.0)) wx_say("A definite fall. Something is coming.")
-      else if(corr >=  1.5*(dt/3.0)) wx_say("Rising. The gradient is easing or a ridge is building.")
+      #  The Met Office's bands, as the weather tool's wx_band (deck log
+      #  1.1.1, weather 1.0.13; Larry, TAVL): 3.6 hPa in three hours is
+      #  their "quickly", 1.6 their plain rising or falling.  Were 3.0, 1.5.
+      #  Graded on the 3-hour rate to a tenth, as the weather tool does.
+      r3 = sprintf("%.1f", corr/dt*3.0) + 0
+      if(r3 <= -3.6)      wx_say(cw("That is a serious fall. Expect a deepening system and a rising wind.", C_WARN))
+      else if(r3 <= -1.6) wx_say("A definite fall. Something is coming.")
+      else if(r3 >=  1.6) wx_say("Rising. The gradient is easing or a ridge is building.")
       else                           wx_say("Near steady.")
       wx_why("a rate matters more than a level: 1000 hPa steady is a quiet day,")
       wx_why("1015 falling fast is not.")

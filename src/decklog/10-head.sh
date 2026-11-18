@@ -8,7 +8,7 @@
 #  corrections are new entries that reference the old one, and every
 #  timestamp is UTC.  See docs/DECK-LOG.md.
 # =====================================================================
-DECKLOG_VERSION=1.1
+DECKLOG_VERSION=1.1.1
 
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"
 LOG="$DECKLOG_HOME/log"

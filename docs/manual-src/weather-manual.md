@@ -67,7 +67,7 @@ choose the window, and the choice is remembered.
    winds the wave is 1.3 hPa each way and is most of what the barometer does;
    in the Channel it is a ripple of 0.4.
 4. **The key is drawn to scale.** Each key line has its own slope on these
-   axes: the line for *falling* drops 1.5 hPa in 3 hours as measured against
+   axes: the line for *falling* drops 1.6 hPa in 3 hours as measured against
    the scales beside it.
 
 In the terminal the same thing is a short table, one line for each run of the
@@ -88,10 +88,17 @@ underneath.](fig/weather-what.png)
 
 | | |
 |---|---|
-| 3.0 hPa or more of fall in 3 h | *a serious fall — expect a deepening system and a rising wind* |
-| 1.5 to 3.0 | *a definite fall. Something is coming* |
-| within 1.5 either way | *near steady* |
-| 1.5 or more of rise | *rising — the gradient is easing or a ridge is building* |
+| 3.6 hPa or more of fall in 3 h | *a serious fall — expect a deepening system and a rising wind* |
+| 1.6 to 3.5 | *a definite fall. Something is coming* |
+| less than 1.6 either way | *near steady* |
+| 1.6 or more of rise | *rising — the gradient is easing or a ridge is building* |
+
+**These are the Met Office's bands.** Its marine forecasts glossary grades the
+three-hour change as *slowly* (0.1 to 1.5 hPa), plain *rising* or *falling*
+(1.6 to 3.5), *quickly* (3.6 to 6.0) and *very rapidly* (more than 6.0). Here
+*near steady* is their *slowly* and less, and a *serious fall* is their
+*quickly* and more. The WeatherGlass and CelestialGlass watch faces use the same
+numbers, so the watch and `weather` read the same log the same way.
 
 **It corrects for the atmospheric tide first.** The atmosphere has its own
 semidiurnal pressure wave, largest in the tropics, and near the equator it is

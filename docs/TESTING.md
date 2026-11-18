@@ -416,6 +416,20 @@ drawn below its curve.
 named the ten lessons; `veer`, the eleventh, had no golden copy. It now asks the
 awk for the list, as `weather-ui.js` does.
 
+### The glass in the Met Office's bands (weather 1.0.13)
+
+**Each boundary from both sides, and the figure as printed.** `tests/wx-check.awk`
+holds `wx_band` to the Met Office's bands: 3.6 hPa down in three hours is
+falling fast and 3.5 falling; 1.6 each way is falling or rising and 1.5 steady;
+over six hours, 7.2 down is falling fast and 7.0 falling. Four more cases hold
+the rule that the word follows the printed figure: 1.56 up prints +1.6 and is
+rising, 1.54 prints +1.5 and is steady, 3.56 down is falling fast and 3.54
+falling. `docs/web/tests/weather-glass.js` grades the page's stretches by the
+same rule worked in the test, and requires each key line to fall at its own
+slope (1.6 and 3.6 hPa in three hours) on the figure's axes. The golden file
+shows every reading near a boundary that changed its word, and was read before
+it was regenerated.
+
 ### The words off the picture (weather 1.0.12)
 
 **Every callout outside the plot, clear of every other.** Larry found the labels

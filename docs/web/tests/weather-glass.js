@@ -9,8 +9,9 @@
 
       1. every reading in the window is a point where the axes say it is;
       2. each stretch's tendency is the rule's: the change per 3 hours with
-         the tide allowed for - 3 or more down falling fast, 1.5 or more
-         down falling, 1.5 or more up rising, else steady - worked here
+         the tide allowed for - 3.6 or more down falling fast, 1.6 or more
+         down falling, 1.6 or more up rising, else steady (the Met Office's
+         bands, weather 1.0.13) - worked here
          from 1.4 cos^3(latitude) and the local sun time;
       3. THE LATITUDE IS CARRIED: a weather observation logged on its own
          has no position, and used to be worked as if on the equator.  At
@@ -41,7 +42,9 @@ const mins = ts => Date.UTC(+ts.slice(0, 4), +ts.slice(5, 7) - 1, +ts.slice(8, 1
 const amp = lat => 1.4 * Math.pow(Math.cos(lat * Math.PI / 180), 3);
 const tide = (ts, lon, lat) => { const sol = (((+ts.slice(11, 13) + +ts.slice(14, 16) / 60 + lon / 15) % 24) + 24) % 24;
   return amp(lat) * Math.cos(2 * Math.PI * (sol - 10) / 12); };
-const band = (c, dt) => c <= -3 * dt / 3 ? 'falling fast' : c <= -1.5 * dt / 3 ? 'falling' : c >= 1.5 * dt / 3 ? 'rising' : 'steady';
+/*  graded on the 3-hour rate to a tenth, as printed (weather 1.0.13)  */
+const r1 = x => Math.sign(x) * Math.round(Math.abs(x) * 10) / 10;
+const band = (c, dt) => { const r = r1(c / dt * 3); return r <= -3.6 ? 'falling fast' : r <= -1.6 ? 'falling' : r >= 1.6 ? 'rising' : 'steady'; };
 
 /*  the logs.  CHANNEL: a depression at 50 N, one position at the start and
     one a day and a half in; every pressure a weather observation on its own. */
@@ -147,7 +150,7 @@ const read = page => page.evaluate(() => {
         const a = r.pts.find(p => p.ts === u.from), z = r.pts.find(p => p.ts === u.to);
         return Math.abs(u.x - (a.cx + 1)) < 0.01 && Math.abs(u.x + u.width - (z.cx - 1)) < 0.01; }));
       /* 7 */
-      const perPx = 170 / (r.frame.ymax - r.frame.ymin), thr = { 'steady': 0, 'falling': -1.5, 'falling fast': -3, 'rising': 1.5 };
+      const perPx = 170 / (r.frame.ymax - r.frame.ymin), thr = { 'steady': 0, 'falling': -1.6, 'falling fast': -3.6, 'rising': 1.6 };
       ok(tag + 'each key line is at its own slope', r.keys.length === 4 && r.keys.every(k =>
         Math.abs((-(k.y2 - k.y1) / perPx) / k.hours * 3 - thr[k.band]) < 0.01 &&
         Math.abs(k.hours - (k.x2 - k.x1) / (568 / ((r.frame.t1 - r.frame.t0) / 60))) < 0.01));
@@ -157,7 +160,7 @@ const read = page => page.evaluate(() => {
       /* 8 */
       ok(tag + 'the button pressed is the window shown', r.pressed.length === 1 && +r.pressed[0] === hours && r.title.indexOf('last ' + hours + ' hours') > 0);
       /* 9 */
-      ok(tag + 'the table is in the terminal text', r.term.indexOf('The glass, last ' + hours + ' hours:') > 0 && /falling fast +-3\.[0-9] hPa in 3 h/.test(r.term));
+      ok(tag + 'the table is in the terminal text', r.term.indexOf('The glass, last ' + hours + ' hours:') > 0 && /(falling fast|falling|rising|steady) +[-+][0-9]+\.[0-9] hPa in 3 h/.test(r.term));
       ok(tag + 'and not in the page\'s reasoning', r.out.indexOf('The glass, last') < 0 && /Rising\./.test(r.out));
       /* 11 */
       ok(tag + 'nothing outside the box', r.inbox);

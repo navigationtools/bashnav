@@ -22,10 +22,12 @@
 
 | | |
 |---|---|
-| fall of 3.0 hPa or more | a serious fall: a deepening system and a rising wind |
-| fall of 1.5 to 3.0 | a definite fall — something is coming |
-| within 1.5 either way | near steady |
-| rise of 1.5 or more | the gradient is easing, or a ridge building |
+| fall of 3.6 hPa or more | a serious fall: a deepening system and a rising wind |
+| fall of 1.6 to 3.5 | a definite fall — something is coming |
+| less than 1.6 either way | near steady |
+| rise of 1.6 or more | the gradient is easing, or a ridge building |
+
+The bands are the Met Office's (slowly, plain, quickly), as on the watch.
 
 **The rate matters more than the level.** 1000 steady is a quiet day; 1015
 falling fast is not. The figures are corrected for the atmospheric tide first,

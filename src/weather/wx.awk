@@ -128,16 +128,32 @@ function wx_tideok(lon, lat1, lat2){ return (lon!="" && lat1!="" && lat2!="") }
 #  the report's sentence, by the table of the glass and by the page's
 #  barograph, so the three cannot disagree: the change per three hours,
 #  with the daily tide allowed for where it can be.
-#     3.0 hPa or more down   falling fast
-#     1.5 or more down       falling
-#     1.5 or more up         rising
+#     3.6 hPa or more down   falling fast
+#     1.6 or more down       falling
+#     1.6 or more up         rising
 #     otherwise              steady
+#  THE MET OFFICE'S BANDS (weather 1.0.13; Larry, TAVL, 18 November 2026).
+#  The Met Office's marine glossary, "Pressure tendency in station
+#  reports": slowly 0.1 to 1.5 hPa in three hours, plain rising or falling
+#  1.6 to 3.5, quickly 3.6 to 6.0, very rapidly over 6.0.  "Steady" here is
+#  their slowly and less, "falling fast" their quickly and more.  The watch
+#  (WeatherGlass, CelestialGlass) uses the same 1.6, and 3.6 and 6.0 for its
+#  pressure figure's colours, so the wrist and bashnav read one log alike.
+#  Was 1.5 and 3.0.  The same numbers are in wx.js band() and in the deck
+#  log's src/decklog/wx.awk; docs/SOURCES.md has the source.
+#  THE WORD FOLLOWS THE FIGURE PRINTED.  The rate is graded as the table
+#  prints it, to a tenth (as the Met Office's bands are written), so a
+#  line never reads "+1.6 hPa in 3 h" beside "steady" because the rate
+#  was 1.57.  The table's figure is c/d*3 printed "%+.1f"; the same
+#  expression and the same printf are used here.  wx.js does the same
+#  with cfixed(), its copy of C's printf.
 # ---------------------------------------------------------------------
-function wx_band(corr, dt){
+function wx_band(corr, dt,   r){
   if(dt<=0) return "steady"
-  if(corr <= -3.0*(dt/3.0)) return "falling fast"
-  if(corr <= -1.5*(dt/3.0)) return "falling"
-  if(corr >=  1.5*(dt/3.0)) return "rising"
+  r = sprintf("%.1f", corr/dt*3.0) + 0
+  if(r <= -3.6) return "falling fast"
+  if(r <= -1.6) return "falling"
+  if(r >=  1.6) return "rising"
   return "steady"
 }
 

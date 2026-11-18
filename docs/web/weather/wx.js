@@ -146,14 +146,21 @@ var WX = (function () {
   //  The tendency, in the four words the barograph uses.  ONE RULE, for
   //  the report's sentence, the table of the glass and the barograph:
   //  the change per three hours, the daily tide allowed for where it can
-  //  be.  3.0 or more down, falling fast; 1.5 or more down, falling; 1.5
-  //  or more up, rising; otherwise steady.  As wx_band in the awk.
+  //  be.  3.6 or more down, falling fast; 1.6 or more down, falling; 1.6
+  //  or more up, rising; otherwise steady.  As wx_band in the awk.  These
+  //  are the Met Office's bands ("Pressure tendency in station reports":
+  //  slowly 0.1-1.5, plain 1.6-3.5, quickly 3.6-6.0, very rapidly over
+  //  6.0), the watch's too; weather 1.0.13, Larry TAVL.  Were 1.5 and 3.0.
   // ---------------------------------------------------------------
+  //  The word follows the figure printed: the rate is graded as the table
+  //  prints it, c/d*3 to a tenth by C's printf (cfixed), as wx_band does,
+  //  so "+1.6 hPa in 3 h" is never shown beside "steady".
   function band(corr, dt) {
     if (dt <= 0) return 'steady';
-    if (corr <= -3.0 * (dt / 3.0)) return 'falling fast';
-    if (corr <= -1.5 * (dt / 3.0)) return 'falling';
-    if (corr >= 1.5 * (dt / 3.0)) return 'rising';
+    var r = +cfixed(corr / dt * 3.0, 1);
+    if (r <= -3.6) return 'falling fast';
+    if (r <= -1.6) return 'falling';
+    if (r >= 1.6) return 'rising';
     return 'steady';
   }
 

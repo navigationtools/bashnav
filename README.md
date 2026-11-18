@@ -140,7 +140,7 @@ things in them, each with the rule it came from. Four of the eight:
   WHAT THE LOG SAYS
   ----------------------------------------------------------------------
   Pressure 1010.1, -6.3 hPa in 6.0 hours.
-  That is a serious fall. Expect a deepening system and a rising wind.
+  A definite fall. Something is coming.
      a rate matters more than a level: 1000 hPa steady is a quiet day,
      1015 falling fast is not.
 

@@ -1,5 +1,51 @@
 # Changelog
 
+## weather 1.0.13 and deck log 1.1.1: the glass in the Met Office's words
+
+**What.** The barometer's three-hour change is now graded on the Met Office's
+bands: less than 1.6 hPa either way is steady, 1.6 or more is falling or
+rising, and 3.6 or more down is falling fast (it was 1.5 and 3.0). The rate is
+graded as it is printed, to a tenth, so "+1.6 hPa in 3 h" always says rising.
+The same rule runs in the report's sentence, the table of the glass, the
+barograph and its key ("falling, 1.6+", "falling fast, 3.6+"), and the deck
+log's pressure sentence. The manual's and quick reference's tables give the
+new bands and name their source.
+
+**Why.** Larry's ruling TAVL, 18 November 2026. The Met Office publishes these
+bands in its marine forecasts glossary (slowly 0.1 to 1.5 hPa in three hours,
+plain 1.6 to 3.5, quickly 3.6 to 6.0, very rapidly over 6.0), and the
+WeatherGlass and CelestialGlass watch faces already use them: 1.6 for the trend
+and 3.6 and 6.0 for the colour of the pressure figure. With one set of numbers
+the watch and `weather` read the same log the same way, and the numbers have a
+published source. WX's question about the watch's forecast number brought this
+up.
+
+**Grading the figure as printed.** With the bands moved, one golden case showed
+"+1.6 hPa in 3 h" beside "steady": the rate was 1.57, printed to a tenth as
+1.6, while the word was graded on 1.57. The Met Office writes its bands in
+tenths, so the word now follows the figure the reader sees. `wx_band` rounds
+with the same `printf` that prints the table, and `wx.js` with `cfixed`, its
+copy of C's `printf`, so the two cannot disagree on a boundary.
+
+**What it touches.** `wx_band` in `src/weather/wx.awk`, `band` in
+`docs/web/weather/wx.js`, the key in `docs/web/weather/weather.js`, the pressure
+sentence in `src/decklog/wx.awk`. Readings near a boundary change their word:
+in the golden file a 1.5 hPa rise in three hours is now near steady, and a fall
+of 3.1 to 3.5 is falling rather than falling fast, which also splits or joins
+some of the glass table's stretches. The fronts figure is unchanged: its second
+station falls 3.6 hPa in three hours, exactly the Met Office's "quickly". The
+README's example now says "A definite fall" for its 6.3 hPa in 6 hours (3.15 in
+three). The manual's Figure 1, the glass, is recaptured with the new key and
+bands; Figures 2 to 5 were captured again and are unchanged. The manual and
+quick reference are rebuilt. Cache `weather-v30`. `docs/SOURCES.md` has the source.
+
+**Checked.** `tests/wx-check.awk` holds each boundary from both sides (3.6 and
+3.5 down, 1.6 and 1.5 each way, 7.2 and 7.0 down in six hours) and four
+rounding cases (1.56 up is rising, 1.54 steady; 3.56 down is falling fast, 3.54
+falling). `weather-glass.js` works the page's bands with the same rule and
+finds every stretch, key line and strip word agrees. The golden files are
+regenerated and read, and are the same under mawk and gawk.
+
 ## weather 1.0.12: the reported storm's picture, its words moved off it
 
 **What.** In the picture on "A reported storm", every label is now a callout in
