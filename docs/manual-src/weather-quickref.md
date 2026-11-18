@@ -51,7 +51,8 @@ on your right; and up to 20 degrees forward of that arm.
 **The wind backs on the left of a storm's track and veers on its right,**
 looking the way it is going, in both hemispheres. Backing: it passes south of
 you if it is going east, north if west. **A falling glass: it is closing. A
-rising glass: it is drawing away.**
+rising glass: it is drawing away.** `weather learn veer` draws it from above,
+going east and going west, north and south of the equator.
 
 ## Cloud base and fog
 

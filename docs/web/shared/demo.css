@@ -32,6 +32,10 @@
 /*  backing and veering (weather 1.0.2): two more full-width figures  */
 .veerdemo { margin: 10px 0 0; padding: 0 12px; }
 .veerdemo svg { display: block; width: 100%; max-width: 640px; margin: 0 auto; }
+/*  a low passing a boat, looked down on (weather 1.0.9, AQN): one per
+    hemisphere in the lesson `veer`, the same width as the two above  */
+.passdemo { margin: 10px 0 0; padding: 0 12px; }
+.passdemo svg { display: block; width: 100%; max-width: 640px; margin: 0 auto; }
 /*  the wind from the isobars (W07, weather 1.0.3): its two drawings, on
     its own screen and in the gradient lesson  */
 .isodemo { margin: 10px 0 0; padding: 0 12px; }

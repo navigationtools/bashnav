@@ -388,6 +388,25 @@ through west to north-west as its fronts go through, and the same low south of
 the equator backs it instead. The short form is repeated in the Coriolis and
 gradient lessons, so it is met more than once.
 
+![**Figure 14** — a low passing a boat, looked down on, north of the equator.
+The low is drawn at three times, each with its isobars and its wind; the boats stay
+where they are, and each boat's three arrows are the wind it feels at those
+times. Above, the low going east; below, going west.](fig/weather-pass-north.png)
+
+![**Figure 15** — the same, south of the equator, where the low's wind goes
+round it clockwise. The words under each boat do not
+change.](fig/weather-pass-south.png)
+
+The lesson draws a shift from above (Figures 14 and 15), with the low at three
+times and its wind round it, and a boat on each side of its track. One rule
+covers both hemispheres and both directions: **look the way the low is going;
+on its right the wind veers, on its left it backs.** A depression going east
+has its left on the north side, so a boat there has the wind back while the
+centre passes to its south. A storm going west, in the trade-wind belt before it
+turns, has its left on the south side. The "What the log says" screen reads a
+shift the same way, and each boat's winds in the figures are worked from the
+low drawn beside them, in the terminal and in the browser alike.
+
 ---
 
 ## 9. Commands

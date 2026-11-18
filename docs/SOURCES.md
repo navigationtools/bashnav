@@ -205,7 +205,9 @@ eight cases, and moves a low past a boat on every course. The report says the
 quarter is "where to watch, not a fix", because a low can deepen without
 moving or fill where it lies. **To read before this is called confirmed:**
 Bowditch, *American Practical Navigator*, the chapter on tropical cyclones.
-The American Meteorological Society's glossary entry for Buys Ballot's law
+weather 1.0.9 draws the same rule in the lesson `veer` (the passing low, both
+hemispheres, both directions); it is the same claim, worked the same way, and
+no more confirmed by being drawn. The American Meteorological Society's glossary entry for Buys Ballot's law
 would not load on 17 November.
 
 **The sea against the wind** (the figure and words in "What the log says",

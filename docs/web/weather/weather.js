@@ -1315,9 +1315,19 @@ function drawLines(box, lines) {
       box.appendChild(fig);
       //  one drawing per kind the shell names in its @@FIG marker; the
       //  gun is the old default and stays the fallback
-      wxRepaints(fig, ({ wind: windDemo, friction: frictionDemo, forces: forcesDemo,
-                         veertime: veerTimeDemo, veerhemi: veerHemiDemo,
-                         isoscale: isoScaleDemo })[b.kind] || gunDemo);
+      /*  AN UNKNOWN KIND DRAWS NOTHING, as the note above says.  Until
+          1.0.9 the gun was the fallback (`|| gunDemo`) and was not in the
+          table, so a figure the shell named but nobody had wired here
+          drew a gun, and the reflow check, which counts panels against
+          markers, counted the gun and passed.  The gun is named now, and
+          a kind missing from the table leaves its box empty, which the
+          reflow check does catch.  */
+      var draw = ({ gun: gunDemo, wind: windDemo, friction: frictionDemo, forces: forcesDemo,
+                    veertime: veerTimeDemo, veerhemi: veerHemiDemo,
+                    passnorth: function (h) { passDemo(h, true); },
+                    passsouth: function (h) { passDemo(h, false); },
+                    isoscale: isoScaleDemo })[b.kind];
+      if (draw) wxRepaints(fig, draw);
       return;
     }
     //  the first printed line of a section is its heading
@@ -2034,6 +2044,122 @@ function veerHemiDemo(host) {
   }
   panel(0, true);
   panel(330, false);
+  host.appendChild(D.wrap);
+}
+
+/*  A LOW PASSING A BOAT, LOOKED DOWN ON (weather 1.0.9; Larry, AQN, the
+    first part of card I19).  North at the top.  Two panels, the low going
+    east and the low going west; in each, the low at three times with its
+    wind round it (Larry, 18 November: any figure that describes the wind
+    in a low shows the low itself, with its wind arrows), and two boats
+    that stay put, one each side of the track, with the wind each feels at
+    the three times.  The same model and geometry as pass_figure() in
+    grid.awk: the wind at a boat is from the bearing of the low turned 105
+    degrees (90 for the circulation, 15 in toward the centre), against the
+    clock in the north and with it in the south; lows 130 units apart along
+    the track, boats 94 off it, drawn here at 1.1 pixels to the unit.
+    The words are worked from the drawing's own numbers, not written, and
+    tests/weather-pass.js reads every arrow back off the drawing.  */
+function passDemo(host, north) {
+  var W = 640, PH = 400, TOP = 34, H = TOP + 2 * PH + 44, RAD = Math.PI / 180;
+  var D = demoSvg('passdemo', W, H,
+    (north ? 'North' : 'South') + ' of the equator, looking down with north at the top. A low passes ' +
+    'a boat on each side of its track, first going east, then going west. Looking the way the low ' +
+    'goes, the boat on its right has the wind veer and the boat on its left has it back.');
+  var cs = getComputedStyle(document.documentElement);
+  var tk = function (k) { return cs.getPropertyValue(k).trim(); };
+  var warn = tk('--warn') || tk('--bad') || '#e23a2c', ground = tk('--ground') || '#07090b';
+  var OP = [0.45, 0.72, 1];
+  var PT = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+  var nm = function (d) { return PT[Math.round(((d % 360) + 360) % 360 / 22.5) % 16]; };
+  var K = 1.1, DX = 130 * K, DY = 94 * K;            /* the awk figure's geometry, in pixels */
+  D.svg.setAttribute('data-north', north ? 1 : 0);
+  var arrow = function (x1, y1, x2, y2, col, w, op, attrs) {
+    var o = { x1: x1.toFixed(1), y1: y1.toFixed(1), x2: x2.toFixed(1), y2: y2.toFixed(1), stroke: col,
+              'stroke-width': w, 'stroke-linecap': 'round', 'stroke-opacity': op }, k;
+    for (k in (attrs || {})) o[k] = attrs[k];
+    D.e('line', o);
+    var an = Math.atan2(y2 - y1, x2 - x1), h = w * 2.2 + 3;
+    D.e('path', { d: 'M' + x2.toFixed(1) + ',' + y2.toFixed(1) +
+      'L' + (x2 - h * Math.cos(an - 0.45)).toFixed(1) + ',' + (y2 - h * Math.sin(an - 0.45)).toFixed(1) +
+      'L' + (x2 - h * Math.cos(an + 0.45)).toFixed(1) + ',' + (y2 - h * Math.sin(an + 0.45)).toFixed(1) + 'Z',
+      fill: col, 'fill-opacity': op });
+  };
+  D.t(16, 22, (north ? 'NORTH' : 'SOUTH') + ' OF THE EQUATOR, LOOKING DOWN', D.text, { 'font-weight': 600 });
+  D.t(W - 16, 22, 'the low at three times: 1, then 2, then 3', D.dim, { 'text-anchor': 'end', 'font-size': 12 });
+
+  function panel(py, east) {
+    var g = D.e('g', { 'data-part': 'panel', 'data-east': east ? 1 : 0 });
+    var e = function (n, a) { return D.e(n, a, g); };
+    var ty = py + PH / 2, cx = W / 2, dir = east ? 1 : -1, i;
+    e('line', { x1: 0, y1: py, x2: W, y2: py, stroke: D.line, 'stroke-width': 1 });
+    D.t(16, py + 22, east ? 'GOING EAST' : 'GOING WEST', D.text, { 'font-weight': 700 });
+    /*  north, for the reader who has lost it  */
+    D.t(W - 22, py + 22, 'N', D.dim, { 'text-anchor': 'middle', 'font-weight': 700 });
+    arrow(W - 22, py + 48, W - 22, py + 30, D.dim, 1.5, 1);
+    /*  the track, with its head the way the low goes  */
+    e('line', { x1: 24, y1: ty, x2: W - 24, y2: ty, stroke: warn, 'stroke-width': 1.5, 'stroke-dasharray': '6 5',
+                'stroke-opacity': 0.8, 'data-part': 'track' });
+    var hx = east ? W - 24 : 24;
+    e('path', { d: 'M' + hx + ',' + ty + 'L' + (hx - 16 * dir) + ',' + (ty - 8) + 'L' + (hx - 16 * dir) + ',' + (ty + 8) + 'Z',
+                fill: warn, 'data-part': 'track-head' });
+    var lows = [];
+    for (i = 0; i < 3; i++) {
+      var lx = cx + (i - 1) * DX * dir;
+      lows.push(lx);
+      e('circle', { cx: lx, cy: ty, r: 44, fill: ground, 'fill-opacity': 0.85 });
+      /*  two isobars round it (the XO's note for AQN: the low itself, its
+          isobars and its circulating wind), with the wind arrows between
+          them crossing in toward the centre  */
+      [20, 40].forEach(function (r) {
+        e('circle', { cx: lx.toFixed(1), cy: ty, r: r, fill: 'none', stroke: warn, 'stroke-width': 1,
+                      'stroke-opacity': 0.45 * OP[i] + 0.15, 'data-part': 'isobar', 'data-t': i + 1 });
+      });
+      for (var be = 0; be < 360; be += 45) {
+        var px = lx + 30 * Math.sin(be * RAD), qy = ty - 30 * Math.cos(be * RAD);
+        var hd = (north ? be - 105 : be + 105) * RAD;
+        arrow(px - 7 * Math.sin(hd), qy + 7 * Math.cos(hd), px + 7 * Math.sin(hd), qy - 7 * Math.cos(hd),
+              warn, 1.8, OP[i], { 'data-part': 'spin', 'data-t': i + 1, 'data-b': be });
+      }
+      e('circle', { cx: lx.toFixed(1), cy: ty, r: 12, fill: ground, stroke: warn, 'stroke-width': 2.2,
+                    'stroke-opacity': OP[i], 'data-part': 'low', 'data-t': i + 1 });
+      D.t(lx, ty + 4.5, 'L', warn, { 'font-size': 13, 'font-weight': 700, 'text-anchor': 'middle', 'fill-opacity': OP[i] });
+      D.t(lx, ty - 50, 'at ' + (i + 1), warn, { 'font-size': 11, 'font-weight': 700, 'text-anchor': 'middle' });
+    }
+    /*  the two boats: north of the track (side +1) and south of it  */
+    [1, -1].forEach(function (side) {
+      var bx = cx, by = ty - side * DY, from = [], k;
+      for (k = 0; k < 3; k++) {
+        /*  the bearing from the boat to the low, then the circulation  */
+        var brg = Math.atan2(lows[k] - bx, by - ty) / RAD;
+        var f = (((north ? brg - 105 : brg + 105) % 360) + 360) % 360;
+        from.push(f);
+        var x1 = bx + 58 * Math.sin(f * RAD), y1 = by - 58 * Math.cos(f * RAD);
+        var x2 = bx + 14 * Math.sin(f * RAD), y2 = by - 14 * Math.cos(f * RAD);
+        arrow(x1, y1, x2, y2, D.acc, 3.5, OP[k],
+              { 'data-part': 'wind', 'data-t': k + 1, 'data-side': side });
+        /*  the label just past the arrow's tail, set to the side away
+            from it, as the wind and low labels are on the wind card  */
+        var sn = Math.sin(f * RAD), cn = Math.cos(f * RAD);
+        D.t(bx + 66 * sn, by - 66 * cn + (cn > 0.5 ? -2 : cn < -0.5 ? 11 : 4.5), (k + 1) + ' ' + nm(f), D.acc,
+            { 'text-anchor': sn > 0.3 ? 'start' : sn < -0.3 ? 'end' : 'middle', 'font-size': 12, 'font-weight': 700,
+              'data-part': 'wind-label', 'data-t': k + 1, 'data-side': side });
+      }
+      e('circle', { cx: bx, cy: by, r: 6, fill: D.text, 'data-part': 'boat', 'data-side': side });
+      var turn = ((from[2] - from[0] + 540) % 360) - 180, veer = turn > 0;
+      var y0 = side > 0 ? ty - 150 : ty + 104;
+      D.t(16, y0, 'A boat ' + (side > 0 ? 'north' : 'south') + ' of the track:', D.text, { 'font-size': 13 });
+      D.t(16, y0 + 18, 'the wind ' + (veer ? 'VEERS' : 'BACKS'), D.acc,
+          { 'font-size': 14, 'font-weight': 700, 'data-part': 'word', 'data-side': side });
+      D.t(16, y0 + 35, nm(from[0]) + ', then ' + nm(from[1]) + ', then ' + nm(from[2]), D.dim, { 'font-size': 12 });
+      D.t(16, y0 + 51, 'the low passes to its ' + (side > 0 ? 'south' : 'north'), D.dim,
+          { 'font-size': 12, 'data-part': 'passes', 'data-side': side });
+    });
+  }
+  panel(TOP, true);
+  panel(TOP + PH, false);
+  D.t(16, H - 14, 'Looking the way the low goes: on its right the wind veers, on its left it backs.', D.text,
+      { 'font-size': 13, 'font-weight': 600, 'data-part': 'rule' });
   host.appendChild(D.wrap);
 }
 

@@ -17,7 +17,12 @@ set -e
 cd "$(dirname "$0")/.."
 AW=${GOLDEN_AWK:-awk}
 G=tests/golden
-E="-f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk"
+#  THE ENGINE IS ALL FOUR FILES, as tests/run-tests.sh loads it.  contacts.awk
+#  calls review.awk's rv_* functions; gawk lets a program name a function it
+#  never calls and never defines, mawk refuses the whole program, so with
+#  GOLDEN_AWK=mawk every colregs case printed only "function rv_keys never
+#  defined" and the comparison could not be made under mawk at all.
+E="-f src/colregs/engine.awk -f src/common/bearing.awk -f src/colregs/contacts.awk -f src/colregs/review.awk"
 CE="-f src/celnav/engine.awk"
 CT="-f src/celnav/engine.awk -f src/celnav/teach.awk"
 mode=compare

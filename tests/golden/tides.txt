@@ -1,10 +1,10 @@
 === tides noaa/8461490 2026-08-30 ===
 
   NEW LONDON  State Pier
-  CT, United States   41.3717 -72.0956   heights above MLLW
+  CT, United States   41.3717 -72.0956
   2026-08-30   Sun   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   low    04:29     0.08 m
   HIGH   10:30     0.94 m
   low    17:03     0.09 m
@@ -51,10 +51,10 @@
 === tides noaa/8461490 2027-02-28 ===
 
   NEW LONDON  State Pier
-  CT, United States   41.3717 -72.0956   heights above MLLW
+  CT, United States   41.3717 -72.0956
   2027-02-28   Sun   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   HIGH   02:54     0.74 m
   low    09:55     0.08 m
   HIGH   15:37     0.52 m
@@ -101,10 +101,10 @@
 === tides noaa/8461490 2030-06-21 ===
 
   NEW LONDON  State Pier
-  CT, United States   41.3717 -72.0956   heights above MLLW
+  CT, United States   41.3717 -72.0956
   2030-06-21   Fri   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   HIGH   01:18     0.88 m
   low    07:57     0.06 m
   HIGH   14:00     0.89 m
@@ -151,11 +151,11 @@
 === tides noaa/8510884 2026-08-30 ===
 
   Little Gull Island
-  CT, United States   41.2067 -72.1017   heights above MLLW
+  CT, United States   41.2067 -72.1017
   a secondary port: +13/-22 min and x0.85/0.85 on NEW LONDON  State Pier
   2026-08-30   Sun   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   low    04:07     0.07 m
   HIGH   10:43     0.80 m
   low    16:41     0.08 m
@@ -202,11 +202,11 @@
 === tides noaa/8510884 2027-02-28 ===
 
   Little Gull Island
-  CT, United States   41.2067 -72.1017   heights above MLLW
+  CT, United States   41.2067 -72.1017
   a secondary port: +13/-22 min and x0.85/0.85 on NEW LONDON  State Pier
   2027-02-28   Sun   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   HIGH   03:07     0.63 m
   low    09:33     0.07 m
   HIGH   15:50     0.44 m
@@ -253,11 +253,11 @@
 === tides noaa/8510884 2030-06-21 ===
 
   Little Gull Island
-  CT, United States   41.2067 -72.1017   heights above MLLW
+  CT, United States   41.2067 -72.1017
   a secondary port: +13/-22 min and x0.85/0.85 on NEW LONDON  State Pier
   2030-06-21   Fri   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   HIGH   01:31     0.75 m
   low    07:35     0.05 m
   HIGH   14:13     0.75 m
@@ -304,10 +304,10 @@
 === tides noaa/9414290 2026-08-30 ===
 
   SAN FRANCISCO (Golden Gate)
-  CA, United States   37.8063 -122.4659   heights above MLLW
+  CA, United States   37.8063 -122.4659
   2026-08-30   Sun   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   HIGH   00:06     1.66 m
   low    06:06     0.23 m
   HIGH   12:52     1.73 m
@@ -354,10 +354,10 @@
 === tides noaa/9414290 2027-02-28 ===
 
   SAN FRANCISCO (Golden Gate)
-  CA, United States   37.8063 -122.4659   heights above MLLW
+  CA, United States   37.8063 -122.4659
   2027-02-28   Sun   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   HIGH   04:29     1.61 m
   low    12:02     0.15 m
   HIGH   19:54     1.20 m
@@ -404,10 +404,10 @@
 === tides noaa/9414290 2030-06-21 ===
 
   SAN FRANCISCO (Golden Gate)
-  CA, United States   37.8063 -122.4659   heights above MLLW
+  CA, United States   37.8063 -122.4659
   2030-06-21   Fri   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   HIGH   03:13     1.40 m
   low    09:30     0.12 m
   HIGH   16:37     1.70 m
@@ -454,10 +454,10 @@
 === tides noaa/8443970 2026-08-30 ===
 
   BOSTON
-  MA, United States   42.3539 -71.0503   heights above MLLW
+  MA, United States   42.3539 -71.0503
   2026-08-30   Sun   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   HIGH   00:04     3.14 m
   low    06:17     0.03 m
   HIGH   12:25     3.09 m
@@ -504,10 +504,10 @@
 === tides noaa/8443970 2027-02-28 ===
 
   BOSTON
-  MA, United States   42.3539 -71.0503   heights above MLLW
+  MA, United States   42.3539 -71.0503
   2027-02-28   Sun   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   HIGH   04:32     2.80 m
   low    11:00     0.32 m
   HIGH   17:17     2.37 m
@@ -554,10 +554,10 @@
 === tides noaa/8443970 2030-06-21 ===
 
   BOSTON
-  MA, United States   42.3539 -71.0503   heights above MLLW
+  MA, United States   42.3539 -71.0503
   2030-06-21   Fri   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   HIGH   03:10     3.16 m
   low    09:25    -0.00 m
   HIGH   15:47     3.06 m
@@ -604,10 +604,10 @@
 === tides noaa/8770570 2026-08-30 ===
 
   Sabine Pass
-  TX, United States   29.7284 -93.8701   heights above MLLW
+  TX, United States   29.7284 -93.8701
   2026-08-30   Sun   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   HIGH   04:52     0.45 m
   low    10:46     0.21 m
   HIGH   17:10     0.48 m
@@ -654,10 +654,10 @@
 === tides noaa/8770570 2027-02-28 ===
 
   Sabine Pass
-  TX, United States   29.7284 -93.8701   heights above MLLW
+  TX, United States   29.7284 -93.8701
   2027-02-28   Sun   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   low    03:21    -0.11 m
   HIGH   13:20     0.37 m
   ----------------------------------------------------------------------
@@ -702,10 +702,10 @@
 === tides noaa/8770570 2030-06-21 ===
 
   Sabine Pass
-  TX, United States   29.7284 -93.8701   heights above MLLW
+  TX, United States   29.7284 -93.8701
   2030-06-21   Fri   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   low    01:17     0.15 m
   HIGH   08:49     0.43 m
   low    15:19     0.21 m
@@ -752,10 +752,10 @@
 === tides noaa/9447130 2026-08-30 ===
 
   SEATTLE (Madison St.)  Elliott Bay
-  WA, United States   47.6026 -122.3393   heights above MLLW
+  WA, United States   47.6026 -122.3393
   2026-08-30   Sun   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   low    00:01     0.87 m
   HIGH   05:42     3.07 m
   low    11:47     0.47 m
@@ -802,10 +802,10 @@
 === tides noaa/9447130 2027-02-28 ===
 
   SEATTLE (Madison St.)  Elliott Bay
-  WA, United States   47.6026 -122.3393   heights above MLLW
+  WA, United States   47.6026 -122.3393
   2027-02-28   Sun   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   low    04:21     2.43 m
   HIGH   09:15     2.93 m
   low    16:53     0.31 m
@@ -851,10 +851,10 @@
 === tides noaa/9447130 2030-06-21 ===
 
   SEATTLE (Madison St.)  Elliott Bay
-  WA, United States   47.6026 -122.3393   heights above MLLW
+  WA, United States   47.6026 -122.3393
   2030-06-21   Fri   times in the station's standard time
   ----------------------------------------------------------------------
-         time     height
+         time     height   above MLLW, the chart datum
   low    03:39     1.18 m
   HIGH   08:45     2.44 m
   low    14:43     0.55 m

@@ -1,5 +1,100 @@
 # Changelog
 
+## weather 1.0.9: a low passing a boat, looked down on
+
+**What.** The lesson `veer` draws what a shift tells you, from above, north at
+the top: the low at three times with its wind round it, and two boats that stay
+put, one each side of its track, with the wind each feels at the three times.
+Going east and going west, north of the equator and south of it.
+
+```
+    NORTH OF THE EQUATOR, LOOKING DOWN, NORTH AT THE TOP
+
+    GOING EAST  -->                  <--  GOING WEST
+    wind SE, ENE, NNE: BACKS         wind NNE, ENE, SE: VEERS
+    the low passes to its south      the low passes to its south
+                 o boat                           o boat
+
+       <-        <-        <-           <-        <-        <-
+    -v L1 ^----v L2 ^----v L3 ^--->  <v L3 ^----v L2 ^----v L1 ^----
+       ->        ->        ->           ->        ->        ->
+
+                 o boat                           o boat
+    wind SSW, WSW, NW: VEERS         wind NW, WSW, SSW: BACKS
+    the low passes to its north      the low passes to its north
+```
+
+The lesson gains one paragraph: **look the way the low is going; on its right
+the wind veers, on its left it backs.** A depression going east has its left on
+the north side; a storm going west, in the trade-wind belt before it turns, has
+its left on the south side.
+
+**Why.** Larry's ruling AQN, 18 November 2026: the first part of card I19, the
+top-down picture that settled 1.0.8's words, put in the lesson. And his rule of
+the same morning: any figure that describes the wind in a low shows the low
+itself, with its wind arrows. In the browser each low is drawn with two
+isobars and eight arrows between them, anticlockwise in the north and clockwise
+in the south, turned 15 degrees in toward the centre (the XO's note asked for
+the isobars too). The terminal draws the four arrows round each low without
+isobars: there is no room for them on a character grid.
+Card I19's other two parts are not in this: the hooking track is parked, and
+whether the south needs words of its own waits for Larry. The southern
+paragraph of the lesson is unchanged; the southern figure follows it.
+
+**The words are worked, not written.** Each boat's wind at each time comes from
+the same model in both builds: the bearing from the boat to the low, turned 105
+degrees (90 for the circulation, 15 in), against the clock in the north and with
+it in the south; lows 130 units apart, boats 94 off the track. VEERS or BACKS
+is the sign of the turn from time 1 to time 3. A fault in the turn shows in the
+golden file as a wrong compass point.
+
+**A fault in the browser's figure table, fixed.** The note above the table of
+lesson figures said an unknown kind draws nothing; the code fell back to the
+gun (`|| gunDemo`), and the gun was not in the table. A figure the shell named
+but nobody had wired would have drawn a gun, and the reflow check, which counts
+figures against markers, would have counted it and passed. The gun is named
+now, and an unknown kind leaves its box empty, which the reflow check catches.
+
+**Two golden files that did not match the code, fixed.** `tests/golden/tides.txt`
+still had the heading tides 1.4.2 changed ("heights above MLLW" moved to the
+column, "above MLLW, the chart datum"), and `tests/golden/ekelund.txt` still had
+"-0.0" and "+0.0 deg/min", which the October fix for the Mac prints as " 0.0". Neither
+commit carried its golden file, so `tests/golden.sh` on a clean checkout
+reported two files changed that nobody had changed. Both are the code's output
+now; the working copies had been brought up to date on 17 November and not
+committed.
+
+**`tests/golden.sh` could not run under mawk, fixed.** It loaded colregs
+without `review.awk`, whose functions the engine names; gawk allows that and
+mawk refuses the whole program, so with `GOLDEN_AWK=mawk` every colregs case
+printed an error instead of its output. It loads all four files now, as the
+suite does, and the golden files compare clean under mawk and gawk alike.
+
+**What it touches.**
+
+1. The terminal: `grid.awk` (`pass_figure`, `pass_panel`, `pass_low`,
+   `pass_boat`, `pass_from`, `pass_pt16`), `teach.awk` (lesson `veer`: the two
+   figures and the paragraph).
+2. The browser: `weather.js` (`passDemo`, and the figure table), `lessons.js`
+   regenerated, `shared/demo.css` (`.passdemo`), cache `weather-v26`.
+3. The weather manual (section 8, Figures 14 and 15 and a paragraph; no
+   renumbering, they are the last two) and the quick reference, rebuilt.
+4. Nothing in "What the log says", the score, the tides engine or the course.
+
+**Checked.** `docs/web/tests/weather-pass.js` (28 checks) reads everything back
+off the drawing: the lows in time order the way the track's head points, each
+low's eight arrows round it the hemisphere's way and turned in 15 degrees; each
+boat's three winds by Buys Ballot against the low drawn at that time (facing
+downwind, the low 75 degrees to the left in the north, to the right in the
+south); the labels naming the points drawn; VEERS or BACKS as the drawn wind
+turns, and as the rule says. Five planted faults, each caught. The terminal's
+words are in the golden file; `tests/weather-reflow-check.js` holds 23 figures
+(were 21).
+
+**Sources.** As 1.0.8: the rule is worked from Buys Ballot and tested, and not
+yet read in a source; Bowditch's chapter on tropical cyclones is still the one
+to read. In `docs/SOURCES.md`, Weather.
+
 ## weather 1.0.8: where the low lies, where it is going, and what a shift tells you
 
 **What.** "What the log says" already gave the low's bearing from the wind, by

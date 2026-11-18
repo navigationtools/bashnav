@@ -66,7 +66,7 @@
   You have bearings only. No range.
 
      leg 1   own course 271, speed 17   bearing rate  +4.8 deg/min
-     leg 2   own course 327, speed 17   bearing rate  -0.0 deg/min
+     leg 2   own course 327, speed 17   bearing rate   0.0 deg/min
 
      (a bearing rate is + when the bearing is drawing right)
   ----------------------------------------------------------------------
@@ -481,7 +481,7 @@
   You have bearings only. No range.
 
      leg 1   own course 091, speed 13   bearing rate  +1.5 deg/min
-     leg 2   own course 190, speed 16   bearing rate  +0.0 deg/min
+     leg 2   own course 190, speed 16   bearing rate   0.0 deg/min
 
      (a bearing rate is + when the bearing is drawing right)
   ----------------------------------------------------------------------
@@ -569,7 +569,7 @@
   She bears 021 and holds her course and speed throughout.
   You have bearings only. No range.
 
-     leg 1   own course 070, speed 17   bearing rate  +0.0 deg/min
+     leg 1   own course 070, speed 17   bearing rate   0.0 deg/min
      leg 2   own course 287, speed 15   bearing rate  +2.7 deg/min
 
      (a bearing rate is + when the bearing is drawing right)
@@ -719,7 +719,7 @@
   She bears 058 and holds her course and speed throughout.
   You have bearings only. No range.
 
-     leg 1   own course 314, speed 20   bearing rate  -0.0 deg/min
+     leg 1   own course 314, speed 20   bearing rate   0.0 deg/min
      leg 2   own course 058, speed  8   bearing rate  -1.2 deg/min
 
      (a bearing rate is + when the bearing is drawing right)
@@ -839,7 +839,7 @@
   You have bearings only. No range.
 
      leg 1   own course 336, speed 17   bearing rate  +2.0 deg/min
-     leg 2   own course 214, speed  8   bearing rate  -0.0 deg/min
+     leg 2   own course 214, speed  8   bearing rate   0.0 deg/min
 
      (a bearing rate is + when the bearing is drawing right)
   ----------------------------------------------------------------------

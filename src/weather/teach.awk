@@ -303,10 +303,23 @@ function lesson_body(k){
     lp("When the centre passes on your " cw("south",C_ACC) " side, the wind " cw("backs",C_ACC))
     lp("steadily instead: east, north-east, north.")
     print ""
+    pass_figure(1)
+    gshow()
+    print ""
+    lp(cw("One rule covers both.",C_ACC) " Look the way the low is going. On its")
+    lp(cw("right",C_ACC) " the wind " cw("veers",C_ACC) "; on its " cw("left",C_ACC) " the wind " cw("backs",C_ACC) ". A depression")
+    lp("going east has its left on the north side, so a boat there has the wind")
+    lp("back. A storm going west - in the trade-wind belt, before it turns - has")
+    lp("its left on the south side, and a boat there has the centre pass to its")
+    lp("north while the wind backs.")
+    print ""
     lp(cw("South of the equator it runs the other way.",C_ACC) " The wind goes round a")
     lp("low clockwise there, so the same picture plays backwards. A low passing")
     lp("on your poleward side - the south - makes the wind " cw("back",C_ACC) ": north, then")
     lp("north-west, then south-west as the cold front comes through.")
+    print ""
+    pass_figure(0)
+    gshow()
     print ""
     lp(cw("Against the wind aloft",C_ACC) ", the same two words describe the friction")
     lp("turn from the gradient lesson. Down where you are, the sea slows the")

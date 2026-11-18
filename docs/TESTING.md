@@ -416,6 +416,45 @@ drawn below its curve.
 named the ten lessons; `veer`, the eleventh, had no golden copy. It now asks the
 awk for the list, as `weather-ui.js` does.
 
+### A figure read back off the drawing, and a checker shown to catch things (weather 1.0.9)
+
+**The passing low, measured.** `docs/web/tests/weather-pass.js` (stage 16 of
+`run-weather-web.sh`) takes nothing from the figure's own arithmetic. It reads
+where the three lows are and which way the track's head points, and requires
+the lows in time order that way and the panel's title to agree; two isobars
+centred on each low, and its eight arrows between them, going round it anticlockwise in the north and clockwise in the
+south, each turned 15 degrees in; each boat on the side it is called; each of
+its three winds obeying Buys Ballot against the low drawn at that time (facing
+downwind, the low 75 degrees to the left in the north and to the right in the
+south: 90, less the 15 the wind turns in); the label beside each arrow naming
+the point it is drawn from; VEERS or BACKS as the drawn wind turns from time 1
+to time 3, and as the rule says, the boat on the low's right veering; the
+caption naming the three winds, and the side the low passes. Night and day:
+the winds in the page's accent, the low's wind in its warning colour, nothing
+outside the box. 28 checks.
+
+**The checker is shown to catch things.** After the real figures pass, the
+same checker runs on copies with one thing broken in each: a word swapped, one
+wind arrow turned through a right angle, one low spun the wrong way, the
+track's head turned round, and the northern figure checked as the southern.
+Each must fail, and each does. A checker that has never failed proves
+nothing about the figure.
+
+**A figure nobody wired drew a gun.** The browser's table of lesson figures
+fell back to the gun for a kind it did not know, and the reflow check, which
+counts figures against the shell's markers, counted the gun and passed. An
+unknown kind now leaves its box empty, and that the reflow check does catch.
+`tests/weather-reflow-check.js` holds 23 figures (were 21).
+
+**Two golden files did not match the code.** tides 1.4.2 changed its heading
+and the October Ekelund fix changed how a zero bearing rate prints, and
+neither commit carried its golden file. `tests/golden.sh` is not in
+`run-tests.sh`, so the suite did not see it; on a clean checkout it reported
+two files changed that nobody had changed. Both now hold the code's output.
+And `tests/golden.sh` itself could not run under mawk: it loaded colregs
+without `review.awk`, which mawk will not accept. It loads the four files the
+suite loads, and compares clean under mawk and gawk.
+
 ### A golden file that got shorter, and a claim tested by moving a storm (weather 1.0.8)
 
 **The golden file lost four cases and nothing said so.** In 1.0.7 a case

@@ -161,6 +161,16 @@ if node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.ex
   #  wind that has backed or veered.
   node docs/web/tests/weather-low.js
   echo
+  echo "16. a low passing a boat, looked down on, in the lesson veer"
+  #  weather 1.0.9 (AQN, card I19 part one): the low at three times with
+  #  its wind round it, the right way for each hemisphere and turned in
+  #  15 degrees; each boat's three winds by Buys Ballot against the low
+  #  drawn at that time; VEERS or BACKS as the drawn wind turns, and as the
+  #  rule says - on the low's right it veers, on its left it backs - going
+  #  east and going west, north and south of the equator.  Five planted
+  #  faults, each caught.
+  node docs/web/tests/weather-pass.js
+  echo
   echo "WEATHER WEB: all stages passed"
 else
   echo

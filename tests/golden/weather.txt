@@ -682,10 +682,59 @@ Around 20 knots - roughly two thirds - and backed 10 to 20 degrees from the isob
   When the centre passes on your south side, the wind backs
   steadily instead: east, north-east, north.
 
+    NORTH OF THE EQUATOR, LOOKING DOWN, NORTH AT THE TOP
+  
+    GOING EAST  -->                  <--  GOING WEST
+    wind SE, ENE, NNE: BACKS         wind NNE, ENE, SE: VEERS
+    the low passes to its south      the low passes to its south
+                 o boat                           o boat
+  
+  
+       <-        <-        <-           <-        <-        <-
+    -v L1 ^----v L2 ^----v L3 ^--->  <v L3 ^----v L2 ^----v L1 ^----
+       ->        ->        ->           ->        ->        ->
+  
+  
+                 o boat                           o boat
+    wind SSW, WSW, NW: VEERS         wind NW, WSW, SSW: BACKS
+    the low passes to its north      the low passes to its north
+  
+    the boats stay put; the low moves 1, 2, 3
+    looking the way the low goes: on its right the wind veers,
+    on its left it backs - north and south of the equator alike
+
+  One rule covers both. Look the way the low is going. On its
+  right the wind veers; on its left the wind backs. A depression
+  going east has its left on the north side, so a boat there has the wind
+  back. A storm going west - in the trade-wind belt, before it turns - has
+  its left on the south side, and a boat there has the centre pass to its
+  north while the wind backs.
+
   South of the equator it runs the other way. The wind goes round a
   low clockwise there, so the same picture plays backwards. A low passing
   on your poleward side - the south - makes the wind back: north, then
   north-west, then south-west as the cold front comes through.
+
+    SOUTH OF THE EQUATOR, LOOKING DOWN, NORTH AT THE TOP
+  
+    GOING EAST  -->                  <--  GOING WEST
+    wind NNW, WNW, SW: BACKS         wind SW, WNW, NNW: VEERS
+    the low passes to its south      the low passes to its south
+                 o boat                           o boat
+  
+  
+       ->        ->        ->           ->        ->        ->
+    -^ L1 v----^ L2 v----^ L3 v--->  <^ L3 v----^ L2 v----^ L1 v----
+       <-        <-        <-           <-        <-        <-
+  
+  
+                 o boat                           o boat
+    wind NE, ESE, SSE: VEERS         wind SSE, ESE, NE: BACKS
+    the low passes to its north      the low passes to its north
+  
+    the boats stay put; the low moves 1, 2, 3
+    looking the way the low goes: on its right the wind veers,
+    on its left it backs - north and south of the equator alike
 
   Against the wind aloft, the same two words describe the friction
   turn from the gradient lesson. Down where you are, the sea slows the

@@ -503,3 +503,91 @@ function veer_hemi_figure(   w,h){
   return 0
 }
 
+#  A LOW PASSING A BOAT, LOOKED DOWN ON (weather 1.0.9; Larry, AQN, the
+#  first part of card I19).  North at the top.  The low is drawn at three
+#  times, 1 then 2 then 3, each with its wind round it (Larry, 18 November:
+#  any figure that describes the wind in a low shows the low itself, with
+#  its wind arrows).  Two boats stay where they are, one each side of the
+#  track, and the words under each say what their wind does.
+#
+#  THE WORDS ARE WORKED, NOT WRITTEN.  Each boat's wind at each time comes
+#  from the same model the browser draws: the bearing from the boat to the
+#  low, turned 105 degrees (90 for the circulation and 15 in toward the
+#  centre) - against the clock in the north, with it in the south.  The
+#  geometry is the browser's too: the lows 130 units apart along the track,
+#  the boats 94 off it.  So the two builds cannot say different things, and
+#  a fault in the turn shows in the golden as a wrong compass point.
+#
+#  What it shows, in both hemispheres and both directions: looking the way
+#  the low is going, a boat on its right has the wind veer, a boat on its
+#  left has it back.
+function pass_pt16(b,   P){
+  split("N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW", P, " ")
+  return P[int((b%360+360)%360/22.5 + 0.5)%16 + 1]
+}
+#  the wind's bearing (from) at a boat, the low dx east and dn north of it
+function pass_from(dx, dn, north,   brg){
+  brg = atan2(dx, dn) * 180 / 3.14159265358979
+  return ((north ? brg - 105 : brg + 105) % 360 + 360) % 360
+}
+#  one boat's three winds and what they do, as PASS_W (the three points)
+#  and PASS_T (VEERS or BACKS); side is +1 for the boat north of the track
+function pass_boat(east, side, north,   i, f, f1, t){
+  PASS_W = ""
+  for(i = 1; i <= 3; i++){
+    f = pass_from((i - 2) * 130 * (east ? 1 : -1), -side * 94, north)
+    if(i == 1) f1 = f
+    PASS_W = PASS_W (i > 1 ? ", " : "") pass_pt16(f)
+  }
+  t = f - f1; t = ((t + 540) % 360) - 180
+  PASS_T = (t > 0 ? "VEERS" : "BACKS")
+  return 0
+}
+#  one low on the track: L and its time, its wind at the four sides
+function pass_low(r, c, n, north){
+  gputsc(r, c, "L" n, C_ACC)
+  gputc(r, c - 1, " ", ""); gputc(r, c + 2, " ", "")
+  if(north){
+    gputsc(r - 1, c, "<-", C_DIM); gputsc(r + 1, c, "->", C_DIM)
+    gputc(r, c - 2, "v", C_DIM);   gputc(r, c + 3, "^", C_DIM)
+  } else {
+    gputsc(r - 1, c, "->", C_DIM); gputsc(r + 1, c, "<-", C_DIM)
+    gputc(r, c - 2, "^", C_DIM);   gputc(r, c + 3, "v", C_DIM)
+  }
+  return 0
+}
+function pass_panel(x0, east, north,   i, c, tr){
+  tr = 9
+  gputsc(2, x0, (east ? "GOING EAST  -->" : "<--  GOING WEST"), C_ACC)
+  for(i = 0; i <= 30; i++) gputc(tr, x0 + i, "-", C_DIM)
+  if(east) gputc(tr, x0 + 30, ">", C_DIM); else gputc(tr, x0, "<", C_DIM)
+  for(i = 1; i <= 3; i++){
+    c = x0 + 13 + (i - 2) * 10 * (east ? 1 : -1)
+    pass_low(tr, c, i, north)
+  }
+  #  the boat north of the track, then the boat south of it
+  pass_boat(east, 1, north)
+  gputsc(3, x0, "wind " PASS_W ": ", C_DIM)
+  gputsc(3, x0 + length("wind " PASS_W ": "), PASS_T, C_ACC)
+  gputsc(4, x0, "the low passes to its south", C_DIM)
+  gputsc(5, x0 + 13, "o boat", C_ACC)
+  pass_boat(east, -1, north)
+  gputsc(13, x0 + 13, "o boat", C_ACC)
+  gputsc(14, x0, "wind " PASS_W ": ", C_DIM)
+  gputsc(14, x0 + length("wind " PASS_W ": "), PASS_T, C_ACC)
+  gputsc(15, x0, "the low passes to its north", C_DIM)
+  return 0
+}
+function pass_figure(north,   w,h){
+  w=66; h=20
+  gclear(w,h)
+  FIGNAME = (north ? "passnorth" : "passsouth")
+  gputsc(0, 2, (north ? "NORTH" : "SOUTH") " OF THE EQUATOR, LOOKING DOWN, NORTH AT THE TOP", C_ACC)
+  pass_panel(2, 1, north)
+  pass_panel(35, 0, north)
+  gputsc(17, 2, "the boats stay put; the low moves 1, 2, 3", C_DIM)
+  gputsc(18, 2, "looking the way the low goes: on its right the wind veers,", C_DIM)
+  gputsc(19, 2, "on its left it backs - north and south of the equator alike", C_DIM)
+  return 0
+}
+

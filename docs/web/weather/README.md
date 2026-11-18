@@ -181,6 +181,18 @@ right it veers. Checked by `docs/web/tests/weather-low.js`, by
 `tests/wx-check.awk` (which moves a low past a boat on every course) and by
 the corpora in `weather-wx.js`.
 
+**A low passing a boat** (weather 1.0.9; Larry's ruling AQN, the first part of
+card I19) is two figures in the lesson `veer`, one for each hemisphere, the
+shell naming them `passnorth` and `passsouth` in its `@@FIG` markers.
+`passDemo(host, north)` in `weather.js` draws two panels, the low going east
+and going west: the low at three times with two isobars and its eight wind arrows (Larry, 18
+November: any figure that describes the wind in a low shows the low itself,
+with its wind arrows), and a boat each side of the track with the wind it
+feels at each time, from the same model and geometry as `pass_figure()` in
+`grid.awk`. The words under each boat are worked from the drawing's own
+numbers. An unknown figure kind now draws nothing; until 1.0.9 it drew the
+gun. Checked by `docs/web/tests/weather-pass.js`.
+
 **The sea against the wind** (weather 1.0.7, W09; Larry's rulings AOU, AOZ,
 APC and APF) is a figure beside its own words in "What the log says".
 `WX.sea(observation, percent)` gives, for the latest observation's wind: the
