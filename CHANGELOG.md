@@ -1,5 +1,32 @@
 # Changelog
 
+## weather 1.0.20: the trade inversion, as the sources describe it (W08)
+
+**What.** Two lessons change their words about the trade inversion:
+
+1. **`lapse`:** it said that above any field of flat-based cumulus "the trade
+   inversion caps the marine layer, and the flat tops are you looking at the
+   underside of the lid". It now says that in the trade winds there is a lid
+   as well: the trade inversion, warm dry air sinking from above, caps the
+   moist layer the cumulus grow in, and few of them get through it.
+2. **`cells`:** "the inversion capping the marine layer" and "your
+   flat-topped cumulus" become "the trade inversion capping the trade winds'
+   moist layer" and "the trade-wind cumulus".
+
+**Why.** W08's reading (Larry's ruling TAUW: the sources December's pages lean
+on are read before launch) left one line not yet confirmed. The XO asked for
+it on 19 November under rule 16. The AMS Glossary and the NWS's training page
+put the trade inversion over the trade winds only, the eastern tropical
+oceans, and describe a lid that few cumulus get through. Neither says that
+the flat tops are its underside, and a sailor in the Channel has no trade
+inversion over him. Sources in `docs/SOURCES.md`, under W08.
+
+**What it touches.** `src/weather/teach.awk` (the two lessons);
+`docs/web/weather/lessons.js` (generated); the golden file
+`tests/golden/weather.txt`; the iPad bundle; the version (1.0.20) and the web
+cache (`weather-v37`); the menu picture; the manual and quick reference,
+rebuilt for the version.
+
 ## weather 1.0.19: a lesson on global and high-resolution models (W29)
 
 **What.** A fourteenth lesson, `models` ("Global and high-resolution models,

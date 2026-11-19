@@ -467,8 +467,30 @@ the sources December's pages lean on are read first; read 18 November 2026).
       cloud-base line said that dividing by the lapse rate alone puts the base
       "a fifth too low". It puts it a sixth too low: 2,000 ft against 2,400
       for a 6 °C spread. Now "a sixth".
-   5. **Not yet confirmed from a source read:** the lesson's "trade inversion"
-      capping the marine layer under flat-topped cumulus.
+   5. **The trade inversion** (read 19 November 2026, at the XO's word under
+      rule 16; weather 1.0.20).
+      1. The AMS *Glossary of Meteorology*, "Trade inversion"
+         (<https://glossary.ametsoc.org/wiki/Trade_inversion>): a temperature
+         inversion usually present in the trade-wind streams over the eastern
+         parts of the tropical oceans, in the sinking branches of the Hadley
+         and Walker circulations; the air below it is moist and full of trade
+         cumulus, the air above warm and very dry; its base about 500 m at the
+         eastern ends of the subtropical highs and about 2,000 m at the western
+         and equatorial ends; not present as a mean condition in the
+         equatorial trough or the western trade-wind belt.
+      2. NWS training, "2.4 Cloud-topped and marine boundary layers"
+         (<https://www.weather.gov/media/zhu/ZHU_Training_Page/clouds/planetary_boundary_layer/2.4_cloudy_bl.pdf>):
+         the trade cumulus layer is capped by an inversion maintained by
+         subsidence, the trade inversion; many of the smaller clouds do not
+         reach the top of the layer, and only a few updrafts get through.
+      3. **Corrected with this reading (weather 1.0.20):** the lesson `lapse`
+         said the trade inversion caps the marine layer above any field of
+         flat-based cumulus, and that the flat tops are its underside. The
+         sources put it in the trade winds only and say nothing of flat tops.
+         The lesson now says: in the trade winds there is a lid as well, warm
+         dry air sinking from above, capping the moist layer the cumulus grow
+         in, and few of them get through it. The lesson `cells` names it the
+         trade inversion and the trade-wind cumulus to match.
 3. **W30, observation, analysis and model** (the lesson `data`).
    1. Bowditch 2017, article 3826, p. 631: observations from stations and
       ships are plotted on synoptic charts; analyses and prognoses are drawn

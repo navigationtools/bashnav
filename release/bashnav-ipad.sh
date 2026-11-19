@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=004111691
+BASHNAV_BYTES=004112145
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -30496,7 +30496,7 @@ bn_unpack() {
 #  data that is never wrong - what you measured yourself - and the only
 #  one still available when the antenna comes down.
 # =====================================================================
-WEATHER_VERSION=1.0.19
+WEATHER_VERSION=1.0.20
 
 #  the log belongs to deck-log; weather only ever READS it
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"
@@ -33753,9 +33753,15 @@ function lesson_body(k){
     lp("sixth too low. And it is " cw("air",C_ACC) " temperature, not sea temperature - the")
     lp("sea is a fair proxy offshore and badly wrong near a front.")
     print ""
+    #  The trade inversion (weather 1.0.20): only in the trade winds, and a
+    #  lid over the moist layer that few cumulus get through (AMS Glossary,
+    #  "Trade inversion"; NWS training, "Cloud-topped and marine boundary
+    #  layers").  It said before that the lid was always there and that
+    #  the flat tops were its underside, which no source read gives.
     lp("A field of cumulus with flat bases all at one height IS that level made")
-    lp("visible. Above it, the " cw("trade inversion",C_ACC) " caps the marine layer, and the")
-    lp("flat tops are you looking at the underside of the lid.")
+    lp("visible. In the trade winds there is a lid above it as well: the")
+    lp(cw("trade inversion",C_ACC) ", warm dry air sinking from above, caps the moist")
+    lp("layer the cumulus grow in, and few of them get through it.")
     print ""
     return 1
   }
@@ -33781,9 +33787,9 @@ function lesson_body(k){
     lp("most of the world's deserts sit at that latitude for this reason.")
     print ""
     lp(cw("And it closes the loop with the last lesson:",C_ACC) " that same descending")
-    lp("warm air is the inversion capping the marine layer. The lid over your")
-    lp("flat-topped cumulus is the far end of a circulation that started as")
-    lp("thunderstorms on the equator.")
+    lp("warm air is the trade inversion capping the trade winds' moist layer.")
+    lp("The lid over the trade-wind cumulus is the far end of a circulation")
+    lp("that started as thunderstorms on the equator.")
     print ""
     return 1
   }

@@ -1036,8 +1036,9 @@ The warm front is close. When it passes the rain stops, the wind veers to south-
   sea is a fair proxy offshore and badly wrong near a front.
 
   A field of cumulus with flat bases all at one height IS that level made
-  visible. Above it, the trade inversion caps the marine layer, and the
-  flat tops are you looking at the underside of the lid.
+  visible. In the trade winds there is a lid above it as well: the
+  trade inversion, warm dry air sinking from above, caps the moist
+  layer the cumulus grow in, and few of them get through it.
 
   ----------------------------------------------------------------------
   Question: Air 18 C, dew point 12 C. How high is the cloud base?
@@ -1066,9 +1067,9 @@ About 2,400 ft: a spread of 6 C, and the spread closes at 2.5 C per 1000 ft, so 
   most of the world's deserts sit at that latitude for this reason.
 
   And it closes the loop with the last lesson: that same descending
-  warm air is the inversion capping the marine layer. The lid over your
-  flat-topped cumulus is the far end of a circulation that started as
-  thunderstorms on the equator.
+  warm air is the trade inversion capping the trade winds' moist layer.
+  The lid over the trade-wind cumulus is the far end of a circulation
+  that started as thunderstorms on the equator.
 
   ----------------------------------------------------------------------
   Question: Why are so many of the world's deserts near 30 degrees latitude?
