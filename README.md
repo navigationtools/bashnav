@@ -14,7 +14,7 @@ the device.
 | **[colregs](https://bashnav.navigationtools.org/web/colregs/)** | The rules of the road. Lights and shapes drawn from any angle, 28 encounter scenarios, sound signals, contact management, and lessons on the rules themselves. |
 | **[tides](https://bashnav.navigationtools.org/web/tides/)** | Harmonic prediction for 8,334 stations worldwide: the day's table, the curve, the moon and sun, and the question a tide table exists to answer — is there enough water. |
 | **[deck-log](https://bashnav.navigationtools.org/web/deck-log/)** | The boat's records — deck, engine, provisions — kept append-only in UTC, with the spares worked out by replaying the log rather than stored. |
-| **[weather](https://bashnav.navigationtools.org/web/weather/)** | Read your own barometer. It will not show you its forecast until yours is written down, then scores both against what happened. Thirteen lessons on the physics underneath, and on reading a forecast. |
+| **[weather](https://bashnav.navigationtools.org/web/weather/)** | Read your own barometer. It will not show you its forecast until yours is written down, then scores both against what happened. Fourteen lessons on the physics underneath, and on reading a forecast. |
 | **[drill](https://bashnav.navigationtools.org/web/drill/)** | A study machine with no material in it. You load a content pack from your own device; it is read in the browser and never leaves it. |
 
 **[Open the launcher](https://bashnav.navigationtools.org/web/)** to reach all

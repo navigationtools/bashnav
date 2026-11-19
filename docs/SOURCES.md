@@ -533,3 +533,51 @@ models page carry the same lines 1 to 5. Line 6 is the app's own (item 5 below).
    run of 18:00 UTC on 23 May at step 33 is valid at 03:00 UTC on 25 May, the
    same hour as the race-morning example, from six hours earlier and further
    ahead. British Summer Time as UTC + 1 is the agreed line 3.
+
+**Forecast models: global against high-resolution** (gap list W29, book of
+work B22; the XO's work under rule 16, Larry's yes of 12 November, D-014;
+read 19 November 2026). The lesson is `models` (weather 1.0.19). It follows
+the course's forecast models page (practical-navigator,
+`site/drafts/forecast-models/`, sections 2 to 5), so the two say the same
+thing; the public sources below are what the lesson rests on.
+
+1. **The Met Office, "Numerical weather prediction models"**
+   (<https://www.metoffice.gov.uk/research/modelling-systems/numerical-models>):
+   1. The global configurations "support the nested higher resolution
+      regional models with boundary data"; the UKV's row says its lateral
+      boundary conditions come from the deterministic global model. This is
+      the lesson's "starting from a global model at its edges", and the
+      reason for "never the other way round".
+   2. Nested high-resolution models have "a more detailed representation of
+      surface features such as coastlines and orography". This is the
+      lesson's "near the coast and the land".
+   3. The UKV: 1.5 km over the UK and Ireland. Its runs go to 54 hours at
+      most hours of the day, and to 120 hours at 03 and 15 UTC. The lesson
+      keeps the course page's "a day or two" for a high-resolution model in
+      general; the 120-hour runs are noted to PILOT.
+   4. The global model: 10 km in mid-latitudes, to 6 days at 00 and 12 UTC.
+2. **NOAA NCEI, the GFS page** (recorded above under W31): about 28 km between
+   points, out to 16 days.
+3. **ECMWF, Forecast User Guide, section 8.1.2, "ENS mean and spread"**
+   (<https://confluence.ecmwf.int/display/FUG/Section%2B8.1.2%2BENS%2BMean%2Band%2BSpread>):
+   on average, a small spread indicates high forecast accuracy and a large
+   spread low accuracy, and the spread usually grows with the forecast range.
+   ECMWF's fact sheet on ensemble forecasting (2017) gives 51 members, each
+   started from slightly different initial conditions.
+4. **NWS Juneau, "Numerical Weather Prediction (Weather Models)"**
+   (<https://www.weather.gov/media/ajk/brochures/NumericalWeatherPrediction.pdf>):
+   forecasters compare the models of different centres and the runs of one
+   model; "Low spread = High Confidence", large spread low confidence. The
+   lesson's "a wide spread, low confidence" is this wording; the course page
+   says "a guess".
+5. **When to look** (five to seven days, two days, race morning, at sea) is
+   the course page's section 5 and the class material it draws on (gap list
+   W29: SAS, RT, HR, CO, CC, WW). No public source gives these horizons as a
+   rule; the lesson gives them as the course does.
+6. **What a model cannot see** (smaller than a few grid boxes, gusts, the exact
+   hour) is the course page's section 3: the grid from item 2, the hour from
+   Bowditch 3826 (above, under W30).
+7. **The rule the lesson keeps** (gap list rule 3): the app never forecasts
+   from a model; it keeps the observations a model is judged against.
+8. **The lesson's question** (a sea breeze shown five days out) is the app's
+   own, from the rule in items 1.1 and 1.2.

@@ -75,6 +75,7 @@
      fluid     Air is a fluid, and moist air is lighter
      data      The three kinds of weather data, and which one you have
      runs      Run time and valid time, always in UTC
+     models    Global and high-resolution models, and how far to trust them
      tide      The atmospheric tide: why the glass falls every afternoon
      coriolis  Coriolis, which is not a force
      gradient  Gradient wind, surface wind, and friction
@@ -209,6 +210,84 @@ The analysis. Forecasters drew it from the observations and used the model only 
   Question: A GRIB says: run 18Z 23 May, step 33. What hour does it describe, and what is that on the boat's clock in the Channel?
 
 03:00 UTC on 25 May: 18:00 plus 33 hours. In May that is 04:00 British Summer Time. The run of 00Z 24 May at step 27 describes the same hour from six hours later and less far ahead, so if you hold both, the newer one is likely the better.
+=== weather learn models ===
+
+  GLOBAL AND HIGH-RESOLUTION MODELS
+  ----------------------------------------------------------------------
+  A global model covers the whole earth on a coarse grid and looks a
+  week or more ahead. A regional or high-resolution model covers one
+  area on a much finer grid, for a day or two, starting from a global
+  model at its edges.
+
+    GFS (NOAA)          the whole earth       about 28 km apart
+    UKV (Met Office)    the UK and Ireland    1.5 km apart
+
+
+  THE RULE, IN TWO PARTS
+  ----------------------------------------------------------------------
+  The big picture: global models. The lows, highs and fronts, and
+  when they arrive. They see the whole ocean and look far enough ahead,
+  so the passage is planned on them.
+
+  The local detail: high-resolution models. Near the coast and the
+  land, in the last day or two: headlands, sea breezes, wind bent round
+  high ground.
+
+    Never the other way round.
+
+  Why: a high-resolution model's edges come from a global one, so it
+  cannot know the synoptic story better than its parent, and it does
+  not look far enough ahead to plan a passage on.
+
+
+  WHAT A MODEL CANNOT SEE
+  ----------------------------------------------------------------------
+  Anything smaller than a few grid boxes. GFS's points are about
+  28 km apart: a sea breeze, a headland, the lull under a cliff are all
+  smaller.
+
+  Gusts. A model's wind is an average over its box and its step.
+
+  The exact hour. A front may come hours early or late, and the
+  error grows the further ahead the run looks.
+
+
+  JUDGING ONE
+  ----------------------------------------------------------------------
+    between runs     the same model, run after run: if the low
+                     arrives at the same time each run, believe it more
+    between models   GFS and ECMWF agree: confidence rises. Where
+                     they disagree, the race is likely decided there
+    the ensemble     one model run many times from slightly
+                     different starts: a tight bunch, confidence;
+                     a wide spread, low confidence
+    your own log     if the model is already wrong about now,
+                     it will be wrong about later
+
+
+  WHEN TO LOOK
+  ----------------------------------------------------------------------
+    5 to 7 days      the big picture: which systems, and is the
+                     global models' story steady?
+    2 days           the timing: when do the fronts and shifts
+                     arrive, and do the models agree?
+    race morning     the detail: the latest runs against the
+                     plan, and high-resolution models for the coast
+    at sea           only what the race allows aboard, checked
+                     against your own observations
+
+  And this tool? bashnav weather never forecasts from a model. It
+  keeps the observations you judge one against: your glass, your
+  wind, your sky.
+
+  The Met Office, numerical weather prediction models; ECMWF, Forecast
+  User Guide 8.1.2; NWS Juneau, Numerical Weather Prediction; NOAA
+  NCEI, the Global Forecast System.
+
+  ----------------------------------------------------------------------
+  Question: Five days before the start, a 1.5 km model shows a fine sea breeze on race day. Do you plan on it?
+
+Not yet. Five days out is for the big picture, from the global models: which systems, and whether their story holds run after run. A sea breeze is local detail, and a high-resolution model cannot know the synoptic story better than the global model at its edges. Look at it again on race morning, for the coast.
 === weather learn tide ===
 
   THE ATMOSPHERIC TIDE

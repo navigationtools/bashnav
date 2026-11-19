@@ -117,7 +117,7 @@ bn_unpack() {
 #  data that is never wrong - what you measured yourself - and the only
 #  one still available when the antenna comes down.
 # =====================================================================
-WEATHER_VERSION=1.0.18
+WEATHER_VERSION=1.0.19
 
 #  the log belongs to deck-log; weather only ever READS it
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"
@@ -2812,6 +2812,7 @@ function les_init(){
   les("fluid",    "Air is a fluid, and moist air is lighter")
   les("data",     "The three kinds of weather data, and which one you have")
   les("runs",     "Run time and valid time, always in UTC")
+  les("models",   "Global and high-resolution models, and how far to trust them")
   les("tide",     "The atmospheric tide: why the glass falls every afternoon")
   les("coriolis", "Coriolis, which is not a force")
   les("gradient", "Gradient wind, surface wind, and friction")
@@ -2960,6 +2961,84 @@ function lesson_body(k){
     print ""
     lpd("ECMWF, ecCodes, the time keys; NOAA NCEI, the Global Forecast")
     lpd("System; Bowditch, The American Practical Navigator, 2017, art. 3826.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="models"){
+    #  W29 (weather 1.0.19; book of work B22, at the XO's word under rule
+    #  16): global against high-resolution, judging a model, and when to
+    #  look, following the course's forecast models page (practical-
+    #  navigator, site/drafts/forecast-models) so the two say the same
+    #  thing.  Sources read 19 November 2026: the Met Office's numerical
+    #  models page (grids; the UKV's edges from the global model; why a
+    #  fine grid matters near coasts and hills); ECMWF's Forecast User
+    #  Guide 8.1.2 (spread and accuracy); NWS Juneau's brochure (comparing
+    #  runs and centres; low spread, high confidence); NOAA NCEI's GFS
+    #  page.  docs/SOURCES.md has each.  Gap list rule 3: the last
+    #  paragraph says the app never forecasts from a model.
+    lph("GLOBAL AND HIGH-RESOLUTION MODELS")
+    lp("A " cw("global",C_ACC) " model covers the whole earth on a coarse grid and looks a")
+    lp("week or more ahead. A " cw("regional or high-resolution",C_ACC) " model covers one")
+    lp("area on a much finer grid, for a day or two, starting from a global")
+    lp("model at its edges.")
+    print ""
+    lp("  GFS (NOAA)          the whole earth       about 28 km apart")
+    lp("  UKV (Met Office)    the UK and Ireland    1.5 km apart")
+    print ""
+    lph("THE RULE, IN TWO PARTS")
+    lp(cw("The big picture: global models.",C_ACC) " The lows, highs and fronts, and")
+    lp("when they arrive. They see the whole ocean and look far enough ahead,")
+    lp("so the passage is planned on them.")
+    print ""
+    lp(cw("The local detail: high-resolution models.",C_ACC) " Near the coast and the")
+    lp("land, in the last day or two: headlands, sea breezes, wind bent round")
+    lp("high ground.")
+    print ""
+    lp("  " cw("Never the other way round.",C_WARN))
+    print ""
+    lp("Why: a high-resolution model's edges come from a global one, so it")
+    lp("cannot know the synoptic story better than its parent, and it does")
+    lp("not look far enough ahead to plan a passage on.")
+    print ""
+    lph("WHAT A MODEL CANNOT SEE")
+    lp(cw("Anything smaller than a few grid boxes.",C_ACC) " GFS's points are about")
+    lp("28 km apart: a sea breeze, a headland, the lull under a cliff are all")
+    lp("smaller.")
+    print ""
+    lp(cw("Gusts.",C_ACC) " A model's wind is an average over its box and its step.")
+    print ""
+    lp(cw("The exact hour.",C_ACC) " A front may come hours early or late, and the")
+    lp("error grows the further ahead the run looks.")
+    print ""
+    lph("JUDGING ONE")
+    lp("  " cw("between runs",C_ACC) "     the same model, run after run: if the low")
+    lp("                   arrives at the same time each run, believe it more")
+    lp("  " cw("between models",C_ACC) "   GFS and ECMWF agree: confidence rises. Where")
+    lp("                   they disagree, the race is likely decided there")
+    lp("  " cw("the ensemble",C_ACC) "     one model run many times from slightly")
+    lp("                   different starts: a tight bunch, confidence;")
+    lp("                   a wide spread, low confidence")
+    lp("  " cw("your own log",C_ACC) "     if the model is already wrong about now,")
+    lp("                   it will be wrong about later")
+    print ""
+    lph("WHEN TO LOOK")
+    lp("  " cw("5 to 7 days",C_ACC) "      the big picture: which systems, and is the")
+    lp("                   global models' story steady?")
+    lp("  " cw("2 days",C_ACC) "           the timing: when do the fronts and shifts")
+    lp("                   arrive, and do the models agree?")
+    lp("  " cw("race morning",C_ACC) "     the detail: the latest runs against the")
+    lp("                   plan, and high-resolution models for the coast")
+    lp("  " cw("at sea",C_ACC) "           only what the race allows aboard, checked")
+    lp("                   against your own observations")
+    print ""
+    lp(cw("And this tool?",C_ACC) " bashnav weather never forecasts from a model. It")
+    lp("keeps the observations you judge one against: your glass, your")
+    lp("wind, your sky.")
+    print ""
+    lpd("The Met Office, numerical weather prediction models; ECMWF, Forecast")
+    lpd("User Guide 8.1.2; NWS Juneau, Numerical Weather Prediction; NOAA")
+    lpd("NCEI, the Global Forecast System.")
     print ""
     return 1
   }
@@ -3455,6 +3534,7 @@ function lesson_q(k){
   if(k=="fluid")    return "It is 30 C and very humid. Is that air heavier or lighter than 30 C and dry?|Lighter. Water molecules at 18 replace nitrogen at 28 and oxygen at 32, and a given volume holds a fixed number of molecules. Warm and wet is buoyant twice over, which is what builds thunderstorms."
   if(k=="data")     return "The latest surface analysis and a GRIB's forecast for the same hour put the low in different places. Which do you believe?|The analysis. Forecasters drew it from the observations and used the model only where other evidence agreed. The GRIB is the model's numbers, which no forecaster has checked, and the further ahead of its run time it reads, the less it is worth."
   if(k=="runs")     return "A GRIB says: run 18Z 23 May, step 33. What hour does it describe, and what is that on the boat's clock in the Channel?|03:00 UTC on 25 May: 18:00 plus 33 hours. In May that is 04:00 British Summer Time. The run of 00Z 24 May at step 27 describes the same hour from six hours later and less far ahead, so if you hold both, the newer one is likely the better."
+  if(k=="models")   return "Five days before the start, a 1.5 km model shows a fine sea breeze on race day. Do you plan on it?|Not yet. Five days out is for the big picture, from the global models: which systems, and whether their story holds run after run. A sea breeze is local detail, and a high-resolution model cannot know the synoptic story better than the global model at its edges. Look at it again on race morning, for the coast."
   if(k=="tide")     return "You are at 12N. The glass has fallen 2 hPa between 1000 and 1600. Worry?|Probably not - that is very close to the daily atmospheric tide, which is about 1.4 hPa of semidiurnal swing in the tropics with a minimum near 1600. Correct for it before reading anything into it. At 50N the same fall would mean much more."
   if(k=="coriolis") return "Why does no hurricane ever form on the equator?|Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in the world, and nothing to start it rotating. About 5 degrees is the practical minimum."
   if(k=="gradient") return "The chart shows a 30 knot gradient wind. What do you expect on deck, offshore, in the northern hemisphere?|Around 20 knots - roughly two thirds - and backed 10 to 20 degrees from the isobar direction, because friction slows the surface air, which weakens Coriolis, so pressure gradient wins a little and the wind blows across the isobars toward the low."

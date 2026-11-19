@@ -1,5 +1,45 @@
 # Changelog
 
+## weather 1.0.19: a lesson on global and high-resolution models (W29)
+
+**What.** A fourteenth lesson, `models` ("Global and high-resolution models,
+and how far to trust them"), after `runs`:
+
+1. **Two kinds of model:** a global one, the whole earth on a coarse grid, a
+   week or more ahead (GFS, about 28 km apart); a high-resolution one, one area
+   on a fine grid for a day or two, starting from a global model at its edges
+   (the Met Office's UKV, 1.5 km over the UK and Ireland).
+2. **The rule, in two parts:** the big picture from the global models, the
+   local detail from the high-resolution ones near the coast in the last day
+   or two. Never the other way round, because a high-resolution model's edges
+   come from a global one.
+3. **What a model cannot see:** anything smaller than a few grid boxes, gusts,
+   the exact hour.
+4. **Judging one:** run against run, model against model, the ensemble's
+   spread, and your own log.
+5. **When to look:** five to seven days, two days, race morning, at sea.
+6. **The app never forecasts from a model;** it keeps the observations you
+   judge one against.
+
+Its question: a 1.5 km model shows a sea breeze five days out; do you plan on
+it? Not yet: five days out is for the global models' big picture.
+
+**Why.** Book of work B22 (Larry's yes of 12 November), W29, at the XO's word
+under rule 16 (19 November: "go ahead with W29 ... read its sources first").
+The words follow the course's forecast models page, as the XO agreed on 18
+November, so the app and the course say the same thing. One difference, from
+the sources: the course page says a wide ensemble spread is "a guess"; the
+lesson says "low confidence", which is the NWS's wording. Sources in
+`docs/SOURCES.md`, under "Forecast models".
+
+**What it touches.** `src/weather/teach.awk` (the lesson, its question, the
+list); `docs/web/weather/lessons.js` (generated); the golden file
+`tests/golden/weather.txt`; the iPad bundle; the version (1.0.19) and the web
+cache (`weather-v36`). The README, `docs/ARCHITECTURE.md`, the web README and
+the manual say fourteen lessons; the manual's Figure 10 is recaptured, and its
+section 9 gains a paragraph on the lesson. One fault, fixed: section 9 sent the
+reader to Figure 10 for the friction figure, which is Figure 11.
+
 ## weather 1.0.18: a lesson on run time and valid time, in UTC (W31)
 
 **What.** A thirteenth lesson, `runs` ("Run time and valid time, always in

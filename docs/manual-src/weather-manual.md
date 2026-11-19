@@ -384,11 +384,11 @@ course (Larry's ruling TAWG); the lesson `cyclone` lists them.
 
 ## 9. The lessons
 
-![**Figure 10** — thirteen lessons, each one earning its place.](fig/weather-lessons.png)
+![**Figure 10** — fourteen lessons, each one earning its place.](fig/weather-lessons.png)
 
 Each lesson changes either what the tool says or what you would do. One of them
 says plainly where the reasoning stops being reliable, which is the most
-important of the thirteen.
+important of the fourteen.
 
 `weather learn` lists them; `weather learn <key>` opens one.
 
@@ -402,13 +402,24 @@ the hour the trough reached Lyme Bay. The further ahead the valid time, the
 less sure the forecast, so check which run you hold and how far ahead of it you
 are reading. The tool itself never forecasts from a model.
 
+**Global and high-resolution models** follow, in `weather learn models`, again
+in the words of the course's forecast models page. A global model covers the
+whole earth on a coarse grid and looks a week or more ahead; a high-resolution
+model covers one area on a fine grid for a day or two, and takes its edges from
+a global one. So the rule has two parts: plan the passage on the global models,
+and use the high-resolution ones for the coast in the last day or two, never
+the other way round. The lesson also says what a model cannot see (anything
+smaller than a few grid boxes, gusts, the exact hour), how to judge one (run
+against run, model against model, the ensemble's spread, your own log), and
+when to look: five to seven days out, two days out, race morning, and at sea.
+
 ![**Figure 11** — friction, in the `gradient` lesson. Over the sea the surface
 wind is backed 10 to 20 degrees toward the low and about 2/3 of the wind
 aloft. Over land it is backed 30 to 40 degrees, and its speed is a band: about
 1/3 over forests, towns and cities, nearer 2/3 over open fields.](fig/weather-friction.png)
 
 Some lessons draw what they say. The `gradient` lesson draws friction (Figure
-10), the turn toward the low and the loss of speed, as a figure in the terminal
+11), the turn toward the low and the loss of speed, as a figure in the terminal
 and in the browser. The land speed is drawn as a band, not one number, because
 the published rules of thumb disagree, from 1/3 (the Royal Meteorological
 Society) to 2/3 (US Navy training), and because the ground decides it: trees
