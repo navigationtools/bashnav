@@ -1,5 +1,39 @@
 # Changelog
 
+## weather 1.0.18: a lesson on run time and valid time, in UTC (W31)
+
+**What.** A thirteenth lesson, `runs` ("Run time and valid time, always in
+UTC"), after `data`:
+
+1. **Every forecast has two times:** the run time, when the model started, and
+   the valid time, the moment it describes.
+2. **Valid time = run time + the step.** The example is the race-morning GRIB:
+   the GFS run of 00:00 UTC on 24 May 2025 at step 27 is valid at 03:00 UTC on
+   25 May, the hour the trough reached Lyme Bay.
+3. **Always UTC;** ship's time is yours to work out (in May, BST is UTC + 1).
+4. **How often:** GFS runs at 00, 06, 12 and 18 UTC, out to 16 days,
+   three-hourly, and a run reaches you some hours after its run time.
+5. **Further ahead is less sure** (Bowditch): check which run you hold and how
+   far ahead of it you are reading.
+6. **The app never forecasts from a model** (gap list rule 3).
+
+Its question: a GRIB of run 18Z 23 May at step 33 describes 03:00 UTC on 25 May,
+04:00 BST; the run six hours later describes the same hour from less far ahead.
+
+**Why.** Book of work B22 (Larry's yes of 12 November), W31, at the XO's word
+under rule 16 ("When PILOT answers on W31, finish W31 first"). Lines 1 to 5 are
+the words agreed with PILOT on 19 November, so the lesson and the course's
+forecast models page (AUM piece 3) say the same thing. Sources in
+`docs/SOURCES.md`, under "Run times and valid time".
+
+**What it touches.** `src/weather/teach.awk` (the lesson, its question, the
+list); `docs/web/weather/lessons.js` (generated); the golden file
+`tests/golden/weather.txt`; the iPad bundle; the version (1.0.18) and the web
+cache (`weather-v35`). The README, `docs/ARCHITECTURE.md`, the web README and
+the manual's Figure 10 now say thirteen lessons. The manual's section 9 gains a
+paragraph on the lesson, and "the most important of the eleven" becomes "of the
+thirteen": it had not been updated when the twelfth lesson came in.
+
 ## weather 1.0.17: the three kinds of weather data, and how to tell which you hold (W30)
 
 **What.** The lesson `data` now says how to tell which of the three you are

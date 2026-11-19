@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=004103977
+BASHNAV_BYTES=004106760
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -30496,7 +30496,7 @@ bn_unpack() {
 #  data that is never wrong - what you measured yourself - and the only
 #  one still available when the antenna comes down.
 # =====================================================================
-WEATHER_VERSION=1.0.17
+WEATHER_VERSION=1.0.18
 
 #  the log belongs to deck-log; weather only ever READS it
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"
@@ -33190,6 +33190,7 @@ function les_init(){
   LS_N=0
   les("fluid",    "Air is a fluid, and moist air is lighter")
   les("data",     "The three kinds of weather data, and which one you have")
+  les("runs",     "Run time and valid time, always in UTC")
   les("tide",     "The atmospheric tide: why the glass falls every afternoon")
   les("coriolis", "Coriolis, which is not a force")
   les("gradient", "Gradient wind, surface wind, and friction")
@@ -33296,6 +33297,48 @@ function lesson_body(k){
     print ""
     lpd("Bowditch, The American Practical Navigator, 2017, art. 3826; NOAA,")
     lpd("the Unified Surface Analysis Manual.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="runs"){
+    #  W31 (weather 1.0.18; book of work B22, at the XO's word under rule
+    #  16): run time and valid time, in the words agreed with PILOT on 19
+    #  November 2026, so that this lesson and the course's forecast models
+    #  page say the same thing.  Lines 1 and 2: ECMWF's ecCodes time keys
+    #  (the example is the race-morning GRIB itself); line 4: NOAA NCEI's
+    #  GFS page; line 5: Bowditch 2017, art. 3826, p. 631.  The last
+    #  paragraph is the app's own (gap list rule 3).  docs/SOURCES.md.
+    lph("RUN TIME AND VALID TIME")
+    lp(cw("Every forecast has two times.",C_ACC) " The " cw("run time",C_ACC) " is when the model")
+    lp("started: it begins from its picture of the weather at that moment.")
+    lp("The " cw("valid time",C_ACC) " is the moment the forecast describes.")
+    print ""
+    lp("    " cw("valid time  =  run time  +  the step (the forecast hour)",C_ACC))
+    print ""
+    lp("The GFS run of 00:00 UTC on 24 May 2025 at step 27 is valid at")
+    lp("03:00 UTC on 25 May: the hour the trough reached Lyme Bay.")
+    print ""
+    lp("    run    00Z 24 May  ---- step 27 h ---->  valid  03Z 25 May")
+    print ""
+    lp(cw("Always UTC.",C_ACC) " Run and valid times are in UTC (Z). Ship's time is")
+    lp("yours to work out: in May, British Summer Time is UTC + 1.")
+    print ""
+    lp(cw("How often.",C_ACC) " GFS runs four times a day, at 00, 06, 12 and 18 UTC,")
+    lp("and its files go out to 16 days, three-hourly. A run reaches you")
+    lp("some hours after its run time.")
+    print ""
+    lp(cw("Further ahead is less sure.",C_ACC) " The further ahead the valid time,")
+    lp("the less sure the forecast: a 12-hour forecast is likely to be better")
+    lp("than a 24-hour one (Bowditch). " cw("Check which run you are holding, and",C_WARN))
+    lp(cw("how far ahead of it you are reading.",C_WARN))
+    print ""
+    lp(cw("And this tool?",C_ACC) " bashnav weather never forecasts from a model. It")
+    lp("reasons from what you observe, and it helps you read a model you got")
+    lp("elsewhere.")
+    print ""
+    lpd("ECMWF, ecCodes, the time keys; NOAA NCEI, the Global Forecast")
+    lpd("System; Bowditch, The American Practical Navigator, 2017, art. 3826.")
     print ""
     return 1
   }
@@ -33790,6 +33833,7 @@ function lesson_body(k){
 function lesson_q(k){
   if(k=="fluid")    return "It is 30 C and very humid. Is that air heavier or lighter than 30 C and dry?|Lighter. Water molecules at 18 replace nitrogen at 28 and oxygen at 32, and a given volume holds a fixed number of molecules. Warm and wet is buoyant twice over, which is what builds thunderstorms."
   if(k=="data")     return "The latest surface analysis and a GRIB's forecast for the same hour put the low in different places. Which do you believe?|The analysis. Forecasters drew it from the observations and used the model only where other evidence agreed. The GRIB is the model's numbers, which no forecaster has checked, and the further ahead of its run time it reads, the less it is worth."
+  if(k=="runs")     return "A GRIB says: run 18Z 23 May, step 33. What hour does it describe, and what is that on the boat's clock in the Channel?|03:00 UTC on 25 May: 18:00 plus 33 hours. In May that is 04:00 British Summer Time. The run of 00Z 24 May at step 27 describes the same hour from six hours later and less far ahead, so if you hold both, the newer one is likely the better."
   if(k=="tide")     return "You are at 12N. The glass has fallen 2 hPa between 1000 and 1600. Worry?|Probably not - that is very close to the daily atmospheric tide, which is about 1.4 hPa of semidiurnal swing in the tropics with a minimum near 1600. Correct for it before reading anything into it. At 50N the same fall would mean much more."
   if(k=="coriolis") return "Why does no hurricane ever form on the equator?|Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in the world, and nothing to start it rotating. About 5 degrees is the practical minimum."
   if(k=="gradient") return "The chart shows a 30 knot gradient wind. What do you expect on deck, offshore, in the northern hemisphere?|Around 20 knots - roughly two thirds - and backed 10 to 20 degrees from the isobar direction, because friction slows the surface air, which weakens Coriolis, so pressure gradient wins a little and the wind blows across the isobars toward the low."

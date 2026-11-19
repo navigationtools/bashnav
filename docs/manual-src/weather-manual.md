@@ -384,13 +384,23 @@ course (Larry's ruling TAWG); the lesson `cyclone` lists them.
 
 ## 9. The lessons
 
-![**Figure 10** — twelve lessons, each one earning its place.](fig/weather-lessons.png)
+![**Figure 10** — thirteen lessons, each one earning its place.](fig/weather-lessons.png)
 
 Each lesson changes either what the tool says or what you would do. One of them
 says plainly where the reasoning stops being reliable, which is the most
-important of the eleven.
+important of the thirteen.
 
 `weather learn` lists them; `weather learn <key>` opens one.
+
+**Run time and valid time** have a lesson of their own, `weather learn runs`,
+in the words agreed with the course's forecast models page, so the two say the
+same thing. Every forecast has two times: the run time, when the model started,
+and the valid time, the moment it describes. The valid time is the run time
+plus the step, and both are in UTC. The example is the race-morning GRIB: the
+run of 00:00 UTC on 24 May 2025 at step 27 is valid at 03:00 UTC on 25 May,
+the hour the trough reached Lyme Bay. The further ahead the valid time, the
+less sure the forecast, so check which run you hold and how far ahead of it you
+are reading. The tool itself never forecasts from a model.
 
 ![**Figure 11** — friction, in the `gradient` lesson. Over the sea the surface
 wind is backed 10 to 20 degrees toward the low and about 2/3 of the wind

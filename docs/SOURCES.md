@@ -498,8 +498,14 @@ the sources December's pages lean on are read first; read 18 November 2026).
       and a time.
 
 **Run times and valid time** (gap list W31, book of work B22; the XO's work
-under rule 16, Larry's yes of 12 November, D-014; read 18 November 2026; for
-the lesson to come, its words agreed with PILOT first).
+under rule 16, Larry's yes of 12 November, D-014; read 18 November 2026). The
+lesson is `runs` (weather 1.0.18). Its words were agreed with PILOT on 19
+November 2026 (PILOT's reply on NAV's note
+spec's
+`handoffs/inbox/practical-navigator/2026-11-18_w31-run-times-words-to-agree.md`, with two
+small changes: "started: it begins from its picture" in line 1, and line 5's
+heading "Further ahead is less sure"), so the lesson and the course's forecast
+models page carry the same lines 1 to 5. Line 6 is the app's own (item 5 below).
 
 1. **Two times on every forecast.** ECMWF, "Edition independent ecCodes Keys:
    time" (<https://codes.ecmwf.int/grib/format/edition-independent/2>): every
@@ -523,3 +529,7 @@ the lesson to come, its words agreed with PILOT first).
 5. **The rule the lesson keeps** (gap list rule 3): bashnav weather never
    forecasts from a model; a lesson about models teaches what to do with one
    obtained elsewhere, and says so.
+6. **The lesson's question** is the app's own working from items 1 and 3: a
+   run of 18:00 UTC on 23 May at step 33 is valid at 03:00 UTC on 25 May, the
+   same hour as the race-morning example, from six hours earlier and further
+   ahead. British Summer Time as UTC + 1 is the agreed line 3.

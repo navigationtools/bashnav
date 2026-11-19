@@ -53,7 +53,7 @@ extraction repeats if the executable is newer than the extracted engine
     ~/.celnav/    engine-1.6.awk  teach-1.6.awk  celnav.conf
     ~/.colregs/   engine-1.15.awk  contacts-1.15.awk  review-1.15.awk  colregs.conf
     ~/.tides/     engine-1.6.awk  tables-1.6.awk  stations.dat  levels.dat  config  lastlist
-    ~/.bashnav/   decklog-1.1.2.awk  weather-1.0.17.awk  log  boat  *.conf
+    ~/.bashnav/   decklog-1.1.2.awk  weather-1.0.18.awk  log  boat  *.conf
 
 ### `$HOME` is not writable on iOS, so the folder is chosen, not assumed
 
@@ -163,7 +163,7 @@ marking without the shell having to remember anything. That is also what makes
 
     src/weather/10-head.sh        config, colour, awk detection
     src/weather/wx.awk            the reasoning: tendency, veering, Buys Ballot
-    src/weather/teach.awk         twelve lessons
+    src/weather/teach.awk         thirteen lessons
     src/weather/score.awk         WxChallenge scoring, valid times
     src/weather/chart.awk         the 500 mb chart and Chesneau's rules; the wind from the isobars
     src/weather/30-ui.sh          commands and menu

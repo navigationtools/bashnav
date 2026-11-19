@@ -74,6 +74,7 @@
   ----------------------------------------------------------------------
      fluid     Air is a fluid, and moist air is lighter
      data      The three kinds of weather data, and which one you have
+     runs      Run time and valid time, always in UTC
      tide      The atmospheric tide: why the glass falls every afternoon
      coriolis  Coriolis, which is not a force
      gradient  Gradient wind, surface wind, and friction
@@ -170,6 +171,44 @@ Lighter. Water molecules at 18 replace nitrogen at 28 and oxygen at 32, and a gi
   Question: The latest surface analysis and a GRIB's forecast for the same hour put the low in different places. Which do you believe?
 
 The analysis. Forecasters drew it from the observations and used the model only where other evidence agreed. The GRIB is the model's numbers, which no forecaster has checked, and the further ahead of its run time it reads, the less it is worth.
+=== weather learn runs ===
+
+  RUN TIME AND VALID TIME
+  ----------------------------------------------------------------------
+  Every forecast has two times. The run time is when the model
+  started: it begins from its picture of the weather at that moment.
+  The valid time is the moment the forecast describes.
+
+      valid time  =  run time  +  the step (the forecast hour)
+
+  The GFS run of 00:00 UTC on 24 May 2025 at step 27 is valid at
+  03:00 UTC on 25 May: the hour the trough reached Lyme Bay.
+
+      run    00Z 24 May  ---- step 27 h ---->  valid  03Z 25 May
+
+  Always UTC. Run and valid times are in UTC (Z). Ship's time is
+  yours to work out: in May, British Summer Time is UTC + 1.
+
+  How often. GFS runs four times a day, at 00, 06, 12 and 18 UTC,
+  and its files go out to 16 days, three-hourly. A run reaches you
+  some hours after its run time.
+
+  Further ahead is less sure. The further ahead the valid time,
+  the less sure the forecast: a 12-hour forecast is likely to be better
+  than a 24-hour one (Bowditch). Check which run you are holding, and
+  how far ahead of it you are reading.
+
+  And this tool? bashnav weather never forecasts from a model. It
+  reasons from what you observe, and it helps you read a model you got
+  elsewhere.
+
+  ECMWF, ecCodes, the time keys; NOAA NCEI, the Global Forecast
+  System; Bowditch, The American Practical Navigator, 2017, art. 3826.
+
+  ----------------------------------------------------------------------
+  Question: A GRIB says: run 18Z 23 May, step 33. What hour does it describe, and what is that on the boat's clock in the Channel?
+
+03:00 UTC on 25 May: 18:00 plus 33 hours. In May that is 04:00 British Summer Time. The run of 00Z 24 May at step 27 describes the same hour from six hours later and less far ahead, so if you hold both, the newer one is likely the better.
 === weather learn tide ===
 
   THE ATMOSPHERIC TIDE
