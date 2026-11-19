@@ -19,6 +19,9 @@
                           system's "Shared words" have them (TAWG): 1, 2, 4 on
                           the dangerous side; 1, 4, 5 on the navigable; 4 on
                           the track
+      near its path       ahead of it and inside its 34-knot radius of the
+                          track: bashnav's one "in its path" line, from the
+                          advisory, with no course to steer (TAZT)
       the band            where the wind puts the centre, and the verdict:
                           agrees, or near enough by so many degrees (Larry's
                           ruling TAYY: line 4's words, 110 ahead and 120 to
@@ -71,7 +74,7 @@ const CASES = txt.split('\n').filter(l => l && l[0] !== '#').map(l => {
   l.split('|').forEach(kv => { const i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
   return f;
 });
-ok('the fixture holds 21 cases', CASES.length === 21, String(CASES.length));
+ok('the fixture holds 23 cases', CASES.length === 23, String(CASES.length));
 
 /* ---- every case, in both builds ---------------------------------------- */
 const ENG = ['log.awk', 'colour.awk'].map(f => REPO + '/src/common/' + f)
@@ -114,6 +117,13 @@ CASES.forEach(c => {
             (t.match(/is (\d+) degrees outside that: near enough/) ? 'near,' + RegExp.$1 :
             (t.match(/disagree, by (\d+) degrees/) ? 'disagrees,' + RegExp.$1 : '?'));
   ok(id + ': the report and the wind: ' + c.verdict.replace(',', ' '), v === c.verdict, v);
+  /*  NEAR ITS PATH (r3, Larry's ruling TAZT): bashnav's only "in its path"
+      words are this line, from the advisory: ahead of the storm and closer
+      to its track than its 34-knot winds reach.  It gives no course to
+      steer.  Bowditch's sign from the wind and glass alone (the fixture's
+      `sign`) is for a boat with no advisory, and is the face's.  */
+  const np = /ahead of it, near its path/.test(t) ? 'yes' : 'no';
+  ok(id + ': near its path, ' + c.nearpath, np === c.nearpath, np);
   /*  pending: what the other tool decides differently; bashnav's own
       answer is checked above, in full  */
   if (c.pending !== '-') pend.push('  ' + c.case + '  pending (' + c.pending + '): bashnav says ' + c.side + ', ' + c.pos +

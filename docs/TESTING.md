@@ -528,7 +528,11 @@ ahead or behind, its shift, its shared lines word for word, and the band the
 wind puts the centre in with its verdict (Larry's ruling TAYY: line 4's words,
 110 ahead and 120 to 135 behind, a point or two less on the near side). Every
 case is checked in full; three are also listed as pending, because the face
-decides "on the track" another way and that waits on Larry. 205 checks.
+decides "on the track" another way and that waits on Larry. Since the cases'
+r3 (Larry's ruling TAZT) it also checks bashnav's one "in its path" line, "near
+its path", which comes from the advisory's track and 34-knot radius and not from
+the wind's signs; bashnav gives no course to steer. 23 cases, 244 checks with
+spec beside bashnav.
 
 **What it found at once.** A centre less than half a degree past the band's
 edge read "0 degrees outside that: near enough". Fixed in 1.0.22: the bearing

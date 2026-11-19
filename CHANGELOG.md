@@ -1,5 +1,21 @@
 # Changelog
 
+## Tests: the storm cases' r3, "in its path" by Bowditch's full sign (TAZT; no version change)
+
+**What.** bashnav's copy of the shared storm cases (`tests/storm-cases.txt`) moves to r3, and its
+test (`docs/web/tests/weather-storm-cases.js`) with it: 23 cases, 244 checks. The cases gain the
+wind's speed 3 hours ago, so a tool that reads only the wind and the glass is held to Bowditch's
+full sign for "in or near the path" (wind steady, speed rising, glass falling), and two cases
+where the wind is steady and not rising (N7, S7). The test now also checks bashnav's "near its path"
+line against the fixture.
+
+**Why.** Larry's ruling TAZT (19 November 2026), on PILOT's check of the cases. The XO asked
+whether bashnav gives any "in its path" advice: it gives no course to steer, and its one line,
+"And you are ahead of it, near its path: its winds reach your water", comes from the advisory's
+track and the storm's 34-knot radius, not from the wind. So nothing in bashnav weather changes.
+
+**What it touches.** The two test files above, and `docs/TESTING.md`.
+
 ## weather 1.0.22: the shared storm cases, and a band edge that read "0 degrees outside" (TAYT)
 
 **What.**
