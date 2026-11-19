@@ -1,5 +1,31 @@
 # Changelog
 
+## weather 1.0.23: the routing lesson names Stan Honey's motorboat course (TAZH)
+
+**What.** Section 4 of the `routing` lesson ("The motorboat: what the wind costs") keeps its text
+and its figure, and gains one paragraph, in the terminal and the browser:
+
+> The ocean navigator Stan Honey means something more by *the motorboat course*: the course square
+> to the reverse isochrones, the way the hours to finish fall fastest. On a beat it points up the
+> wind, not at the mark; on a reach, nearly at the mark. His crews hear it at every briefing, and
+> take any shift the forecast missed that lets them sail nearer to it. A later release of this
+> lesson will draw it.
+
+The manual's item 4 gains the same words, and `docs/SOURCES.md` (Routing, item 4) records the ruling
+and where the beat and reach figures are worked.
+
+**Why.** Larry's ruling TAZH (19 November 2026). Reading Stan Honey's "15 minutes on routing" for
+W35 showed that his "motorboat course" (slides 8 and 10) is a different idea from the straight-line
+motorboat the lesson draws, which is the course's own (Levels 1 and 2). Both are useful. The lesson
+now names Honey's so a reader who meets the term in a briefing knows what is meant; drawing it is a
+later feature, and PILOT closes Level 3 with a short teaser using the same picture.
+
+**What it touches.** `src/weather/teach.awk` (and `docs/web/weather/lessons.js`, generated from it);
+the manual (`docs/manual-src/weather-manual.md`); `docs/SOURCES.md`; the golden file
+(`tests/golden/weather.txt`); the version (1.0.23, `src/weather/10-head.sh`, `docs/ARCHITECTURE.md`)
+and the web cache (`weather-v40`, so a browser that has the lesson fetches the new words); the iPad
+bundle; the menu picture; the manual and quick reference, rebuilt for the version.
+
 ## Tests: the storm cases' r3, "in its path" by Bowditch's full sign (TAZT; no version change)
 
 **What.** bashnav's copy of the shared storm cases (`tests/storm-cases.txt`) moves to r3, and its

@@ -329,6 +329,20 @@ function lesson_body(k){
     lp("motorboat: straight lines between the routed boat's places, in her")
     lp("times, to show what the tide and the wind each add.")
     print ""
+    #  HONEY'S MOTORBOAT COURSE IS NAMED, NOT YET DRAWN (weather 1.0.23,
+    #  Larry's ruling TAZH, 19 November 2026).  In Stan Honey's "15 minutes
+    #  on routing" (slides 8 and 10) the motorboat course is the course
+    #  square to the reverse isochrones, which is not the straight line
+    #  above.  The section keeps its figure and gains this paragraph; the
+    #  drawn version is a later feature (docs/SOURCES.md, Routing item 4).
+    lp("The ocean navigator Stan Honey means something more by")
+    lp(cw("the motorboat course",C_ACC) ": the course square to the reverse isochrones,")
+    lp("the way the hours to finish fall fastest. On a beat it points up")
+    lp("the wind, not at the mark; on a reach, nearly at the mark. His")
+    lp("crews hear it at every briefing, and take any shift the forecast")
+    lp("missed that lets them sail nearer to it. A later release of this")
+    lp("lesson will draw it.")
+    print ""
     lph("WHERE A ROUTER IS BIASED")
     lp(cw("It believes the forecast completely.",C_ACC) " A shift forecast for 02:00 is,")
     lp("to the router, a fact, to the minute.")

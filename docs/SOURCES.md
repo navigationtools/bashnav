@@ -647,8 +647,13 @@ teaches what to do with a router's answer, and says so (gap list rule 3).
    it is the course **square to the reverse isochrones**: the way that crosses
    them fastest, and so the way the finish comes soonest, whatever the wind
    lets the boat point. The crew should know it, brief it every few hours, and
-   take any un-forecast wind that helps along it. The lesson's section 4
-   does not yet say this; NAV has put the change to the XO for Larry.
+   take any un-forecast wind that helps along it. Since weather 1.0.23
+   (Larry's ruling TAZH) the lesson's section 4 keeps bashnav's motorboat and
+   its figure, and adds one paragraph naming Honey's motorboat course, with
+   the beat and the reach, as coming in a later release. The figures behind
+   that paragraph (on the beat the course is 000 with the finish at 023; on a
+   reach 118 against 113) are worked in NAV's explainer,
+   `spec/handoffs/inbox/navigationtools/2026-11-19_motorboat-course-explainer.md`.
 5. **Where a router is biased.**
    1. Stan Honey, "Warning about Using Deckman or Expedition" (public:
       <https://pacificcup.org/index.php/kb/warning-about-using-deckman-or-expedition>):

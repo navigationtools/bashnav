@@ -415,6 +415,14 @@ Not yet. Five days out is for the big picture, from the global models: which sys
   motorboat: straight lines between the routed boat's places, in her
   times, to show what the tide and the wind each add.
 
+  The ocean navigator Stan Honey means something more by
+  the motorboat course: the course square to the reverse isochrones,
+  the way the hours to finish fall fastest. On a beat it points up
+  the wind, not at the mark; on a reach, nearly at the mark. His
+  crews hear it at every briefing, and take any shift the forecast
+  missed that lets them sail nearer to it. A later release of this
+  lesson will draw it.
+
 
   WHERE A ROUTER IS BIASED
   ----------------------------------------------------------------------

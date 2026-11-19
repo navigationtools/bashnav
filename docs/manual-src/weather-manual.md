@@ -545,7 +545,11 @@ Both arrive together; the sailing boat has sailed five miles more.](fig/weather-
 **4. The motorboat.** A motorboat's fastest course is the straight line. Set
 beside the sailing route, it shows what the wind asks: extra miles (Figure 21).
 Extra miles are what a route spends. The course does this with bashnav's own
-motorboat, on the routed boat's places and times.
+motorboat, on the routed boat's places and times. The ocean navigator Stan
+Honey means something more by *the motorboat course*: the course square to the
+reverse isochrones, the way the hours to finish fall fastest. On a beat it
+points up the wind, not at the mark; on a reach, nearly at the mark. His crews
+hear it at every briefing. A later release of the lesson will draw it.
 
 ![**Figure 22** — the router goes all in. Three boats on a beat, with a veer
 forecast an hour in. The boat on the right gains 17 minutes on the middle if the
