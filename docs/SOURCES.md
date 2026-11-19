@@ -641,22 +641,26 @@ teaches what to do with a router's answer, and says so (gap list rule 3).
 4. **The motorboat.** The lesson teaches bashnav's own motorboat (`ROUTER.md`,
    "The motorboat of Levels 1 and 2"): straight lines between the routed boat's
    places, in her times. "Extra miles sailed are your currency" is Stan Honey's,
-   from the Pacific Cup article (item 3.1). **Not yet read:** what the gap
-   list's "motorboat course" means in its own sources (RT and NP, which are not
-   on the Mac). Two public files at honeynav.com may hold it; opening them is a
-   download, which waits for Larry's word (item 9).
+   from the Pacific Cup article (item 3.1).
+   **Read on 19 November 2026 (Larry's TAZB): the gap list's "motorboat course"
+   is something else.** In "15 minutes on routing" (item 9.1), slides 8 and 10,
+   it is the course **square to the reverse isochrones**: the way that crosses
+   them fastest, and so the way the finish comes soonest, whatever the wind
+   lets the boat point. The crew should know it, brief it every few hours, and
+   take any un-forecast wind that helps along it. The lesson's section 4
+   does not yet say this; NAV has put the change to the XO for Larry.
 5. **Where a router is biased.**
    1. Stan Honey, "Warning about Using Deckman or Expedition" (public:
       <https://pacificcup.org/index.php/kb/warning-about-using-deckman-or-expedition>):
       computer routes assume steady wind and perfect helmsmen.
-   2. His navigator's slides (item 9): the router goes all in for the smallest
+   2. His navigator's slides (item 9.3): the router goes all in for the smallest
       gain, and has complete confidence in every time in the model.
    3. The course's routing page (practical-navigator,
       `site/drafts/routing/`, section 2): "It measures time, never risk."
    4. The figure's times (2 h 26, 2 h 43 and 3 h 04 for a 20-degree shift an
       hour into a 12-mile beat) are worked by `rt_allin` on the made-up boat.
 6. **Scaling the wind and the stream.**
-   1. Stan Honey's navigator's slides (item 9): scale the wind 115 percent in
+   1. Stan Honey's navigator's slides (item 9.3): scale the wind 115 percent in
       the tropics, 120 in mid-latitudes and 125 in high latitudes; scale the
       current 130 percent; then correct the GRIB to what is observed.
    2. Frank Singleton, "A Note on GRIB Files and models"
@@ -673,9 +677,11 @@ teaches what to do with a router's answer, and says so (gap list rule 3).
    5. bashnav's router: the run file's `scale wind <f> current <f>`
       (`docs/web/route/COURSE.md`).
 7. **Testing the route.**
-   1. Stan Honey's Pacific Cup article (item 3.1): run many what-ifs. His
-      slides (item 9): different models, more and less wind, features moving
-      faster and slower, the current off.
+   1. Stan Honey's Pacific Cup article (item 3.1): run many what-ifs.
+      "Navigator Preparation" (item 9.2), slide 21: more wind, starting later
+      or sooner, slower polars, forced waypoints; and what goes wrong if the
+      weather is wrong in different ways. His Comanche slides (item 9.3):
+      different models, features moving faster and slower, the current off.
    2. The course's routing page, sections 3 and 4, and its data
       (`site/drafts/routing/runs.js`): the 2025 Myth of Malham sailed by
       bashnav's router in the forecast wind and ten per cent lighter and
@@ -687,14 +693,30 @@ teaches what to do with a router's answer, and says so (gap list rule 3).
 8. **Saying the route in sailing terms.** Stan Honey's Pacific Cup article
    (item 3.1): explain the route in sailing terminology. The Lyme Bay brief is
    shortened from the course's routing page, section 5.
-9. **Stan Honey's navigator's slides: what was read, and what was not.** NAV
-   read Larry's own copy of the Comanche navigation talk (`spec/weather/sources.md`,
-   code CO), slides 32 and 76. It is private material: the lesson is in our own
-   words and copies no text or figure. Mr Honey posts his talks at
-   <https://honeynav.com/presentations/>, among them "Navigator Preparation"
-   and "15 minutes on routing". NAV has not opened those two files, because
-   opening them is a download. **Until one is read, the scaling figures rest on
-   Larry's copy and on item 6.2.**
+9. **Stan Honey's talks, as posted at <https://honeynav.com/presentations/>.**
+   Downloaded into NAV's cloud workspace on 19 November 2026 (Larry's TAZB) and
+   read; the lesson is in our own words and copies no text or figure.
+   1. **"Uses for digital weather data and routing software"** (NYYC, February
+      2019; the file is "15 minutes on routing";
+      <https://honeynav.com/wp-content/uploads/2017/09/15-minutes-on-routing-NYYC.pptx>).
+      This is the gap list's source RT. Slide 6: a global model is good to
+      about 3 days, fair to 5 or 6, and fiction by 15. Slide 7: route every 6
+      hours to a point 5 days ahead, and never sail extra miles today for a
+      feature more than 5 days away: the lesson's five-day horizon. Slide 8:
+      show the reverse isochrones and cross them as fast as you can; the
+      motorboat course (item 4); three courses to weigh: straight or best VMG,
+      the greediest gain on the way, and the route. Slide 10: the crew briefing
+      every 4 to 6 hours carries the motorboat course.
+   2. **"Navigator Preparation"** (US Sailing;
+      <https://honeynav.com/wp-content/uploads/2017/09/Navigator-Preparation.pptx>).
+      This is the gap list's source NP. Slide 21: reverse isochrones laid over
+      forward ones to find the "don't-care areas"; the what-ifs of item 7.1;
+      risk assessments and the cost of insurance.
+   3. **The Comanche navigation talk** (NYYC, 2016; the gap list's source CO).
+      Read in Larry's own copy, slides 32 and 76; the honeynav page posts it
+      through a link to a shared drive. **The scaling figures (1.15, 1.20,
+      1.25 and 1.30) and "goes all in" are in this talk only:** neither file
+      above has them. Item 6.2 is the public check on the mid-latitude figure.
 10. **The made-up boat** (her speed at eight angles off the wind, 45 to 150
     degrees) is the app's own, chosen so the sums can be checked by hand. She
     is not any real boat's polar.
