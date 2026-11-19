@@ -79,29 +79,50 @@ function lesson_body(k){
   }
   # ------------------------------------------------------------------
   if(k=="data"){
+    #  W30 (weather 1.0.17; book of work B22, at the XO's word under rule
+    #  16): brought up to the sources read on 18 November 2026 (TAUW) and
+    #  given the part the gap list said was missing, how to tell which of
+    #  the three you are holding.  Bowditch 2017, art. 3826, p. 631; NOAA's
+    #  Unified Surface Analysis Manual; NOAA NCEI's GFS page; ECMWF's
+    #  ecCodes time keys.  docs/SOURCES.md has each.
     lph("THE THREE KINDS OF WEATHER DATA")
     lp("Most sailors never learn this, and it decides how much to believe.")
     print ""
-    lp(cw("OBSERVATION",C_ACC) "   an instrument reading of what is happening now.")
-    lp("               Not a forecast - but it is " cw("true",C_ACC) ".")
+    lp(cw("OBSERVATION",C_ACC) "   an instrument reading of what is happening now:")
+    lp("              your barometer, a buoy, a ship's report.")
+    lp("              Not a forecast - but it is " cw("true",C_ACC) ".")
     print ""
-    lp(cw("ANALYSIS",C_ACC) "      a chart drawn from observations and then edited and")
-    lp("               verified " cw("by a human forecaster",C_ACC) ". A surface analysis,")
-    lp("               most national weather service products. The best")
-    lp("               available picture of NOW.")
+    lp(cw("ANALYSIS",C_ACC) "      a chart drawn " cw("by forecasters",C_ACC) " from the observations,")
+    lp("              with the fronts on it; a model is used only where")
+    lp("              other evidence agrees. A surface analysis. The best")
+    lp("              picture of the weather " cw("at its time",C_ACC) " - and it reaches")
+    lp("              you a few hours after that time.")
     print ""
     lp(cw("MODEL OUTPUT",C_ACC) "  a computer's projection. What sailors call a GRIB.")
-    lp("               " cw("Nobody has looked at it.",C_NO))
+    lp("              " cw("Straight from the model: no forecaster has drawn",C_NO))
+    lp("              " cw("or checked it.",C_NO))
     print ""
     lp("The trap is the third. A GRIB arrives in colour, at high resolution, out")
-    lp("to seven days, looking authoritative - and it is a machine's")
-    lp("extrapolation with no human in the loop. Sailors treat it as gospel.")
-    lp("The rule: check you are looking at an analysis, not a model run.")
+    lp("to sixteen days, looking authoritative - and the further ahead it reads")
+    lp("the less sure it is. Sailors treat it as gospel.")
+    print ""
+    lph("HOW TO TELL WHICH YOU ARE HOLDING")
+    lp("  " cw("two times on it",C_ACC) "     a run time and a later valid time (a step,")
+    lp("                      +24 h, T+24): a model's forecast")
+    lp("  " cw("step zero",C_ACC) "           the model's own starting picture - a")
+    lp("                      computer's analysis, not a forecaster's")
+    lp("  " cw("ANALYSIS, fronts",C_ACC) "    one time, already past, fronts drawn in:")
+    lp("                      a forecasters' surface analysis")
+    lp("  " cw("a place and a time",C_ACC) "  a reading from an instrument: an observation")
     print ""
     lp(cw("And it places this tool honestly.",C_ACC) " It works entirely in the first")
-    lp("column. Every number in it is something you measured. It cannot")
-    lp("forecast - but what it reasons FROM is the one category that is never")
-    lp("wrong, and the only one still there when the antenna comes down.")
+    lp("column. Every number in it is something you measured. It never")
+    lp("forecasts from a model - but what it reasons FROM is the one category")
+    lp("that is never wrong, and the only one still there when the antenna")
+    lp("comes down.")
+    print ""
+    lpd("Bowditch, The American Practical Navigator, 2017, art. 3826; NOAA,")
+    lpd("the Unified Surface Analysis Manual.")
     print ""
     return 1
   }
@@ -595,7 +616,7 @@ function lesson_body(k){
 }
 function lesson_q(k){
   if(k=="fluid")    return "It is 30 C and very humid. Is that air heavier or lighter than 30 C and dry?|Lighter. Water molecules at 18 replace nitrogen at 28 and oxygen at 32, and a given volume holds a fixed number of molecules. Warm and wet is buoyant twice over, which is what builds thunderstorms."
-  if(k=="data")     return "A seven-day GRIB and a 24-hour surface analysis disagree. Which do you believe?|The analysis. A human forecaster has looked at it and corrected it. The GRIB is a machine's extrapolation that nobody has seen, and the further out it runs the less it is worth."
+  if(k=="data")     return "The latest surface analysis and a GRIB's forecast for the same hour put the low in different places. Which do you believe?|The analysis. Forecasters drew it from the observations and used the model only where other evidence agreed. The GRIB is the model's numbers, which no forecaster has checked, and the further ahead of its run time it reads, the less it is worth."
   if(k=="tide")     return "You are at 12N. The glass has fallen 2 hPa between 1000 and 1600. Worry?|Probably not - that is very close to the daily atmospheric tide, which is about 1.4 hPa of semidiurnal swing in the tropics with a minimum near 1600. Correct for it before reading anything into it. At 50N the same fall would mean much more."
   if(k=="coriolis") return "Why does no hurricane ever form on the equator?|Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in the world, and nothing to start it rotating. About 5 degrees is the practical minimum."
   if(k=="gradient") return "The chart shows a 30 knot gradient wind. What do you expect on deck, offshore, in the northern hemisphere?|Around 20 knots - roughly two thirds - and backed 10 to 20 degrees from the isobar direction, because friction slows the surface air, which weakens Coriolis, so pressure gradient wins a little and the wind blows across the isobars toward the low."

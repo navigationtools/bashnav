@@ -481,7 +481,45 @@ the sources December's pages lean on are read first; read 18 November 2026).
       nature", and uses model fields only with corroboration from other tools.
       That is the lesson's "a chart drawn from observations and then edited and
       verified by a human forecaster".
-   3. **The app's own words:** "Nobody has looked at it" for model output is
-      the lesson's way of saying that a GRIB is the model's numbers with no
-      analyst between them and the reader. No source read says it in those
+   3. **The app's own words:** "Straight from the model: no forecaster has
+      drawn or checked it" (since weather 1.0.17; it said "Nobody has looked at
+      it") is the lesson's way of saying that a GRIB is the model's numbers with
+      no analyst between them and the reader. No source read says it in those
       words.
+   4. **How to tell which you are holding** (weather 1.0.17, the gap list's
+      missing part of W30), each line from the sources above: a model's
+      forecast carries two times, a run (reference) time and a later valid time
+      (ecCodes' reference time, step and validity time); its step zero is the
+      model's own analysis (NCEI lists the GFS's "+00" as its analysis output),
+      a computer's and not a forecaster's; a forecasters' surface analysis has
+      one time, already hours past when it arrives (the manual's timeline sends
+      the final analysis about 2 hours 45 minutes after its synoptic hour), with
+      the fronts drawn in; an observation is an instrument's reading at a place
+      and a time.
+
+**Run times and valid time** (gap list W31, book of work B22; the XO's work
+under rule 16, Larry's yes of 12 November, D-014; read 18 November 2026; for
+the lesson to come, its words agreed with PILOT first).
+
+1. **Two times on every forecast.** ECMWF, "Edition independent ecCodes Keys:
+   time" (<https://codes.ecmwf.int/grib/format/edition-independent/2>): every
+   GRIB message carries a reference date and time (`dataDate`, `dataTime`), a
+   forecast step (`startStep`, `endStep`, in hours or other units) and the date
+   and time of validity of the forecast (`validityDate`, `validityTime`). That
+   the validity is the reference time plus the step is the app's reading of the
+   keys, and it is what the race-morning file shows: the 00:00 UTC run of 24 May
+   2025 at step 27 is valid at 03:00 UTC on 25 May.
+2. **GFS's cycles.** NOAA NCEI, "Global Forecast System (GFS)"
+   (<https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast>):
+   the model runs four times a day, at 00, 06, 12 and 18 UTC; the 0.25-degree
+   output is three-hourly, out to 384 hours (16 days); about 28 km between grid
+   points, coarser beyond a week.
+3. **Older is less sure.** Bowditch 2017, article 3826, p. 631: the accuracy of
+   a forecast falls with its length, a 12-hour forecast being likely to be more
+   reliable than a 24-hour one (recorded above under W30).
+4. **Not yet read:** how many hours after its run time a GFS run arrives (the
+   data latency in W31). The lesson will say "some hours" until a source is
+   read.
+5. **The rule the lesson keeps** (gap list rule 3): bashnav weather never
+   forecasts from a model; a lesson about models teaches what to do with one
+   obtained elsewhere, and says so.

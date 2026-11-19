@@ -128,31 +128,48 @@ Lighter. Water molecules at 18 replace nitrogen at 28 and oxygen at 32, and a gi
   ----------------------------------------------------------------------
   Most sailors never learn this, and it decides how much to believe.
 
-  OBSERVATION   an instrument reading of what is happening now.
-                 Not a forecast - but it is true.
+  OBSERVATION   an instrument reading of what is happening now:
+                your barometer, a buoy, a ship's report.
+                Not a forecast - but it is true.
 
-  ANALYSIS      a chart drawn from observations and then edited and
-                 verified by a human forecaster. A surface analysis,
-                 most national weather service products. The best
-                 available picture of NOW.
+  ANALYSIS      a chart drawn by forecasters from the observations,
+                with the fronts on it; a model is used only where
+                other evidence agrees. A surface analysis. The best
+                picture of the weather at its time - and it reaches
+                you a few hours after that time.
 
   MODEL OUTPUT  a computer's projection. What sailors call a GRIB.
-                 Nobody has looked at it.
+                Straight from the model: no forecaster has drawn
+                or checked it.
 
   The trap is the third. A GRIB arrives in colour, at high resolution, out
-  to seven days, looking authoritative - and it is a machine's
-  extrapolation with no human in the loop. Sailors treat it as gospel.
-  The rule: check you are looking at an analysis, not a model run.
+  to sixteen days, looking authoritative - and the further ahead it reads
+  the less sure it is. Sailors treat it as gospel.
+
+
+  HOW TO TELL WHICH YOU ARE HOLDING
+  ----------------------------------------------------------------------
+    two times on it     a run time and a later valid time (a step,
+                        +24 h, T+24): a model's forecast
+    step zero           the model's own starting picture - a
+                        computer's analysis, not a forecaster's
+    ANALYSIS, fronts    one time, already past, fronts drawn in:
+                        a forecasters' surface analysis
+    a place and a time  a reading from an instrument: an observation
 
   And it places this tool honestly. It works entirely in the first
-  column. Every number in it is something you measured. It cannot
-  forecast - but what it reasons FROM is the one category that is never
-  wrong, and the only one still there when the antenna comes down.
+  column. Every number in it is something you measured. It never
+  forecasts from a model - but what it reasons FROM is the one category
+  that is never wrong, and the only one still there when the antenna
+  comes down.
+
+  Bowditch, The American Practical Navigator, 2017, art. 3826; NOAA,
+  the Unified Surface Analysis Manual.
 
   ----------------------------------------------------------------------
-  Question: A seven-day GRIB and a 24-hour surface analysis disagree. Which do you believe?
+  Question: The latest surface analysis and a GRIB's forecast for the same hour put the low in different places. Which do you believe?
 
-The analysis. A human forecaster has looked at it and corrected it. The GRIB is a machine's extrapolation that nobody has seen, and the further out it runs the less it is worth.
+The analysis. Forecasters drew it from the observations and used the model only where other evidence agreed. The GRIB is the model's numbers, which no forecaster has checked, and the further ahead of its run time it reads, the less it is worth.
 === weather learn tide ===
 
   THE ATMOSPHERIC TIDE

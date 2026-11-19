@@ -1,5 +1,52 @@
 # Changelog
 
+## weather 1.0.17: the three kinds of weather data, and how to tell which you hold (W30)
+
+**What.** The lesson `data` now says how to tell which of the three you are
+holding:
+
+1. **Two times on it:** a run time and a later valid time (a step, +24 h, T+24)
+   mean a model's forecast.
+2. **Step zero:** the model's own starting picture, a computer's analysis and
+   not a forecaster's.
+3. **One time, already past, with fronts drawn in:** a forecasters' surface
+   analysis.
+4. **A place and a time:** an observation, an instrument's reading.
+
+The three kinds are described as the sources describe them: an analysis is drawn
+by forecasters from the observations, using a model only where other evidence
+agrees, and it reaches you a few hours after its time. A GRIB runs out to
+sixteen days and is less sure the further ahead it reads. "Nobody has looked at
+it" becomes "Straight from the model: no forecaster has drawn or checked it". The
+lesson's question now compares two things about the same hour (the latest
+analysis and a GRIB's forecast). The old question set a seven-day GRIB against
+an analysis, which describe different times. The lesson also says plainly that
+the app never forecasts from a model (gap list rule 3). Its columns are aligned.
+
+**Why.** Book of work B22 (Larry's yes of 12 November), W30, at the XO's word
+under rule 16 while W31's words wait on PILOT. TAUW's rule: the lesson now
+matches the sources read on 18 November. The gap list said the part on
+recognising each kind was missing.
+
+**What it touches.** The lesson `data` and its question (`teach.awk`, and
+`lessons.js` from it); `docs/SOURCES.md`; the golden file's lesson. No
+calculation changes. Cache `weather-v34`.
+
+## Sources: run times and valid time, read (no version change)
+
+**What.** `docs/SOURCES.md` records the sources for gap list W31, ahead of its
+lesson: ECMWF's ecCodes keys (every GRIB carries a reference time, a step and a
+validity time), NOAA NCEI's GFS page (four runs a day, at 00, 06, 12 and 18 UTC,
+out to 16 days, three-hourly), and Bowditch on older forecasts being less sure.
+The data latency is recorded as not yet read.
+
+**Why.** Book of work B22, admitted (Larry's yes of 12 November), started with
+W31 at the XO's word under rule 16; TAUW's rule reads the source first. The
+lesson's words are being agreed with PILOT, so the app and the course page say
+the same thing.
+
+**What it touches.** `docs/SOURCES.md` only; no tool changes yet.
+
 ## Sources: the weather's effect on the height of tide, read (no version change)
 
 **What.** `docs/SOURCES.md`, under Tides, records two public sources for gap
