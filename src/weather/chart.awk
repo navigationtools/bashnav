@@ -390,8 +390,12 @@ function st_report(age, clat, clon, mdir, mkn, r34, blat, blon, bcse, bkn, wind,
     if(pos > 0)      ch_why("you are ahead of it: 110, or a point or two less")
     else if(pos < 0) ch_why("you are behind it: 120 to 135, or a point or two less")
     else             ch_why("it has no track to be ahead of or behind: 110 to 135, or two points less")
+    #  UNDER HALF A DEGREE OUTSIDE IS INSIDE (weather 1.0.22, found by the
+    #  shared storm cases, TAYT): the bearing and the band are printed to
+    #  the whole degree, so a centre 0.4 degrees past the band's edge used
+    #  to read "0 degrees outside that: near enough".  Now it agrees.
     off = st_out(brg, lo, hi)
-    if(off == 0) ch_say(cw("The report agrees with your wind.", C_ACC))
+    if(st_r(off) == 0) ch_say(cw("The report agrees with your wind.", C_ACC))
     else if(off <= 15) ch_say(sprintf("The report is %d degrees outside that: near enough, for a wind read by eye.", st_r(off)))
     else {
       ch_say(cw(sprintf("The report and your wind disagree, by %d degrees.", st_r(off)), C_WARN))

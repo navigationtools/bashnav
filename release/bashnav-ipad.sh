@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=004136301
+BASHNAV_BYTES=004136601
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -30496,7 +30496,7 @@ bn_unpack() {
 #  data that is never wrong - what you measured yourself - and the only
 #  one still available when the antenna comes down.
 # =====================================================================
-WEATHER_VERSION=1.0.21
+WEATHER_VERSION=1.0.22
 
 #  the log belongs to deck-log; weather only ever READS it
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"
@@ -33440,8 +33440,12 @@ function st_report(age, clat, clon, mdir, mkn, r34, blat, blon, bcse, bkn, wind,
     if(pos > 0)      ch_why("you are ahead of it: 110, or a point or two less")
     else if(pos < 0) ch_why("you are behind it: 120 to 135, or a point or two less")
     else             ch_why("it has no track to be ahead of or behind: 110 to 135, or two points less")
+    #  UNDER HALF A DEGREE OUTSIDE IS INSIDE (weather 1.0.22, found by the
+    #  shared storm cases, TAYT): the bearing and the band are printed to
+    #  the whole degree, so a centre 0.4 degrees past the band's edge used
+    #  to read "0 degrees outside that: near enough".  Now it agrees.
     off = st_out(brg, lo, hi)
-    if(off == 0) ch_say(cw("The report agrees with your wind.", C_ACC))
+    if(st_r(off) == 0) ch_say(cw("The report agrees with your wind.", C_ACC))
     else if(off <= 15) ch_say(sprintf("The report is %d degrees outside that: near enough, for a wind read by eye.", st_r(off)))
     else {
       ch_say(cw(sprintf("The report and your wind disagree, by %d degrees.", st_r(off)), C_WARN))

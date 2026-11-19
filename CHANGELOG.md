@@ -1,5 +1,35 @@
 # Changelog
 
+## weather 1.0.22: the shared storm cases, and a band edge that read "0 degrees outside" (TAYT)
+
+**What.**
+
+1. **A new test reads the crew's storm cases.** `docs/web/tests/weather-storm-cases.js`, stage 20 of
+   the browser suite: the 21 cases of `spec/contracts/storm-cases/` (Larry's ruling TAYT), in the
+   terminal and the browser, against the fixture's centre, side, ahead or behind, shift and shared
+   lines, and the band the wind puts the centre in, with its verdict, by Larry's ruling TAYY (line
+   4's words: 110 ahead, 120 to 135 behind, a point or two less on the near side; what bashnav
+   has drawn since 1.0.15). bashnav's copy of the cases is `tests/storm-cases.txt`. All 21 cases
+   pass, 205 checks. Three still wait on a ruling for the face's answer ("on the track"), not
+   bashnav's.
+2. **A fault, fixed.** With the storm's centre less than half a degree past the edge of the band
+   the wind puts it in, the reported storm said "The report is 0 degrees outside that: near
+   enough, for a wind read by eye." Now it says "The report agrees with your wind."
+   `src/weather/chart.awk` and `docs/web/weather/chart.js`, the same change in both.
+
+**Why.** TAYT: "We all have to be in agreement on what those storm cases are and have the exact
+same documentation." The cases found the fault on their first run (cases E1 and E6, the centre
+exactly 110 degrees from the wind). The bearing and the band are printed to the whole degree, so a
+difference under half a degree is not one a reader can see.
+
+**What it touches.** The two files above; the new test and the suite's list (`run-weather-web.sh`,
+`docs/TESTING.md`); the version (1.0.22) and the web cache (`weather-v39`); the iPad bundle; the
+menu picture; the manual and quick reference, rebuilt for the version.
+
+Fault: the reported storm said "0 degrees outside" for a centre under half a degree past the band's edge
+Introduced-in: weather 1.0.11 (the reported storm, I20)
+Found-by: the shared storm cases (TAYT)
+
 ## weather 1.0.21: a lesson on routing, with a figure at each of its seven points (W35)
 
 **What.** A fifteenth lesson, `routing` ("Routing: what a router does, and how

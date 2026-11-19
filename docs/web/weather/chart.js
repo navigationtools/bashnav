@@ -374,7 +374,9 @@ var CHART = (function () {
       else why('it has no track to be ahead of or behind: 110 to 135, or two points less');
       var o = stOut(brg, lo, hi);
       geo.band = [lo, hi]; geo.bandOff = o;
-      if (o === 0) acc('The report agrees with your wind.');
+      /*  under half a degree outside is inside: both are printed to the
+          whole degree (weather 1.0.22, TAYT; the same in chart.awk)  */
+      if (stR(o) === 0) acc('The report agrees with your wind.');
       else if (o <= 15) say('The report is ' + stR(o) + ' degrees outside that: near enough, for a wind read by eye.');
       else {
         warn('The report and your wind disagree, by ' + stR(o) + ' degrees.');

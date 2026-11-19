@@ -505,6 +505,36 @@ from the page, nothing outside the box. 19 checks.
 turned round, one strip label changed, one of the low's arrows reversed, and
 the low drawn going west.
 
+### The shared storm cases: one fixture the whole crew answers (weather 1.0.22)
+
+**Why.** Larry's ruling TAYT (19 November 2026): before the CelestialGlass
+launch, every tool that gives the storm rule must give the same answer from
+the same cases, with the same words. The cases are one fixture in spec,
+`spec/contracts/storm-cases/storm-cases.txt`, with a README that says how each
+was made and what is still to be ruled. NAV writes it; PILOT checks it
+against Bowditch; WX's face reads it; so does bashnav.
+
+**bashnav's copy.** `tests/storm-cases.txt` is a copy, so bashnav's suite runs
+on its own. When spec is beside bashnav, the test requires the two to be
+byte-identical, and the six shared lines in the test to be the README's, word
+for word.
+
+**What is checked.** `docs/web/tests/weather-storm-cases.js` (stage 20 of
+`run-weather-web.sh`; no browser) runs every case in the terminal (`weather`
+with `cmd=storm`, mawk or `$AWK`) and in the browser's model
+(`CHART.stormReport`), and requires the two to say the same thing, character
+for character, and both to give the fixture's centre and distance, its side,
+ahead or behind, its shift, its shared lines word for word, and the band the
+wind puts the centre in with its verdict (Larry's ruling TAYY: line 4's words,
+110 ahead and 120 to 135 behind, a point or two less on the near side). Every
+case is checked in full; three are also listed as pending, because the face
+decides "on the track" another way and that waits on Larry. 205 checks.
+
+**What it found at once.** A centre less than half a degree past the band's
+edge read "0 degrees outside that: near enough". Fixed in 1.0.22: the bearing
+and the band are printed to the whole degree, so under half a degree outside
+is inside.
+
 ### Seven figures from one small model, and arithmetic done in the test (weather 1.0.21)
 
 **The model, character for character.** The routing lesson's figures are worked

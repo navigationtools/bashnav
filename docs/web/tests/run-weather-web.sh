@@ -18,6 +18,7 @@
 #   3b the wind from the isobars, vs `weather isobars`
 #   7-15 the gunnery, wind, friction, force, veer, isobar, barograph, sea and compass figures, measured off the drawing
 #   16-19 the passing low, the fronts, the reported storm and the routing lesson: each model against the awk, each figure measured off the drawing
+#   20 the shared storm cases (TAYT): bashnav against the crew's fixture, spec/contracts/storm-cases
 set -e
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 cd "$ROOT"
@@ -196,6 +197,14 @@ if node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.ex
   #  turned chart); then the seven figures read back off the drawing, the
   #  lesson's words against them, and seven planted faults, each caught.
   node docs/web/tests/weather-route.js
+  echo
+  echo "20. the shared storm cases (TAYT): bashnav against the crew's fixture"
+  #  weather 1.0.22: the 21 cases of spec/contracts/storm-cases, bashnav's
+  #  copy byte for byte spec's; every case in the terminal and the browser,
+  #  the centre, the side, ahead or behind, the shift and the shared lines
+  #  word for word; the core cases agreeing with the wind; the pending
+  #  ones printed, not failed, until Larry rules.
+  node docs/web/tests/weather-storm-cases.js
   echo
   echo "WEATHER WEB: all stages passed"
 else
