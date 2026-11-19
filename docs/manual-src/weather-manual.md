@@ -384,11 +384,11 @@ course (Larry's ruling TAWG); the lesson `cyclone` lists them.
 
 ## 9. The lessons
 
-![**Figure 10** — fourteen lessons, each one earning its place.](fig/weather-lessons.png)
+![**Figure 10** — fifteen lessons, each one earning its place.](fig/weather-lessons.png)
 
 Each lesson changes either what the tool says or what you would do. One of them
 says plainly where the reasoning stops being reliable, which is the most
-important of the fourteen.
+important of the fifteen.
 
 `weather learn` lists them; `weather learn <key>` opens one.
 
@@ -502,6 +502,80 @@ steadily. Both boats' winds and glass are worked from one model of the low,
 the same in the terminal and the browser; the cloud and the air are Bowditch's.
 The lesson covers the northern hemisphere: whether the south needs words of its
 own is still to be decided.
+
+**Routing** has a lesson of its own, `weather learn routing`: what a router
+does, and how far to trust it. The tool does not route. The lesson is here
+because a navigator who reads his own barometer will also be handed a route,
+and should know what it is worth. It makes seven points, with a figure at each.
+The figures are worked on a made-up boat in one steady wind, small enough to
+check by hand; the last is the Practical Navigator course's three runs of
+bashnav's own router.
+
+![**Figure 18** — how a router works. She is sent off on every heading for an
+hour: the far edge of where she gets to is the one-hour isochrone. The two-hour
+and three-hour lines are the same shape grown bigger, because here the wind is
+the same everywhere. The finish lies on the three-hour line, and the route is
+read back from it.](fig/weather-rtfan.png)
+
+**1. How it works.** A router takes a forecast and a polar and works outward
+from the start, a step of time at a go. Each isochrone is everywhere she could
+be by that time (Figure 18). In real weather the lines bend, and where one
+bulges toward the finish, that side is paying.
+
+![**Figure 19** — the five-day horizon. NOAA's figures for how often a forecast
+is right, by days ahead.](fig/weather-rthorizon.png)
+
+**2. The five-day horizon.** A route is only as good as its forecast (Figure
+19). Route on about five days. Past that the route is a sketch, to be drawn
+again with each new run.
+
+![**Figure 20** — forward and reverse isochrones, on a reach and on a beat. The
+shaded water costs less than ten minutes: a narrow lane on the reach, and the
+whole diamond between the laylines on the beat.](fig/weather-rtlane.png)
+
+**3. Reverse isochrones.** Run the same sum backwards from the finish. At any
+place, the hours to get there plus the hours to finish from there is the time
+of a route through it (Figure 20). Where that sum stays near the best, it
+hardly matters where you are; where it climbs fast, the route is a narrow lane.
+Look before you fight for a side.
+
+![**Figure 21** — the motorboat beside the sailing boat, on a beat of 12 miles.
+Both arrive together; the sailing boat has sailed five miles more.](fig/weather-rtmotor.png)
+
+**4. The motorboat.** A motorboat's fastest course is the straight line. Set
+beside the sailing route, it shows what the wind asks: extra miles (Figure 21).
+Extra miles are what a route spends. The course does this with bashnav's own
+motorboat, on the routed boat's places and times.
+
+![**Figure 22** — the router goes all in. Three boats on a beat, with a veer
+forecast an hour in. The boat on the right gains 17 minutes on the middle if the
+veer comes, and loses 21 if the wind backs instead.](fig/weather-rtallin.png)
+
+**5. Where a router is biased.** It believes the forecast to the minute. Its
+boat sails the polar, always. And it goes all in: for a minute's gain it takes
+the far side, however much that would lose were the forecast a little out
+(Figure 22). It measures time, never risk.
+
+![**Figure 23** — scaling before routing: the GRIB's 20 knots in three belts of
+latitude, and the stream. Rules of thumb; what is measured on deck outranks
+them.](fig/weather-rtscale.png)
+
+**6. Scale the wind and the stream.** A model's wind reads low over the open
+sea. One ocean navigator's rule of thumb is to route on the GRIB's wind times
+1.15 in the tropics, 1.20 in mid-latitudes and 1.25 in high latitudes, and the
+stream times 1.30 (Figure 23), then to correct both to the log. bashnav's
+router takes this as one line of a run: `scale wind 1.2 current 1.3`.
+
+![**Figure 24** — the 2025 Myth of Malham, routed three times by bashnav's
+router: the forecast wind, ten per cent lighter, ten per cent stronger. She
+tacked for Start Point within ten minutes each time; the finishing times are
+nearly two hours apart.](fig/weather-rtwhatif.png)
+
+**7. Test the route, and say it in sailing terms.** Change what the router was
+told: lighter and stronger wind, the next run, another model. A route that
+holds is one to trust (Figure 24). Then say it to the watch in sailors' words:
+what we are doing, why, what we expect to see, what we do then, and what to do
+if it does not come. A route that cannot be said that way is not yet understood.
 
 ---
 

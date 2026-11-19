@@ -657,3 +657,175 @@ function fronts_figure(   w, h, r, c, lv, lr, ld, i, rA, rB, s, f){
   gputsc(36, 0, "the low moving east at 30 knots; each boat stays put", C_DIM)
   return 0
 }
+
+# =====================================================================
+#  THE ROUTING LESSON'S FIGURES (weather 1.0.21; W35; Larry, TAYO: "many,
+#  spaced through the lesson at each key point").  Seven, one for each
+#  point the lesson makes, all drawn from the made-up boat of rt_init()
+#  in wx.awk, so the terminal's figure and the browser's say the same
+#  numbers.  Cells are taken as twice as tall as wide.
+#
+#    rtfan      how a router works: the isochrones at 1, 2 and 3 hours
+#    rthorizon  how often a forecast is right, by days ahead
+#    rtlane     forward plus reverse isochrones: what a place costs
+#    rtmotor    the motorboat beside the sailing boat: the extra miles
+#    rtallin    three ways up a beat, in three winds: the router's risk
+#    rtscale    the GRIB's wind and the stream, scaled before routing
+#    rtwhatif   one race routed in three winds: what held, what moved
+# =====================================================================
+function rt_fan_figure(   w, h, k, i, j, n, m, x, y, c, r0, c0, fx, fy){
+  rt_init()
+  w = 66; h = 21; r0 = 8; c0 = 27
+  gclear(w, h)
+  FIGNAME = "rtfan"
+  gputsc(0, 0, "the wind, the same everywhere:  v  v  v  v", C_DIM)
+  for(k = 3; k >= 1; k--)
+    for(i = 1; i <= RT_N; i++){
+      j = (i % RT_N) + 1
+      m = 40
+      for(n = 0; n < m; n++){
+        x = k * (RT_X[i] + (RT_X[j] - RT_X[i]) * n / m)
+        y = k * (RT_Y[i] + (RT_Y[j] - RT_Y[i]) * n / m)
+        gputwc(r0 - y / 2, c0 + x, k, (k == 3 ? C_ACC : C_DIM))
+      }
+    }
+  #  the finish, 22.5 miles off on 075, and the route back from it
+  fx = 22.5 * sin(wx_rad(75)); fy = 22.5 * cos(wx_rad(75))
+  for(c = 1; c < fx; c++) gputc(r0 - (fy * c / fx) / 2, c0 + c, "-", C_ACC)
+  gputc(r0, c0, "S", C_ACC); gputc(r0 - fy / 2, c0 + fx, "F", C_ACC)
+  gputsc(h - 3, 0, "1 2 3  everywhere she could be after 1, 2 and 3 hours", C_ACC)
+  gputsc(h - 2, 0, "S to F is 22.5 miles on 075. F is on the 3: " rt_hm(rt_g(fx, fy, 0)), "")
+  gputsc(h - 1, 0, "flat across the top: she cannot point there, so she tacks", C_DIM)
+  return 0
+}
+function rt_horizon_figure(   w, h, i, n, k, s){
+  rt_init()
+  w = 66; h = 8
+  gclear(w, h)
+  FIGNAME = "rthorizon"
+  gputsc(0, 0, "days ahead    how often the forecast is right", C_DIM)
+  for(i = 1; i <= RT_HZN; i++){
+    gputsc(1 + i, 0, sprintf("%2d to %-2d", RT_HZ[3*i-2], RT_HZ[3*i-1]), "")
+    n = int(RT_HZ[3*i] / 5 + 0.5); s = ""
+    for(k = 0; k < n; k++) s = s "#"
+    gputsc(1 + i, 14, s, (i == 1 ? C_ACC : C_DIM))
+    gputsc(1 + i, 36, sprintf("about %d in 100", RT_HZ[3*i]), (i == 1 ? C_ACC : ""))
+  }
+  gputsc(6, 0, "NOAA's figures. Route on five days; past that it is a sketch.", C_DIM)
+  return 0
+}
+function rt_lane_cell(r, c, x, y, fx, fy,   q){
+  q = rt_cost(x, y, fx, fy) * 60
+  if(q <= RT_LANE) gputc(r, c, "#", C_ACC)
+  else if(q <= 30) gputc(r, c, ".", C_DIM)
+  return 0
+}
+function rt_lane_figure(   w, h, r, c){
+  rt_init()
+  w = 66; h = 17
+  gclear(w, h)
+  FIGNAME = "rtlane"
+  gputsc(0, 0, "REACHING, 24 miles", C_ACC)
+  gputsc(0, 36, "BEATING, 12 miles upwind", C_ACC)
+  #  the reach: S at row 6, column 3, a mile to a column
+  for(r = 2; r <= 10; r++) for(c = 0; c <= 31; c++) rt_lane_cell(r, c, c - 3, 2 * (6 - r), RT_REACH, 0)
+  gputc(6, 3, "S", ""); gputc(6, 27, "F", "")
+  #  the beat: S at row 11, column 50, F six rows above it
+  for(r = 3; r <= 13; r++) for(c = 36; c <= 64; c++) rt_lane_cell(r, c, c - 50, 2 * (11 - r), 0, RT_BEAT)
+  gputc(11, 50, "S", ""); gputc(5, 50, "F", "")
+  gputsc(12, 0, sprintf("the lane is %.1f miles wide", rt_width(RT_REACH, 0, RT_LANE)), "")
+  gputsc(14, 36, sprintf("the lane is %.1f miles wide", rt_width(0, RT_BEAT, RT_LANE)), "")
+  gputsc(15, 0, sprintf("#  under %d minutes lost by passing through here", RT_LANE), C_ACC)
+  gputsc(16, 0, ".  under 30 minutes lost       the wind is from the top", C_DIM)
+  return 0
+}
+function rt_motor_figure(   w, h, t, sail){
+  rt_init()
+  w = 66; h = 14
+  gclear(w, h)
+  FIGNAME = "rtmotor"
+  t = rt_g(0, RT_BEAT, 0); sail = t * RT_S[1]
+  #  half a mile to a column, a mile to a row: S at the foot, F 12 up
+  fline(12, 8, 6, 20, C_ACC); fline(6, 20, 0, 8, C_ACC)
+  fline(12, 8, 0, 8, C_DIM)
+  gputc(12, 8, "S", ""); gputc(0, 8, "F", ""); gputc(6, 20, "+", C_ACC)
+  gputsc(13, 0, "the wind is from the top", C_DIM)
+  gputsc(1, 26, "SAILING: two boards, tacking at +", C_ACC)
+  gputsc(2, 26, sprintf("  %.1f miles through the water", sail), "")
+  gputsc(3, 26, sprintf("  at %.1f knots", RT_S[1]), "")
+  gputsc(5, 26, "MOTORBOAT: straight up the middle", C_ACC)
+  gputsc(6, 26, sprintf("  %.1f miles at %.1f knots", RT_BEAT, RT_BEAT / t), "")
+  gputsc(8, 26, "both take " rt_hm(t), "")
+  gputsc(10, 26, sprintf("the wind's price: %.1f extra miles", sail - RT_BEAT), C_ACC)
+  return 0
+}
+function rt_min(t){ return int(t * 60 + 0.5) }
+function rt_allin_figure(   w, h, i, a, nm, s){
+  rt_init()
+  w = 66; h = 14
+  gclear(w, h)
+  FIGNAME = "rtallin"
+  #  the first hour of each: half a mile to a column, a mile to a row
+  fline(12, 11, 8, 2, C_DIM); fline(12, 11, 8, 11, ""); fline(12, 11, 8, 20, C_ACC)
+  gputc(12, 11, "S", ""); gputc(0, 11, "F", "")
+  gputc(8, 2, "L", C_DIM); gputc(8, 11, "M", ""); gputc(8, 20, "R", C_ACC)
+  gputsc(13, 0, "the first hour of each", C_DIM)
+  gputsc(0, 26, "the wind, an hour in:", C_DIM)
+  gputsc(1, 26, sprintf("           veers %d   holds   backs %d", RT_SHIFT, RT_SHIFT), C_DIM)
+  split("right middle left", nm, " ")
+  for(i = 1; i <= 3; i++){
+    a = (3 - i) / 2
+    s = sprintf("%s %-7s   %s    %s    %s", substr("RML", i, 1), nm[i],
+                rt_hm(rt_allin(a, RT_SHIFT)), rt_hm(rt_allin(a, 0)), rt_hm(rt_allin(a, -RT_SHIFT)))
+    gputsc(2 + i, 26, s, (i == 1 ? C_ACC : ""))
+  }
+  gputsc(7, 26, sprintf("The forecast says it veers %d. The", RT_SHIFT), "")
+  gputsc(8, 26, "router goes right, all the way:", "")
+  gputsc(9, 26, sprintf("%d minutes up on the middle if it", rt_min(rt_allin(0.5, RT_SHIFT)) - rt_min(rt_allin(1, RT_SHIFT))), C_ACC)
+  gputsc(10, 26, sprintf("veers, %d down if it backs instead.", rt_min(rt_allin(1, -RT_SHIFT)) - rt_min(rt_allin(0.5, -RT_SHIFT))), C_WARN)
+  return 0
+}
+function rt_scale_figure(   w, h, i, n, k, s, nm){
+  rt_init()
+  w = 66; h = 9
+  gclear(w, h)
+  FIGNAME = "rtscale"
+  gputsc(0, 0, "The GRIB says 20 knots. Route on:", "")
+  for(i = 1; i <= RT_SCN; i++){
+    nm = RT_SC[2*i-1]; sub(/-/, " ", nm)
+    if(i == 2) nm = RT_SC[2*i-1]
+    n = int(20 * RT_SC[2*i] + 0.5); s = ""
+    for(k = 0; k < n; k++) s = s (k < 20 ? "=" : "#")
+    gputsc(1 + i, 0, sprintf("%-15s x %.2f", nm, RT_SC[2*i]), "")
+    gputsc(1 + i, 24, s, C_ACC)
+    gputsc(1 + i, 51, sprintf("%d knots", n), C_ACC)
+  }
+  gputsc(6, 0, sprintf("%-15s x %.2f  2.0 knots in the file is %.1f", "the stream", RT_CUR, 2 * RT_CUR), "")
+  gputsc(8, 0, "Rules of thumb. What you measure on deck outranks them.", C_DIM)
+  return 0
+}
+function rt_whatif_figure(   w, h, i, n, k, s, a, b, c, t){
+  rt_init()
+  w = 66; h = 11
+  gclear(w, h)
+  FIGNAME = "rtwhatif"
+  gputsc(0, 0, "The 2025 Myth of Malham, routed three times by bashnav's router", C_ACC)
+  gputsc(2, 0, "wind    = to the Eddystone        # the run home          in all", C_DIM)
+  for(i = 1; i <= RT_RUNN; i++){
+    s = ""; n = int(RT_RUN[4*i-2] + 0.5)
+    for(k = 0; k < n; k++) s = s "="
+    gputsc(2 + i, 0, sprintf("x %.1f", RT_RUN[4*i-3]), "")
+    gputsc(2 + i, 8, s, C_DIM)
+    t = ""; n = int(RT_RUN[4*i-1] - RT_RUN[4*i-2] + 0.5)
+    for(k = 0; k < n; k++) t = t "#"
+    gputsc(2 + i, 8 + length(s), t, C_ACC)
+    gputsc(2 + i, 58, rt_hm(RT_RUN[4*i-1]), "")
+    a = a (i > 1 ? (i < RT_RUNN ? ", " : " and ") : "") sprintf("%.1f", RT_RUN[4*i-2])
+    b = b (i > 1 ? (i < RT_RUNN ? ", " : " and ") : "") RT_RUN[4*i]
+    c = c (i > 1 ? (i < RT_RUNN ? ", " : " and ") : "") sprintf("%.1f", RT_RUN[4*i-1] - RT_RUN[4*i-2])
+  }
+  gputsc(7, 0, "To the Eddystone: " a " hours. She tacked for Start", "")
+  gputsc(8, 0, "Point at " b " UTC: the same call each time.", C_ACC)
+  gputsc(9, 0, "The run home: " c " hours. The clock moved.", "")
+  return 0
+}

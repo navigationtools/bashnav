@@ -505,6 +505,49 @@ from the page, nothing outside the box. 19 checks.
 turned round, one strip label changed, one of the low's arrows reversed, and
 the low drawn going west.
 
+### Seven figures from one small model, and arithmetic done in the test (weather 1.0.21)
+
+**The model, character for character.** The routing lesson's figures are worked
+on a made-up boat in one steady wind (`rt_g`, `rt_cost`, `rt_width`, `rt_allin`
+in `wx.awk`; `WX.rtG` and the rest in `wx.js`). `docs/web/tests/weather-route.js`
+(stage 19 of `run-weather-web.sh`) asks the awk for 941 lines (`weather` with
+`cmd=routedump`: the hours to make good 845 displacements in five winds, what
+162 places cost, the worked times, the lane widths, the all-in table and the
+lesson's three tables) and prints the same from the browser's model. The two
+must be identical, under mawk and under gawk.
+
+**The model, against arithmetic done in the test.** Agreement between two
+copies proves only that they agree. So the test also works the model's claims
+itself: an hour at each of the boat's sixteen speeds makes good an hour's run;
+twice as far takes twice as long; port and starboard mirror; no dog-leg beats
+the straight course, over 1,000 triangles; a shifted wind is the same wind with
+the chart turned; no place costs less than nothing; the corner of the laylines
+costs nothing; with nothing to lose, the beat's lane is the 12-mile diamond; a
+veer for the boat on the right is a back for the boat on the left; and the
+right-hand boat's time after the veer is her distance over a speed between her
+6.0 and her 6.9 knots. The course's three runs are held to their finishing
+times by the clock.
+
+**The figures, measured.** Each of the seven is read back off the drawing,
+night and day: the isochrones against the boat's outline; the finish 22.5 miles
+on 075 and on the three-hour line; ten columns as tall as NOAA's figures, with
+the horizon between day 5 and day 6; every point of each lane's edge costing
+ten minutes, and the widths written being the widths measured; the boards drawn
+adding up to the miles written; the nine times in the all-in table, each boat's
+track timed leg by leg in its own wind, and the minutes up and down; each
+scaling bar against the GRIB's 20 knots; each run's bars against its hours, and
+the tack marks at the times written. Then the lesson's words are held to the
+same numbers.
+
+**The checker, shown to catch things.** Seven planted faults, one in each
+figure: the finish moved, a column shortened, a width and the extra miles
+written wrong, two boats' times swapped, a bar lengthened, a tack mark moved.
+Each is caught.
+
+**One accommodation, stated.** The lane figure clips its isochrones to their
+panels, so its "nothing outside the box" check measures everything outside the
+clipped groups, and requires each clip itself to lie inside the box.
+
 ### A figure read back off the drawing, and a checker shown to catch things (weather 1.0.9)
 
 **The passing low, measured.** `docs/web/tests/weather-pass.js` (stage 16 of

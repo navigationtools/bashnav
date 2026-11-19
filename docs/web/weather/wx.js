@@ -752,6 +752,60 @@ var WX = (function () {
     return L.join('\n') + '\n';
   }
 
+  // ---------------------------------------------------------------
+  //  THE ROUTING LESSON'S BOAT AND WATER (W35, weather 1.0.21; Larry,
+  //  TAYO).  The same model as rt_g, rt_cost, rt_width and rt_allin in
+  //  wx.awk, and held to it character for character by
+  //  docs/web/tests/weather-route.js.  A made-up boat in one steady
+  //  wind: her speed at eight angles off the wind.  Everywhere she can
+  //  be after t hours is t times the outline through those speeds on
+  //  both tacks, so the time to make good a displacement is the largest
+  //  of sixteen dot products, one for each side of the outline.
+  // ---------------------------------------------------------------
+  var RT = { A: [45, 60, 75, 90, 105, 120, 135, 150], S: [6.0, 6.9, 7.5, 8.0, 8.1, 7.9, 7.5, 7.0],
+             REACH: 24, BEAT: 12, LANE: 10, TS: 1, SHIFT: 20,
+             HZ: [[1, 5, 90], [6, 7, 80], [8, 10, 50]],
+             SC: [['tropics', 1.15], ['mid-latitudes', 1.20], ['high-latitudes', 1.25]], CUR: 1.30,
+             RUN: [[0.9, 25.74, 42.7328, '02:10'], [1.0, 25.75, 41.9753, '02:20'], [1.1, 25.53, 40.8025, '02:20']] };
+  RT.V = (function () {
+    var v = [], i, r;
+    for (i = 0; i < RT.A.length; i++) { r = RT.A[i] * Math.PI / 180; v.push([RT.S[i] * Math.sin(r), RT.S[i] * Math.cos(r)]); }
+    for (i = RT.A.length - 1; i >= 0; i--) v.push([-v[i][0], v[i][1]]);
+    return v;
+  })();
+  function rtG(dx, dy, wd) {
+    var r = (wd || 0) * Math.PI / 180, x = dx * Math.cos(r) - dy * Math.sin(r), y = dx * Math.sin(r) + dy * Math.cos(r);
+    var m = 0, i, a, b, nx, ny, h, q, n = RT.V.length;
+    for (i = 0; i < n; i++) {
+      a = RT.V[i]; b = RT.V[(i + 1) % n];
+      nx = b[1] - a[1]; ny = -(b[0] - a[0]); h = nx * a[0] + ny * a[1];
+      if (h < 0) { nx = -nx; ny = -ny; h = -h; }
+      q = (nx * x + ny * y) / h; if (q > m) m = q;
+    }
+    return m;
+  }
+  function rtCost(px, py, fx, fy) {
+    var c = rtG(px, py, 0) + rtG(fx - px, fy - py, 0) - rtG(fx, fy, 0);
+    return c < 1e-9 ? 0 : c;               // never negative: the last digits of a sum
+  }
+  function rtWidth(fx, fy, mins) {
+    var L = Math.sqrt(fx * fx + fy * fy), ux = -fy / L, uy = fx / L, tot = 0, s, lo, hi, mid, k;
+    for (s = 1; s >= -1; s -= 2) {
+      lo = 0; hi = 40;
+      for (k = 0; k < 40; k++) {
+        mid = (lo + hi) / 2;
+        if (rtCost(fx / 2 + s * mid * ux, fy / 2 + s * mid * uy, fx, fy) <= mins / 60) lo = mid; else hi = mid;
+      }
+      tot += lo;
+    }
+    return tot;
+  }
+  function rtAllin(a, wd) {
+    var n = RT.V.length, px = RT.TS * (a * RT.V[0][0] + (1 - a) * RT.V[n - 1][0]), py = RT.TS * RT.V[0][1];
+    return RT.TS + rtG(0 - px, RT.BEAT - py, wd);
+  }
+  function rtHm(t) { var m = Math.trunc(t * 60 + 0.5), mm = m % 60; return Math.trunc(m / 60) + ' h ' + (mm < 10 ? '0' : '') + mm; }
+
   return { NONE: NONE, num: num, has: has, d180: d180, mins: mins, load: load,
            north: north, latdeg: latdeg, tide: tide, bb: bb, bbFar: bbFar, bbLo: bbLo, bbHi: bbHi, course: course, pt8: pt8,
            tideok: tideok, band: band, glass: glass, runs: runs, day: day,
@@ -760,7 +814,8 @@ var WX = (function () {
            SEA_K: SEA_K, SEA_H: SEA_H, SEA_E: SEA_E, SEA_TOP: SEA_TOP,
            report: report, renderTerminal: renderTerminal,
            cfixed: cfixed, cplus: cplus,
-           FR_W: FR_W, FR_C: FR_C, FR_A: FR_A, FR_B: FR_B, frP: frP, frFrom: frFrom, frGlass: frGlass, frBand: frBand, pt16: pt16 };
+           FR_W: FR_W, FR_C: FR_C, FR_A: FR_A, FR_B: FR_B, frP: frP, frFrom: frFrom, frGlass: frGlass, frBand: frBand, pt16: pt16,
+           RT: RT, rtG: rtG, rtCost: rtCost, rtWidth: rtWidth, rtAllin: rtAllin, rtHm: rtHm };
 })();
 
 if (typeof module !== 'undefined') module.exports = WX;

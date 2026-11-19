@@ -14,7 +14,7 @@
 #  data that is never wrong - what you measured yourself - and the only
 #  one still available when the antenna comes down.
 # =====================================================================
-WEATHER_VERSION=1.0.20
+WEATHER_VERSION=1.0.21
 
 #  the log belongs to deck-log; weather only ever READS it
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"

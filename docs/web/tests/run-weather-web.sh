@@ -17,6 +17,7 @@
 #                      before it asks
 #   3b the wind from the isobars, vs `weather isobars`
 #   7-15 the gunnery, wind, friction, force, veer, isobar, barograph, sea and compass figures, measured off the drawing
+#   16-19 the passing low, the fronts, the reported storm and the routing lesson: each model against the awk, each figure measured off the drawing
 set -e
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 cd "$ROOT"
@@ -187,6 +188,14 @@ if node -e 'var fs=require("fs");fs.accessSync(require("playwright").chromium.ex
   #  and the side worked again by stepping time and a cross product; the
   #  picture read back off the drawing.  Four planted faults, each caught.
   node docs/web/tests/weather-storm.js
+  echo
+  echo "19. routing, in the lesson routing: the model against the awk, and seven figures"
+  #  weather 1.0.21 (W35, Larry TAYO): the made-up boat's arithmetic, the
+  #  browser's against the awk's character for character at 941 lines, and
+  #  against arithmetic done in the test (1,000 triangles, the mirror, the
+  #  turned chart); then the seven figures read back off the drawing, the
+  #  lesson's words against them, and seven planted faults, each caught.
+  node docs/web/tests/weather-route.js
   echo
   echo "WEATHER WEB: all stages passed"
 else

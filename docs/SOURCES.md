@@ -603,3 +603,98 @@ thing; the public sources below are what the lesson rests on.
    from a model; it keeps the observations a model is judged against.
 8. **The lesson's question** (a sea breeze shown five days out) is the app's
    own, from the rule in items 1.1 and 1.2.
+
+**Routing: what a router does, and how far to trust it** (gap list W35, book of
+work B22; Larry's ruling TAYO, 19 November 2026; read 19 November 2026). The
+lesson is `routing` (weather 1.0.21). The app does not route; the lesson
+teaches what to do with a router's answer, and says so (gap list rule 3).
+
+1. **How an isochrone router works.**
+   1. LuckGrib, the routing manual, "Isochrones"
+      (<https://routing.luckgrib.com/intro/isochrones/index.html>): an
+      isochrone joins the points a vessel could reach after one period; from
+      each point a fleet is sent out, the furthest kept, and the path is
+      traced back from the first boat to arrive.
+   2. bashnav's own router, `docs/web/route/ROUTER.md` ("The search", "The
+      isochrones"): every heading from everywhere she could be, the earliest
+      kept; the isochrones written once an hour; "where the lines bulge, the
+      wind or the stream on that side is paying".
+2. **The five-day horizon.** NOAA SciJinks, "How reliable are weather
+   forecasts?" (<https://scijinks.gov/forecast-reliability>): a five-day
+   forecast is right about 90 percent of the time, a seven-day one about 80
+   percent, and one for ten days or more about half the time. "Route on about
+   five days" is the lesson's reading of those figures, with the gap list's
+   "5-day horizon".
+3. **Reverse isochrones.**
+   1. Stan Honey, "Pacific Cup Weather and Tactics" (public, at pacificcup.org:
+      <https://pacificcup.org/sites/default/files/kbfiles/Pacific%2520Cup%2520Weather%2520and%2520Tactics_0.pdf>):
+      the cost of alternate routes is understood from the tangent zones of
+      forward and reverse isochrones.
+   2. His navigator's slides (item 9 below): reverse isochrones laid over
+      forward ones identify the areas where the choice does not matter.
+   3. That the hours to reach a place plus the hours to finish from it is the
+      time of a route through it is arithmetic, and the lesson's own working.
+      The made-up boat's figures (a lane 5.6 miles wide on a reach of 24, 14.3
+      on a beat of 12) are worked by `rt_cost` and `rt_width` in `wx.awk`.
+   4. **bashnav's router does not draw reverse isochrones.** The lesson does
+      not say that it does.
+4. **The motorboat.** The lesson teaches bashnav's own motorboat (`ROUTER.md`,
+   "The motorboat of Levels 1 and 2"): straight lines between the routed boat's
+   places, in her times. "Extra miles sailed are your currency" is Stan Honey's,
+   from the Pacific Cup article (item 3.1). **Not yet read:** what the gap
+   list's "motorboat course" means in its own sources (RT and NP, which are not
+   on the Mac). Two public files at honeynav.com may hold it; opening them is a
+   download, which waits for Larry's word (item 9).
+5. **Where a router is biased.**
+   1. Stan Honey, "Warning about Using Deckman or Expedition" (public:
+      <https://pacificcup.org/index.php/kb/warning-about-using-deckman-or-expedition>):
+      computer routes assume steady wind and perfect helmsmen.
+   2. His navigator's slides (item 9): the router goes all in for the smallest
+      gain, and has complete confidence in every time in the model.
+   3. The course's routing page (practical-navigator,
+      `site/drafts/routing/`, section 2): "It measures time, never risk."
+   4. The figure's times (2 h 26, 2 h 43 and 3 h 04 for a 20-degree shift an
+      hour into a 12-mile beat) are worked by `rt_allin` on the made-up boat.
+6. **Scaling the wind and the stream.**
+   1. Stan Honey's navigator's slides (item 9): scale the wind 115 percent in
+      the tropics, 120 in mid-latitudes and 125 in high latitudes; scale the
+      current 130 percent; then correct the GRIB to what is observed.
+   2. Frank Singleton, "A Note on GRIB Files and models"
+      (<https://weather.mailasail.com/Franks-Weather/Grib-Notes-Users>): wind
+      over the open sea is under-forecast by about one Beaufort force, or 20
+      percent, because a model resolves weather only at about five grid
+      lengths. This is the public check on the mid-latitude figure.
+   3. LuckGrib, the routing manual, "GRIB input scaling"
+      (<https://routing.luckgrib.com/manual/settings/grib-scale.html>): routers
+      offer a wind-speed scale and a current scale.
+   4. **Not checked against a second source:** the split by latitude (1.15 and
+      1.25) and the stream's 1.30. The lesson gives them as one navigator's
+      rule of thumb and says the log outranks them.
+   5. bashnav's router: the run file's `scale wind <f> current <f>`
+      (`docs/web/route/COURSE.md`).
+7. **Testing the route.**
+   1. Stan Honey's Pacific Cup article (item 3.1): run many what-ifs. His
+      slides (item 9): different models, more and less wind, features moving
+      faster and slower, the current off.
+   2. The course's routing page, sections 3 and 4, and its data
+      (`site/drafts/routing/runs.js`): the 2025 Myth of Malham sailed by
+      bashnav's router in the forecast wind and ten per cent lighter and
+      stronger. To the Eddystone in 25.74, 25.75 and 25.53 hours; finishing at
+      04:43:58, 03:58:31 and 02:48:09 UTC on 26 May; tacking for Start Point
+      at 02:10, 02:20 and 02:20 UTC. **These figures are copied into
+      `rt_init` (`wx.awk`) and `WX.RT` (`wx.js`); if the course sails the runs
+      again, they move with it.**
+8. **Saying the route in sailing terms.** Stan Honey's Pacific Cup article
+   (item 3.1): explain the route in sailing terminology. The Lyme Bay brief is
+   shortened from the course's routing page, section 5.
+9. **Stan Honey's navigator's slides: what was read, and what was not.** NAV
+   read Larry's own copy of the Comanche navigation talk (`spec/weather/sources.md`,
+   code CO), slides 32 and 76. It is private material: the lesson is in our own
+   words and copies no text or figure. Mr Honey posts his talks at
+   <https://honeynav.com/presentations/>, among them "Navigator Preparation"
+   and "15 minutes on routing". NAV has not opened those two files, because
+   opening them is a download. **Until one is read, the scaling figures rest on
+   Larry's copy and on item 6.2.**
+10. **The made-up boat** (her speed at eight angles off the wind, 45 to 150
+    degrees) is the app's own, chosen so the sums can be checked by hand. She
+    is not any real boat's polar.

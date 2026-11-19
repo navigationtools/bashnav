@@ -19,6 +19,7 @@ function les_init(){
   les("data",     "The three kinds of weather data, and which one you have")
   les("runs",     "Run time and valid time, always in UTC")
   les("models",   "Global and high-resolution models, and how far to trust them")
+  les("routing",  "Routing: what a router does, and how far to trust it")
   les("tide",     "The atmospheric tide: why the glass falls every afternoon")
   les("coriolis", "Coriolis, which is not a force")
   les("gradient", "Gradient wind, surface wind, and friction")
@@ -245,6 +246,169 @@ function lesson_body(k){
     lpd("The Met Office, numerical weather prediction models; ECMWF, Forecast")
     lpd("User Guide 8.1.2; NWS Juneau, Numerical Weather Prediction; NOAA")
     lpd("NCEI, the Global Forecast System.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="routing"){
+    #  W35 (weather 1.0.21; book of work B22; Larry's ruling TAYO, 19
+    #  November 2026): what a router does and how far to trust it, with a
+    #  figure at each point (Larry: "many, spaced through the lesson at
+    #  each key point").  The figures are worked on the made-up boat of
+    #  rt_init() in wx.awk; the last one is the course's three runs of
+    #  bashnav's own router.  Sources read 19 November 2026 and recorded
+    #  in docs/SOURCES.md: NOAA SciJinks (how often a forecast is right);
+    #  LuckGrib's routing manual and bashnav's ROUTER.md (isochrones);
+    #  Stan Honey's Pacific Cup article and talks (reverse isochrones,
+    #  the router's bias, scaling, saying the route in sailing terms);
+    #  Frank Singleton's GRIB notes (the wind reads low); the course's
+    #  routing page.  Gap list rule 3: the lesson says the app does not
+    #  route.
+    lph("ROUTING: WHAT A ROUTER DOES")
+    lp("A router takes two things: a " cw("forecast",C_ACC) " of the wind everywhere, hour")
+    lp("by hour (and the tidal stream, where there is one), and a " cw("polar",C_ACC) ",")
+    lp("the table of how fast the boat sails at each wind speed and angle. It")
+    lp("answers one question: by what track could she finish soonest?")
+    print ""
+    lp("It works outward from the start. She is sent off on every heading")
+    lp("for one step of time, at the speed the polar gives. The far edge of")
+    lp("where those boats get to is an " cw("isochrone",C_ACC) ": every place she could")
+    lp("have reached by that time. From that edge it does the same again,")
+    lp("until an isochrone reaches the finish. The route is read backwards")
+    lp("from there, through one point on each isochrone.")
+    print ""
+    rt_fan_figure()
+    gshow()
+    print ""
+    lp("Here the wind is the same everywhere, so each isochrone is the last")
+    lp("one grown bigger. In real weather they bend. Where an isochrone")
+    lp("bulges toward the finish, the wind or the stream on that side is")
+    lp("paying.")
+    print ""
+    lph("HOW FAR AHEAD: THE FIVE-DAY HORIZON")
+    lp("A route is only as good as its forecast, and a forecast fades. NOAA")
+    lp("puts a five-day forecast right about nine times in ten, a seven-day")
+    lp("one about eight in ten, and one for ten days or more about half the")
+    lp("time.")
+    print ""
+    rt_horizon_figure()
+    gshow()
+    print ""
+    lp(cw("So route on about five days.",C_ACC) " Past that the route is a sketch of")
+    lp("what may come, to be drawn again with each new run.")
+    print ""
+    lph("REVERSE ISOCHRONES: WHAT A PLACE COSTS")
+    lp("Run the same sum backwards from the finish and you have " cw("reverse",C_ACC))
+    lp(cw("isochrones",C_ACC) ": every place from which she could still finish in so")
+    lp("many hours. Lay them over the forward ones. At any place, the hours")
+    lp("to get there plus the hours to finish from there is the time of a")
+    lp("route through that place. Where that sum stays close to the best, it")
+    lp("hardly matters where you are: a don't-care area. Where it climbs fast,")
+    lp("the route is a narrow lane.")
+    print ""
+    rt_lane_figure()
+    gshow()
+    print ""
+    lp("On the reach, the water that costs under ten minutes is a lane")
+    lp(sprintf("%.1f miles wide. On the beat it is %.1f miles wide: in a steady wind,", rt_width(RT_REACH, 0, RT_LANE), rt_width(0, RT_BEAT, RT_LANE)))
+    lp("anywhere between the laylines takes the same time. " cw("Look before you",C_ACC))
+    lp(cw("fight for a side.",C_ACC) " Inside a wide lane you can sail for the crew, the")
+    lp("sea or the other boats at little cost. On that beat, the router's")
+    lp("side is only worth what the shift it expects is worth.")
+    print ""
+    lph("THE MOTORBOAT: WHAT THE WIND COSTS")
+    lp("A motorboat goes the same speed on every heading, so in still water")
+    lp("her fastest course is the straight line. Set her beside the sailing")
+    lp("route and the difference is what the wind asks of you: extra miles.")
+    print ""
+    rt_motor_figure()
+    gshow()
+    print ""
+    lp(cw("Extra miles are what a route spends.",C_ACC) " Know how many, and what they")
+    lp("buy. The Practical Navigator course does this with bashnav's own")
+    lp("motorboat: straight lines between the routed boat's places, in her")
+    lp("times, to show what the tide and the wind each add.")
+    print ""
+    lph("WHERE A ROUTER IS BIASED")
+    lp(cw("It believes the forecast completely.",C_ACC) " A shift forecast for 02:00 is,")
+    lp("to the router, a fact, to the minute.")
+    print ""
+    lp(cw("Its boat sails the polar, always.",C_ACC) " A steady wind, a perfect helm, a")
+    lp("fresh crew, and never a bad hour.")
+    print ""
+    lp(cw("It goes all in.",C_ACC) " If one side is a minute faster, it takes that side,")
+    lp("however much it would lose were the forecast a little out. " cw("It measures",C_WARN))
+    lp(cw("time, never risk.",C_WARN))
+    print ""
+    rt_allin_figure()
+    gshow()
+    print ""
+    lp(sprintf("Here the forecast has the wind veering %d degrees, an hour into a", RT_SHIFT))
+    lp(sprintf("%d-mile beat. The router goes right, all the way, and is %d minutes", RT_BEAT, rt_min(rt_allin(0.5, RT_SHIFT)) - rt_min(rt_allin(1, RT_SHIFT))))
+    lp("up on the boat in the middle - if the veer comes. If the wind backs")
+    lp(sprintf("instead she is %d minutes behind the middle, and %d behind the boat", rt_min(rt_allin(1, -RT_SHIFT)) - rt_min(rt_allin(0.5, -RT_SHIFT)), rt_min(rt_allin(1, -RT_SHIFT)) - rt_min(rt_allin(0, -RT_SHIFT))))
+    lp(sprintf("that went left. The middle is never more than %d minutes from the", rt_min(rt_allin(0.5, RT_SHIFT)) - rt_min(rt_allin(1, RT_SHIFT))))
+    lp("best. The router cannot see that. You can.")
+    print ""
+    lph("SCALE THE WIND AND THE STREAM")
+    lp("A model's wind is an average over its grid, and over the open sea it")
+    lp("reads low: by about a Beaufort force, or 20 percent, in one")
+    lp("forecaster's account. The ocean navigator Stan Honey's rule of thumb")
+    lp("is to route on the GRIB's wind " cw("times 1.15 in the tropics, 1.20 in",C_ACC))
+    lp(cw("mid-latitudes and 1.25 in high latitudes",C_ACC) ", and on the stream " cw("times",C_ACC))
+    lp(cw("1.30",C_ACC) "; then to correct both to what is measured on deck.")
+    print ""
+    rt_scale_figure()
+    gshow()
+    print ""
+    lp("Your own log is the better guide: if the GRIB said 20 and you have")
+    lp("logged 24 all day, 24 is your number. bashnav's router takes this as")
+    lp("one line of a run: " cw("scale wind 1.2 current 1.3",C_ACC) ".")
+    print ""
+    lph("TEST THE ROUTE")
+    lp("Change what the router was told, and see whether the route changes.")
+    print ""
+    lp("  " cw("the wind",C_ACC) "       lighter, and stronger")
+    lp("  " cw("the forecast",C_ACC) "   the next run, and another model")
+    lp("  " cw("the timing",C_ACC) "     the weather arriving sooner, and later")
+    lp("  " cw("the stream",C_ACC) "     switched off, to see what it was worth")
+    print ""
+    lp(cw("A route that holds is one to trust.",C_ACC) " A route that swaps sides is")
+    lp("one to hold loosely, and where it swaps is where you must be awake.")
+    print ""
+    rt_whatif_figure()
+    gshow()
+    print ""
+    lp("So the call in Lyme Bay is one to trust, as far as the wind's")
+    lp(sprintf("strength goes; the finishing time is not, by %s. " cw("And the test has",C_ACC), rt_hm(RT_RUN[3] - RT_RUN[11])))
+    lp(cw("a limit.",C_ACC) " Scaling the speed leaves every shift at the forecast's own")
+    lp("time. Testing the timing takes another run or another model.")
+    print ""
+    lph("SAY IT IN SAILING TERMS")
+    lp("You are not done until you can explain the route to the watch in")
+    lp("sailors' words. For that night in Lyme Bay:")
+    print ""
+    lp("  " cw("what we are doing",C_ACC) "    port tack up into the bay, for four hours")
+    lp("  " cw("why",C_ACC) "                  the wind is forecast to veer, and a veer")
+    lp("                       lifts starboard tack")
+    lp("  " cw("what we expect",C_ACC) "       the wind at its strongest near midnight,")
+    lp("                       then the first degrees of veer")
+    lp("  " cw("what we do then",C_ACC) "      tack when it has veered 15 degrees and held")
+    lp("  " cw("if it does not come",C_ACC) "  no veer by 04:00, or it backs: call the")
+    lp("                       navigator")
+    print ""
+    lp("If you cannot say it that way you do not yet understand the route,")
+    lp("and should not sail it.")
+    print ""
+    lp(cw("And this tool?",C_ACC) " bashnav weather does not route, and never forecasts")
+    lp("from a model. It keeps the other voices: your glass, your wind, your")
+    lp("sky and your log, which are what a route is tested against at sea.")
+    lp("bashnav's router sails the Practical Navigator course's races.")
+    print ""
+    lpd("NOAA SciJinks, how reliable are weather forecasts; LuckGrib, the")
+    lpd("routing manual; Stan Honey, Pacific Cup Weather and Tactics, and")
+    lpd("his navigator's talks (honeynav.com); Frank Singleton, a note on")
+    lpd("GRIB files; the Practical Navigator course, the routing page.")
     print ""
     return 1
   }
@@ -747,6 +911,7 @@ function lesson_q(k){
   if(k=="data")     return "The latest surface analysis and a GRIB's forecast for the same hour put the low in different places. Which do you believe?|The analysis. Forecasters drew it from the observations and used the model only where other evidence agreed. The GRIB is the model's numbers, which no forecaster has checked, and the further ahead of its run time it reads, the less it is worth."
   if(k=="runs")     return "A GRIB says: run 18Z 23 May, step 33. What hour does it describe, and what is that on the boat's clock in the Channel?|03:00 UTC on 25 May: 18:00 plus 33 hours. In May that is 04:00 British Summer Time. The run of 00Z 24 May at step 27 describes the same hour from six hours later and less far ahead, so if you hold both, the newer one is likely the better."
   if(k=="models")   return "Five days before the start, a 1.5 km model shows a fine sea breeze on race day. Do you plan on it?|Not yet. Five days out is for the big picture, from the global models: which systems, and whether their story holds run after run. A sea breeze is local detail, and a high-resolution model cannot know the synoptic story better than the global model at its edges. Look at it again on race morning, for the coast."
+  if(k=="routing")  return "The router sends you to the far right-hand corner, for a gain of four minutes over the middle. What do you ask before you sail it?|What it loses if the forecast is wrong. The router goes all in for any gain, however small: it measures time, never risk. Route it again with the wind lighter and stronger, on the next run and on another model. If the corner loses half an hour when the shift is late or goes the other way, and the middle loses four minutes when the forecast is right, the middle is the route."
   if(k=="tide")     return "You are at 12N. The glass has fallen 2 hPa between 1000 and 1600. Worry?|Probably not - that is very close to the daily atmospheric tide, which is about 1.4 hPa of semidiurnal swing in the tropics with a minimum near 1600. Correct for it before reading anything into it. At 50N the same fall would mean much more."
   if(k=="coriolis") return "Why does no hurricane ever form on the equator?|Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in the world, and nothing to start it rotating. About 5 degrees is the practical minimum."
   if(k=="gradient") return "The chart shows a 30 knot gradient wind. What do you expect on deck, offshore, in the northern hemisphere?|Around 20 knots - roughly two thirds - and backed 10 to 20 degrees from the isobar direction, because friction slows the surface air, which weakens Coriolis, so pressure gradient wins a little and the wind blows across the isobars toward the low."

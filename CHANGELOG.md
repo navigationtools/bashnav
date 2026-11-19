@@ -1,5 +1,63 @@
 # Changelog
 
+## weather 1.0.21: a lesson on routing, with a figure at each of its seven points (W35)
+
+**What.** A fifteenth lesson, `routing` ("Routing: what a router does, and how
+far to trust it"), after `models`. It makes seven points, each with a figure,
+in the terminal and in the browser:
+
+1. **How a router works:** a forecast and a polar; isochrones outward from the
+   start; the route read back from the finish (figure: the fan and three
+   isochrones).
+2. **The five-day horizon:** NOAA's figures for how often a forecast is right
+   (figure: ten columns, a day each).
+3. **Reverse isochrones:** the hours to reach a place plus the hours to finish
+   from it; where that hardly matters and where it is a narrow lane (figure: a
+   reach and a beat, with the water that costs under ten minutes shaded).
+4. **The motorboat:** the straight line beside the sailing route, and the
+   extra miles the wind asks (figure: a 12-mile beat).
+5. **Where a router is biased:** it believes the forecast, sails the polar,
+   and goes all in (figure: three boats, three winds, nine times).
+6. **Scaling the wind and the stream** before routing (figure: the GRIB's 20
+   knots in three belts of latitude, and the stream).
+7. **Testing the route, and saying it in sailing terms** (figure: the 2025
+   Myth of Malham routed three times by bashnav's own router).
+
+The lesson says the app does not route (gap list rule 3). Its question: the
+router sends you to the far corner for four minutes; what do you ask first?
+
+**Why.** Book of work B22 (Larry's yes of 12 November), W35, by Larry's ruling
+TAYO of 19 November, with his direction on the figures: "many, spaced through
+the lesson at each key point". The app does not route, so the figures are
+worked on a made-up boat in one steady wind, small enough to check by hand:
+everywhere she can be after t hours is t times the outline through her speeds,
+and the time to make good a displacement is the largest of sixteen dot
+products. The last figure is real: the course's three runs of bashnav's router.
+Sources in `docs/SOURCES.md`, under "Routing", which also says plainly what
+was not read (the gap list's "motorboat course", and the public copies of two
+of Stan Honey's talks).
+
+**What it touches.**
+
+1. `src/weather/wx.awk` and `docs/web/weather/wx.js`: the model (`rt_*`,
+   `WX.rt*`), and `cmd=routedump` in `screens.awk`.
+2. `src/weather/grid.awk` and `docs/web/weather/weather.js`: seven figures in
+   each (`rt_*_figure`; `rt*Demo`). The browser's use the existing
+   demonstration panel's styles, so no shared stylesheet changes.
+3. `src/weather/teach.awk`: the lesson, its question, the list.
+4. `docs/web/tests/weather-route.js`, new, stage 19 of `run-weather-web.sh`:
+   55 checks (`docs/TESTING.md`).
+5. Generated: `docs/web/weather/lessons.js`, the golden file
+   `tests/golden/weather.txt`, the iPad bundle, the menu picture.
+6. The version (1.0.21) and the web cache (`weather-v38`).
+7. The README, `docs/ARCHITECTURE.md`, the web README and the manual say
+   fifteen lessons. The manual's Figure 10 is recaptured, and its section 9
+   gains the routing lesson with Figures 18 to 24.
+
+**A dependency to know.** The last figure's numbers are copied from the
+course's routing page (`practical-navigator/site/drafts/routing/runs.js`). If
+the course sails those runs again, `rt_init` and `WX.RT` change with it.
+
 ## weather 1.0.20: the trade inversion, as the sources describe it (W08)
 
 **What.** Two lessons change their words about the trade inversion:

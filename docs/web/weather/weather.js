@@ -1502,6 +1502,8 @@ function drawLines(box, lines) {
                     passnorth: function (h) { passDemo(h, true); },
                     passsouth: function (h) { passDemo(h, false); },
                     fronts: frontsDemo,
+                    rtfan: rtFanDemo, rthorizon: rtHorizonDemo, rtlane: rtLaneDemo, rtmotor: rtMotorDemo,
+                    rtallin: rtAllinDemo, rtscale: rtScaleDemo, rtwhatif: rtWhatifDemo,
                     isoscale: isoScaleDemo })[b.kind];
       if (draw) wxRepaints(fig, draw);
       return;
@@ -2343,6 +2345,399 @@ function passDemo(host, north) {
   panel(TOP + PH, false);
   D.t(16, H - 14, 'Looking the way the low goes: on its right the wind veers, on its left it backs.', D.text,
       { 'font-size': 13, 'font-weight': 600, 'data-part': 'rule' });
+  host.appendChild(D.wrap);
+}
+
+/*  THE ROUTING LESSON'S FIGURES (weather 1.0.21; W35; Larry, TAYO: "many,
+    spaced through the lesson at each key point").  Seven, one at each
+    point the lesson makes, the same seven as the rt_*_figure functions in
+    grid.awk, and drawn from the same made-up boat (WX.RT, WX.rtG): the
+    numbers on them are worked here, not written, and
+    docs/web/tests/weather-route.js reads them back off the drawing.
+    North and the wind are at the top; a mile is K pixels.  Colours from
+    the page's tokens, so every one repaints with the display mode.  */
+function rtSvg(H, label) {
+  var D = demoSvg('veerdemo routedemo', 640, H, label);
+  var cs = getComputedStyle(document.documentElement);
+  var tk = function (k) { return cs.getPropertyValue(k).trim(); };
+  D.warn = tk('--warn') || tk('--bad') || '#e23a2c';
+  D.panel = tk('--panel') || '#10151a';
+  D.ground = tk('--ground') || '#07090b';
+  D.f1 = function (v) { return (Math.round(v * 10) / 10).toFixed(1); };
+  /*  an arrow from (x1,y1) to (x2,y2), its head at the far end  */
+  D.arrow = function (x1, y1, x2, y2, col, w, attrs) {
+    var a = Math.atan2(y2 - y1, x2 - x1), o = { x1: D.f1(x1), y1: D.f1(y1), x2: D.f1(x2 - 6 * Math.cos(a)), y2: D.f1(y2 - 6 * Math.sin(a)),
+              stroke: col, 'stroke-width': w, 'stroke-linecap': 'round' }, k;
+    for (k in (attrs || {})) o[k] = attrs[k];
+    D.e('line', o);
+    D.head(x2, y2, a, col);
+  };
+  /*  the wind, three short arrows coming down from the top  */
+  D.wind = function (x, y, word) {
+    [0, 16, 32].forEach(function (d) { D.arrow(x + d, y, x + d, y + 22, D.dim, 1.6); });
+    D.t(x + 46, y + 15, word, D.dim, { 'font-size': 12 });
+  };
+  return D;
+}
+/*  the outline of everywhere she can be after t hours, from (ox, oy)
+    miles, as SVG points; back = true runs it backwards from a finish  */
+function rtOutline(t, ox, oy, X, Y, back) {
+  return WX.RT.V.map(function (v) {
+    var s = back ? -1 : 1;
+    return X(ox + s * t * v[0]).toFixed(1) + ',' + Y(oy + s * t * v[1]).toFixed(1);
+  }).join(' ');
+}
+
+/*  1. HOW A ROUTER WORKS.  The fan of the first hour, the isochrones at
+    1, 2 and 3 hours, and the route read back from a finish on the third. */
+function rtFanDemo(host) {
+  var RT = WX.RT, K = 8.4, SX = 232, SY = 168, RAD = Math.PI / 180;
+  var fx = 22.5 * Math.sin(75 * RAD), fy = 22.5 * Math.cos(75 * RAD), T = WX.rtG(fx, fy, 0);
+  var D = rtSvg(440, 'How a router works. From the start, the boat is sent off on every heading for an hour. ' +
+    'The far edge of where she gets to is the one-hour isochrone; the two-hour and three-hour isochrones ' +
+    'are the same shape grown bigger, because the wind is the same everywhere. The finish, 22.5 miles ' +
+    'away on 075, lies on the three-hour isochrone: ' + WX.rtHm(T) + '. The route is read back from it.');
+  var X = function (x) { return SX + K * x; }, Y = function (y) { return SY - K * y; };
+  D.svg.setAttribute('data-k', K); D.svg.setAttribute('data-sx', SX); D.svg.setAttribute('data-sy', SY);
+  D.wind(16, 10, 'the wind: the same everywhere');
+  /*  where she cannot point: the wedge within 45 degrees of the wind  */
+  var n0 = RT.V[0], nL = RT.V[RT.V.length - 1];
+  D.e('path', { d: 'M' + X(0) + ',' + Y(0) + 'L' + X(3 * nL[0]).toFixed(1) + ',' + Y(3 * nL[1]).toFixed(1) +
+                   'L' + X(3 * n0[0]).toFixed(1) + ',' + Y(3 * n0[1]).toFixed(1) + 'Z', fill: D.panel, 'data-part': 'nogo' });
+  [3, 2, 1].forEach(function (k) {
+    D.e('polygon', { points: rtOutline(k, 0, 0, X, Y), fill: 'none', stroke: D.acc,
+                     'stroke-width': k === 3 ? 2.6 : 1.6, 'stroke-linejoin': 'round', 'data-part': 'iso-' + k });
+  });
+  /*  the fan: her first hour on each heading the polar answers for  */
+  RT.V.forEach(function (v, i) {
+    D.e('line', { x1: X(0), y1: Y(0), x2: X(v[0]).toFixed(1), y2: Y(v[1]).toFixed(1), stroke: D.dim, 'stroke-width': 1,
+                  'data-part': 'ray', 'data-i': i });
+  });
+  /*  the route, with the point it passes on each isochrone  */
+  D.e('line', { x1: X(0), y1: Y(0), x2: X(fx).toFixed(1), y2: Y(fy).toFixed(1), stroke: D.text, 'stroke-width': 3,
+                'stroke-linecap': 'round', 'data-part': 'route' });
+  [1, 2].forEach(function (k) {
+    D.e('circle', { cx: X(fx * k / T).toFixed(1), cy: Y(fy * k / T).toFixed(1), r: 4.5, fill: D.ground, stroke: D.text,
+                    'stroke-width': 2, 'data-part': 'via-' + k });
+  });
+  D.e('circle', { cx: X(0), cy: Y(0), r: 6, fill: D.text, 'data-part': 'start' });
+  D.e('circle', { cx: X(fx).toFixed(1), cy: Y(fy).toFixed(1), r: 6, fill: D.acc, 'data-part': 'finish' });
+  D.t(X(-8.3) - 8, Y(0) + 5, 'START', D.text, { 'text-anchor': 'end', 'font-weight': 700, 'font-size': 12 });
+  D.t(X(fx) + 14, Y(fy) - 54, 'FINISH', D.acc, { 'font-weight': 700, 'font-size': 12 });
+  D.t(X(fx) + 14, Y(fy) - 38, '22.5 miles on 075,', D.acc, { 'font-size': 12 });
+  D.t(X(fx) + 14, Y(fy) - 22, 'on the 3-hour line:', D.acc, { 'font-size': 12 });
+  D.t(X(fx) + 14, Y(fy) - 5, WX.rtHm(T), D.acc, { 'font-size': 14, 'font-weight': 700, 'data-part': 'time' });
+  /*  the hours, on the lines, down the right-hand side clear of the route  */
+  [1, 2, 3].forEach(function (k) {
+    var v = RT.V[5];           /* 120 degrees off the wind: the lower right */
+    D.t(X(k * v[0]) + 8, Y(k * v[1]) + 14, k + ' h', D.acc, { 'font-size': 13, 'font-weight': 700, 'data-part': 'lab-' + k });
+  });
+  D.t(X(0), Y(3 * n0[1]) - 8, 'she cannot point here: she tacks', D.dim, { 'text-anchor': 'middle', 'font-size': 12 });
+  D.t(X(0), Y(-3 * 7 * Math.cos(30 * RAD)) + 18, 'nor run square: she gybes', D.dim, { 'text-anchor': 'middle', 'font-size': 12 });
+  D.t(X(0), Y(-9.4), 'her first hour, on every heading', D.dim, { 'text-anchor': 'middle', 'font-size': 12 });
+  D.t(20, 398, 'Each line is an isochrone: everywhere she could be after that many hours.', D.text, { 'font-size': 13 });
+  D.t(20, 418, 'The route is read back from the finish, through one point on each line.', D.text, { 'font-size': 13 });
+  host.appendChild(D.wrap);
+}
+
+/*  2. THE FIVE-DAY HORIZON.  How often a forecast is right, by days
+    ahead (NOAA SciJinks): ten columns, one a day.  */
+function rtHorizonDemo(host) {
+  var RT = WX.RT, X0 = 66, CW = 52, BASE = 214, PX = 1.5;
+  var D = rtSvg(292, 'How often a forecast is right, by days ahead, from NOAA: ' +
+    RT.HZ.map(function (h) { return 'days ' + h[0] + ' to ' + h[1] + ', about ' + h[2] + ' in 100'; }).join('; ') +
+    '. Route on about five days; past that the route is a sketch.');
+  D.t(20, 22, 'How often a forecast is right', D.text, { 'font-weight': 700 });
+  D.e('line', { x1: X0 - 8, y1: BASE, x2: X0 + 10 * CW, y2: BASE, stroke: D.line, 'stroke-width': 1.2 });
+  RT.HZ.forEach(function (h, g) {
+    var d, col = g === 0 ? D.acc : (g === 1 ? D.text : D.dim);
+    for (d = h[0]; d <= h[1]; d++) {
+      D.e('rect', { x: X0 + (d - 1) * CW + 4, y: BASE - h[2] * PX, width: CW - 8, height: h[2] * PX, fill: col,
+                    'fill-opacity': g === 0 ? 1 : (g === 1 ? 0.55 : 0.5), 'data-part': 'day', 'data-day': d, 'data-pct': h[2] });
+      D.t(X0 + (d - 1) * CW + CW / 2, BASE + 18, String(d), D.dim, { 'text-anchor': 'middle', 'font-size': 12 });
+    }
+    /*  each label starts at its group's left edge, clear of the horizon line  */
+    D.t(X0 + (h[0] - 1) * CW + 6, BASE - h[2] * PX - 8, 'about ' + h[2] + ' in 100', col, { 'font-size': 13, 'font-weight': 700,
+        'data-part': 'pct-' + g });
+  });
+  D.t(X0 + 5 * CW, BASE + 36, 'days ahead', D.dim, { 'text-anchor': 'middle', 'font-size': 12 });
+  /*  the horizon, between day 5 and day 6  */
+  var hx = X0 + 5 * CW;
+  D.e('line', { x1: hx, y1: 32, x2: hx, y2: BASE + 4, stroke: D.warn, 'stroke-width': 2, 'stroke-dasharray': '6 4', 'data-part': 'horizon' });
+  D.t(hx - 10, 46, 'route on this', D.acc, { 'text-anchor': 'end', 'font-size': 13, 'font-weight': 700 });
+  D.t(hx + 10, 46, 'past five days: a sketch', D.warn, { 'font-size': 13, 'font-weight': 700 });
+  D.t(20, 280, 'NOAA’s figures for a weather forecast. A route is only as good as its forecast.', D.dim, { 'font-size': 12 });
+  host.appendChild(D.wrap);
+}
+
+/*  3. REVERSE ISOCHRONES.  Two legs, a reach and a beat, each with its
+    isochrones forward from the start (solid) and back from the finish
+    (dashed), at a third and two thirds of the leg's time, and the water
+    that costs no more than ten minutes shaded.  */
+function rtLaneEdge(fx, fy, mins) {
+  /*  the edge of the water costing no more than `mins`, as 72 points
+      round the middle of the leg, each found by halving  */
+  var pts = [], a, lo, hi, mid, k, ux, uy;
+  for (a = 0; a < 360; a += 5) {
+    ux = Math.sin(a * Math.PI / 180); uy = Math.cos(a * Math.PI / 180); lo = 0; hi = 40;
+    for (k = 0; k < 40; k++) {
+      mid = (lo + hi) / 2;
+      if (WX.rtCost(fx / 2 + mid * ux, fy / 2 + mid * uy, fx, fy) <= mins / 60) lo = mid; else hi = mid;
+    }
+    pts.push([fx / 2 + lo * ux, fy / 2 + lo * uy]);
+  }
+  return pts;
+}
+function rtLaneDemo(host) {
+  var RT = WX.RT, K = 9.3, TOP = 64, PH = 16 * K;
+  var Tr = WX.rtG(RT.REACH, 0, 0), Tb = WX.rtG(0, RT.BEAT, 0);
+  var wr = WX.rtWidth(RT.REACH, 0, RT.LANE), wb = WX.rtWidth(0, RT.BEAT, RT.LANE);
+  var D = rtSvg(388, 'Forward and reverse isochrones on two legs. On a reach of ' + RT.REACH + ' miles, ' + WX.rtHm(Tr) +
+    ', the water that costs under ' + RT.LANE + ' minutes is a lane ' + wr.toFixed(1) + ' miles wide. On a beat of ' + RT.BEAT +
+    ' miles, ' + WX.rtHm(Tb) + ', it is ' + wb.toFixed(1) + ' miles wide: anywhere between the laylines takes the same time.');
+  D.svg.setAttribute('data-k', K);
+  D.wind(16, 8, 'the wind');
+  function panel(id, px, pw, x0, y1, fx, fy, T, title) {
+    /*  px, pw: the panel's left edge and width in pixels; x0, y1: the
+        miles at its left and top edges  */
+    var X = function (x) { return px + (x - x0) * K; }, Y = function (y) { return TOP + (y1 - y) * K; };
+    var clip = D.e('clipPath', { id: 'rtclip-' + id });
+    D.e('rect', { x: px, y: TOP, width: pw, height: PH }, clip);
+    var g = D.e('g', { 'clip-path': 'url(#rtclip-' + id + ')' });
+    D.e('rect', { x: px, y: TOP, width: pw, height: PH, fill: D.panel }, g);
+    var edge = rtLaneEdge(fx, fy, RT.LANE);
+    D.e('polygon', { points: edge.map(function (p) { return X(p[0]).toFixed(1) + ',' + Y(p[1]).toFixed(1); }).join(' '),
+                     fill: D.acc, 'fill-opacity': 0.3, stroke: D.acc, 'stroke-width': 1.4, 'data-part': 'lane-' + id,
+                     'data-px': px, 'data-x0': x0, 'data-y1': y1 }, g);
+    [1, 2].forEach(function (k) {
+      D.e('polygon', { points: rtOutline(k * T / 3, 0, 0, X, Y), fill: 'none', stroke: D.text, 'stroke-width': 1.5,
+                       'data-part': id + '-fwd-' + k }, g);
+      D.e('polygon', { points: rtOutline(k * T / 3, fx, fy, X, Y, true), fill: 'none', stroke: D.text, 'stroke-width': 1.5,
+                       'stroke-dasharray': '5 4', 'data-part': id + '-rev-' + k }, g);
+    });
+    D.e('rect', { x: px, y: TOP, width: pw, height: PH, fill: 'none', stroke: D.line, 'stroke-width': 1 });
+    D.e('circle', { cx: X(0).toFixed(1), cy: Y(0).toFixed(1), r: 5.5, fill: D.text, 'data-part': id + '-start' });
+    D.e('circle', { cx: X(fx).toFixed(1), cy: Y(fy).toFixed(1), r: 5.5, fill: D.acc, 'data-part': id + '-finish' });
+    D.t(px, TOP - 10, title, D.text, { 'font-weight': 700, 'font-size': 13 });
+    return { X: X, Y: Y };
+  }
+  var R = panel('reach', 16, 30 * K, -3, 8, RT.REACH, 0, Tr, 'REACHING, ' + RT.REACH + ' miles: ' + WX.rtHm(Tr));
+  D.t(R.X(0) - 6, R.Y(0) + 24, 'S', D.text, { 'text-anchor': 'middle', 'font-weight': 700 });
+  D.t(R.X(RT.REACH) + 6, R.Y(0) + 24, 'F', D.acc, { 'text-anchor': 'middle', 'font-weight': 700 });
+  /*  the reach's lines named, and where a forward line touches the
+      reverse line for the hours left: on the route  */
+  [1, 2].forEach(function (k) {
+    D.t(R.X(k * RT.REACH / 3) + 7, R.Y(0) - 8, k + ' h', D.text, { 'font-size': 12, 'font-weight': 700, 'data-part': 'reach-out-' + k });
+    D.e('circle', { cx: R.X(k * RT.REACH / 3).toFixed(1), cy: R.Y(0).toFixed(1), r: 3.5, fill: D.ground, stroke: D.text, 'stroke-width': 1.6,
+                    'data-part': 'reach-touch-' + k });
+  });
+  var B = panel('beat', 16 + 30 * K + 40, 31 * K, -15.5, 14, 0, RT.BEAT, Tb, 'BEATING, ' + RT.BEAT + ' miles: ' + WX.rtHm(Tb));
+  D.t(B.X(0) - 14, B.Y(0) + 12, 'S', D.text, { 'font-weight': 700, 'text-anchor': 'end' });
+  D.t(B.X(0) - 14, B.Y(RT.BEAT) - 2, 'F', D.acc, { 'font-weight': 700, 'text-anchor': 'end' });
+  /*  the widths, measured across the middle of each leg  */
+  var ym = TOP + PH + 20;
+  D.t(16, ym, 'under ' + RT.LANE + ' minutes lost: a lane', D.acc, { 'font-size': 13 });
+  D.t(16, ym + 18, wr.toFixed(1) + ' miles wide', D.acc, { 'font-size': 14, 'font-weight': 700, 'data-part': 'reach-width' });
+  D.t(B.X(-15.5), ym, 'under ' + RT.LANE + ' minutes lost: the whole', D.acc, { 'font-size': 13 });
+  D.t(B.X(-15.5), ym + 18, 'diamond, ' + wb.toFixed(1) + ' miles wide', D.acc, { 'font-size': 14, 'font-weight': 700, 'data-part': 'beat-width' });
+  /*  the key  */
+  var ky = ym + 50;
+  D.e('line', { x1: 16, y1: ky - 4, x2: 52, y2: ky - 4, stroke: D.text, 'stroke-width': 1.5 });
+  D.t(60, ky, 'forward: where she could be, from the start', D.text, { 'font-size': 12 });
+  D.e('line', { x1: 16, y1: ky + 16, x2: 52, y2: ky + 16, stroke: D.text, 'stroke-width': 1.5, 'stroke-dasharray': '5 4' });
+  D.t(60, ky + 20, 'reverse: where she could still finish from, in the time left', D.text, { 'font-size': 12 });
+  D.t(16, ky + 46, 'Hours to get to a place + hours to finish from it = the time of a route through it.', D.text, { 'font-size': 12 });
+  D.t(16, ky + 64, 'On the reach the lines touch at one point: 1 h out with 2 h to go, then 2 h out with 1 h to go.', D.dim, { 'font-size': 12 });
+  D.t(16, ky + 82, 'On the beat they touch all along a line: anywhere on it is as good.', D.dim, { 'font-size': 12 });
+  host.appendChild(D.wrap);
+}
+
+/*  4. THE MOTORBOAT.  The beat of 12 miles: the sailing boat's two
+    boards beside the straight line of a boat that arrives with her.  */
+function rtMotorDemo(host) {
+  var RT = WX.RT, K = 20, SX = 120, SY = 292;
+  var T = WX.rtG(0, RT.BEAT, 0), sail = T * RT.S[0], v = RT.V[0], tk = RT.BEAT / (2 * v[1]);
+  var D = rtSvg(350, 'The motorboat beside the sailing boat on a beat of ' + RT.BEAT + ' miles. Sailing, she makes two boards, ' +
+    sail.toFixed(1) + ' miles through the water at ' + RT.S[0].toFixed(1) + ' knots. A motorboat goes straight, ' + RT.BEAT.toFixed(1) +
+    ' miles at ' + (RT.BEAT / T).toFixed(1) + ' knots. Both take ' + WX.rtHm(T) + '. The wind’s price is ' + (sail - RT.BEAT).toFixed(1) + ' extra miles.');
+  var X = function (x) { return SX + K * x; }, Y = function (y) { return SY - K * y; };
+  D.svg.setAttribute('data-k', K);
+  D.wind(16, 10, 'the wind');
+  var cx = tk * v[0], cy = tk * v[1];
+  D.arrow(X(0), Y(0), X(0), Y(RT.BEAT), D.text, 2.4, { 'stroke-dasharray': '7 5', 'data-part': 'motor' });
+  D.e('polyline', { points: X(0) + ',' + Y(0) + ' ' + X(cx).toFixed(1) + ',' + Y(cy).toFixed(1) + ' ' + X(0) + ',' + Y(RT.BEAT),
+                    fill: 'none', stroke: D.acc, 'stroke-width': 3.2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round', 'data-part': 'sail' });
+  D.e('circle', { cx: X(cx).toFixed(1), cy: Y(cy).toFixed(1), r: 5, fill: D.ground, stroke: D.acc, 'stroke-width': 2, 'data-part': 'tack' });
+  D.e('circle', { cx: X(0), cy: Y(0), r: 6, fill: D.text });
+  D.e('circle', { cx: X(0), cy: Y(RT.BEAT), r: 6, fill: D.acc });
+  D.t(X(0) - 12, Y(0) + 5, 'S', D.text, { 'text-anchor': 'end', 'font-weight': 700 });
+  D.t(X(0) - 12, Y(RT.BEAT) + 5, 'F', D.acc, { 'text-anchor': 'end', 'font-weight': 700 });
+  D.t(X(cx) + 12, Y(cy) + 5, 'she tacks', D.acc, { 'font-size': 12 });
+  D.t(X(cx / 2) + 14, Y(cy / 2) + 14, 'port tack', D.acc, { 'font-size': 12 });
+  D.t(X(cx / 2) + 14, Y(cy + (RT.BEAT - cy) / 2) - 6, 'starboard tack', D.acc, { 'font-size': 12 });
+  D.t(X(0) - 10, Y(RT.BEAT / 2) - 4, 'straight', D.text, { 'font-size': 12, 'text-anchor': 'end' });
+  var tx = 372;
+  D.t(tx, 70, 'SAILING', D.acc, { 'font-weight': 700 });
+  D.t(tx, 90, sail.toFixed(1) + ' miles through the water', D.acc, { 'font-size': 13, 'data-part': 'sail-miles' });
+  D.t(tx, 108, 'at ' + RT.S[0].toFixed(1) + ' knots', D.acc, { 'font-size': 13 });
+  D.t(tx, 146, 'MOTORBOAT', D.text, { 'font-weight': 700 });
+  D.t(tx, 166, RT.BEAT.toFixed(1) + ' miles, straight', D.text, { 'font-size': 13, 'data-part': 'motor-miles' });
+  D.t(tx, 184, 'at ' + (RT.BEAT / T).toFixed(1) + ' knots', D.text, { 'font-size': 13, 'data-part': 'motor-knots' });
+  D.t(tx, 222, 'BOTH TAKE ' + WX.rtHm(T), D.text, { 'font-weight': 700, 'data-part': 'both' });
+  D.e('line', { x1: tx, y1: 240, x2: 624, y2: 240, stroke: D.line, 'stroke-width': 1 });
+  D.t(tx, 264, 'The wind’s price:', D.warn, { 'font-size': 13 });
+  D.t(tx, 284, (sail - RT.BEAT).toFixed(1) + ' extra miles', D.warn, { 'font-weight': 700, 'font-size': 15, 'data-part': 'extra' });
+  D.t(16, 338, 'Extra miles are what a route spends. Know how many, and what they buy.', D.dim, { 'font-size': 12 });
+  host.appendChild(D.wrap);
+}
+
+/*  5. ALL IN.  A beat of 12 miles with a shift forecast an hour in.
+    Three boats: left, middle and right for the first hour, then each
+    sails the rest as well as she can.  The map draws the forecast (the
+    wind veers); the table gives all three winds.  */
+function rtBoards(px, py, fx, fy, wd) {
+  /*  the track from (px,py) to (fx,fy) in a wind from wd: straight if she
+      can lay it, or starboard tack then port, close-hauled on each  */
+  var RAD = Math.PI / 180, s = WX.RT.S[0];
+  var P = [s * Math.sin((wd + 45) * RAD), s * Math.cos((wd + 45) * RAD)];
+  var S = [s * Math.sin((wd - 45) * RAD), s * Math.cos((wd - 45) * RAD)];
+  var dx = fx - px, dy = fy - py, det = P[0] * S[1] - P[1] * S[0];
+  var tp = (dx * S[1] - dy * S[0]) / det, ts = (P[0] * dy - P[1] * dx) / det;
+  if (tp > 1e-6 && ts > 1e-6) return [[px, py], [px + ts * S[0], py + ts * S[1]], [fx, fy]];
+  return [[px, py], [fx, fy]];
+}
+function rtAllinDemo(host) {
+  var RT = WX.RT, K = 20, SX = 150, SY = 318, v = RT.V[0], n = RT.V.length;
+  var who = [['RIGHT', 1], ['MIDDLE', 0.5], ['LEFT', 0]], winds = [RT.SHIFT, 0, -RT.SHIFT];
+  var tm = who.map(function (w) { return winds.map(function (wd) { return WX.rtAllin(w[1], wd); }); });
+  var mn = function (t) { return Math.trunc(t * 60 + 0.5); };
+  var up = mn(tm[1][0]) - mn(tm[0][0]), down = mn(tm[0][2]) - mn(tm[1][2]);
+  var D = rtSvg(486, 'The router goes all in. On a beat of ' + RT.BEAT + ' miles the forecast has the wind veering ' + RT.SHIFT +
+    ' degrees an hour in. The boat that goes right takes ' + WX.rtHm(tm[0][0]) + ' if it veers, ' + WX.rtHm(tm[0][1]) + ' if it holds and ' +
+    WX.rtHm(tm[0][2]) + ' if it backs. The boat in the middle takes ' + WX.rtHm(tm[1][0]) + ', ' + WX.rtHm(tm[1][1]) + ' and ' + WX.rtHm(tm[1][2]) +
+    '. The boat that goes left takes ' + WX.rtHm(tm[2][0]) + ', ' + WX.rtHm(tm[2][1]) + ' and ' + WX.rtHm(tm[2][2]) + '.');
+  var X = function (x) { return SX + K * x; }, Y = function (y) { return SY - K * y; };
+  var cols = [D.acc, D.text, D.dim];
+  D.svg.setAttribute('data-k', K); D.svg.setAttribute('data-sx', SX); D.svg.setAttribute('data-sy', SY);
+  D.t(16, 20, 'THE FORECAST: the wind veers ' + RT.SHIFT + '° an hour in', D.text, { 'font-weight': 700, 'font-size': 13 });
+  /*  the two winds, drawn as arrows from where they blow  */
+  var RAD = Math.PI / 180;
+  D.arrow(352, 44, 352, 72, D.dim, 1.8, { 'data-part': 'wind-first' });
+  D.t(366, 63, 'the wind for the first hour', D.dim, { 'font-size': 12 });
+  D.arrow(352 + 28 * Math.sin(RT.SHIFT * RAD), 84, 352, 84 + 28 * Math.cos(RT.SHIFT * RAD), D.dim, 1.8, { 'data-part': 'wind-after' });
+  D.t(366, 103, 'the wind after it, veered ' + RT.SHIFT + '°', D.dim, { 'font-size': 12 });
+  who.forEach(function (w, i) {
+    var a = w[1], px = RT.TS * (a * v[0] + (1 - a) * RT.V[n - 1][0]), py = RT.TS * v[1];
+    var rest = rtBoards(px, py, 0, RT.BEAT, RT.SHIFT), pts = [[0, 0], [px, py]].concat(rest.slice(1));
+    D.e('polyline', { points: pts.map(function (p) { return X(p[0]).toFixed(1) + ',' + Y(p[1]).toFixed(1); }).join(' '),
+                      fill: 'none', stroke: cols[i], 'stroke-width': i === 0 ? 3.2 : 2, 'stroke-linejoin': 'round',
+                      'stroke-linecap': 'round', 'data-part': 'track-' + i });
+    D.e('circle', { cx: X(px).toFixed(1), cy: Y(py).toFixed(1), r: 5, fill: D.ground, stroke: cols[i], 'stroke-width': 2,
+                    'data-part': 'hour-' + i });
+  });
+  D.e('circle', { cx: X(0), cy: Y(0), r: 6, fill: D.text });
+  D.e('circle', { cx: X(0), cy: Y(RT.BEAT), r: 6, fill: D.acc });
+  D.t(X(0), Y(0) + 22, 'S', D.text, { 'text-anchor': 'middle', 'font-weight': 700 });
+  D.t(X(0), Y(RT.BEAT) - 12, 'F', D.acc, { 'text-anchor': 'middle', 'font-weight': 700 });
+  D.t(X(v[0]) + 10, Y(v[1]) + 16, 'RIGHT', D.acc, { 'font-size': 12, 'font-weight': 700 });
+  D.t(X(v[0]) + 10, Y(v[1]) + 32, 'the router', D.acc, { 'font-size': 12 });
+  D.t(X(-v[0]) - 10, Y(v[1]) + 16, 'LEFT', D.dim, { 'font-size': 12, 'font-weight': 700, 'text-anchor': 'end' });
+  D.t(X(0) + 9, Y(v[1]) + 22, 'MIDDLE', D.text, { 'font-size': 12, 'font-weight': 700 });
+  D.t(X(-v[0]) - 10, Y(v[1]) - 6, 'one hour', D.dim, { 'font-size': 11, 'text-anchor': 'end' });
+  /*  the table: three boats in three winds  */
+  var tx = 338, cw = 84, ty = 190;
+  D.t(tx, ty - 44, 'IF THE WIND, AN HOUR IN…', D.text, { 'font-weight': 700, 'font-size': 13 });
+  ['veers ' + RT.SHIFT + '°', 'holds', 'backs ' + RT.SHIFT + '°'].forEach(function (h, j) {
+    D.t(tx + 62 + j * cw, ty - 18, h, j === 0 ? D.acc : D.dim, { 'font-size': 12, 'font-weight': j === 0 ? 700 : 400 });
+  });
+  D.e('rect', { x: tx + 54, y: ty - 34, width: 78, height: 124, fill: 'none', stroke: D.acc, 'stroke-width': 1.2, rx: 6, 'data-part': 'forecast-col' });
+  D.t(tx + 93, ty + 106, 'the forecast', D.acc, { 'font-size': 12, 'text-anchor': 'middle' });
+  who.forEach(function (w, i) {
+    var y = ty + 12 + i * 28;
+    D.t(tx, y, w[0], cols[i], { 'font-size': 12, 'font-weight': 700 });
+    tm[i].forEach(function (t, j) {
+      var best = tm.every(function (r) { return r[j] >= t - 1e-9; }), worst = tm.every(function (r) { return r[j] <= t + 1e-9; });
+      var flat = best && worst;
+      D.t(tx + 62 + j * cw, y, WX.rtHm(t), flat ? D.text : (best ? D.acc : (worst ? D.warn : D.text)),
+          { 'font-size': 13, 'font-weight': (best || worst) && !flat ? 700 : 400, 'data-part': 'cell-' + i + '-' + j });
+    });
+  });
+  D.t(tx, ty + 140, 'The router goes right, all the way:', D.text, { 'font-size': 13 });
+  D.t(tx, ty + 160, up + ' minutes up on the middle', D.acc, { 'font-size': 13, 'font-weight': 700, 'data-part': 'up' });
+  D.t(tx, ty + 178, 'if the forecast is right,', D.acc, { 'font-size': 13 });
+  D.t(tx, ty + 198, down + ' minutes down on it', D.warn, { 'font-size': 13, 'font-weight': 700, 'data-part': 'down' });
+  D.t(tx, ty + 216, 'if the wind backs instead.', D.warn, { 'font-size': 13 });
+  D.t(16, 446, 'The tracks drawn are the forecast’s: each boat’s first hour, then her best way home in the veered wind.', D.dim, { 'font-size': 12 });
+  D.t(16, 466, 'The router measures time, never risk. The middle is never more than ' + up + ' minutes from the best.', D.text, { 'font-size': 13 });
+  host.appendChild(D.wrap);
+}
+
+/*  6. SCALING.  The GRIB's 20 knots, and what to route on in three
+    belts of latitude; the stream in the file, and what to route on.  */
+function rtScaleDemo(host) {
+  var RT = WX.RT, X0 = 190, PX = 13, G = 20;
+  var D = rtSvg(318, 'Scaling before routing. The GRIB says ' + G + ' knots: route on ' +
+    RT.SC.map(function (s) { return Math.round(G * s[1]) + ' in the ' + s[0].replace('-', ' '); }).join(', ') +
+    '. A stream of 2.0 knots in the file: route on ' + (2 * RT.CUR).toFixed(1) + '. Rules of thumb; what you measure on deck outranks them.');
+  D.t(16, 22, 'THE WIND: the GRIB says ' + G + ' knots. Route on:', D.text, { 'font-weight': 700, 'font-size': 13 });
+  RT.SC.forEach(function (s, i) {
+    var y = 44 + i * 44, kn = G * s[1];
+    D.t(16, y + 16, s[0] === 'mid-latitudes' ? s[0] : s[0].replace('-', ' '), D.text, { 'font-size': 13, 'font-weight': 700 });
+    D.t(16, y + 32, '× ' + s[1].toFixed(2), D.dim, { 'font-size': 12 });
+    D.e('rect', { x: X0, y: y + 4, width: G * PX, height: 26, fill: D.dim, 'fill-opacity': 0.45, 'data-part': 'grib-' + i });
+    D.e('rect', { x: X0 + G * PX, y: y + 4, width: (kn - G) * PX, height: 26, fill: D.acc, 'data-part': 'extra-' + i, 'data-knots': kn.toFixed(0) });
+    D.t(X0 + kn * PX + 10, y + 22, kn.toFixed(0) + ' knots', D.acc, { 'font-size': 14, 'font-weight': 700, 'data-part': 'kn-' + i });
+  });
+  D.t(X0 + G * PX / 2, 44 + 3 * 44 + 6, 'the GRIB’s ' + G + ' knots', D.dim, { 'font-size': 12, 'text-anchor': 'middle' });
+  D.e('line', { x1: 16, y1: 202, x2: 624, y2: 202, stroke: D.line, 'stroke-width': 1 });
+  var y2 = 222, SPX = 100;
+  D.t(16, y2 + 2, 'THE STREAM', D.text, { 'font-weight': 700, 'font-size': 13 });
+  D.t(16, y2 + 22, '× ' + RT.CUR.toFixed(2), D.dim, { 'font-size': 12 });
+  D.e('rect', { x: X0, y: y2 - 8, width: 2 * SPX, height: 26, fill: D.dim, 'fill-opacity': 0.45, 'data-part': 'stream-file' });
+  D.e('rect', { x: X0 + 2 * SPX, y: y2 - 8, width: (2 * RT.CUR - 2) * SPX, height: 26, fill: D.acc, 'data-part': 'stream-extra' });
+  D.t(X0 + 2 * RT.CUR * SPX + 10, y2 + 10, (2 * RT.CUR).toFixed(1) + ' knots', D.acc, { 'font-size': 14, 'font-weight': 700, 'data-part': 'stream-kn' });
+  D.t(X0 + SPX, y2 + 36, '2.0 knots in the file', D.dim, { 'font-size': 12, 'text-anchor': 'middle' });
+  D.t(16, 296, 'Rules of thumb. What you measure on deck outranks them.', D.dim, { 'font-size': 12 });
+  host.appendChild(D.wrap);
+}
+
+/*  7. TESTING.  The 2025 Myth of Malham, routed three times by bashnav's
+    router for the course's routing page: the forecast wind, ten per cent
+    lighter, ten per cent stronger.  One bar a run: out to the Eddystone,
+    then home; a mark where she tacked for Start Point.  */
+function rtWhatifDemo(host) {
+  var RT = WX.RT, X0 = 112, PX = 10.6, START = 10;      /* she started at 10:00 UTC */
+  var name = function (s) { return s === 1 ? 'as forecast' : 'wind × ' + s.toFixed(1); };
+  var D = rtSvg(330, 'The 2025 Myth of Malham routed three times by bashnav’s router. ' +
+    RT.RUN.map(function (r) { return name(r[0]) + ': ' + r[1].toFixed(1) + ' hours to the Eddystone, ' + (r[2] - r[1]).toFixed(1) +
+      ' home, ' + WX.rtHm(r[2]) + ' in all, tacking for Start Point at ' + r[3]; }).join('. ') +
+    '. The call held; the clock did not.');
+  D.t(16, 22, 'The 2025 Myth of Malham, routed three times by bashnav’s router', D.text, { 'font-weight': 700, 'font-size': 13 });
+  D.t(X0, 56, 'out to the Eddystone', D.dim, { 'font-size': 12 });
+  D.t(X0 + 26 * PX + 4, 56, 'the run home', D.acc, { 'font-size': 12 });
+  D.t(X0 + 43.6 * PX, 56, 'in all', D.dim, { 'font-size': 12 });
+  var tackX = [];
+  RT.RUN.forEach(function (r, i) {
+    var y = 68 + i * 46, hh = +r[3].slice(0, 2), mm = +r[3].slice(3), tk = 24 - START + hh + mm / 60;
+    D.t(16, y + 19, name(r[0]), D.text, { 'font-size': 13, 'font-weight': 700 });
+    D.e('rect', { x: X0, y: y, width: (r[1] * PX).toFixed(1), height: 28, fill: D.dim, 'fill-opacity': 0.45, 'data-part': 'out-' + i, 'data-hours': r[1] });
+    D.e('rect', { x: (X0 + r[1] * PX).toFixed(1), y: y, width: ((r[2] - r[1]) * PX).toFixed(1), height: 28, fill: D.acc,
+                  'data-part': 'home-' + i, 'data-hours': (r[2] - r[1]).toFixed(2) });
+    D.t(X0 + r[1] * PX - 8, y + 19, r[1].toFixed(1) + ' h', D.text, { 'font-size': 12, 'text-anchor': 'end' });
+    D.t(X0 + r[1] * PX + 8, y + 19, (r[2] - r[1]).toFixed(1) + ' h', D.ground, { 'font-size': 12, 'font-weight': 700, 'data-part': 'home-lab-' + i });
+    D.t(X0 + 43.6 * PX, y + 19, WX.rtHm(r[2]), D.text, { 'font-size': 13, 'font-weight': 700, 'data-part': 'total-' + i });
+    D.e('line', { x1: (X0 + tk * PX).toFixed(1), y1: y - 5, x2: (X0 + tk * PX).toFixed(1), y2: y + 33, stroke: D.warn, 'stroke-width': 2.6,
+                  'data-part': 'tack-' + i, 'data-at': r[3] });
+    tackX.push(X0 + tk * PX);
+  });
+  var ty = 68 + 3 * 46;
+  D.t(tackX[1], ty + 8, 'she tacks for Start Point: ' + RT.RUN.map(function (r) { return r[3]; }).join(', ') + ' UTC', D.warn,
+      { 'font-size': 12, 'text-anchor': 'middle', 'font-weight': 700 });
+  D.t(16, ty + 44, 'THE CALL HELD: the same tack in Lyme Bay, within ten minutes, in all three winds.', D.text, { 'font-size': 13 });
+  D.t(16, ty + 66, 'THE CLOCK DID NOT: ' + WX.rtHm(RT.RUN[0][2] - RT.RUN[2][2]) + ' between the lightest wind and the strongest,', D.text,
+      { 'font-size': 13, 'data-part': 'spread' });
+  D.t(16, ty + 84, 'nearly all of it on the run home.', D.text, { 'font-size': 13 });
+  D.t(16, ty + 108, 'From the Practical Navigator course’s routing page. Not for navigation.', D.dim, { 'font-size': 12 });
   host.appendChild(D.wrap);
 }
 

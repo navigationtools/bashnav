@@ -541,6 +541,129 @@ function fr_dump(   x, y){
 }
 
 # ---------------------------------------------------------------------
+#  THE ROUTING LESSON'S BOAT AND WATER (weather 1.0.21; gap list W35,
+#  book of work B22; Larry's ruling TAYO, 19 November 2026).
+#
+#  The lesson `routing` teaches how a router works and how far to trust
+#  one.  This app does not route (gap list rule 3), so its figures are
+#  worked on a made-up boat in a steady wind, small enough to check by
+#  hand:
+#
+#    the boat    her speed at eight angles off the wind, 45 to 150
+#                degrees (RT_A, RT_S).  She cannot point above 45 and
+#                gybes downwind of 150, as bashnav's router answers only
+#                out to a polar's beat and run rows (ROUTER.md, "One
+#                step").
+#    the water   still, with one wind everywhere.
+#
+#  In one wind, everywhere she can be after t hours, tacking and gybing
+#  as she likes, is t times the outline through her sixteen speeds: the
+#  isochrone.  So the time to make good a displacement is the largest of
+#  sixteen dot products, one for each side of that outline (rt_g).  The
+#  same sum runs backwards from the finish, which is the reverse
+#  isochrone, and the two added are the cost of passing through a place.
+#
+#  Mirrored in docs/web/weather/wx.js (WX.rt*), and held to it character
+#  for character by docs/web/tests/weather-route.js (cmd=routedump).
+# ---------------------------------------------------------------------
+function rt_init(   i, n, a){
+  if(RT_N) return 0
+  n = split("45 6.0 60 6.9 75 7.5 90 8.0 105 8.1 120 7.9 135 7.5 150 7.0", a, " ")
+  RT_M = n / 2
+  for(i = 1; i <= RT_M; i++){ RT_A[i] = a[2*i-1] + 0; RT_S[i] = a[2*i] + 0 }
+  #  the outline, clockwise from close-hauled on port tack (heading 045
+  #  in a northerly) round to close-hauled on starboard (heading 315)
+  for(i = 1; i <= RT_M; i++){
+    RT_X[i] = RT_S[i] * sin(wx_rad(RT_A[i])); RT_Y[i] = RT_S[i] * cos(wx_rad(RT_A[i]))
+  }
+  for(i = 1; i <= RT_M; i++){ RT_X[RT_M+i] = -RT_X[RT_M+1-i]; RT_Y[RT_M+i] = RT_Y[RT_M+1-i] }
+  RT_N = 2 * RT_M
+  #  the worked legs: a reach of 24 miles, a beat of 12, and the finish
+  #  of the first figure, 22.5 miles off bearing 075
+  RT_REACH = 24; RT_BEAT = 12; RT_LANE = 10
+  #  the all-in case: a shift forecast one hour in, of 20 degrees
+  RT_TS = 1; RT_SHIFT = 20
+  #  how often a forecast is right, by days ahead (NOAA SciJinks)
+  split("1 5 90 6 7 80 8 10 50", RT_HZ, " "); RT_HZN = 3
+  #  the wind and the stream scaled before routing (Stan Honey's rule of
+  #  thumb; docs/SOURCES.md says what was read)
+  split("tropics 1.15 mid-latitudes 1.20 high-latitudes 1.25", RT_SC, " "); RT_SCN = 3
+  RT_CUR = 1.30
+  #  the 2025 Myth of Malham, sailed three times by bashnav's router for
+  #  the course's routing page: the wind scaled, hours to the Eddystone,
+  #  hours in all (finishing 04:43:58, 03:58:31 and 02:48:09 UTC on 26
+  #  May, from a start at 10:00 on the 24th), and when she tacked for
+  #  Start Point in Lyme Bay.  From practical-navigator's
+  #  site/drafts/routing/runs.js: if the course sails them again, these
+  #  move with it.
+  split("0.9 25.74 42.7328 02:10 1.0 25.75 41.9753 02:20 1.1 25.53 40.8025 02:20", RT_RUN, " "); RT_RUNN = 3
+  return 0
+}
+#  hours to make good (dx east, dy north) miles in a wind from wd
+function rt_g(dx, dy, wd,   r, x, y, m, i, j, nx, ny, h, q){
+  rt_init()
+  r = wx_rad(wd); x = dx * cos(r) - dy * sin(r); y = dx * sin(r) + dy * cos(r)
+  m = 0
+  for(i = 1; i <= RT_N; i++){
+    j = (i % RT_N) + 1
+    nx = RT_Y[j] - RT_Y[i]; ny = -(RT_X[j] - RT_X[i]); h = nx * RT_X[i] + ny * RT_Y[i]
+    if(h < 0){ nx = -nx; ny = -ny; h = -h }
+    q = (nx * x + ny * y) / h; if(q > m) m = q
+  }
+  return m
+}
+#  the time lost by going through (px, py) on the way from the start, at
+#  the origin, to (fx, fy), in hours: forward time plus reverse time,
+#  less the best
+function rt_cost(px, py, fx, fy,   c){
+  c = rt_g(px, py, 0) + rt_g(fx - px, fy - py, 0) - rt_g(fx, fy, 0)
+  return (c < 0.000000001 ? 0 : c)      # never negative: the last digits of a sum
+}
+#  how wide the water is, across the middle of the leg, that costs no
+#  more than `mins` minutes
+function rt_width(fx, fy, mins,   L, ux, uy, s, lo, hi, mid, k, tot){
+  L = sqrt(fx*fx + fy*fy); ux = -fy / L; uy = fx / L; tot = 0
+  for(s = 1; s >= -1; s -= 2){
+    lo = 0; hi = 40
+    for(k = 0; k < 40; k++){
+      mid = (lo + hi) / 2
+      if(rt_cost(fx/2 + s*mid*ux, fy/2 + s*mid*uy, fx, fy) <= mins / 60) lo = mid; else hi = mid
+    }
+    tot += lo
+  }
+  return tot
+}
+#  the all-in case.  She beats for RT_TS hours with a share `a` of it on
+#  port tack (1: all of it, the right-hand side; 0: the left), then
+#  sails the rest as well as she can in a wind from `wd`
+function rt_allin(a, wd,   px, py){
+  rt_init()
+  px = RT_TS * (a * RT_X[1] + (1 - a) * RT_X[RT_N]); py = RT_TS * RT_Y[1]
+  return RT_TS + rt_g(0 - px, RT_BEAT - py, wd)
+}
+function rt_hm(t,   m){ m = int(t * 60 + 0.5); return sprintf("%d h %02d", int(m / 60), m % 60) }
+function rt_dump(   x, y, w, i, a){
+  rt_init()
+  for(w = -20; w <= 20; w += 10)
+    for(y = 24; y >= -24; y -= 4)
+      for(x = -24; x <= 24; x += 4)
+        printf "g %d %d %d %.4f\n", x, y, w, rt_g(x, y, w)
+  for(y = 14; y >= -2; y -= 2)
+    for(x = -8; x <= 8; x += 2)
+      printf "c %d %d %.4f %.4f\n", x, y, rt_cost(x, y, 0, RT_BEAT), rt_cost(y + 6, x, RT_REACH, 0)
+  printf "t %s %s %s\n", rt_hm(rt_g(RT_REACH, 0, 0)), rt_hm(rt_g(0, RT_BEAT, 0)), rt_hm(rt_g(22.5*sin(wx_rad(75)), 22.5*cos(wx_rad(75)), 0))
+  printf "w %.1f %.1f\n", rt_width(RT_REACH, 0, RT_LANE), rt_width(0, RT_BEAT, RT_LANE)
+  for(a = 0; a <= 1; a += 0.5)
+    printf "a %.1f %s %s %s\n", a, rt_hm(rt_allin(a, RT_SHIFT)), rt_hm(rt_allin(a, 0)), rt_hm(rt_allin(a, -RT_SHIFT))
+  for(i = 1; i <= RT_HZN; i++) printf "h %d %d %d\n", RT_HZ[3*i-2], RT_HZ[3*i-1], RT_HZ[3*i]
+  for(i = 1; i <= RT_SCN; i++) printf "s %s %.2f %.0f\n", RT_SC[2*i-1], RT_SC[2*i], 20 * RT_SC[2*i]
+  printf "s stream %.2f %.1f\n", RT_CUR, 2 * RT_CUR
+  for(i = 1; i <= RT_RUNN; i++)
+    printf "r %.1f %.2f %.2f %.2f %s\n", RT_RUN[4*i-3], RT_RUN[4*i-2], RT_RUN[4*i-1], RT_RUN[4*i-1] - RT_RUN[4*i-2], RT_RUN[4*i]
+  return 0
+}
+
+# ---------------------------------------------------------------------
 #  The report
 # ---------------------------------------------------------------------
 function wx_say(s){ printf "  %s\n", s; return 0 }

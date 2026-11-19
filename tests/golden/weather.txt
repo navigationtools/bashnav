@@ -76,6 +76,7 @@
      data      The three kinds of weather data, and which one you have
      runs      Run time and valid time, always in UTC
      models    Global and high-resolution models, and how far to trust them
+     routing   Routing: what a router does, and how far to trust it
      tide      The atmospheric tide: why the glass falls every afternoon
      coriolis  Coriolis, which is not a force
      gradient  Gradient wind, surface wind, and friction
@@ -288,6 +289,253 @@ The analysis. Forecasters drew it from the observations and used the model only 
   Question: Five days before the start, a 1.5 km model shows a fine sea breeze on race day. Do you plan on it?
 
 Not yet. Five days out is for the big picture, from the global models: which systems, and whether their story holds run after run. A sea breeze is local detail, and a high-resolution model cannot know the synoptic story better than the global model at its edges. Look at it again on race morning, for the coast.
+=== weather learn routing ===
+
+  ROUTING: WHAT A ROUTER DOES
+  ----------------------------------------------------------------------
+  A router takes two things: a forecast of the wind everywhere, hour
+  by hour (and the tidal stream, where there is one), and a polar,
+  the table of how fast the boat sails at each wind speed and angle. It
+  answers one question: by what track could she finish soonest?
+
+  It works outward from the start. She is sent off on every heading
+  for one step of time, at the speed the polar gives. The far edge of
+  where those boats get to is an isochrone: every place she could
+  have reached by that time. From that edge it does the same again,
+  until an isochrone reaches the finish. The route is read backwards
+  from there, through one point on each isochrone.
+
+  the wind, the same everywhere:  v  v  v  v
+  
+             333333333333333333333333333333333
+          333                                 333
+        333      2222222222222222222222222      333
+       33      222                       222    ---F
+      33      22       1111111111111     -------   33
+     33      22      111         --------   22      33
+     3       2       1       S---    1       2       3
+     3       2       11             11       2       3
+     3       22       11           11       22       3
+     33       22       1111111111111       22       33
+      33       222                       222       33
+       33        222                   222        33
+        333        222222222222222222222        333
+          333                                 333
+            33333                         33333
+                333333333333333333333333333
+  1 2 3  everywhere she could be after 1, 2 and 3 hours
+  S to F is 22.5 miles on 075. F is on the 3: 3 h 00
+  flat across the top: she cannot point there, so she tacks
+
+  Here the wind is the same everywhere, so each isochrone is the last
+  one grown bigger. In real weather they bend. Where an isochrone
+  bulges toward the finish, the wind or the stream on that side is
+  paying.
+
+
+  HOW FAR AHEAD: THE FIVE-DAY HORIZON
+  ----------------------------------------------------------------------
+  A route is only as good as its forecast, and a forecast fades. NOAA
+  puts a five-day forecast right about nine times in ten, a seven-day
+  one about eight in ten, and one for ten days or more about half the
+  time.
+
+  days ahead    how often the forecast is right
+  
+   1 to 5       ##################    about 90 in 100
+   6 to 7       ################      about 80 in 100
+   8 to 10      ##########            about 50 in 100
+  
+  NOAA's figures. Route on five days; past that it is a sketch.
+  
+
+  So route on about five days. Past that the route is a sketch of
+  what may come, to be drawn again with each new run.
+
+
+  REVERSE ISOCHRONES: WHAT A PLACE COSTS
+  ----------------------------------------------------------------------
+  Run the same sum backwards from the finish and you have reverse
+  isochrones: every place from which she could still finish in so
+  many hours. Lay them over the forward ones. At any place, the hours
+  to get there plus the hours to finish from there is the time of a
+  route through that place. Where that sum stays close to the best, it
+  hardly matters where you are: a don't-care area. Where it climbs fast,
+  the route is a narrow lane.
+
+  REACHING, 24 miles                  BEATING, 12 miles upwind
+  
+  
+  
+         .................
+     ....#################....                  ...#F#...
+    .S#######################F.               ...#######...
+     ....#################....              ..#############..
+         .................                 ..###############..
+                                            ..#############..
+                                              ...#######...
+                                                ...#S#...
+  the lane is 5.6 miles wide
+  
+                                      the lane is 14.3 miles wide
+  #  under 10 minutes lost by passing through here
+  .  under 30 minutes lost       the wind is from the top
+
+  On the reach, the water that costs under ten minutes is a lane
+  5.6 miles wide. On the beat it is 14.3 miles wide: in a steady wind,
+  anywhere between the laylines takes the same time. Look before you
+  fight for a side. Inside a wide lane you can sail for the crew, the
+  sea or the other boats at little cost. On that beat, the router's
+  side is only worth what the shift it expects is worth.
+
+
+  THE MOTORBOAT: WHAT THE WIND COSTS
+  ----------------------------------------------------------------------
+  A motorboat goes the same speed on every heading, so in still water
+  her fastest course is the straight line. Set her beside the sailing
+  route and the difference is what the wind asks of you: extra miles.
+
+          F
+          |\\               SAILING: two boards, tacking at +
+          |  \\               17.0 miles through the water
+          |    \\             at 6.0 knots
+          |      \\
+          |        \\       MOTORBOAT: straight up the middle
+          |          \+       12.0 miles at 4.2 knots
+          |         //
+          |       //        both take 2 h 50
+          |     //
+          |   //            the wind's price: 5.0 extra miles
+          | //
+          S/
+  the wind is from the top
+
+  Extra miles are what a route spends. Know how many, and what they
+  buy. The Practical Navigator course does this with bashnav's own
+  motorboat: straight lines between the routed boat's places, in her
+  times, to show what the tide and the wind each add.
+
+
+  WHERE A ROUTER IS BIASED
+  ----------------------------------------------------------------------
+  It believes the forecast completely. A shift forecast for 02:00 is,
+  to the router, a fact, to the minute.
+
+  Its boat sails the polar, always. A steady wind, a perfect helm, a
+  fresh crew, and never a bad hour.
+
+  It goes all in. If one side is a minute faster, it takes that side,
+  however much it would lose were the forecast a little out. It measures
+  time, never risk.
+
+             F              the wind, an hour in:
+                                       veers 20   holds   backs 20
+  
+                            R right     2 h 26    2 h 50    3 h 04
+                            M middle    2 h 43    2 h 50    2 h 43
+                            L left      3 h 04    2 h 50    2 h 26
+  
+                            The forecast says it veers 20. The
+    L\       M       /R     router goes right, all the way:
+      \\     |     //       17 minutes up on the middle if it
+        \\   |   //         veers, 21 down if it backs instead.
+          \\ | //
+            \S/
+  the first hour of each
+
+  Here the forecast has the wind veering 20 degrees, an hour into a
+  12-mile beat. The router goes right, all the way, and is 17 minutes
+  up on the boat in the middle - if the veer comes. If the wind backs
+  instead she is 21 minutes behind the middle, and 38 behind the boat
+  that went left. The middle is never more than 17 minutes from the
+  best. The router cannot see that. You can.
+
+
+  SCALE THE WIND AND THE STREAM
+  ----------------------------------------------------------------------
+  A model's wind is an average over its grid, and over the open sea it
+  reads low: by about a Beaufort force, or 20 percent, in one
+  forecaster's account. The ocean navigator Stan Honey's rule of thumb
+  is to route on the GRIB's wind times 1.15 in the tropics, 1.20 in
+  mid-latitudes and 1.25 in high latitudes, and on the stream times
+  1.30; then to correct both to what is measured on deck.
+
+  The GRIB says 20 knots. Route on:
+  
+  tropics         x 1.15  ====================###    23 knots
+  mid-latitudes   x 1.20  ====================####   24 knots
+  high latitudes  x 1.25  ====================#####  25 knots
+  
+  the stream      x 1.30  2.0 knots in the file is 2.6
+  
+  Rules of thumb. What you measure on deck outranks them.
+
+  Your own log is the better guide: if the GRIB said 20 and you have
+  logged 24 all day, 24 is your number. bashnav's router takes this as
+  one line of a run: scale wind 1.2 current 1.3.
+
+
+  TEST THE ROUTE
+  ----------------------------------------------------------------------
+  Change what the router was told, and see whether the route changes.
+
+    the wind       lighter, and stronger
+    the forecast   the next run, and another model
+    the timing     the weather arriving sooner, and later
+    the stream     switched off, to see what it was worth
+
+  A route that holds is one to trust. A route that swaps sides is
+  one to hold loosely, and where it swaps is where you must be awake.
+
+  The 2025 Myth of Malham, routed three times by bashnav's router
+  
+  wind    = to the Eddystone        # the run home          in all
+  x 0.9   ==========================#################       42 h 44
+  x 1.0   ==========================################        41 h 59
+  x 1.1   ==========================###############         40 h 48
+  
+  To the Eddystone: 25.7, 25.8 and 25.5 hours. She tacked for Start
+  Point at 02:10, 02:20 and 02:20 UTC: the same call each time.
+  The run home: 17.0, 16.2 and 15.3 hours. The clock moved.
+  
+
+  So the call in Lyme Bay is one to trust, as far as the wind's
+  strength goes; the finishing time is not, by 1 h 56. And the test has
+  a limit. Scaling the speed leaves every shift at the forecast's own
+  time. Testing the timing takes another run or another model.
+
+
+  SAY IT IN SAILING TERMS
+  ----------------------------------------------------------------------
+  You are not done until you can explain the route to the watch in
+  sailors' words. For that night in Lyme Bay:
+
+    what we are doing    port tack up into the bay, for four hours
+    why                  the wind is forecast to veer, and a veer
+                         lifts starboard tack
+    what we expect       the wind at its strongest near midnight,
+                         then the first degrees of veer
+    what we do then      tack when it has veered 15 degrees and held
+    if it does not come  no veer by 04:00, or it backs: call the
+                         navigator
+
+  If you cannot say it that way you do not yet understand the route,
+  and should not sail it.
+
+  And this tool? bashnav weather does not route, and never forecasts
+  from a model. It keeps the other voices: your glass, your wind, your
+  sky and your log, which are what a route is tested against at sea.
+  bashnav's router sails the Practical Navigator course's races.
+
+  NOAA SciJinks, how reliable are weather forecasts; LuckGrib, the
+  routing manual; Stan Honey, Pacific Cup Weather and Tactics, and
+  his navigator's talks (honeynav.com); Frank Singleton, a note on
+  GRIB files; the Practical Navigator course, the routing page.
+
+  ----------------------------------------------------------------------
+  Question: The router sends you to the far right-hand corner, for a gain of four minutes over the middle. What do you ask before you sail it?
+
+What it loses if the forecast is wrong. The router goes all in for any gain, however small: it measures time, never risk. Route it again with the wind lighter and stronger, on the next run and on another model. If the corner loses half an hour when the shift is late or goes the other way, and the middle loses four minutes when the forecast is right, the middle is the route.
 === weather learn tide ===
 
   THE ATMOSPHERIC TIDE
