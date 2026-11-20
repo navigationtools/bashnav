@@ -1,5 +1,20 @@
 # Changelog
 
+## Tests: the storm cases' r4, "in or near its path" (TBAC; no version change)
+
+**What.** bashnav's copy of the shared storm cases (`tests/storm-cases.txt`) moves to r4, byte for
+byte the crew's. Only the field `windsays` changes, in the four cases whose sign is "in or near the
+path" (N5, S5, W1, T1): it now expects IN_OR_NEAR_ITS_PATH, Bowditch's own words. The test passes
+unchanged, 244 checks with spec beside bashnav.
+
+**Why.** Larry's ruling TBAC (19 November 2026), on PILOT's check of r3: on the full sign a tool
+shows IN OR NEAR ITS PATH, STOP AND WATCH and GET THE ADVISORY, and no course, because the wind and
+the glass cannot tell a boat on the track from one far off it. bashnav gives no course to steer and
+does not read `windsays`; its only "near its path" line comes from the advisory, not the wind, so
+nothing in bashnav weather changes.
+
+**What it touches.** `tests/storm-cases.txt` only.
+
 ## weather 1.0.24: a lesson on what weather you may use while racing (W33)
 
 **What.** A sixteenth lesson, `racing` ("What weather you may use while racing (rule 41)"), after
