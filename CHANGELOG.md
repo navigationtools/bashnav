@@ -1,15 +1,18 @@
 # Changelog
 
-## Docs: the README counts the weather tool's sixteen lessons (no version change)
+## Docs: the README counts the weather tool's sixteen lessons, and its release table's versions (no version change)
 
 **What.** The README's tool table said the weather tool has fifteen lessons. Since weather 1.0.24 it
-has sixteen; the line now says so, and names the new one (what weather a race lets you use).
+has sixteen; the line now says so, and names the new one (what weather a race lets you use). Its
+"Where each tool stands" table gave deck-log 1.1 and weather 1.0.12; it now gives 1.1.2 and 1.0.24,
+the versions the manuals carry.
 
 **Why.** Found while writing the tool status for the site's phase 3 (TBBX). The count is not one the
 counts check can derive (`docs/TESTING.md`, "Only derivable counts are checked"), so it was missed
 when the lesson was added.
 
-**What it touches.** `README.md` only.
+**What it touches.** `README.md` only. The web pages the release table still lists as owed are being
+written for the site's phase 3 (TBBX).
 
 ## Tests: the storm cases' r4, "in or near its path" (TBAC; no version change)
 
