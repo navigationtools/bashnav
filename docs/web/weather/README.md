@@ -7,7 +7,7 @@ observations `deck-log` keeps, with no network at all.
     wx.js             the rules, and the atmospheric tide correction
     score.js          the two machine forecasters, and the scoring
     chart.js          the 500 millibar rules, and the wind from the isobars (W07)
-    lessons.js        the fifteen lessons (generated)
+    lessons.js        the sixteen lessons (generated)
     log.js, store.js  deck-log's record layer (copied, byte-identical)
     weather.js        the app
     gen/              the generator

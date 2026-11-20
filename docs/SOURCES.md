@@ -604,6 +604,61 @@ thing; the public sources below are what the lesson rests on.
 8. **The lesson's question** (a sea breeze shown five days out) is the app's
    own, from the rule in items 1.1 and 1.2.
 
+**What weather you may use while racing (rule 41)** (gap list W33, book of work
+B22; Larry's yes of 19 November 2026, through the XO; read 19 November 2026,
+TAUW). The lesson is `racing` (weather 1.0.24). It follows the Practical
+Navigator course's page "What weather you may use while racing"
+(practical-navigator, `site/drafts/race-weather-rules`) so the app and the
+course say the same thing, in fewer words.
+
+1. **The rule and its four exceptions.** World Sailing, *The Racing Rules of
+   Sailing 2025–2028*, rule 41, Outside Help, read in the World Sailing edition
+   distributed by Yachting New Zealand
+   (<https://www.yachtingnz.org.nz/sites/default/files/2025-03/Yachting%20New%20Zealand%20Racing%20Rules%20of%20Sailing%202025%202028%20PRINT.pdf>),
+   and the RYA's guidance "Outside help"
+   (<https://www.rya.org.uk/network/running-racing/guidance-and-good-practice/club-racing/outside-help/>),
+   which gives the same four exceptions. The definition "Racing" gives the
+   window: from the preparatory signal until she finishes. Paraphrased, not
+   quoted.
+2. **"Freely available".** World Sailing (ISAF) Case 120, rule 41(c), read in
+   two copies that agree: <https://www.racingrulesofsailing.org/cases/120> and
+   the 2012 edition published by the Bermuda Race
+   (<https://bermudarace.com/wp-content/uploads/2015/06/ISAF-Case-120.pdf>).
+   1. No monetary cost, however small, and easily found by all boats (its
+      example: near the top of a widely used search engine).
+   2. Paying for equipment, software or the communications link is not paying
+      for the information (its Boat A).
+   3. Data that only a purchased special-purpose program can open is not
+      freely available, even with no further charge (Boat B); nor is a paid
+      subscription, small or large (Boats C and D).
+   4. Data put out too close to the start for others to find is not freely
+      available.
+3. **A race may change it.** Rule 86.1(b) lets a notice of race or sailing
+   instructions change a racing rule, and rule 41 is not among the exceptions;
+   Case 120 (its Answer 3) says the same of 41(c).
+4. **The two races.** The lines for RORC races and the Clipper Race are the
+   course page's, which cites each race's own documents (RORC Round Britain
+   and Ireland 2026 notice, clause 4.4; RORC Notice of Race 2025, clause
+   1.11.1; Clipper 2025–26 Race Sailing Instructions, clauses 21 and 22). NAV
+   has not re-read those documents; the course page is the record, and its
+   known limits (the 2027 editions not yet out) apply to the lesson too.
+5. **Another race's reading, for contrast** (not taught): the 2025 Transpac's
+   questions and answers on its notice, clause 14.3
+   (<https://transpacyc.com/assets/documents/2025/2025-Transpac-NOR-14-3-QA.PDF>),
+   allow a paid subscription any boat can get, and forbid routes worked out
+   for one boat. Each race writes its own, which is the lesson's point.
+6. **What the boat sees for herself.** That a boat's own barometer, wind, sky,
+   sea and log are not help "from any outside source" is the plain reading of
+   the rule; Case 120 adds only that class rules may limit equipment aboard.
+7. **The device caution** (a tablet may not be used for advantage in the
+   Clipper Race) is the course page's, from the Clipper sailing instructions'
+   clause 22, with its open question on apps on one's own device.
+8. **Stan Honey** says the same from the navigator's side: paid data only
+   before the preparatory signal unless the race changes rule 41 ("15 minutes
+   on routing", slide 6; "Pacific Cup Weather and Tactics"; *Safety at Sea*,
+   chapter 4).
+9. **The rule the lesson keeps** (gap list rule 3): the app fetches nothing.
+
 **Routing: what a router does, and how far to trust it** (gap list W35, book of
 work B22; Larry's ruling TAYO, 19 November 2026; read 19 November 2026). The
 lesson is `routing` (weather 1.0.21). The app does not route; the lesson

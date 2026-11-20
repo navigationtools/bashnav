@@ -1,5 +1,36 @@
 # Changelog
 
+## weather 1.0.24: a lesson on what weather you may use while racing (W33)
+
+**What.** A sixteenth lesson, `racing` ("What weather you may use while racing (rule 41)"), after
+`models` and before `routing`, in the terminal and the browser:
+
+1. **The rule:** rule 41 of the Racing Rules of Sailing, no help from outside while racing, and its
+   four exceptions. Weather comes under (c), information freely available to all boats.
+2. **What "freely available" means,** by World Sailing's Case 120: free of any charge and easy for
+   every boat to find. Paying for the satellite link is allowed; a paid forecast, data only a paid
+   program can open, or data put out too late for others to find, is not.
+3. **Each race writes its own** (rule 86.1): the RORC races and the Clipper Race side by side, in
+   the course page's words. Advice for your boat from ashore is outside help in every race.
+4. **What is always yours:** the boat's own glass, wind, sky, sea and log; and which lessons to
+   learn first for racing behind the rules.
+5. **And this tool:** it fetches nothing; in the Clipper Race, ask before using any app on your own
+   device at sea.
+
+The question asks which of a free GFS file over a paid link, and a crewmate's paid subscription,
+may be used under rule 41 as written, and then sends the reader to the race's own words.
+
+**Why.** Gap list W33, book of work B22; Larry's yes of 19 November 2026 (17:15), through the XO:
+W33 next, following the course's page so the app and the course say the same thing. The sources
+were read first (TAUW): rule 41 and rule 86.1, Case 120 in two copies, the RYA's guidance; the race
+lines are the course page's, which cites each race's documents. `docs/SOURCES.md` has each.
+
+**What it touches.** `src/weather/teach.awk` (and `docs/web/weather/lessons.js`, generated from it);
+the manual (`docs/manual-src/weather-manual.md`: a paragraph in section 9, and "sixteen lessons" with
+Figure 10 recaptured); `docs/SOURCES.md`; `docs/ARCHITECTURE.md` and the web README (the lesson
+count); the golden file; the version (1.0.24) and the web cache (`weather-v41`, so a browser picks up
+the new lesson); the iPad bundle; the menu picture; the manual and quick reference, rebuilt.
+
 ## weather 1.0.23: the routing lesson names Stan Honey's motorboat course (TAZH)
 
 **What.** Section 4 of the `routing` lesson ("The motorboat: what the wind costs") keeps its text

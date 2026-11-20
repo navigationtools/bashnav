@@ -76,6 +76,7 @@
      data      The three kinds of weather data, and which one you have
      runs      Run time and valid time, always in UTC
      models    Global and high-resolution models, and how far to trust them
+     racing    What weather you may use while racing (rule 41)
      routing   Routing: what a router does, and how far to trust it
      tide      The atmospheric tide: why the glass falls every afternoon
      coriolis  Coriolis, which is not a force
@@ -289,6 +290,79 @@ The analysis. Forecasters drew it from the observations and used the model only 
   Question: Five days before the start, a 1.5 km model shows a fine sea breeze on race day. Do you plan on it?
 
 Not yet. Five days out is for the big picture, from the global models: which systems, and whether their story holds run after run. A sea breeze is local detail, and a high-resolution model cannot know the synoptic story better than the global model at its edges. Look at it again on race morning, for the coast.
+=== weather learn racing ===
+
+  THE RULE: OUTSIDE HELP
+  ----------------------------------------------------------------------
+  Rule 41 of the Racing Rules of Sailing: while she is racing, from
+  her preparatory signal until she finishes, a boat may take no help
+  from outside, with four exceptions:
+
+    (a)  help for a crew member who is ill, injured or in danger
+    (b)  after a collision, help from the other boat to get clear
+    (c)  information freely available to all boats
+    (d)  information nobody asked for, from a source with no interest
+         in the result
+
+  Weather is (c).
+
+
+  WHAT "FREELY AVAILABLE" MEANS
+  ----------------------------------------------------------------------
+  World Sailing's Case 120 reads it narrowly: it costs nothing,
+  however little, and every boat could find it easily, as near the
+  top of an ordinary internet search.
+
+    allowed   paying for the satellite link or the phone that fetches
+              a free forecast: the link is not the information
+    not       a forecast you pay for, even a small subscription
+    not       data that only one paid program can open
+    not       data put out so late that others cannot find it
+
+
+  EACH RACE WRITES ITS OWN
+  ----------------------------------------------------------------------
+  A notice of race or sailing instructions may change rule 41 (rule
+  86.1), and offshore races usually do. The race's own words are what
+  counts: read them before you race. The two this course follows:
+
+    RORC races     any forecast or GRIB any boat could get, paid or
+                   free; nothing worked out for your boat ashore
+    Clipper Race   free information only, and at sea nothing comes
+                   aboard unless Race Management forwards it; no
+                   phone or tablet used for advantage; from seven
+                   days out, no routing advice or weather training
+                   but the organiser's
+
+  In every race, advice for your boat from someone ashore is outside
+  help.
+
+
+  WHAT IS ALWAYS YOURS
+  ----------------------------------------------------------------------
+  What the boat sees for herself is not help from outside: your
+  barometer, your wind, the sky, the sea, your log. When the forecasts
+  stop coming aboard, they are what you have left, with what you
+  prepared before the start. So learn first to work the wind from a
+  chart (gradient, fronts) and to time the shift from the glass and
+  the sky (tide, veer). Behind the rules, a navigator uses them
+  every watch.
+
+  And this tool? bashnav weather fetches nothing: everything it says
+  is worked from what you enter. But in the Clipper Race a tablet may
+  not be used for advantage, so ask Race Management before you use
+  any app on your own device at sea. The course page has the questions
+  to put to the skipper and the organiser.
+
+  World Sailing, the Racing Rules of Sailing 2025-2028, rules 41 and
+  86.1, and Case 120; the RYA, outside help; the Practical Navigator
+  course, What weather you may use while racing, and the race
+  documents it names. Read the race's own documents: they decide.
+
+  ----------------------------------------------------------------------
+  Question: At sea, rule 41 as written. A free GFS file comes in over the boat's paid satellite link, and a crewmate offers his paid high-resolution subscription on his phone. Which may you use?
+
+The GFS file: it costs nothing to anyone, and paying for the link does not make the information paid (Case 120). Not the subscription: a fee for the information itself, however small, takes it outside 41(c). Then read your race's own words. A RORC race allows paid data any boat could get; the Clipper Race allows only what Race Management forwards, and no phone used for advantage.
 === weather learn routing ===
 
   ROUTING: WHAT A ROUTER DOES

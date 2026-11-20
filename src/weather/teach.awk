@@ -19,6 +19,7 @@ function les_init(){
   les("data",     "The three kinds of weather data, and which one you have")
   les("runs",     "Run time and valid time, always in UTC")
   les("models",   "Global and high-resolution models, and how far to trust them")
+  les("racing",   "What weather you may use while racing (rule 41)")
   les("routing",  "Routing: what a router does, and how far to trust it")
   les("tide",     "The atmospheric tide: why the glass falls every afternoon")
   les("coriolis", "Coriolis, which is not a force")
@@ -246,6 +247,82 @@ function lesson_body(k){
     lpd("The Met Office, numerical weather prediction models; ECMWF, Forecast")
     lpd("User Guide 8.1.2; NWS Juneau, Numerical Weather Prediction; NOAA")
     lpd("NCEI, the Global Forecast System.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="racing"){
+    #  W33 (weather 1.0.24; book of work B22, Larry's yes of 19 November
+    #  2026 at 17:15, through the XO): which weather a boat may use while
+    #  racing, following the course's page "What weather you may use
+    #  while racing" (practical-navigator, site/drafts/race-weather-rules)
+    #  so the app and the course say the same thing, in fewer words.
+    #  Sources read 19 November 2026 (TAUW), each in docs/SOURCES.md:
+    #  the Racing Rules of Sailing 2025-2028, rule 41 and rule 86.1;
+    #  World Sailing Case 120; the RYA's outside-help guidance; and,
+    #  through the course page, the RORC notices and the Clipper Race's
+    #  sailing instructions.  The race lines are the course page's, not
+    #  re-read here.  Gap list rule 3: the last paragraph says what the
+    #  app fetches (nothing).
+    lph("THE RULE: OUTSIDE HELP")
+    lp("Rule 41 of the Racing Rules of Sailing: while she is racing, from")
+    lp("her preparatory signal until she finishes, a boat may take no help")
+    lp("from outside, with four exceptions:")
+    print ""
+    lp("  (a)  help for a crew member who is ill, injured or in danger")
+    lp("  (b)  after a collision, help from the other boat to get clear")
+    lp("  (c)  " cw("information freely available to all boats",C_ACC))
+    lp("  (d)  information nobody asked for, from a source with no interest")
+    lp("       in the result")
+    print ""
+    lp("Weather is (c).")
+    print ""
+    lph("WHAT \"FREELY AVAILABLE\" MEANS")
+    lp("World Sailing's Case 120 reads it narrowly: it costs nothing,")
+    lp("however little, and every boat could find it easily, as near the")
+    lp("top of an ordinary internet search.")
+    print ""
+    lp("  " cw("allowed",C_ACC) "   paying for the satellite link or the phone that fetches")
+    lp("            a free forecast: the link is not the information")
+    lp("  " cw("not",C_WARN) "       a forecast you pay for, even a small subscription")
+    lp("  " cw("not",C_WARN) "       data that only one paid program can open")
+    lp("  " cw("not",C_WARN) "       data put out so late that others cannot find it")
+    print ""
+    lph("EACH RACE WRITES ITS OWN")
+    lp("A notice of race or sailing instructions may change rule 41 (rule")
+    lp("86.1), and offshore races usually do. " cw("The race's own words are what",C_ACC))
+    lp(cw("counts:",C_ACC) " read them before you race. The two this course follows:")
+    print ""
+    lp("  " cw("RORC races",C_ACC) "     any forecast or GRIB any boat could get, paid or")
+    lp("                 free; nothing worked out for your boat ashore")
+    lp("  " cw("Clipper Race",C_ACC) "   free information only, and at sea nothing comes")
+    lp("                 aboard unless Race Management forwards it; no")
+    lp("                 phone or tablet used for advantage; from seven")
+    lp("                 days out, no routing advice or weather training")
+    lp("                 but the organiser's")
+    print ""
+    lp("In every race, " cw("advice for your boat from someone ashore is outside",C_WARN))
+    lp(cw("help.",C_WARN))
+    print ""
+    lph("WHAT IS ALWAYS YOURS")
+    lp("What the boat sees for herself is not help from outside: your")
+    lp("barometer, your wind, the sky, the sea, your log. When the forecasts")
+    lp("stop coming aboard, they are what you have left, with what you")
+    lp("prepared before the start. So learn first to work the wind from a")
+    lp("chart (" cw("gradient",C_ACC) ", " cw("fronts",C_ACC) ") and to time the shift from the glass and")
+    lp("the sky (" cw("tide",C_ACC) ", " cw("veer",C_ACC) "). Behind the rules, a navigator uses them")
+    lp("every watch.")
+    print ""
+    lp(cw("And this tool?",C_ACC) " bashnav weather fetches nothing: everything it says")
+    lp("is worked from what you enter. But in the Clipper Race a tablet may")
+    lp("not be used for advantage, so ask Race Management before you use")
+    lp("any app on your own device at sea. The course page has the questions")
+    lp("to put to the skipper and the organiser.")
+    print ""
+    lpd("World Sailing, the Racing Rules of Sailing 2025-2028, rules 41 and")
+    lpd("86.1, and Case 120; the RYA, outside help; the Practical Navigator")
+    lpd("course, What weather you may use while racing, and the race")
+    lpd("documents it names. Read the race's own documents: they decide.")
     print ""
     return 1
   }
@@ -925,6 +1002,7 @@ function lesson_q(k){
   if(k=="data")     return "The latest surface analysis and a GRIB's forecast for the same hour put the low in different places. Which do you believe?|The analysis. Forecasters drew it from the observations and used the model only where other evidence agreed. The GRIB is the model's numbers, which no forecaster has checked, and the further ahead of its run time it reads, the less it is worth."
   if(k=="runs")     return "A GRIB says: run 18Z 23 May, step 33. What hour does it describe, and what is that on the boat's clock in the Channel?|03:00 UTC on 25 May: 18:00 plus 33 hours. In May that is 04:00 British Summer Time. The run of 00Z 24 May at step 27 describes the same hour from six hours later and less far ahead, so if you hold both, the newer one is likely the better."
   if(k=="models")   return "Five days before the start, a 1.5 km model shows a fine sea breeze on race day. Do you plan on it?|Not yet. Five days out is for the big picture, from the global models: which systems, and whether their story holds run after run. A sea breeze is local detail, and a high-resolution model cannot know the synoptic story better than the global model at its edges. Look at it again on race morning, for the coast."
+  if(k=="racing")   return "At sea, rule 41 as written. A free GFS file comes in over the boat's paid satellite link, and a crewmate offers his paid high-resolution subscription on his phone. Which may you use?|The GFS file: it costs nothing to anyone, and paying for the link does not make the information paid (Case 120). Not the subscription: a fee for the information itself, however small, takes it outside 41(c). Then read your race's own words. A RORC race allows paid data any boat could get; the Clipper Race allows only what Race Management forwards, and no phone used for advantage."
   if(k=="routing")  return "The router sends you to the far right-hand corner, for a gain of four minutes over the middle. What do you ask before you sail it?|What it loses if the forecast is wrong. The router goes all in for any gain, however small: it measures time, never risk. Route it again with the wind lighter and stronger, on the next run and on another model. If the corner loses half an hour when the shift is late or goes the other way, and the middle loses four minutes when the forecast is right, the middle is the route."
   if(k=="tide")     return "You are at 12N. The glass has fallen 2 hPa between 1000 and 1600. Worry?|Probably not - that is very close to the daily atmospheric tide, which is about 1.4 hPa of semidiurnal swing in the tropics with a minimum near 1600. Correct for it before reading anything into it. At 50N the same fall would mean much more."
   if(k=="coriolis") return "Why does no hurricane ever form on the equator?|Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in the world, and nothing to start it rotating. About 5 degrees is the practical minimum."

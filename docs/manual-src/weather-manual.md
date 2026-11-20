@@ -384,11 +384,11 @@ course (Larry's ruling TAWG); the lesson `cyclone` lists them.
 
 ## 9. The lessons
 
-![**Figure 10** — fifteen lessons, each one earning its place.](fig/weather-lessons.png)
+![**Figure 10** — sixteen lessons, each one earning its place.](fig/weather-lessons.png)
 
 Each lesson changes either what the tool says or what you would do. One of them
 says plainly where the reasoning stops being reliable, which is the most
-important of the fifteen.
+important of the sixteen.
 
 `weather learn` lists them; `weather learn <key>` opens one.
 
@@ -502,6 +502,20 @@ steadily. Both boats' winds and glass are worked from one model of the low,
 the same in the terminal and the browser; the cloud and the air are Bowditch's.
 The lesson covers the northern hemisphere: whether the south needs words of its
 own is still to be decided.
+
+**What weather you may use while racing** is the lesson `weather learn racing`,
+in the words of the course's race weather rules page. Rule 41 of the Racing
+Rules of Sailing allows no help from outside while racing, with four
+exceptions; weather comes under the third, information freely available to all
+boats. World Sailing's Case 120 reads that narrowly: free of any charge, however
+small, and easy for every boat to find. Paying for the satellite link that
+fetches a free forecast is allowed; a paid forecast, or data only a paid program
+can open, is not. A race may change the rule, and offshore races usually do, so
+the race's own words decide: RORC races allow any data any boat could get, paid
+or free, while the Clipper Race allows only what Race Management forwards. What
+the boat sees for herself, her glass, wind, sky and log, is always hers. The
+tool fetches nothing, but in the Clipper Race ask before using any app on your
+own device at sea.
 
 **Routing** has a lesson of its own, `weather learn routing`: what a router
 does, and how far to trust it. The tool does not route. The lesson is here
