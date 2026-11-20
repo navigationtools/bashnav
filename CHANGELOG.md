@@ -1,5 +1,16 @@
 # Changelog
 
+## Docs: the README counts the weather tool's sixteen lessons (no version change)
+
+**What.** The README's tool table said the weather tool has fifteen lessons. Since weather 1.0.24 it
+has sixteen; the line now says so, and names the new one (what weather a race lets you use).
+
+**Why.** Found while writing the tool status for the site's phase 3 (TBBX). The count is not one the
+counts check can derive (`docs/TESTING.md`, "Only derivable counts are checked"), so it was missed
+when the lesson was added.
+
+**What it touches.** `README.md` only.
+
 ## Tests: the storm cases' r4, "in or near its path" (TBAC; no version change)
 
 **What.** bashnav's copy of the shared storm cases (`tests/storm-cases.txt`) moves to r4, byte for
