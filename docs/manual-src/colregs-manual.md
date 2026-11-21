@@ -210,6 +210,20 @@ reason.](fig/colregs-lesson.png)
 In the shell tool, `colregs lesson L7` opens one directly, and
 `colregs numbers` drills which rule is which, both ways round.
 
+**Two lessons carry a drawing.** L14 draws her lights' arcs from above, and
+L8 draws the same picture with the overtaking sector marked (Figure 8). The
+browser draws it in the app's day, dark and night colours. The shell draws it
+in characters, with the letter on each ring showing the light you see from
+that bearing. The arcs are the ones the lights drill uses: a test walks every
+half degree round her and checks the drawing against the drill.
+
+![**Figure 8** — her lights from above, head up, from lesson L8. The outer
+ring is what you see from each bearing round her: green, her starboard
+sidelight; red, her port; white, her sternlight. The inner ring is her
+masthead light. Come up from inside the shaded sector, more than 22.5 degrees
+abaft her beam, and you see only her sternlight: you are overtaking
+(Rule 13).](fig/colregs-arcs.png)
+
 ---
 
 ## 8. Contact management
@@ -217,7 +231,7 @@ In the shell tool, `colregs lesson L7` opens one directly, and
 The section a tracking party would recognise: what a contact's **bearing
 drift** tells you, how to say it, and the arithmetic you do in your head.
 
-![**Figure 8** — seven lessons, and two exercises that mark their own
+![**Figure 9** — seven lessons, and two exercises that mark their own
 answers.](fig/colregs-contacts.png)
 
 | | |

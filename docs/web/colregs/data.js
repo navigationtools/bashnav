@@ -1,9 +1,9 @@
-// colregs data -- generated from bin/colregs v1.15 by running the awk
+// colregs data -- generated from bin/colregs v1.16 by running the awk
 // engine's own table initialisers and dumping what they built.  Do not
 // hand-edit: regenerate with docs/web/colregs/gen/make-colregs-web.sh so
 // the two cannot drift.
 window.COLREGS_DATA = {
- "version": "1.15",
+ "version": "1.16",
  "vessels": [
   {
    "key": "power50",
@@ -779,7 +779,7 @@ window.COLREGS_DATA = {
   {
    "id": "L8",
    "title": "Rule 13 - Overtaking",
-   "body": "Any vessel overtaking any other shall keep out of the way of the vessel\nbeing overtaken. This rule overrides everything in the other steering\nrules - it applies notwithstanding anything in Rules 4 to 18.\n\n  1. A vessel is overtaking when coming up on another from a direction\n     more than 22.5 degrees abaft her beam.\n  2. The practical test at night: if you can see only her sternlight,\n     and neither of her sidelights, you are overtaking.\n  3. When in any doubt whether you are overtaking, assume that you are\n     and act accordingly.\n  4. Any subsequent alteration of the bearing between the two shall not\n     make you a crossing vessel or relieve you of the duty to keep clear\n     until you are finally past and clear.\n\nA sailing vessel overtaking a power-driven vessel keeps clear. This is\nthe case that most often catches sailors out.",
+   "body": "Any vessel overtaking any other shall keep out of the way of the vessel\nbeing overtaken. This rule overrides everything in the other steering\nrules - it applies notwithstanding anything in Rules 4 to 18.\n\n  1. A vessel is overtaking when coming up on another from a direction\n     more than 22.5 degrees abaft her beam.\n  2. The practical test at night: if you can see only her sternlight,\n     and neither of her sidelights, you are overtaking.\n\n@@FIG arcs mode=overtake\n\nHer lights from above, head up, as you would see them from each\nbearing round her. Come up from inside the marked sector and you see\nonly W, her sternlight: you are overtaking.\n\n  3. When in any doubt whether you are overtaking, assume that you are\n     and act accordingly.\n  4. Any subsequent alteration of the bearing between the two shall not\n     make you a crossing vessel or relieve you of the duty to keep clear\n     until you are finally past and clear.\n\nA sailing vessel overtaking a power-driven vessel keeps clear. This is\nthe case that most often catches sailors out.",
    "question": "Q. At night you can see another vessel's sternlight and neither sidelight. What are you?\n     a) crossing     b) overtaking     c) head-on",
    "answer": "b",
    "why": "Sternlight only means you are more than 22.5 degrees abaft her beam: you are overtaking, and you keep clear until finally past and clear."
@@ -827,7 +827,7 @@ window.COLREGS_DATA = {
   {
    "id": "L14",
    "title": "Rules 20 to 31 - Lights and shapes",
-   "body": "Lights are shown from sunset to sunrise, and in restricted visibility,\nand may be shown at any other time when it is considered necessary.\nShapes are shown by day.\n\n  1. The arcs are fixed and worth knowing by heart: masthead light 225\n     degrees, sidelights 112.5 each, sternlight 135. Sidelights plus\n     sternlight make the full circle.\n  2. What you see tells you her aspect. Both sidelights: she is nearly\n     bow-on. One sidelight and a masthead light: she is crossing. Only a\n     white light: she may be a sternlight, an anchor light, or a small\n     boat - keep watching until you know which.\n  3. All-round lights in a vertical line are the vessel telling you what\n     she is doing and what she cannot do. Red over white, fishing at\n     night. Red over red, the captain is dead - not under command.\n     Red, white, red - restricted in her ability to manoeuvre.\n  4. Day shapes carry the same meanings: a ball for anchored, three\n     balls aground, two balls not under command, ball-diamond-ball\n     restricted, a cone point down for a sailing vessel under power.",
+   "body": "Lights are shown from sunset to sunrise, and in restricted visibility,\nand may be shown at any other time when it is considered necessary.\nShapes are shown by day.\n\n  1. The arcs are fixed and worth knowing by heart: masthead light 225\n     degrees, sidelights 112.5 each, sternlight 135. Sidelights plus\n     sternlight make the full circle.\n\n@@FIG arcs mode=lights\n\nHer lights from above, head up. M is the masthead light, G and R the\nsidelights, W the sternlight: the letter on each ring is what you see\nfrom that bearing. The broken lines are 22.5 degrees abaft the beam.\n\n  2. What you see tells you her aspect. Both sidelights: she is nearly\n     bow-on. One sidelight and a masthead light: she is crossing. Only a\n     white light: she may be a sternlight, an anchor light, or a small\n     boat - keep watching until you know which.\n  3. All-round lights in a vertical line are the vessel telling you what\n     she is doing and what she cannot do. Red over white, fishing at\n     night. Red over red, the captain is dead - not under command.\n     Red, white, red - restricted in her ability to manoeuvre.\n  4. Day shapes carry the same meanings: a ball for anchored, three\n     balls aground, two balls not under command, ball-diamond-ball\n     restricted, a cone point down for a sailing vessel under power.",
    "question": "Q. What arc does a masthead light cover?\n     a) 112.5 degrees     b) 225 degrees     c) 360 degrees",
    "answer": "b",
    "why": "225 degrees, from right ahead to 22.5 degrees abaft the beam on each side. The sidelights cover 112.5 each and the sternlight the remaining 135."

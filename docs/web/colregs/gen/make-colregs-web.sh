@@ -55,7 +55,10 @@ VER=$(sed -n 's/^COLREGS_VERSION=//p' "$SRC/10-head.sh" | head -1)
     meta=$($AWK $ENG -v cmode=plain -v cmd=lessonmeta -v les_id="$L" </dev/null)
     ans=${meta%%	*}
     why=${meta#*	}
-    $AWK $ENG -v cmode=plain -v cmd=lesson -v les_id="$L" </dev/null \
+    #  FIGDUMP=1: lt_arcs() prints "@@FIG arcs ..." in place of its
+    #  character drawing, and colregs.js draws the figure there as SVG
+    #  (rules-figs.js).  The generator alone sets it; the tool never does.
+    $AWK $ENG -v FIGDUMP=1 -v cmode=plain -v cmd=lesson -v les_id="$L" </dev/null \
       | $AWK -f "$ESC" -f "$GEN/dumplesson.awk" -v id="$L" -v ans="$ans" -v why="$why"
     [ "$n" -lt 15 ] && echo "," || echo ""
   done

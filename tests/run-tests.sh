@@ -1578,6 +1578,20 @@ WXLOG
     say "  --    the contacts figure check needs node, skipped"
   fi
 
+  #  THE RULES LESSONS' FIGURES (B30, colregs 1.16): each one a lesson
+  #  names draws, is styled from colregs.css, and draws the arcs the
+  #  lights drill uses, walked every half degree against arc_vis().
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node tests/rules-figs-check.js 2>&1); then
+      ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
+    else
+      bad "a rules-lesson figure does not draw, is unstyled, or disagrees with the drill's arcs"
+      echo "$r" | head -6
+    fi
+  else
+    say "  --    the rules figure check needs node, skipped"
+  fi
+
   #  2c. THE REFLOW KEEPS EVERY WORD, AND HOLDS WHAT HAS COLUMNS IN IT.
   #     The lessons were written for a terminal and carry hard breaks at
   #     72 columns; the browser drops them and wraps for itself, except

@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=004142687
+BASHNAV_BYTES=004146148
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -5669,7 +5669,7 @@ bn_unpack() {
 #  A TRAINING AID ONLY.  The COLREGs themselves govern; see the notice
 #  printed by "colregs about".
 # =====================================================================
-COLREGS_VERSION=1.15
+COLREGS_VERSION=1.16
 
 : "${COLREGS_HOME:=$(bn_home .colregs)}"
 ENGINE="$COLREGS_HOME/engine-$COLREGS_VERSION.awk"
@@ -8136,6 +8136,66 @@ function snd_table(   i,a){
   return 0
 }
 
+# ---------------------------------------------------------------------
+#  THE LIGHTS' ARCS, FROM ABOVE (B30; Larry's peer review, 21 November
+#  2026: "lots of pictures").  Her lights seen from overhead, head up:
+#  the masthead light's 225 degrees on the inner ring, the sidelights'
+#  112.5 each and the sternlight's 135 on the outer one, and dotted lines
+#  22.5 degrees abaft each beam, where the sidelights end and the
+#  sternlight begins.  Rule 13 calls a vessel overtaking when she comes
+#  up from behind those lines, so L8 draws the same picture with the
+#  overtaking sector filled.
+#
+#  EVERY MARK IS ASKED OF arc_vis(), the function that decides what the
+#  lights drill shows, rather than drawn from the numbers again here.
+#  So the picture cannot teach an arc the drill does not use, and
+#  tests/colregs-arcs-check.awk walks the ring to hold it to that.
+#
+#  Under -v FIGDUMP=1 (the web generator only) it prints a marker in its
+#  place, and the browser draws the same figure as SVG: rules-figs.js.
+# ---------------------------------------------------------------------
+function lt_arcs(mode,   w,h,cy,cx,ro,ri,b,r,c,ch,k,s,p,t,rr){
+  if(FIGDUMP){ print "@@FIG arcs mode=" mode; return 0 }
+  w=67; h=19; cy=9; cx=33; ro=8; ri=5
+  gclear(w,h); G_NOCROP=1
+  #  the overtaking sector, filled, under everything else
+  if(mode=="overtake")
+    for(b=115;b<=245;b+=5) for(rr=ri+1;rr<ro;rr+=0.5)
+      gputc(cy-rr*cosd(b), cx+2*rr*sind(b), ".", C_DIM)
+  #  22.5 degrees abaft each beam: the edge between sidelight and stern
+  for(rr=1.5;rr<=ro+0.5;rr+=0.25){
+    gputc(cy-rr*cosd(112.5), cx+2*rr*sind(112.5), ":", C_DIM)
+    gputc(cy-rr*cosd(-112.5), cx+2*rr*sind(-112.5), ":", C_DIM) }
+  #  the outer ring: which of her side and stern lights you see from
+  #  each bearing.  Dead ahead both sidelights show (the 2.5 degrees
+  #  Annex I allows), so the bow is marked with a bar, not a letter.
+  for(b=2.5;b<360;b+=2.5){
+    s=arc_vis("S",b); p=arc_vis("P",b); t=arc_vis("T",b)
+    if(s && p) continue
+    ch = s ? "G" : (p ? "R" : (t ? "W" : ""))
+    k  = s ? K_G : (p ? K_R : K_W)
+    if(ch!="") gputc(cy-ro*cosd(b), cx+2*ro*sind(b), ch, k)
+  }
+  gputc(cy-ro, cx, "|", C_DIM)
+  #  the inner ring: the masthead light
+  for(b=0;b<360;b+=5)
+    if(arc_vis("M",b)) gputc(cy-ri*cosd(b), cx+2*ri*sind(b), "M", K_W)
+  #  her, head up
+  gputs(cy-2,cx,"^"); gputs(cy-1,cx-1,"/ \\"); gputs(cy,cx-1,"| |")
+  gputs(cy+1,cx-1,"\\_/")
+  #  the words, in the margins, each beside the thing it names
+  gputsc(0,cx-2,"ahead",C_DIM)
+  gputs(3,51,"G  starboard"); gputs(4,51,"   112.5 deg")
+  gputs(3,4,"port  R"); gputs(4,1,"112.5 deg")
+  gputs(7,1,"M  masthead"); gputs(8,1,"   225 deg")
+  gputs(12,51,"22.5 deg"); gputs(13,51,"abaft the beam")
+  gputs(12,2,"22.5 deg"); gputs(13,0,"abaft the beam")
+  gputs(18,cx-8,"W  stern 135 deg")
+  if(mode=="overtake") gputsc(15,cx-5,"overtaking",C_ACC)
+  gshow()
+  return 0
+}
+
 # =====================================================================
 #  The rules themselves.  Fifteen lessons, each with a check question.
 # =====================================================================
@@ -8299,6 +8359,13 @@ function les(id){
     tp("     more than 22.5 degrees abaft her beam.")
     tp("  2. The practical test at night: if you can see only her sternlight,")
     tp("     and neither of her sidelights, you are overtaking.")
+    tb()
+    lt_arcs("overtake")
+    tb()
+    tp("Her lights from above, head up, as you would see them from each")
+    tp("bearing round her. Come up from inside the marked sector and you see")
+    tp("only W, her sternlight: you are overtaking.")
+    tb()
     tp("  3. When in any doubt whether you are overtaking, assume that you are")
     tp("     and act accordingly.")
     tp("  4. Any subsequent alteration of the bearing between the two shall not")
@@ -8411,6 +8478,13 @@ function les(id){
     tp("  1. The arcs are fixed and worth knowing by heart: masthead light 225")
     tp("     degrees, sidelights 112.5 each, sternlight 135. Sidelights plus")
     tp("     sternlight make the full circle.")
+    tb()
+    lt_arcs("lights")
+    tb()
+    tp("Her lights from above, head up. M is the masthead light, G and R the")
+    tp("sidelights, W the sternlight: the letter on each ring is what you see")
+    tp("from that bearing. The broken lines are 22.5 degrees abaft the beam.")
+    tb()
     tp("  2. What you see tells you her aspect. Both sidelights: she is nearly")
     tp("     bow-on. One sidelight and a masthead light: she is crossing. Only a")
     tp("     white light: she may be a sternlight, an anchor light, or a small")

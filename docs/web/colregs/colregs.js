@@ -1101,12 +1101,53 @@ function rulesIndex() {
   $('lesson').hidden = true;
   box.hidden = false;
 }
+/*  A RULES LESSON WITH FIGURES IN IT (B30). The shell draws a figure on
+    its character grid; under FIGDUMP the generator gets "@@FIG <kind>
+    key=value ..." on a line of its own instead, in the place the figure
+    goes. So the body is split there: the prose either side goes through
+    renderProse() as before, and the figure is drawn by rules-figs.js
+    from the parameters the awk printed. A kind nothing can draw says so
+    rather than leaving a gap, as openContact() does;
+    tests/rules-figs-check.js makes sure it never fires.  */
+function renderLessonBody(text, box) {
+  box.textContent = '';
+  var chunk = [];
+  function flush() {
+    if (!chunk.length) return;
+    var blk = document.createElement('div');
+    blk.className = 'prose';
+    renderProse(chunk.join('\n'), blk);
+    box.appendChild(blk);
+    chunk = [];
+  }
+  String(text).split('\n').forEach(function (line) {
+    var m = line.match(/^@@FIG (\S+)(.*)$/);
+    if (!m) { chunk.push(line); return; }
+    flush();
+    var b = { kind: m[1] };
+    m[2].trim().split(/\s+/).forEach(function (kv) {
+      var j = kv.indexOf('=');
+      if (j > 0) b[kv.slice(0, j)] = kv.slice(j + 1);
+    });
+    var draw = window.RULES_FIGS && window.RULES_FIGS[b.kind];
+    if (!draw) {
+      var n = document.createElement('p');
+      n.className = 'note';
+      n.textContent = '[a ' + b.kind + ' figure belongs here]';
+      box.appendChild(n);
+      return;
+    }
+    box.appendChild(draw(b));
+  });
+  flush();
+  return box;
+}
 function openLesson(i) {
   var L = D.lessons[i];
   $('rules-index').hidden = true;
   $('lesson').hidden = false;
   $('lesson-title').textContent = L.id + '  ' + L.title;
-  renderProse(L.body, $('lesson-body'));
+  renderLessonBody(L.body, $('lesson-body'));
   renderProse(L.question, $('lesson-q'));
   var box = $('lesson-opts');
   box.textContent = '';

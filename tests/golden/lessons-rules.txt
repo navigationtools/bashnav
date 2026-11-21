@@ -283,6 +283,31 @@
        more than 22.5 degrees abaft her beam.
     2. The practical test at night: if you can see only her sternlight,
        and neither of her sidelights, you are overtaking.
+
+                                 ahead
+                              RRRRR|GGGGG
+                          RRRR           GGGG
+      port  R           RR                   GG      G  starboard
+   112.5 deg          RR       MMMMMMMMM       GG       112.5 deg
+                     RR     MMM         MMM     GG
+                    R      M               M      G
+   M  masthead     RR     M        ^        M     GG
+      225 deg      R     M        / \        M     G
+                   R     M        | |        M     G
+                   R     M  ::::: \_/ :::::  M     G
+                   RR  :::M::             ::M:::  GG
+    22.5 deg       :R:::..                   ..:::W: 22.5 deg
+  abaft the beam     WW.....               .....WW   abaft the beam
+                      WW.......         .......WW
+                        WW....overtaking.....WW
+                          WWWW...........WWWW
+                              WWWWWWWWWWW
+                           W  stern 135 deg
+
+  Her lights from above, head up, as you would see them from each
+  bearing round her. Come up from inside the marked sector and you see
+  only W, her sternlight: you are overtaking.
+
     3. When in any doubt whether you are overtaking, assume that you are
        and act accordingly.
     4. Any subsequent alteration of the bearing between the two shall not
@@ -511,6 +536,31 @@
     1. The arcs are fixed and worth knowing by heart: masthead light 225
        degrees, sidelights 112.5 each, sternlight 135. Sidelights plus
        sternlight make the full circle.
+
+                                 ahead
+                              RRRRR|GGGGG
+                          RRRR           GGGG
+      port  R           RR                   GG      G  starboard
+   112.5 deg          RR       MMMMMMMMM       GG       112.5 deg
+                     RR     MMM         MMM     GG
+                    R      M               M      G
+   M  masthead     RR     M        ^        M     GG
+      225 deg      R     M        / \        M     G
+                   R     M        | |        M     G
+                   R     M  ::::: \_/ :::::  M     G
+                   RR  :::M::             ::M:::  GG
+    22.5 deg       :R:::                       :::W: 22.5 deg
+  abaft the beam     WW                         WW   abaft the beam
+                      WW                       WW
+                        WW                   WW
+                          WWWW           WWWW
+                              WWWWWWWWWWW
+                           W  stern 135 deg
+
+  Her lights from above, head up. M is the masthead light, G and R the
+  sidelights, W the sternlight: the letter on each ring is what you see
+  from that bearing. The broken lines are 22.5 degrees abaft the beam.
+
     2. What you see tells you her aspect. Both sidelights: she is nearly
        bow-on. One sidelight and a masthead light: she is crossing. Only a
        white light: she may be a sternlight, an anchor light, or a small

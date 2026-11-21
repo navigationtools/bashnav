@@ -495,6 +495,34 @@ input[type="range"]::-moz-range-thumb {
 .ct-port  { stroke: var(--lamp-r); fill: var(--lamp-r); }
 .ct-stbd  { stroke: var(--lamp-g); fill: var(--lamp-g); }
 
+/* ---------- the rules lessons' figures (B30) -------------------------
+   Drawn by rules-figs.js. As with the contacts figures, the colours
+   live here, so a figure follows the mode toggle with no redraw. The
+   lights are drawn on the stage's night sky in every mode, as the
+   lights drill draws them: lights are seen at night, and a white light
+   on a white page is not there at all. On the night palette every lamp
+   is red, so each sector also carries its letter and its name.       */
+.rf-fig { width: 100%; height: auto; max-width: 520px; display: block;
+          margin: 12px auto; border: 1px solid var(--line);
+          border-radius: var(--radius); }
+.rf-fig text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+               font-size: 13px; }
+.rf-sky  { fill: var(--stage-bg); }
+.rf-g    { fill: var(--lamp-g); }
+.rf-r    { fill: var(--lamp-r); }
+.rf-w    { fill: var(--lamp-w); }
+/* a black gap between sectors: on the night palette every lamp is the
+   same red, and without it the outer ring reads as one light all round */
+.rf-g, .rf-r, .rf-w { stroke: var(--stage-bg); stroke-width: 3; }
+.rf-zone { fill: var(--lamp-w); opacity: 0.16; }
+.rf-edge { stroke: var(--lamp-w); stroke-width: 1.5; stroke-dasharray: 6 4; fill: none; }
+.rf-beam { stroke: var(--lamp-w); stroke-width: 1; opacity: 0.45; stroke-dasharray: 1 4; }
+.rf-hull { fill: var(--hull); stroke: var(--lamp-w); stroke-width: 1.5; }
+.rf-on   { fill: var(--stage-bg); font-weight: 700; }
+.rf-lab  { fill: var(--lamp-w); }
+.rf-dim  { fill: var(--lamp-w); opacity: 0.65; }
+.rf-acc  { fill: var(--lamp-w); font-weight: 700; letter-spacing: 0.06em; }
+
 /* ---------- the contacts exercises ---------------------------------
    The tracking table and the Ekelund leg pair are genuine tables, so
    they are tables: the shell draws them with %-23s because a terminal

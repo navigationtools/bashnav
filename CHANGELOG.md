@@ -1,5 +1,62 @@
 # Changelog
 
+## colregs 1.16: the lights' arcs drawn, in lessons L14 and L8 (B30, first piece)
+
+**What.** Two rules lessons now carry a drawing, in the terminal and the browser:
+
+1. **L14, lights and shapes:** her lights from above, head up. The masthead light's 225 degrees is
+   on the inner ring. The sidelights' 112.5 each and the sternlight's 135 are on the outer ring.
+   Broken lines mark 22.5 degrees abaft each beam.
+2. **L8, overtaking (Rule 13):** the same picture with the overtaking sector marked. From inside
+   it you see only her sternlight.
+
+Each figure has a short paragraph under it saying how to read it. The manual gains a paragraph and
+Figure 8 in section 7. The contacts figure that was Figure 8 is now Figure 9.
+
+**Why.** Larry's peer review of 21 November: the early modules should reach the standard of the
+recent work, "lots of pictures". This is the first item in NAV's book of work, B30 (COLREGS
+drawings), which Larry ordered started at 07:11 through the XO. These two drawings come first
+because the arcs underlie Rules 13, 14 and 15 and the lights drill.
+
+**How it is held.**
+
+1. The terminal drawing asks `arc_vis()` in `engine.awk` for every mark, the same function the
+   lights drill uses. So it cannot show an arc the drill does not.
+2. In the browser, `rules-figs.js` draws the figure as SVG. A new check,
+   `tests/rules-figs-check.js`, walks every half degree round her and requires the drawn sector to
+   be the light `arc_vis()` in `colregs.js` shows from there. The one allowance is the 2.5 degrees
+   either side of dead ahead, where the drill shows both sidelights (Annex I). The check also
+   confirms that each figure a lesson names can be drawn, has a text alternative, and uses only
+   classes `colregs.css` defines. It is wired into `tests/run-tests.sh`. A deliberately wrong
+   stern arc made it fail, as it should.
+3. The lights are drawn on the stage's night sky in every mode, as the lights drill draws them.
+   On the night palette every lamp is red, so each sector carries its letter and its name, and a
+   black gap separates the sectors.
+
+**How it reaches the browser.** `lt_arcs()` in `engine.awk` draws in characters. Under
+`-v FIGDUMP=1`, which only the web generator sets, it prints `@@FIG arcs mode=...` in its place.
+`gen/make-colregs-web.sh` now passes that flag for the rules lessons. `colregs.js`'s new
+`renderLessonBody()` splits a lesson at that line, so the prose either side reflows as before and
+the figure is drawn where the shell put it. This is the same route the contacts lessons' figures
+take.
+
+**What it touches.**
+
+- `src/colregs/engine.awk`, `src/colregs/10-head.sh` (1.16)
+- `docs/web/colregs/`:
+  - `rules-figs.js` (new);
+  - `colregs.js`, `colregs.css`, `index.html`;
+  - `sw.js` (cache colregs-v22, with the new file);
+  - `data.js`, `contacts-lessons.js` and `contacts-card.js`, regenerated from the engine;
+  - `README.md`, `gen/make-colregs-web.sh`
+- `docs/web/launcher.js` (version 1.16) and `docs/web/sw.js` (cache bashnav-launcher-v6, so an
+  installed launcher picks up the new version)
+- `docs/web/README.md`, `README.md`, `REPO-STATE.md`, `docs/ARCHITECTURE.md` (version 1.16)
+- `tests/rules-figs-check.js` (new), `tests/run-tests.sh`, `tests/golden/lessons-rules.txt`
+  (the two drawings; no other golden file changed)
+- `docs/manual-src/colregs-manual.md`, `fig/colregs-arcs.png`, and both colregs PDFs rebuilt
+- `release/bashnav-ipad.sh`, rebuilt
+
 ## Docs: the README counts the weather tool's sixteen lessons, and its release table's versions (no version change)
 
 **What.** The README's tool table said the weather tool has fifteen lessons. Since weather 1.0.24 it
