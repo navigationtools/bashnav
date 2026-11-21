@@ -1,8 +1,8 @@
 /*  Do the rules lessons' figures draw, are they styled, and do they
-    teach the arcs the lights drill uses? (B30, colregs 1.16.)
+    teach the arcs the lights drill uses? (B30: colregs 1.16 to 1.18.)
 
     rules-figs.js draws the figures the rules lessons name with an
-    "@@FIG" line in data.js. Four things are checked:
+    "@@FIG" line in data.js. Six things are checked:
 
       1. every figure a lesson names has something that can draw it,
          and every figure the shell can draw (lt_arcs) reached a lesson;
@@ -16,7 +16,13 @@
          says shows from there: masthead, starboard, port, stern. The one
          allowance is the 2.5 degrees either side of dead ahead, where
          the drill shows both sidelights (Annex I) and the picture puts
-         the boundary on the bow, where Rule 21 puts it.  */
+         the boundary on the bow, where Rule 21 puts it.
+      5. ONE VESSEL FROM THREE SIDES (the second piece): for each of the
+         twelve vessels L14 draws, the lamps in each view, from ahead,
+         from her starboard beam and from astern, are colour for colour
+         the lamps arc_vis() shows from that bearing.
+      6. THE DAY SHAPES ON ONE CHART (the third piece): every shape in the
+         engine's table is hung in the table's order, and has its name.  */
 const fs = require('fs');
 
 const made = [];
@@ -111,7 +117,29 @@ for (let th = -180; th < 180; th += 0.5) {
   walked++;
 }
 
+/*  6. THE DAY SHAPES ON ONE CHART: every shape in the engine's table is
+       hung, its glyphs in the table's order (a pair on the yard is two
+       balls), and every one has a short name on the chart  */
+let hung = 0;
+if (!named.has('shapes ')) { console.log('FAIL  no lesson carries the day-shapes chart'); bad++; }
+{
+  made.length = 0;
+  F.shapes({ kind: 'shapes' });
+  const got = made.filter(n => n.attrs['data-glyph']).map(n => n.attrs['data-glyph']);
+  const want = [];
+  for (const x of win.COLREGS_DATA.shapes) {
+    for (const g of x.stack.slice().reverse()) {
+      if (g === 'ballpair') want.push('ball', 'ball'); else want.push(g);
+    }
+    if (!F._shLab[x.key]) { console.log('FAIL  the shapes chart has no name for "' + x.key + '"'); bad++; }
+    hung++;
+  }
+  if (got.join(' ') !== want.join(' ')) {
+    console.log('FAIL  the shapes chart hangs ' + got.join(' ') + '; the table says ' + want.join(' ')); bad++;
+  }
+}
+
 if (bad) { console.log('  ' + bad + ' problem(s)'); process.exit(1); }
 console.log('  ok    all ' + drawn + ' rules-lesson figures draw and are styled; the arcs agree ' +
             'with the drill at all ' + walked + ' half-degree bearings, and ' + viewKeys.length +
-            ' vessels show the drill\'s lamps in all ' + viewed + ' views');
+            ' vessels show the drill\'s lamps in all ' + viewed + ' views, and the chart hangs all ' + hung + ' day shapes');

@@ -1585,6 +1585,54 @@ function lt_views(key,   idx,a,n,L,i,f,p,th,pc,w,h,hw,j,u,r,c,TH,TN,t){
   return 0
 }
 
+# ---------------------------------------------------------------------
+#  THE DAY SHAPES ON ONE CHART (B30, third piece).  The shapes drill
+#  shows one vessel's shapes at a time; this hangs all ten side by side,
+#  so the ones that are easy to confuse are seen together: one ball and
+#  two, two and three, ball-diamond-ball and the diamond alone.  Each
+#  stack is drawn by glyph_rows() from the shape table, shp_init(), the
+#  same table and the same glyphs as the drill, top first.  The short
+#  names under each are this chart's own (the table's are too long for a
+#  column); rules-figs.js carries the same ten, and its check requires
+#  one for every shape in the table.
+# ---------------------------------------------------------------------
+function lt_shlab(k){
+  if(k=="anchor")    return "At anchor||Rule 30"
+  if(k=="aground")   return "Aground||Rule 30"
+  if(k=="nuc")       return "Not under|command|Rule 27"
+  if(k=="ram")       return "Restricted||Rule 27"
+  if(k=="draught")   return "Constrained|by draught|Rule 28"
+  if(k=="motorsail") return "Sailing,|under power|Rule 25"
+  if(k=="fishing")   return "Fishing||Rule 26"
+  if(k=="tow200p")   return "Towing, tow|over 200 m|Rule 24"
+  if(k=="mineclear") return "Mine|clearance|Rule 27"
+  if(k=="divers")    return "Divers|down|Rule 27"
+  return k "||"
+}
+function lt_shapechart(   w,h,i,a,n,st,j,k,rows,col,band,cx,base,r,lb,nl){
+  if(FIGDUMP){ print "@@FIG shapes"; return 0 }
+  shp_init()
+  w=67; h=20
+  gclear(w,h); G_NOCROP=1
+  for(i=1;i<=NSHP;i++){
+    split(SH[i],a,"|"); n=split(a[4],st,";")
+    band=int((i-1)/5); col=(i-1)%5
+    cx=6+col*13; base=(band==0 ? 7 : 16)
+    gputs(base, cx-3, "\\_____/")
+    r=base-1
+    for(j=n;j>=1;j--){
+      rows=glyph_rows(st[j])
+      for(k=rows;k>=1;k--){ gputsc(r, cx-int(length(GLY[k])/2), GLY[k], C_ACC); r-- }
+      r--
+    }
+    nl=split(lt_shlab(a[1]),lb,"|")
+    for(k=1;k<=nl;k++) if(lb[k]!="")
+      gputsc(base+k, cx-int(length(lb[k])/2), lb[k], (k==3 ? C_DIM : ""))
+  }
+  gshow()
+  return 0
+}
+
 # =====================================================================
 #  The rules themselves.  Fifteen lessons, each with a check question.
 # =====================================================================
@@ -1885,6 +1933,13 @@ function les(id,   vk,vn,vi){
     tp("  4. Day shapes carry the same meanings: a ball for anchored, three")
     tp("     balls aground, two balls not under command, ball-diamond-ball")
     tp("     restricted, a cone point down for a sailing vessel under power.")
+    tb()
+    lt_shapechart()
+    tb()
+    tp("The ten day shapes on one chart, as the shapes drill hangs them, top")
+    tp("first. Shapes are black and are shown by day. Look at the pairs that")
+    tp("are easy to confuse: one ball and two, two and three, and the diamond")
+    tp("alone against ball, diamond, ball.")
     tb()
     #  B30, second piece: twelve vessels from three sides.  The set is the
     #  one a watchkeeper meets most, and the pairs most often confused sit

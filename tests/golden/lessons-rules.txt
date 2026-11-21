@@ -573,6 +573,32 @@
        balls aground, two balls not under command, ball-diamond-ball
        restricted, a cone point down for a sailing vessel under power.
 
+  
+                                              (O)
+                    (O)
+                                              /|\
+                    (O)          (O)          \|/
+                                                           [#]
+       (O)          (O)          (O)          (O)          [#]
+     \_____/      \_____/      \_____/      \_____/      \_____/
+    At anchor     Aground     Not under   Restricted   Constrained
+                               command                 by draught
+     Rule 30      Rule 30      Rule 27      Rule 27      Rule 28
+  
+  
+                    \|/                       (O)         +---\
+       \|/           X           /|\                      |   >
+        V           /|\          \|/     (O)---+---(O)    +---/
+     \_____/      \_____/      \_____/      \_____/      \_____/
+    Sailing,      Fishing    Towing, tow     Mine        Divers
+   under power               over 200 m    clearance      down
+     Rule 25      Rule 26      Rule 24      Rule 27      Rule 27
+
+  The ten day shapes on one chart, as the shapes drill hangs them, top
+  first. Shapes are black and are shown by day. Look at the pairs that
+  are easy to confuse: one ball and two, two and three, and the diamond
+  alone against ball, diamond, ball.
+
   Twelve vessels, each from ahead, from her starboard beam and from
   astern. Only the lights shown toward you are drawn. The letters are
   the colours: W white, R red, G green, Y yellow.

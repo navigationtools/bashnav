@@ -225,6 +225,12 @@ confused sit together, such as fishing and the pilot, the same two colours the
 other way up. Each view shows only the lights her arcs turn toward you, and a
 test checks every view against the lights drill.
 
+L14 also hangs the ten day shapes side by side on one chart (Figure 10). The
+shapes drill shows one vessel at a time; the chart shows the pairs that are easy
+to confuse together: one ball and two, two and three, and the diamond alone
+against ball, diamond, ball. Each stack comes from the same table the drill
+uses, and a test checks the chart against it.
+
 ![**Figure 8** — her lights from above, head up, from lesson L8. The outer
 ring is what you see from each bearing round her: green, her starboard
 sidelight; red, her port; white, her sternlight. The inner ring is her
@@ -239,6 +245,11 @@ with her arcs, and from astern only the sternlight joins the three. The
 letters are the colours, so the picture reads the same on the night
 palette, where every lamp is red.](fig/colregs-views.png)
 
+![**Figure 10** — the ten day shapes on one chart, from lesson L14, each hung
+top first as the shapes drill hangs it. Shapes are black and shown by day; on
+the night palette the chart turns red on black, as the drill
+does.](fig/colregs-shapes-chart.png)
+
 ---
 
 ## 8. Contact management
@@ -246,7 +257,7 @@ palette, where every lamp is red.](fig/colregs-views.png)
 The section a tracking party would recognise: what a contact's **bearing
 drift** tells you, how to say it, and the arithmetic you do in your head.
 
-![**Figure 10** — seven lessons, and two exercises that mark their own
+![**Figure 11** — seven lessons, and two exercises that mark their own
 answers.](fig/colregs-contacts.png)
 
 | | |

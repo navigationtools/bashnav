@@ -1,5 +1,55 @@
 # Changelog
 
+## colregs 1.18: the ten day shapes on one chart, in lesson L14 (B30, third piece)
+
+**What.** After its passage on day shapes, lesson L14 now hangs all ten of the engine's day shapes
+side by side on one chart, in the terminal and the browser. Each is top first, with a short name
+and its rule:
+
+- at anchor, aground, not under command;
+- restricted, constrained by her draught;
+- sailing under power, fishing;
+- towing (tow over 200 m), mine clearance, divers down.
+
+A paragraph under the chart names the pairs that are easy to confuse: one ball and two, two and
+three, and the diamond alone against ball, diamond, ball. In the manual, a paragraph in section 7
+and a new Figure 10 show the chart. The contacts figure is now Figure 11.
+
+**Why.** B30, PILOT's list: "the day shapes on one chart". The shapes drill shows one vessel at a
+time. Side by side, the shapes that differ by one ball or one diamond are seen together.
+
+**How it is held.**
+
+1. **The terminal.** `lt_shapechart()` in `engine.awk` draws each stack with `glyph_rows()` from
+   the shape table, `shp_init()`: the same glyphs and the same table as the drill.
+2. **The browser.** `rules-figs.js` draws the same stacks from that table, as carried into
+   `data.js`.
+3. **The colours.** Shapes are black against a daylight sky in day and dark modes, and red on
+   black at night, as the shapes drill draws them. The colours are in `colregs.css`.
+4. **The check.** `tests/rules-figs-check.js` now requires the chart to hang every shape in the
+   table, in the table's order, a pair on the yard counting as two balls, and every shape to have
+   its short name. With the diamond glyph broken on purpose, it failed and named the difference.
+5. **The short names** are kept twice: in `lt_shlab()` for the terminal and in `SH_LAB` for the
+   browser. The table's own names are too long for a column. The golden file holds the
+   terminal's, and the check holds the browser's to the table.
+
+**What it touches.**
+
+- `src/colregs/engine.awk` (`lt_shlab()`, `lt_shapechart()`, L14) and `src/colregs/10-head.sh`
+  (1.18)
+- `docs/web/colregs/`:
+  - `rules-figs.js` and `colregs.css`;
+  - `data.js`, `contacts-lessons.js` and `contacts-card.js`, regenerated from the engine;
+  - `sw.js` (cache colregs-v24);
+  - `README.md`
+- `docs/web/launcher.js` (1.18) and `docs/web/sw.js` (cache bashnav-launcher-v8)
+- `docs/web/README.md`, `README.md`, `REPO-STATE.md`, `docs/ARCHITECTURE.md` (1.18)
+- `tests/rules-figs-check.js`, `tests/golden/lessons-rules.txt` (the chart and its paragraph; no
+  other golden file changed)
+- `docs/manual-src/colregs-manual.md`, `fig/colregs-shapes-chart.png`, and both colregs PDFs
+  rebuilt
+- `release/bashnav-ipad.sh`, rebuilt
+
 ## colregs 1.17: twelve vessels drawn from three sides, in lesson L14 (B30, second piece)
 
 **What.** Lesson L14 (lights and shapes) now ends with twelve drawings in the terminal and the

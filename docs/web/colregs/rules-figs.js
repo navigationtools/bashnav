@@ -231,6 +231,88 @@ function views(b) {
   return s;
 }
 
+/* =====================================================================
+   THE DAY SHAPES ON ONE CHART. L14 (no parameters).
+
+   All ten of the engine's day shapes side by side, each stack hung top
+   first as the shapes drill hangs it, from the same table in data.js.
+   Shapes are black against a daylight sky in day and dark modes, and
+   red on black at night, as the shapes drill draws them; the colours
+   are in colregs.css. The short names are this chart's own, the same
+   ten the shell's lt_shlab() gives; the check requires one for every
+   shape in the table.
+   ===================================================================== */
+var SH_LAB = {
+  anchor: ['At anchor', 'Rule 30'], aground: ['Aground', 'Rule 30'],
+  nuc: ['Not under', 'command', 'Rule 27'], ram: ['Restricted', 'Rule 27'],
+  draught: ['Constrained', 'by draught', 'Rule 28'], motorsail: ['Sailing,', 'under power', 'Rule 25'],
+  fishing: ['Fishing', 'Rule 26'], tow200p: ['Towing, tow', 'over 200 m', 'Rule 24'],
+  mineclear: ['Mine', 'clearance', 'Rule 27'], divers: ['Divers', 'down', 'Rule 27']
+};
+/*  one shape, its foot at y, centred on cx; returns its height. The
+    shapes are the drill's (glyph() in colregs.js), drawn smaller.  */
+function shGlyph(s, kind, cx, y) {
+  var k = 0.42, ink = 'rf-shink';
+  function path(d) { el('path', { d: d, 'class': ink, 'data-glyph': kind }, s); }
+  if (kind === 'ball') { el('circle', { cx: cx, cy: y - 22 * k, r: 22 * k, 'class': ink, 'data-glyph': kind }, s); return 44 * k; }
+  if (kind === 'diamond') { var d = 26 * k;
+    path('M' + cx + ' ' + (y - 2 * d) + ' L' + (cx + d) + ' ' + (y - d) + ' L' + cx + ' ' + y + ' L' + (cx - d) + ' ' + (y - d) + ' Z'); return 2 * d; }
+  if (kind === 'cyl') { var w = 20 * k, h = 44 * k;
+    el('rect', { x: cx - w, y: y - h, width: 2 * w, height: h, rx: 2, 'class': ink, 'data-glyph': kind }, s); return h; }
+  if (kind === 'conedn' || kind === 'coneup') { var w2 = 24 * k, h2 = 42 * k;
+    path(kind === 'conedn' ? 'M' + (cx - w2) + ' ' + (y - h2) + ' L' + (cx + w2) + ' ' + (y - h2) + ' L' + cx + ' ' + y + ' Z'
+                           : 'M' + cx + ' ' + (y - h2) + ' L' + (cx + w2) + ' ' + y + ' L' + (cx - w2) + ' ' + y + ' Z');
+    return h2; }
+  if (kind === 'hourglass') { var w4 = 24 * k, h4 = 80 * k;
+    path('M' + (cx - w4) + ' ' + (y - h4) + ' L' + (cx + w4) + ' ' + (y - h4) + ' L' + cx + ' ' + (y - h4 / 2) + ' Z' +
+         ' M' + cx + ' ' + (y - h4 / 2) + ' L' + (cx + w4) + ' ' + y + ' L' + (cx - w4) + ' ' + y + ' Z');
+    return h4; }
+  if (kind === 'flagA') { var fw = 64 * k, fh = 44 * k;
+    /*  flag A's swallowtail, with its hoist side cut out, as the drill
+        draws it: the cut is the sky's colour  */
+    path('M' + (cx - fw / 2) + ' ' + (y - fh) + ' h' + (fw * 0.55) + ' l' + (fw * 0.45) + ' ' + (fh / 2) +
+         ' l' + (-fw * 0.45) + ' ' + (fh / 2) + ' h' + (-fw * 0.55) + ' Z');
+    el('rect', { x: cx - fw / 2, y: y - fh, width: fw * 0.3, height: fh, 'class': 'rf-shsky' }, s);
+    return fh; }
+  if (kind === 'ballpair') { var sp = 70 * k, rr = 20 * k;
+    /*  two balls on the yard and nothing between: with the one at the
+        masthead above, three in all (Rule 27(f))  */
+    el('line', { x1: cx - sp, y1: y - rr, x2: cx + sp, y2: y - rr, 'class': 'rf-shyard' }, s);
+    el('circle', { cx: cx - sp, cy: y - rr, r: rr, 'class': ink, 'data-glyph': 'ball' }, s);
+    el('circle', { cx: cx + sp, cy: y - rr, r: rr, 'class': ink, 'data-glyph': 'ball' }, s);
+    return 2 * rr; }
+  return 0;
+}
+function shapes() {
+  var D = root.COLREGS_DATA, list = (D && D.shapes) || [];
+  var W = 540, H = 380, cw = 108;
+  var s = svg(W, H);
+  var SAY = { ball: 'a ball', diamond: 'a diamond', cyl: 'a cylinder', conedn: 'a cone point down',
+              coneup: 'a cone point up', hourglass: 'two cones points together',
+              ballpair: 'a ball at each end of the yard', flagA: 'a rigid flag A' };
+  s.setAttribute('aria-label', 'The ten day shapes, top first. ' + list.map(function (x) {
+    return (SH_LAB[x.key] || [x.name, '']).slice(0, -1).join(' ') + ': ' +
+           x.stack.map(function (g) { return SAY[g] || g; }).join(' over ');
+  }).join('. ') + '.');
+  el('rect', { x: 0, y: 0, width: W, height: H, 'class': 'rf-shsky' }, s);
+  list.forEach(function (x, i) {
+    var band = Math.floor(i / 5), col = i % 5;
+    var cx = col * cw + cw / 2, base = band ? 310 : 150;
+    el('rect', { x: col * cw + 6, y: base, width: cw - 12, height: 8, 'class': 'rf-shsea' }, s);
+    el('path', { d: 'M' + (cx - 30) + ' ' + (base - 9) + ' L' + (cx + 30) + ' ' + (base - 9) +
+                 ' L' + (cx + 24) + ' ' + base + ' L' + (cx - 24) + ' ' + base + ' Z', 'class': 'rf-shhull' }, s);
+    /*  hoisted clear of the deck, on a mast, as she would show them  */
+    var y = base - 28, top = y;
+    for (var j = x.stack.length - 1; j >= 0; j--) { y -= shGlyph(s, x.stack[j], cx, y) + 7; }
+    el('line', { x1: cx, y1: base - 9, x2: cx, y2: Math.min(y + 4, top), 'class': 'rf-shmast' }, s);
+    var lab = SH_LAB[x.key] || [x.name, x.rule];
+    lab.forEach(function (t, k) {
+      txt(s, cx, base + 24 + k * 15, t, k === lab.length - 1 ? 'rf-shdim' : 'rf-shlab', 'middle');
+    });
+  });
+  return s;
+}
+
 /*  which sector a bearing lies in, for the check: what this file draws,
     asked the same question the drill asks arc_vis()  */
 function inArc(name, th) {
@@ -240,5 +322,5 @@ function inArc(name, th) {
   return t >= a[0] && t <= a[1];
 }
 
-root.RULES_FIGS = { arcs: arcs, views: views, _arcs: ARCS, _inArc: inArc, _seen: seen };
+root.RULES_FIGS = { arcs: arcs, views: views, shapes: shapes, _arcs: ARCS, _inArc: inArc, _seen: seen, _shLab: SH_LAB };
 })(typeof window !== 'undefined' ? window : this);

@@ -533,6 +533,24 @@ input[type="range"]::-moz-range-thumb {
 .rf-lg { fill: var(--lamp-g); } .rf-ly { fill: var(--lamp-y); }
 .rf-tw { fill: var(--lamp-w); font-weight: 700; } .rf-tr { fill: var(--lamp-r); font-weight: 700; }
 .rf-tg { fill: var(--lamp-g); font-weight: 700; } .rf-ty { fill: var(--lamp-y); font-weight: 700; }
+/* the day shapes on one chart: black shapes against a daylight sky, as
+   the shapes drill draws them; red on black at night, so a dark-adapted
+   eye is not handed a bright panel */
+.rf-shsky  { fill: var(--shape-sky); }
+.rf-shsea  { fill: var(--shape-sea); }
+.rf-shhull { fill: var(--shape-hull); }
+.rf-shink  { fill: var(--shape-ink); }
+.rf-shyard, .rf-shmast { stroke: var(--shape-ink); stroke-width: 2; opacity: 0.8; }
+.rf-shlab  { fill: var(--shape-ink); }
+.rf-shdim  { fill: var(--shape-ink); opacity: 0.65; }
+:root[data-mode="night"] .rf-shsky  { fill: var(--stage-bg); }
+:root[data-mode="night"] .rf-shsea  { fill: var(--sea); }
+:root[data-mode="night"] .rf-shhull { fill: var(--hull); }
+:root[data-mode="night"] .rf-shink,
+:root[data-mode="night"] .rf-shlab,
+:root[data-mode="night"] .rf-shdim  { fill: var(--lamp-r); }
+:root[data-mode="night"] .rf-shyard,
+:root[data-mode="night"] .rf-shmast { stroke: var(--lamp-r); }
 
 /* ---------- the contacts exercises ---------------------------------
    The tracking table and the Ekelund leg pair are genuine tables, so
