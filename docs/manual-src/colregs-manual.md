@@ -210,12 +210,20 @@ reason.](fig/colregs-lesson.png)
 In the shell tool, `colregs lesson L7` opens one directly, and
 `colregs numbers` drills which rule is which, both ways round.
 
-**Two lessons carry a drawing.** L14 draws her lights' arcs from above, and
+**Two lessons carry drawings.** L14 draws her lights' arcs from above, and
 L8 draws the same picture with the overtaking sector marked (Figure 8). The
 browser draws it in the app's day, dark and night colours. The shell draws it
 in characters, with the letter on each ring showing the light you see from
 that bearing. The arcs are the ones the lights drill uses: a test walks every
 half degree round her and checks the drawing against the drill.
+
+L14 also draws twelve vessels, each from ahead, from her starboard beam and
+from astern (Figure 9): power-driven under and over 50 metres, sailing, the
+combined lantern, towing, trawling, fishing, the pilot, not under command,
+restricted, constrained by her draught, and at anchor. The pairs most often
+confused sit together, such as fishing and the pilot, the same two colours the
+other way up. Each view shows only the lights her arcs turn toward you, and a
+test checks every view against the lights drill.
 
 ![**Figure 8** — her lights from above, head up, from lesson L8. The outer
 ring is what you see from each bearing round her: green, her starboard
@@ -224,6 +232,13 @@ masthead light. Come up from inside the shaded sector, more than 22.5 degrees
 abaft her beam, and you see only her sternlight: you are overtaking
 (Rule 13).](fig/colregs-arcs.png)
 
+![**Figure 9** — one of L14's twelve vessels, restricted in her ability to
+manoeuvre (Rule 27), from ahead, from her starboard beam and from astern. Red,
+white, red stays in every view; her masthead light and sidelights come and go
+with her arcs, and from astern only the sternlight joins the three. The
+letters are the colours, so the picture reads the same on the night
+palette, where every lamp is red.](fig/colregs-views.png)
+
 ---
 
 ## 8. Contact management
@@ -231,7 +246,7 @@ abaft her beam, and you see only her sternlight: you are overtaking
 The section a tracking party would recognise: what a contact's **bearing
 drift** tells you, how to say it, and the arithmetic you do in your head.
 
-![**Figure 9** — seven lessons, and two exercises that mark their own
+![**Figure 10** — seven lessons, and two exercises that mark their own
 answers.](fig/colregs-contacts.png)
 
 | | |

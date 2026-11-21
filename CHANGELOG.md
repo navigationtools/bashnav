@@ -1,5 +1,55 @@
 # Changelog
 
+## colregs 1.17: twelve vessels drawn from three sides, in lesson L14 (B30, second piece)
+
+**What.** Lesson L14 (lights and shapes) now ends with twelve drawings in the terminal and the
+browser. Each shows one vessel from ahead, from her starboard beam and from astern, side by side.
+Only the lights her arcs turn toward you are drawn, each marked with its letter. The twelve are:
+
+- power-driven, under and over 50 m;
+- sailing, and the combined lantern;
+- towing (tow under 200 m), trawling, fishing, and the pilot vessel;
+- not under command (making way), restricted, constrained by her draught;
+- at anchor.
+
+The pairs most often confused sit together, such as fishing and the pilot: the same two colours,
+the other way up. In the manual, a new Figure 9 shows the restricted vessel and the paragraph in
+section 7 names the twelve. The contacts figure is now Figure 10.
+
+**Why.** B30, PILOT's list in the peer review: "each vessel's lights from ahead, abeam and astern".
+The lights drill asks you to read a vessel from one bearing at a time. These drawings show the
+same vessel changing as you go round her, which is the skill the drill trains.
+
+**How it is held.**
+
+1. **The terminal.** `lt_views()` in `engine.awk` asks `arc_vis()` which lights show from each
+   bearing, places each lamp across by the same projection `draw_lights()` uses, and places it up
+   by its height. It reads the vessel table, `ves_init()`, so it draws what the drill draws.
+2. **The browser.** `rules-figs.js` draws the same thing from that table, as carried into
+   `data.js`.
+3. **The check.** `tests/rules-figs-check.js` now checks that each of the 36 views draws, colour
+   for colour, the lamps `arc_vis()` shows from that bearing, and that L14 draws all twelve. A
+   deliberately wrong sternlight arc made it fail in 33 places.
+4. **Two lamps in one place,** such as the combined lantern seen bow-on, are set side by side so
+   neither hides the other.
+5. **Letters sit on the side with room,** so the green's G does not cover the red lamp.
+
+**What it touches.**
+
+- `src/colregs/engine.awk` (`lt_views()`; `les()` gains three locals) and
+  `src/colregs/10-head.sh` (1.17)
+- `docs/web/colregs/`:
+  - `rules-figs.js` and `colregs.css`;
+  - `data.js`, `contacts-lessons.js` and `contacts-card.js`, regenerated from the engine;
+  - `sw.js` (cache colregs-v23);
+  - `README.md`
+- `docs/web/launcher.js` (1.17) and `docs/web/sw.js` (cache bashnav-launcher-v7)
+- `docs/web/README.md`, `README.md`, `REPO-STATE.md`, `docs/ARCHITECTURE.md` (1.17)
+- `tests/rules-figs-check.js`, `tests/golden/lessons-rules.txt` (L14's twelve drawings; no other
+  golden file changed)
+- `docs/manual-src/colregs-manual.md`, `fig/colregs-views.png`, and both colregs PDFs rebuilt
+- `release/bashnav-ipad.sh`, rebuilt
+
 ## colregs 1.16: the lights' arcs drawn, in lessons L14 and L8 (B30, first piece)
 
 **What.** Two rules lessons now carry a drawing, in the terminal and the browser:

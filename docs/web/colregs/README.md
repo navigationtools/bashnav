@@ -6,7 +6,7 @@ Drop this directory in at `docs/web/colregs/` in the bashnav repo.
 
 The colregs training aid, rebuilt for a browser. Lights, day shapes, sound
 signals, encounters and the fifteen rule lessons — the same content as
-`bin/colregs` v1.16, because the content was extracted *by running that
+`bin/colregs` v1.17, because the content was extracted *by running that
 engine*, not retyped.
 
 ## Why it is not just a port
@@ -34,7 +34,7 @@ Three things a terminal could not do:
 | `colregs.css` | two modes as a token swap: dark, and NIGHT |
 | `colregs.js` | geometry, rendering, audio, drills |
 | `data.js` | **generated** — see below |
-| `rules-figs.js` | the rules lessons' figures as SVG: the lights' arcs from above (L14) and the overtaking sector (L8). Each lesson names its figure with an `@@FIG` line the generator carries from `engine.awk`; checked by `tests/rules-figs-check.js` |
+| `rules-figs.js` | the rules lessons' figures as SVG: the lights' arcs from above (L14), the overtaking sector (L8), and twelve vessels each from ahead, abeam and astern (L14). Each lesson names its figure with an `@@FIG` line the generator carries from `engine.awk`; checked by `tests/rules-figs-check.js` |
 | `sw.js` | service worker, cache-first |
 | `manifest.webmanifest`, `icon.svg` | home-screen install |
 

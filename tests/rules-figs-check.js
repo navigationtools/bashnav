@@ -40,6 +40,7 @@ const defined = new Set();
 
 let bad = 0, drawn = 0;
 const named = new Set();
+const viewKeys = [];
 for (const L of win.COLREGS_DATA.lessons) {
   for (const line of L.body.split('\n')) {
     const m = line.match(/^@@FIG (\S+)(.*)$/);
@@ -47,6 +48,7 @@ for (const L of win.COLREGS_DATA.lessons) {
     const b = { kind: m[1] };
     m[2].trim().split(/\s+/).forEach(kv => { const j = kv.indexOf('='); if (j > 0) b[kv.slice(0, j)] = kv.slice(j + 1); });
     named.add(b.kind + ' ' + (b.mode || ''));
+    if (b.kind === 'views') viewKeys.push(b.key);
     const draw = F[b.kind];
     if (typeof draw !== 'function' || b.kind[0] === '_') {
       console.log('FAIL  ' + L.id + ': nothing can draw a "' + b.kind + '"'); bad++; continue;
@@ -77,6 +79,25 @@ const lib = ['d2r', 'fabs', 'nrm360', 'nrm180', 'arc_vis'].map(pick);
 if (lib.some(f => !f)) { console.log('FAIL  could not find arc_vis() and its helpers in colregs.js'); process.exit(1); }
 const arc_vis = new Function(lib.join('\n') + '\nreturn arc_vis;')();
 const ARC = { mast: 'M', stbd: 'S', port: 'P', stern: 'T' };
+
+/*  5. ONE VESSEL FROM THREE SIDES: the lamps each view draws are the
+       lamps arc_vis() shows from that bearing, colour for colour, for
+       every vessel L14 draws  */
+if (viewKeys.length < 12) { console.log('FAIL  L14 draws ' + viewKeys.length + ' vessels from three sides; it should draw 12'); bad++; }
+let viewed = 0;
+for (const key of viewKeys) {
+  const v = win.COLREGS_DATA.vessels.find(x => x.key === key);
+  if (!v) { console.log('FAIL  L14 draws "' + key + '", which is not in the vessel table'); bad++; continue; }
+  for (const th of [0, 90, 180]) {
+    const want = v.lights.filter(L => arc_vis(L.arc, th)).map(L => L.col).sort().join('');
+    const got = F._seen(v, th).map(L => L.col).sort().join('');
+    if (want !== got) {
+      console.log('FAIL  ' + key + ' at ' + th + ' degrees: the figure draws ' + (got || 'nothing') +
+                  ', the drill shows ' + (want || 'nothing')); bad++;
+    }
+    viewed++;
+  }
+}
 let walked = 0;
 for (let th = -180; th < 180; th += 0.5) {
   for (const k of Object.keys(ARC)) {
@@ -91,5 +112,6 @@ for (let th = -180; th < 180; th += 0.5) {
 }
 
 if (bad) { console.log('  ' + bad + ' problem(s)'); process.exit(1); }
-console.log('  ok    all ' + drawn + ' rules-lesson figures draw and are styled, and the arcs agree ' +
-            'with the drill at all ' + walked + ' half-degree bearings');
+console.log('  ok    all ' + drawn + ' rules-lesson figures draw and are styled; the arcs agree ' +
+            'with the drill at all ' + walked + ' half-degree bearings, and ' + viewKeys.length +
+            ' vessels show the drill\'s lamps in all ' + viewed + ' views');

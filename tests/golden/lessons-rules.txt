@@ -573,6 +573,166 @@
        balls aground, two balls not under command, ball-diamond-ball
        restricted, a cone point down for a sailing vessel under power.
 
+  Twelve vessels, each from ahead, from her starboard beam and from
+  astern. Only the lights shown toward you are drawn. The letters are
+  the colours: W white, R red, G green, Y yellow.
+
+  Power-driven vessel under 50 m, under way (Rule 23)
+        from ahead          starboard beam          from astern
+  
+  
+  
+             W                       W
+  
+  
+           G   R                    G                    W
+  
+           ====            =================           =====
+   ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~
+
+  Power-driven vessel of 50 m or more, under way (Rule 23)
+        from ahead          starboard beam          from astern
+  
+             W                   W
+  
+             W                       W
+  
+  
+           G   R                    G                    W
+  
+           ====            =================           =====
+   ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~
+
+  Sailing vessel under way (Rule 25)
+        from ahead          starboard beam          from astern
+  
+  
+  
+  
+  
+  
+           G   R                    G                    W
+  
+           ====            =================           =====
+   ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~
+
+  Sailing vessel under 20 m, combined lantern (Rule 25(b))
+        from ahead          starboard beam          from astern
+  
+             G R                   G                     W
+  
+  
+  
+  
+  
+  
+           ====            =================           =====
+   ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~
+
+  Towing, tow under 200 m (Rule 24)
+        from ahead          starboard beam          from astern
+  
+  
+             W                       W
+             W                       W
+  
+                                                         Y
+           G   R                    G                    W
+  
+           ====            =================           =====
+   ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~
+
+  Vessel trawling (Rule 26)
+        from ahead          starboard beam          from astern
+  
+             G                       G                   G
+             W                       W                   W
+  
+  
+  
+           G   R                    G                    W
+  
+           ====            =================           =====
+   ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~
+
+  Fishing, other than trawling (Rule 26)
+        from ahead          starboard beam          from astern
+  
+             R                       R                   R
+             W                       W                   W
+  
+  
+  
+           G   R                    G                    W
+  
+           ====            =================           =====
+   ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~
+
+  Pilot vessel on duty (Rule 29)
+        from ahead          starboard beam          from astern
+  
+             W                       W                   W
+             R                       R                   R
+  
+  
+  
+           G   R                    G                    W
+  
+           ====            =================           =====
+   ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~
+
+  Not under command, making way (Rule 27)
+        from ahead          starboard beam          from astern
+  
+             R                       R                   R
+             R                       R                   R
+  
+  
+  
+           G   R                    G                    W
+  
+           ====            =================           =====
+   ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~
+
+  Restricted in her ability to manoeuvre (Rule 27)
+        from ahead          starboard beam          from astern
+             R                       R                   R
+             W                       W                   W
+             R                       R                   R
+             W                       W
+  
+  
+           G   R                    G                    W
+  
+           ====            =================           =====
+   ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~
+
+  Constrained by her draught (Rule 28)
+        from ahead          starboard beam          from astern
+             R                       R                   R
+             R                       R                   R
+             R                       R                   R
+             W                       W
+  
+  
+           G   R                    G                    W
+  
+           ====            =================           =====
+   ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~
+
+  Vessel at anchor, under 50 m (Rule 30)
+        from ahead          starboard beam          from astern
+  
+  
+  
+             W                           W               W
+  
+  
+  
+  
+           ====            =================           =====
+   ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~
+
   Q. What arc does a masthead light cover?
        a) 112.5 degrees     b) 225 degrees     c) 360 degrees
 

@@ -151,6 +151,86 @@ function arcs(b) {
   return s;
 }
 
+/* =====================================================================
+   ONE VESSEL FROM THREE SIDES. L14, twelve times (mode: key=<vessel>).
+
+   Her lights from ahead, from her starboard beam and from astern, side
+   by side, as the shell's lt_views() draws them: each lamp placed
+   across by the same u projection the lights drill uses and up by its
+   height, and only the lamps whose arc shows toward you. The vessel
+   comes from the engine's own table in data.js, so the picture and the
+   drill cannot disagree about what she carries; the check holds the
+   lamps drawn at each bearing to arc_vis().
+   ===================================================================== */
+var LAMP = { W: 'w', R: 'r', G: 'g', Y: 'y' };
+var VIEWS = [{ th: 0, name: 'from ahead' }, { th: 90, name: 'starboard beam' },
+             { th: 180, name: 'from astern' }];
+var ARC_OF = { M: 'mast', S: 'stbd', P: 'port', T: 'stern', Y: 'stern' };
+function shows(arc, th) { return arc === 'A' || (ARC_OF[arc] ? inArc(ARC_OF[arc], th) : false); }
+function vesselFor(key) {
+  var D = root.COLREGS_DATA, i;
+  if (!D || !D.vessels) return null;
+  for (i = 0; i < D.vessels.length; i++) if (D.vessels[i].key === key) return D.vessels[i];
+  return null;
+}
+/*  the lamps seen from bearing th, with where each is drawn  */
+function seen(v, th) {
+  var out = [], taken = {};
+  v.lights.forEach(function (L) {
+    if (!shows(L.arc, th)) return;
+    var u = L.x * sind(th) - L.y * cosd(th);
+    /*  two lamps in one place - a combined lantern bow-on shows red and
+        green together - are set side by side, as the shell does  */
+    var cu = Math.round(u * 16), ch = Math.round((1 - L.h) * 10);
+    while (taken[cu + ',' + ch]) cu += 2;
+    taken[cu + ',' + ch] = 1;
+    out.push({ col: L.col, h: L.h, u: u, du: cu - Math.round(u * 16) });
+  });
+  return out;
+}
+function views(b) {
+  var v = vesselFor(b.key);
+  var W = 540, H = 315, seaY = 285, uS = 150, vS = 215;
+  var s = svg(W, H);
+  if (!v) {
+    s.setAttribute('aria-label', 'No vessel called ' + b.key);
+    el('rect', { x: 0, y: 0, width: W, height: H, 'class': 'rf-sky' }, s);
+    txt(s, W / 2, H / 2, 'no vessel "' + b.key + '"', 'rf-lab', 'middle');
+    return s;
+  }
+  var words = VIEWS.map(function (V) {
+    var L = seen(v, V.th).slice().sort(function (p, q) { return q.h - p.h; });
+    return V.name + ': ' + (L.length ? L.map(function (x) { return x.col; }).join(', ') : 'no lights');
+  });
+  s.setAttribute('aria-label', v.name + ' (' + v.rule + '). Her lights, top first, ' + words.join('; ') + '.');
+  el('rect', { x: 0, y: 0, width: W, height: H, 'class': 'rf-sky' }, s);
+  el('rect', { x: 0, y: seaY, width: W, height: H - seaY, 'class': 'rf-sea' }, s);
+  txt(s, 10, 20, v.name + ' (' + v.rule + ')', 'rf-lab');
+  VIEWS.forEach(function (V, p) {
+    var pc = 90 + p * 180, th = V.th;
+    if (p) el('line', { x1: p * 180, y1: 30, x2: p * 180, y2: seaY, 'class': 'rf-beam' }, s);
+    txt(s, pc, 44, V.name, 'rf-dim', 'middle');
+    var half = (1.00 * Math.abs(sind(th)) + 0.22 * Math.abs(cosd(th))) / 2.0 * uS;
+    if (half < 14) half = 14;
+    el('path', { d: 'M' + (pc - half) + ' ' + (seaY - 10) + ' L' + (pc + half) + ' ' + (seaY - 10) +
+                 ' L' + (pc + half * 0.82) + ' ' + seaY + ' L' + (pc - half * 0.82) + ' ' + seaY + ' Z',
+                 'class': 'rf-hullv' }, s);
+    var lamps = seen(v, th);
+    var xs = lamps.map(function (L) { return L.u * uS + L.du * 12; });
+    lamps.forEach(function (L, k) {
+      var dx = xs[k], x = pc + dx, y = seaY - 10 - L.h * vS;
+      el('line', { x1: x, y1: seaY - 10, x2: x, y2: y, 'class': 'rf-drop' }, s);
+      el('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: 5, 'class': 'rf-lamp rf-l' + LAMP[L.col] }, s);
+      /*  the letter goes on the side with room: to the left when another
+          lamp stands just to the right, so bow-on the green's G does not
+          sit on the red, nor abeam on the masthead light's dropline  */
+      var left = dx < -1 || xs.some(function (o) { return o - dx > 1 && o - dx < 30; });
+      txt(s, (x + (left ? -9 : 9)).toFixed(1), (y + 5).toFixed(1), L.col, 'rf-t' + LAMP[L.col], left ? 'end' : null);
+    });
+  });
+  return s;
+}
+
 /*  which sector a bearing lies in, for the check: what this file draws,
     asked the same question the drill asks arc_vis()  */
 function inArc(name, th) {
@@ -160,5 +240,5 @@ function inArc(name, th) {
   return t >= a[0] && t <= a[1];
 }
 
-root.RULES_FIGS = { arcs: arcs, _arcs: ARCS, _inArc: inArc };
+root.RULES_FIGS = { arcs: arcs, views: views, _arcs: ARCS, _inArc: inArc, _seen: seen };
 })(typeof window !== 'undefined' ? window : this);

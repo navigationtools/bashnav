@@ -522,6 +522,17 @@ input[type="range"]::-moz-range-thumb {
 .rf-lab  { fill: var(--lamp-w); }
 .rf-dim  { fill: var(--lamp-w); opacity: 0.65; }
 .rf-acc  { fill: var(--lamp-w); font-weight: 700; letter-spacing: 0.06em; }
+/* one vessel from three sides: the sea, her hull, a dropline under each
+   lamp so the vertical grouping is plain, and the lamps with their
+   letters, as the lights drill draws them */
+.rf-sea   { fill: var(--sea); opacity: 0.55; }
+.rf-hullv { fill: var(--hull); }
+.rf-drop  { stroke: var(--mast); stroke-width: 2; }
+.rf-lamp  { stroke: none; }
+.rf-lw { fill: var(--lamp-w); } .rf-lr { fill: var(--lamp-r); }
+.rf-lg { fill: var(--lamp-g); } .rf-ly { fill: var(--lamp-y); }
+.rf-tw { fill: var(--lamp-w); font-weight: 700; } .rf-tr { fill: var(--lamp-r); font-weight: 700; }
+.rf-tg { fill: var(--lamp-g); font-weight: 700; } .rf-ty { fill: var(--lamp-y); font-weight: 700; }
 
 /* ---------- the contacts exercises ---------------------------------
    The tracking table and the Ekelund leg pair are genuine tables, so

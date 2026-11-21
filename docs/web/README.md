@@ -4,7 +4,7 @@ Five tools and a launcher, as ordinary web pages. No build step, no
 dependencies, no network once loaded.
 
     index.html        the launcher: one tile per tool
-    colregs/          rules of the road, lights, shapes, sounds   (v1.16)
+    colregs/          rules of the road, lights, shapes, sounds   (v1.17)
     celnav/           camera sight: an altitude from a photograph
     tides/            harmonic prediction, 8,334 stations         (v1.1)
     deck-log/         the boat's records, append-only              (v1.1)

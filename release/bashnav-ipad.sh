@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=004146148
+BASHNAV_BYTES=004148769
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -5669,7 +5669,7 @@ bn_unpack() {
 #  A TRAINING AID ONLY.  The COLREGs themselves govern; see the notice
 #  printed by "colregs about".
 # =====================================================================
-COLREGS_VERSION=1.16
+COLREGS_VERSION=1.17
 
 : "${COLREGS_HOME:=$(bn_home .colregs)}"
 ENGINE="$COLREGS_HOME/engine-$COLREGS_VERSION.awk"
@@ -8196,6 +8196,51 @@ function lt_arcs(mode,   w,h,cy,cx,ro,ri,b,r,c,ch,k,s,p,t,rr){
   return 0
 }
 
+# ---------------------------------------------------------------------
+#  ONE VESSEL FROM THREE SIDES (B30, second piece).  Her lights from
+#  ahead, from her starboard beam and from astern, side by side, so the
+#  lesson shows what the lights drill asks you to read: the same vessel
+#  changes her picture as you go round her.  Each panel asks arc_vis()
+#  which lights show from that bearing, exactly as draw_lights() does,
+#  and places each lamp across by the same u projection and up by its
+#  height, on a smaller grid.  The browser draws it as SVG from the same
+#  vessel table (rules-figs.js); tests/rules-figs-check.js holds its
+#  lamps to arc_vis() for every vessel the lesson draws.
+# ---------------------------------------------------------------------
+function lt_views(key,   idx,a,n,L,i,f,p,th,pc,w,h,hw,j,u,r,c,TH,TN,t){
+  if(FIGDUMP){ print "@@FIG views key=" key; return 0 }
+  ves_init()
+  idx=ves_find(key); if(idx==0){ print "  unknown vessel: " key; return 1 }
+  split(VT[idx],a,"|"); n=split(a[4],L,";")
+  w=67; h=12
+  gclear(w,h); G_NOCROP=1
+  t=a[2] " (" a[3] ")"
+  gputsc(0,0,t,C_ACC)
+  TH[0]=0; TH[1]=90; TH[2]=180
+  TN[0]="from ahead"; TN[1]="starboard beam"; TN[2]="from astern"
+  for(p=0;p<3;p++){
+    th=TH[p]; pc=11+p*22
+    gputsc(1, pc-int(length(TN[p])/2), TN[p], C_DIM)
+    hw=(1.00*fabs(sind(th))+0.22*fabs(cosd(th)))/2.0
+    for(j=-hw;j<=hw;j+=0.02) gputw(10, pc+j*16, "=")
+    for(c=pc-10;c<=pc+10;c++) gputw(11,c,"~")
+    for(i=1;i<=n;i++){
+      if(split(L[i],f,",")<5) continue
+      if(!arc_vis(f[4],th)) continue
+      u=f[1]*sind(th)-f[2]*cosd(th)
+      r=2+int((1-f[3])*10+0.5)
+      #  two lamps in one place (a combined lantern seen bow-on shows
+      #  red and green together): set the second beside the first, so
+      #  neither hides the other
+      c=int(pc+u*16+0.5)
+      while(G[r,c] ~ /^[WRGY]$/) c+=2
+      gputc(r, c, f[5], kcol(f[5]))
+    }
+  }
+  gshow()
+  return 0
+}
+
 # =====================================================================
 #  The rules themselves.  Fifteen lessons, each with a check question.
 # =====================================================================
@@ -8206,7 +8251,7 @@ function thead(id,title,   i,u){
   print "  " u
   print ""
 }
-function les(id){
+function les(id,   vk,vn,vi){
   if(id=="L1"){ thead("L1","Rule 5 - Look-out")
     tp("Every vessel shall at all times maintain a proper look-out by sight and")
     tp("hearing as well as by all available means appropriate in the prevailing")
@@ -8496,6 +8541,16 @@ function les(id){
     tp("  4. Day shapes carry the same meanings: a ball for anchored, three")
     tp("     balls aground, two balls not under command, ball-diamond-ball")
     tp("     restricted, a cone point down for a sailing vessel under power.")
+    tb()
+    #  B30, second piece: twelve vessels from three sides.  The set is the
+    #  one a watchkeeper meets most, and the pairs most often confused sit
+    #  together: one and two masthead lights, fishing and the pilot (the
+    #  same two colours the other way up), restricted and constrained.
+    tp("Twelve vessels, each from ahead, from her starboard beam and from")
+    tp("astern. Only the lights shown toward you are drawn. The letters are")
+    tp("the colours: W white, R red, G green, Y yellow.")
+    vn=split("power50 power50p sail sailtri tow200 trawl fishing pilot nucway ram draught anchor", vk, " ")
+    for(vi=1; vi<=vn; vi++){ tb(); lt_views(vk[vi]) }
     tb() }
   else { thead("L15","Rules 32 to 37 - Sound and light signals")
     tp("Sound signals fall into two groups, and the difference matters more")
