@@ -324,15 +324,13 @@ Not yet. Five days out is for the big picture, from the global models: which sys
   ----------------------------------------------------------------------
   A notice of race or sailing instructions may change rule 41 (rule
   86.1), and offshore races usually do. The race's own words are what
-  counts: read them before you race. The two this course follows:
+  counts: read them before you race. The one this course follows:
 
     RORC races     any forecast or GRIB any boat could get, paid or
                    free; nothing worked out for your boat ashore
-    Clipper Race   free information only, and at sea nothing comes
-                   aboard unless Race Management forwards it; no
-                   phone or tablet used for advantage; from seven
-                   days out, no routing advice or weather training
-                   but the organiser's
+
+  Other races are stricter: some allow only free information, or
+  nothing from ashore at all once you are at sea.
 
   In every race, advice for your boat from someone ashore is outside
   help.
@@ -349,10 +347,10 @@ Not yet. Five days out is for the big picture, from the global models: which sys
   every watch.
 
   And this tool? bashnav weather fetches nothing: everything it says
-  is worked from what you enter. But in the Clipper Race a tablet may
-  not be used for advantage, so ask Race Management before you use
-  any app on your own device at sea. The course page has the questions
-  to put to the skipper and the organiser.
+  is worked from what you enter. But some races limit what a phone or
+  tablet may be used for, so ask the organiser before you use any app
+  on your own device at sea. The course page has the questions to put
+  to the skipper and the organiser.
 
   World Sailing, the Racing Rules of Sailing 2025-2028, rules 41 and
   86.1, and Case 120; the RYA, outside help; the Practical Navigator
@@ -362,7 +360,7 @@ Not yet. Five days out is for the big picture, from the global models: which sys
   ----------------------------------------------------------------------
   Question: At sea, rule 41 as written. A free GFS file comes in over the boat's paid satellite link, and a crewmate offers his paid high-resolution subscription on his phone. Which may you use?
 
-The GFS file: it costs nothing to anyone, and paying for the link does not make the information paid (Case 120). Not the subscription: a fee for the information itself, however small, takes it outside 41(c). Then read your race's own words. A RORC race allows paid data any boat could get; the Clipper Race allows only what Race Management forwards, and no phone used for advantage.
+The GFS file: it costs nothing to anyone, and paying for the link does not make the information paid (Case 120). Not the subscription: a fee for the information itself, however small, takes it outside 41(c). Then read your race's own words. A RORC race allows paid data any boat could get; other races are stricter, and some allow nothing from ashore at sea.
 === weather learn routing ===
 
   ROUTING: WHAT A ROUTER DOES

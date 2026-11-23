@@ -512,10 +512,11 @@ small, and easy for every boat to find. Paying for the satellite link that
 fetches a free forecast is allowed; a paid forecast, or data only a paid program
 can open, is not. A race may change the rule, and offshore races usually do, so
 the race's own words decide: RORC races allow any data any boat could get, paid
-or free, while the Clipper Race allows only what Race Management forwards. What
-the boat sees for herself, her glass, wind, sky and log, is always hers. The
-tool fetches nothing, but in the Clipper Race ask before using any app on your
-own device at sea.
+or free, and other races are stricter, some allowing nothing from ashore at sea.
+What the boat sees for herself, her glass, wind, sky and log, is always hers.
+The tool fetches nothing, but some races limit what a phone or tablet may be
+used for, so ask the organiser before using any app on your own device at sea.
+<!-- swap: CC13 (weather 1.0.25, TBJD) -->
 
 **Routing** has a lesson of its own, `weather learn routing`: what a router
 does, and how far to trust it. The tool does not route. The lesson is here

@@ -636,12 +636,14 @@ course say the same thing, in fewer words.
 3. **A race may change it.** Rule 86.1(b) lets a notice of race or sailing
    instructions change a racing rule, and rule 41 is not among the exceptions;
    Case 120 (its Answer 3) says the same of 41(c).
-4. **The two races.** The lines for RORC races and the Clipper Race are the
-   course page's, which cites each race's own documents (RORC Round Britain
-   and Ireland 2026 notice, clause 4.4; RORC Notice of Race 2025, clause
-   1.11.1; Clipper 2025–26 Race Sailing Instructions, clauses 21 and 22). NAV
-   has not re-read those documents; the course page is the record, and its
-   known limits (the 2027 editions not yet out) apply to the lesson too.
+<!-- swap: CC11 (weather 1.0.25, Larry's ruling TBJD) -->
+4. **The race the lesson names.** The line for RORC races is the course
+   page's, which cites the RORC's own documents (RORC Round Britain and
+   Ireland 2026 notice, clause 4.4; RORC Notice of Race 2025, clause 1.11.1).
+   NAV has not re-read those documents; the course page is the record, and
+   its known limits (the 2027 editions not yet out) apply to the lesson too.
+   The lesson's general line, that other races are stricter, rests on rule
+   86.1 and on item 5 below.
 5. **Another race's reading, for contrast** (not taught): the 2025 Transpac's
    questions and answers on its notice, clause 14.3
    (<https://transpacyc.com/assets/documents/2025/2025-Transpac-NOR-14-3-QA.PDF>),
@@ -650,9 +652,10 @@ course say the same thing, in fewer words.
 6. **What the boat sees for herself.** That a boat's own barometer, wind, sky,
    sea and log are not help "from any outside source" is the plain reading of
    the rule; Case 120 adds only that class rules may limit equipment aboard.
-7. **The device caution** (a tablet may not be used for advantage in the
-   Clipper Race) is the course page's, from the Clipper sailing instructions'
-   clause 22, with its open question on apps on one's own device.
+<!-- swap: CC12 (weather 1.0.25, TBJD) -->
+7. **The device caution** (some races limit what a phone or tablet may be
+   used for) is general advice: ask the organiser before using any app on
+   your own device at sea. The course page has the questions to put.
 8. **Stan Honey** says the same from the navigator's side: paid data only
    before the preparatory signal unless the race changes rule 41 ("15 minutes
    on routing", slide 6; "Pacific Cup Weather and Tactics"; *Safety at Sea*,

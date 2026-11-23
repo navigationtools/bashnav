@@ -1,5 +1,77 @@
 # Changelog
 
+## NT1: a weather-only observation no longer gains a nav record
+
+**What.** `docs/web/deck-log/nt1.js` makes two changes that work together:
+
+1. **`decode` creates no nav record when the nav side of an observation is the time alone.** That is
+   how a weather-only observation is written: `MMDDhhmm;` and then the weather fields.
+2. **`encode` writes out a nav record whose every value equals the defaults line** as key=value
+   extras, instead of leaving its side empty. A real nav record therefore always carries at least
+   one field on the wire.
+
+**Why.** WX found it while building GlassLog's encoder against this file (23 November 2026). An
+observation with a weather record and no nav record came back from `decode` with a nav record made
+of the defaults (for example `who=LS|src=watch`). That record was never in the log, so the port
+upload would have flagged it as a conflict, which is the fault NT1 exists to prevent. GlassLog
+can't produce such a line, because it always records the wind. But the iPad would, for a
+weather-only entry. Before the fix, the wire wrote both of these the same way: a weather-only
+observation, and a nav record holding nothing but default values. The two changes separate them.
+
+**How it is held.** `docs/web/tests/nt1-roundtrip.js` gains a case with both shapes in one send: a
+weather-only observation, and a nav record that is all defaults. It failed before the fix (the
+weather-only observation came back with a nav record) and passes after. All 51 checks pass,
+including the generated round trip.
+
+**What it impacts.**
+
+1. **The wire format and the contract are unchanged.** Extras were already allowed in either side
+   (contract 4.3, item 4). The contract can now say in one line that a nav side of the time alone
+   means no nav record. That is the XO's document, so it is suggested to him and WX, not changed
+   here.
+2. **One limit remains:** a nav record with no fields at all (`ts|nav|~`), or with only a `note`,
+   which NT1 does not send. It is still written as the time alone, and so it doesn't come back.
+   Neither the watch nor the Deck Log writes one.
+3. **Nothing served changes.** No page loads `nt1.js` yet; the Scan screen and the Worker will.
+
+## weather 1.0.25: another race's crew documents taken out of the racing lesson (TBJD)
+
+**What.** The lesson "What weather you may use while racing" (`weather learn racing`) no longer
+summarises or cites the Clipper Race's 2025–26 Sailing Instructions:
+
+1. **The race line.** "Each race writes its own" now gives the RORC line, which this course follows,
+   and says that other races are stricter: some allow only free information, or nothing from ashore
+   at all once you are at sea.
+2. **The device caution** is general: some races limit what a phone or tablet may be used for, so
+   ask the organiser before using any app on your own device at sea.
+3. **The question's answer** ends the same way: RORC races allow paid data any boat could get;
+   other races are stricter.
+4. **The same words** in the weather manual (section 9) and in `docs/SOURCES.md` (items 4 and 7),
+   whose citation of the Sailing Instructions' clauses is removed. Two lines of the 1.0.24 entry
+   below, which summarised them, are reworded too.
+
+Each place carries a swap mark, `swap: CC7` to `CC15`, and the words it replaced are in the crew's
+private register, not here.
+
+**Why.** Larry's ruling TBJD (23 November 2026): Clipper's Sailing Instructions are Clipper's own
+crew material, summarised or cited in public only with Clipper's written consent, under clause
+15.2(b) of his crew agreement. Larry has asked Clipper for that consent. If it is given, the swaps
+can be reversed from the register.
+
+**What it does not change.** The rule the lesson teaches (rule 41, Case 120, rule 86.1), the RORC
+line, and what the boat sees for herself. The router's comparison with the tracked Clipper 68s is
+not part of this ruling and is unchanged.
+
+**One limit.** The earlier wording is still in this repository's history, in the commits before this
+one. Taking it out of the history would mean rewriting published history, which only Larry can
+decide.
+
+**What it touches.** `src/weather/teach.awk` and `src/weather/10-head.sh` (1.0.25);
+`docs/web/weather/lessons.js` (generated) and `sw.js` (cache `weather-v42`);
+`docs/manual-src/weather-manual.md` and both weather PDFs, rebuilt; `docs/SOURCES.md`;
+`docs/ARCHITECTURE.md` and `README.md` (1.0.25); `tests/golden/weather.txt`; the menu picture
+(`docs/img/weather-menu.svg`, which shows the version); the iPad bundle.
+
 ## colregs 1.20: one sidelight named, one sidelight drawn (TBGL)
 
 **What.** In the two crossing scenarios whose words name one sidelight (2, "showing her red
@@ -321,12 +393,13 @@ nothing in bashnav weather changes.
 2. **What "freely available" means,** by World Sailing's Case 120: free of any charge and easy for
    every boat to find. Paying for the satellite link is allowed; a paid forecast, data only a paid
    program can open, or data put out too late for others to find, is not.
-3. **Each race writes its own** (rule 86.1): the RORC races and the Clipper Race side by side, in
-   the course page's words. Advice for your boat from ashore is outside help in every race.
+3. **Each race writes its own** (rule 86.1): the RORC races, in the course page's words, and other
+   races stricter. Advice for your boat from ashore is outside help in every race.
+   <!-- swap: CC14 (weather 1.0.25, TBJD) -->
 4. **What is always yours:** the boat's own glass, wind, sky, sea and log; and which lessons to
    learn first for racing behind the rules.
-5. **And this tool:** it fetches nothing; in the Clipper Race, ask before using any app on your own
-   device at sea.
+5. **And this tool:** it fetches nothing; where a race limits devices, ask before using any app on
+   your own device at sea. <!-- swap: CC15 (weather 1.0.25, TBJD) -->
 
 The question asks which of a free GFS file over a paid link, and a crewmate's paid subscription,
 may be used under rule 41 as written, and then sends the reader to the race's own words.
