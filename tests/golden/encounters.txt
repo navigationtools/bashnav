@@ -4,10 +4,10 @@
   ----------------------------------------------------------------------
                            HEAD  UP
                          .................
-                  .......          :      .......
-               ....                :            ....
-            ...                    : HER            ...
-          ..                       v                   ..
+                  .......        :        .......
+               ....              : HER          ....
+            ...                  v                  ...
+          ..                                           ..
         ...                                             ...
        ..                .................                ..
       ..              ...                 ...              ..
@@ -29,7 +29,7 @@
   
   ----------------------------------------------------------------------
   You are a power-driven vessel under way.
-  You see a power-driven vessel, both her sidelights and two masthead lights in line, fine on your starboard bow, heading as drawn.
+  You see a power-driven vessel, both her sidelights and two masthead lights in line, right ahead, heading as drawn.
   ----------------------------------------------------------------------
    a) Stand on: keep your course and speed.
    b) Give way: alter to port and pass down her starboard side.
@@ -39,21 +39,21 @@
   Not right.
   D is right -- Rule 14
   Head-on, or nearly so, between two power-driven vessels. Neither is the stand-on vessel: each alters to starboard so that they pass port to port. Seeing both her sidelights is the classic sign.
-  (she bore 007 relative -- Green 7)
+  (she bore 001 relative -- Green 1)
 
   Not right.
   D is right -- Rule 14
   Head-on, or nearly so, between two power-driven vessels. Neither is the stand-on vessel: each alters to starboard so that they pass port to port. Seeing both her sidelights is the classic sign.
-  (she bore 007 relative -- Green 7)
+  (she bore 001 relative -- Green 1)
 
   Not right.
   D is right -- Rule 14
   Head-on, or nearly so, between two power-driven vessels. Neither is the stand-on vessel: each alters to starboard so that they pass port to port. Seeing both her sidelights is the classic sign.
-  (she bore 007 relative -- Green 7)
+  (she bore 001 relative -- Green 1)
 
   D is right -- Rule 14
   Head-on, or nearly so, between two power-driven vessels. Neither is the stand-on vessel: each alters to starboard so that they pass port to port. Seeing both her sidelights is the classic sign.
-  (she bore 007 relative -- Green 7)
+  (she bore 001 relative -- Green 1)
 
 === encounter 2 ===
 
@@ -573,17 +573,17 @@
   WHAT DO YOU DO?
   ----------------------------------------------------------------------
                            HEAD  UP
-       =                 .................
-        =         .......                 .......
+     =                   .................
+       =          .......                 .......
          =     ....                             ....
-          = ...                                     ...
-          .\                                           ..
+           =...                                     ...
+          .. \                                         ..
         ...                                             ...
        WIND              .................                ..
       ..              ...                 ...        HER   ..
-     .              ...                     ...    \         .
-    ..             ..                         ..    ::       ..
-    .              .             ^             .      ::      .
+     .              ...                     ...    <::::     .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
     .              .             |             ..             .
     .              .            YOU            .              .
     ..             ..                         ..             ..
@@ -600,7 +600,7 @@
   ----------------------------------------------------------------------
   You are a sailing vessel on the port tack.
   You see a sailing vessel on the starboard tack, on your starboard beam, heading as drawn.
-  The wind is from 330 relative, as drawn.
+  The wind is from 315 relative, as drawn.
   ----------------------------------------------------------------------
    a) Stand on: you were there first.
    b) Give way: keep out of her way.
@@ -631,11 +631,11 @@
   WHAT DO YOU DO?
   ----------------------------------------------------------------------
                            HEAD  UP
-      =                  .................
-       =          .......                 .......
+                         .................
+     = =          .......                 .......
          =     ....                             ....
-           =...                                     ...
-          ..\                                          ..
+           =.\.                                     ...
+          ..                                           ..
         ...                                             ...
        WIND              .................                ..
       ..              ...                 ...              ..
@@ -643,22 +643,22 @@
     ..             ..                         ..             ..
     .              .             ^             .              .
     .              .             |             ..             .
-    .              .            YOU            .              .
-    ..             ..                         ..             ..
-     .              ...                     ...              .
-      ..              ...                 ...              ..
-       ..                .................                ..
-        ...                      .          ^           ...
-          ..                                : HER      ..
-            ...                            :        ...
-               ....                        :    ....
+    .              .            YOU            .     ^        .
+    ..             ..                         ..     : HER   ..
+     .              ...                     ...      :       .
+      ..              ...                 ...        :     ..
+       ..                .................            :   ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
                   .......                 .......
                          .................
   
   ----------------------------------------------------------------------
   You are a sailing vessel to windward.
-  You see a sailing vessel to leeward, both of you on the same tack, fine on your starboard quarter, heading as drawn.
-  The wind is from 320 relative, as drawn.
+  You see a sailing vessel to leeward, both of you on the same tack, on your starboard beam, heading as drawn.
+  The wind is from 300 relative, as drawn.
   ----------------------------------------------------------------------
    a) Stand on: windward has right of way.
    b) Give way: the windward vessel keeps clear of the leeward vessel.
@@ -668,21 +668,21 @@
   Not right.
   B is right -- Rule 12
   With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.
-  (she bore 147 relative -- Green 147)
+  (she bore 098 relative -- Green 98)
 
   B is right -- Rule 12
   With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.
-  (she bore 147 relative -- Green 147)
-
-  Not right.
-  B is right -- Rule 12
-  With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.
-  (she bore 147 relative -- Green 147)
+  (she bore 098 relative -- Green 98)
 
   Not right.
   B is right -- Rule 12
   With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.
-  (she bore 147 relative -- Green 147)
+  (she bore 098 relative -- Green 98)
+
+  Not right.
+  B is right -- Rule 12
+  With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.
+  (she bore 098 relative -- Green 98)
 
 === encounter 13 ===
 
@@ -775,27 +775,27 @@
   You hear a fog signal of one prolonged blast followed by two short, broad on your starboard bow, heading as drawn.
   ----------------------------------------------------------------------
    a) Stand on: the signal tells you she will keep clear.
-   b) Reduce to bare steerage way - she may be a vessel restricted in her ability to manoeuvre, fishing, towing or under sail.
+   b) Reduce to bare steerage way - she may be not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing or pushing.
    c) Alter boldly to port.
    d) Sound five short blasts and continue.
 
   Not right.
   B is right -- Rule 19
-  One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.
+  One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing or pushing another vessel. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.
   (she bore 052 relative -- Green 52)
 
   B is right -- Rule 19
-  One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.
-  (she bore 052 relative -- Green 52)
-
-  Not right.
-  B is right -- Rule 19
-  One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.
+  One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing or pushing another vessel. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.
   (she bore 052 relative -- Green 52)
 
   Not right.
   B is right -- Rule 19
-  One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.
+  One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing or pushing another vessel. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.
+  (she bore 052 relative -- Green 52)
+
+  Not right.
+  B is right -- Rule 19
+  One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing or pushing another vessel. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.
   (she bore 052 relative -- Green 52)
 
 === encounter 15 ===
@@ -952,21 +952,21 @@
 
   Not right.
   C is right -- Rule 9(e)
-  Rule 9(e) with Rule 34(c): in a narrow channel, overtaking needs the other vessel indicating agreement. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.
+  Rule 9(e) with Rule 34(c): in a narrow channel, when she has to take action to let you pass safely, you need her agreement before you overtake. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.
   (she bore 009 relative -- Green 9)
 
   Not right.
   C is right -- Rule 9(e)
-  Rule 9(e) with Rule 34(c): in a narrow channel, overtaking needs the other vessel indicating agreement. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.
+  Rule 9(e) with Rule 34(c): in a narrow channel, when she has to take action to let you pass safely, you need her agreement before you overtake. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.
   (she bore 009 relative -- Green 9)
 
   C is right -- Rule 9(e)
-  Rule 9(e) with Rule 34(c): in a narrow channel, overtaking needs the other vessel indicating agreement. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.
+  Rule 9(e) with Rule 34(c): in a narrow channel, when she has to take action to let you pass safely, you need her agreement before you overtake. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.
   (she bore 009 relative -- Green 9)
 
   Not right.
   C is right -- Rule 9(e)
-  Rule 9(e) with Rule 34(c): in a narrow channel, overtaking needs the other vessel indicating agreement. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.
+  Rule 9(e) with Rule 34(c): in a narrow channel, when she has to take action to let you pass safely, you need her agreement before you overtake. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.
   (she bore 009 relative -- Green 9)
 
 === encounter 18 ===
@@ -1206,13 +1206,13 @@
                          .................
                   .......                 .......
                ....                             ....
-            ...                                     ...
-          ..                                           ..
-        ...                                             ...
+            ...            HER                      ...
+          ..           ::>                             ..
+        ...          ::                                 ...
        ..                .................                ..
-      ..              ...                 ...        HER   ..
-     .              ...                     ...    <::       .
-    ..             ..                         ..      ::     ..
+      ..              ...                 ...              ..
+     .              ...                     ...              .
+    ..             ..                         ..             ..
     .              .             ^             .              .
     .              .             |             ..             .
     .              .            YOU            .              .
@@ -1229,7 +1229,7 @@
   
   ----------------------------------------------------------------------
   You are a power-driven vessel under way.
-  You see a seaplane on the water, on your starboard beam, heading as drawn.
+  You see a seaplane on the water, fine on your port bow, heading as drawn.
   ----------------------------------------------------------------------
    a) Stand on: a seaplane on the water keeps well clear of all vessels.
    b) Give way: an aircraft has right of way.
@@ -1237,23 +1237,23 @@
    d) Stop your engines.
 
   A is right -- Rule 18(e)
-  Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. In a risk-of-collision situation she then complies with the rules of this part like any other vessel.
-  (she bore 067 relative -- Green 67)
+  Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. Once risk of collision exists she complies with the rules of this part like any other vessel - and here she is on your port side, so Rule 15 makes her the give-way vessel too. Either way you stand on, and keep watching her under Rule 17.
+  (she bore 337 relative -- Red 23)
 
   Not right.
   A is right -- Rule 18(e)
-  Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. In a risk-of-collision situation she then complies with the rules of this part like any other vessel.
-  (she bore 067 relative -- Green 67)
+  Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. Once risk of collision exists she complies with the rules of this part like any other vessel - and here she is on your port side, so Rule 15 makes her the give-way vessel too. Either way you stand on, and keep watching her under Rule 17.
+  (she bore 337 relative -- Red 23)
 
   Not right.
   A is right -- Rule 18(e)
-  Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. In a risk-of-collision situation she then complies with the rules of this part like any other vessel.
-  (she bore 067 relative -- Green 67)
+  Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. Once risk of collision exists she complies with the rules of this part like any other vessel - and here she is on your port side, so Rule 15 makes her the give-way vessel too. Either way you stand on, and keep watching her under Rule 17.
+  (she bore 337 relative -- Red 23)
 
   Not right.
   A is right -- Rule 18(e)
-  Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. In a risk-of-collision situation she then complies with the rules of this part like any other vessel.
-  (she bore 067 relative -- Green 67)
+  Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. Once risk of collision exists she complies with the rules of this part like any other vessel - and here she is on your port side, so Rule 15 makes her the give-way vessel too. Either way you stand on, and keep watching her under Rule 17.
+  (she bore 337 relative -- Red 23)
 
 === encounter 23 ===
 

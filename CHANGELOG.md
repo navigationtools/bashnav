@@ -1,5 +1,93 @@
 # Changelog
 
+## colregs 1.19: PILOT's QA, part 1 -- the 28 encounters
+
+**What.** PILOT's QA of the 28 encounters (22 November) found two marked answers wrong in a way that
+could cause a collision, two pictures that contradicted their words, and four lines of wording to
+tighten. All are fixed here except his item 5 (scenarios 2 and 3), which is a choice for Larry.
+
+1. **Windward gives way (12).** She was drawn more than 22.5 degrees abaft your beam in three draws
+   out of four. She was then overtaking you, so Rule 13, not Rule 12, decided it: she keeps clear
+   and you stand on, but the app said give way. She is now forward of your beam on your starboard
+   side (bearing 070 to 100), heading 345 plus or minus 5, and the wind is from 300 relative. Both
+   boats are on port tack, she is to leeward, and the two are converging.
+2. **The seaplane (22), Larry's ruling TBGH.** She was on your starboard bow. Rule 18(e) says she
+   keeps clear "in general", but once risk of collision exists Rule 15 makes you give way to a
+   power-driven vessel on your starboard side, so "stand on" was wrong. She is now on your port bow
+   (bearing 290 to 340, heading 080). Both rules give the same answer, and the why text says so.
+3. **Head-on (1).** The words say both sidelights; most draws showed one. Bearing 359 to 001 and
+   heading 180 plus or minus 1 keep every draw within the 2.5-degree overlap where both show.
+4. **Port tack gives way (11).** Both boats were drawn 30 degrees off the wind, which neither can
+   sail. The wind is now from 315 relative (you 45 degrees off), and she heads 265 plus or minus 10
+   (40 to 60 degrees off, starboard tack).
+5. **Found re-running PILOT's method on every scenario:** at the far end of the 15-degree heading
+   swing, YOU came out more than 22.5 degrees abaft HER beam in 6, 15, 20 and 28 (and 11). That
+   makes you the overtaking vessel. In 20 it reverses the answer. A 10-degree swing closes it.
+6. **Fog, one prolonged and two short (14).** The right option now lists all six vessels of Rule
+   35(c): not under command, restricted, constrained by her draught, sailing, fishing, towing or
+   pushing. The why adds "pushing".
+7. **Overtaking in a narrow channel (17)** and lesson L5: agreement is needed "when she has to take
+   action to let you pass safely", which is what Rule 9(e)(i) says.
+8. **Which rules.** The start screen and the shell's banner now say: "These are the International
+   Rules (COLREGS 1972 as amended). US Inland waters differ in places."
+9. **At anchor, 50 m or more:** "and the decks lit" became "and she may have her decks lit
+   (required at 100 m and over)", per Rule 30(c).
+10. **The plain silhouette (Larry, 22 November).** The lights drill, the encounters' picture and the
+    manual now say why she is drawn the same at both ends, in the words Larry approved.
+11. **One sidelight rule, not two.** `lt_arc()` (shell) and `lt_arc_web()` (browser), which name
+    what you see in the scenario drill, gave both sidelights only within 1.5 degrees of her bow,
+    while the picture (`arc_vis()`) draws both within 2.5. Between 1.5 and 2.5 the words said one
+    sidelight beside a picture showing two. Both now use 2.5.
+
+**Why.** Larry's order for launch week puts PILOT's COLREGS fixes first, as he finds them. An
+answer that tells you to give way when the rules say stand on, or the reverse, is the fault this
+app most needs not to have.
+
+**How it is held.**
+
+1. **Per-scenario heading swing.** `ECH[]` in `enc_init()` sets how far her heading may swing for
+   the scenarios that need less than 15 degrees, with the reason for each beside it. `enc_geom()`
+   (shell) and `encShow()` (browser, from `hspr` in `data.js`) both read it, so the builds agree.
+2. **A new test, `tests/colregs-geometry.awk`,** draws every crossing, meeting and Rule 18 scenario
+   3000 times and requires: nobody overtaking, the range closing, both sidelights in the head-on,
+   and both boats at least 35 degrees off the wind in the sailing scenarios. Run against the 1.18
+   data it fails on seven scenarios (1, 6, 11, 12, 15, 20, 28); on 1.19 it passes 54,000 draws.
+   Scenario 9 (restricted, perhaps dredging at almost no speed) is left out of the closing check
+   only, with the reason in the test.
+3. **Not yet done:** PILOT's item 5, scenarios 2 and 3. In about 1 draw in 100 she shows both
+   sidelights while the text names one. Narrowing the draw or adding a line to the why are both
+   open; the choice is Larry's.
+
+Fault: #12 and #22 marked the wrong action; #1 and #11 drew a picture their words did not describe;
+6, 11, 15, 20 and 28 could draw you overtaking her.
+Introduced-in: the encounter table as first written, with one 15-degree heading swing for every
+scenario and no check that the drawn geometry is the situation named.
+Found-by: PILOT's COLREGS QA, part 1 (22 November 2026); the 6/15/20/28 edge by NAV re-running
+PILOT's method.
+
+**What it touches.**
+
+- `src/colregs/engine.awk` (`enc_init()` rows 1, 11, 12, 14, 17, 22, `ECH[]`, `enc_geom()`,
+  lesson L5, vessel `anchor50`, `sil_note()`, `lt_arc()`), `src/colregs/30-ui.sh` (banner) and
+  `src/colregs/10-head.sh` (1.19)
+- `docs/web/colregs/`:
+  - `colregs.js` (`encShow()`, `lt_arc_web()`), `index.html` (start screen, two legends);
+  - `gen/dumptables.awk` (writes `hspr`);
+  - `data.js`, `contacts-lessons.js` and `contacts-card.js`, regenerated from the engine;
+  - `sw.js` (cache colregs-v25);
+  - `README.md`
+- `docs/web/launcher.js` (1.19) and `docs/web/sw.js` (cache bashnav-launcher-v9)
+- `docs/web/README.md`, `README.md`, `REPO-STATE.md`, `docs/ARCHITECTURE.md` (1.19). REPO-STATE's
+  size column, which says it is measured, was measured again: colregs 275 KB, tides 3.2 MB,
+  deck-log 50 KB and weather 221 KB had drifted from the figures it carried.
+- `tests/colregs-geometry.awk` (new) and `tests/run-tests.sh`; six golden files (`encounters`, `lessons-rules`, `lights`,
+  `quiz-lights`, `reference`, `scenlights`), each read against the 1.18 output before it was
+  rewritten
+- `docs/manual-src/colregs-manual.md` (the rules line, section 3 item 6, section 6),
+  `fig/colregs-home.png` (Figure 1, the start screen, retaken with the rules line), both colregs
+  PDFs rebuilt
+- `release/bashnav-ipad.sh`, rebuilt
+
 ## colregs 1.18: the ten day shapes on one chart, in lesson L14 (B30, third piece)
 
 **What.** After its passage on day shapes, lesson L14 now hangs all ten of the engine's day shapes

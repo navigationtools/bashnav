@@ -4,6 +4,12 @@
 **Version {{VERSION}}** — a training aid for the International Regulations for
 Preventing Collisions at Sea, offline, on a phone, a tablet or a terminal.
 
+**These are the International Rules (COLREGS 1972 as amended). US Inland
+waters differ in places.** The app's start screen and the shell's banner say
+the same, because the screens are where most people meet it, and several
+encounter answers are different under the US Inland Rules (33 CFR 83) — the
+whistle signals of Rule 34, for one.
+
 ---
 
 ## 1. What this is, and why it is built this way
@@ -98,6 +104,12 @@ starboard one does not.](fig/colregs-lights-stage.png)
    none, and because colour is the first thing a tired eye gets wrong.
 5. **A lamp marked `fl` flashes.** Annex I puts that at 120 or more flashes a
    minute, and the rate is part of the identification.
+6. **She is a plain shape on purpose.** The drill and the encounters' picture
+   both say so, in these words: *"She is drawn as a plain silhouette, the same
+   at both ends: it grows longer as you see more of her side, but it never
+   shows which end is her bow. Read her lights, not her shape: at night the
+   lights are all a lookout has."* Without the line, a reader takes the shape
+   for a clue, or for a mistake.
 
 **Deck lights.** The **Deck lights off / on** button lights her working decks.
 Rule 20(b) allows working lights so far as they cannot be mistaken for the
@@ -174,6 +186,32 @@ require an action and not a category:
 The wrong answers are the plausible ones: altering to port in a crossing
 situation, standing on when you are the give-way vessel, assuming a restricted
 vessel will keep clear of you when she cannot.
+
+**Every picture is the situation its answer is about.** Her bearing and
+heading are drawn at random within each scenario's range, so the same question
+never looks quite the same twice. That range is checked over thousands of
+draws (`tests/colregs-geometry.awk`):
+
+1. **Nobody is overtaking in a crossing or Rule 18 scenario.** She is never
+   more than 22.5° abaft your beam, and you are never more than 22.5° abaft
+   hers. Either would make it an overtaking, and Rule 13 overrides Rules 12
+   to 18 — which can reverse the answer.
+2. **The range is closing.** A question about who keeps clear draws two
+   vessels that are converging.
+3. **The head-on scenario shows both sidelights** in every draw, as its words
+   say.
+4. **In the sailing scenarios both boats can sail their heading** — each at
+   least 35° off the wind.
+
+How far her heading may swing is set per scenario: 15° either way unless the
+scenario needs less (1° for the head-on, 5° to 10° for the sailing and
+crossing cases).
+
+**The seaplane is on your port bow.** Rule 18(e) says a seaplane on the water
+keeps clear "in general"; once risk of collision exists she complies with
+Part B like any vessel. On your port side, Rule 15 then gives the same answer
+as Rule 18(e), so you stand on either way, and the question teaches one
+answer rather than an exception.
 
 **Right and wrong carry a tick or a cross,** not only a green or red border.
 In night mode every colour token collapses to red, so a border alone would

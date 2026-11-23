@@ -21,6 +21,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -123,6 +127,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -197,6 +205,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -270,6 +282,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -372,6 +388,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -474,6 +494,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -548,6 +572,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -626,6 +654,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -700,6 +732,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -774,6 +810,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -795,7 +835,7 @@
 
   Not quite.
   Q1  A is right -- Vessel at anchor, 50 m or more
-      Rule 30.  Two all-round whites, forward one higher, and the decks lit.
+      Rule 30.  Two all-round whites, forward one higher, and she may have her decks lit (required at 100 m and over).
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
@@ -803,7 +843,7 @@
 
   Not quite.
   Q1  A is right -- Vessel at anchor, 50 m or more
-      Rule 30.  Two all-round whites, forward one higher, and the decks lit.
+      Rule 30.  Two all-round whites, forward one higher, and she may have her decks lit (required at 100 m and over).
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
@@ -811,7 +851,7 @@
 
   Not quite.
   Q1  A is right -- Vessel at anchor, 50 m or more
-      Rule 30.  Two all-round whites, forward one higher, and the decks lit.
+      Rule 30.  Two all-round whites, forward one higher, and she may have her decks lit (required at 100 m and over).
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
@@ -819,7 +859,7 @@
 
   Not quite.
   Q1  A is right -- Vessel at anchor, 50 m or more
-      Rule 30.  Two all-round whites, forward one higher, and the decks lit.
+      Rule 30.  Two all-round whites, forward one higher, and she may have her decks lit (required at 100 m and over).
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
@@ -848,6 +888,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -949,6 +993,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -1022,6 +1070,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -1095,6 +1147,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -1168,6 +1224,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -1246,6 +1306,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -1320,6 +1384,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -1426,6 +1494,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -1503,6 +1575,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -1609,6 +1685,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -1682,6 +1762,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -1759,6 +1843,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -1837,6 +1925,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -1943,6 +2035,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -2021,6 +2117,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -2099,6 +2199,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -2200,6 +2304,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -2274,6 +2382,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -2347,6 +2459,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -2448,6 +2564,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -2549,6 +2669,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -2651,6 +2775,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -2729,6 +2857,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -2803,6 +2935,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -2876,6 +3012,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -2897,7 +3037,7 @@
 
   Not quite.
   Q1  B is right -- Vessel at anchor, 50 m or more
-      Rule 30.  Two all-round whites, forward one higher, and the decks lit.
+      Rule 30.  Two all-round whites, forward one higher, and she may have her decks lit (required at 100 m and over).
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
@@ -2905,7 +3045,7 @@
 
   Not quite.
   Q1  B is right -- Vessel at anchor, 50 m or more
-      Rule 30.  Two all-round whites, forward one higher, and the decks lit.
+      Rule 30.  Two all-round whites, forward one higher, and she may have her decks lit (required at 100 m and over).
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
@@ -2913,7 +3053,7 @@
 
   Not quite.
   Q1  B is right -- Vessel at anchor, 50 m or more
-      Rule 30.  Two all-round whites, forward one higher, and the decks lit.
+      Rule 30.  Two all-round whites, forward one higher, and she may have her decks lit (required at 100 m and over).
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
@@ -2921,7 +3061,7 @@
 
   Not quite.
   Q1  B is right -- Vessel at anchor, 50 m or more
-      Rule 30.  Two all-round whites, forward one higher, and the decks lit.
+      Rule 30.  Two all-round whites, forward one higher, and she may have her decks lit (required at 100 m and over).
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
@@ -2950,6 +3090,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -3052,6 +3196,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -3126,6 +3274,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -3227,6 +3379,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And
@@ -3301,6 +3457,10 @@
   
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
+  She is drawn as a plain silhouette, the same at both ends: it grows
+  longer as you see more of her side, but it never shows which end is
+  her bow. Read her lights, not her shape: at night the lights are all
+  a lookout has.
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
   sidelight falls toward her stern here, never toward her bow. And

@@ -816,7 +816,12 @@ function encShow(i) {
   var lo = e.brglo, hi = e.brghi; if (hi < lo) hi += 360;
   var brg = nrm360(lo + Math.random() * (hi - lo));
   var rng = 0.55 + Math.random() * 0.35;
-  var thdg = nrm360(e.thdg + (Math.random() * 30 - 15));
+  /*  e.hspr: how far her heading may swing either side, from the
+      engine's ECH[] (15 unless a scenario needs less -- PILOT's QA found
+      head-on drawn with one sidelight and windward-gives-way drawn as an
+      overtaking).  tests/colregs-geometry.awk proves each value.  */
+  var sw = e.hspr;
+  var thdg = nrm360(e.thdg + (Math.random() * 2 * sw - sw));
   drawEncounter(e, brg, rng, thdg);
   $('enc-own').textContent = e.own;
   /*  heard(), ported name for name from the awk and checked against it
@@ -856,7 +861,7 @@ function encShow(i) {
 function heard(t) { return /blast|fog signal/.test(t); }
 function lt_arc_web(rel) {
   var r = nrm360(rel);
-  if (r <= 1.5 || r >= 358.5) return 'both';
+  if (r <= 2.5 || r >= 357.5) return 'both';   /* arc_vis's overlap (1.19) */
   if (r < 112.5) return 'green';
   if (r > 247.5) return 'red';
   return 'stern';

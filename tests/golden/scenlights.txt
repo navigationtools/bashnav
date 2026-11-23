@@ -130,7 +130,7 @@
   THE LIGHTS
   ----------------------------------------------------------------------
   She bears 195 T, 096 relative -- abaft the starboard beam, 7.5 nm.
-  You see   green starboard light and her masthead light
+  You see   both sidelights, bow-on, and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
   The lights read like a crossing, but the bearing is opening and the
@@ -385,7 +385,7 @@
   ----------------------------------------------------------------------
   She bears 275 T, 002 relative -- fine on the starboard bow, 9.1 nm.
   You see   green starboard light and her masthead light
-  She sees  green starboard light
+  She sees  both sidelights, bow-on,
   ----------------------------------------------------------------------
   Both her sidelights: she is bow-on, and this is Rule 14. Nobody
   stands on. Both of you alter to starboard. The colour decides nothing
@@ -495,7 +495,7 @@
   THE LIGHTS
   ----------------------------------------------------------------------
   She bears 353 T, 005 relative -- fine on the starboard bow, 9.2 nm.
-  You see   red port light and her masthead light
+  You see   both sidelights, bow-on, and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
   Both her sidelights: she is bow-on, and this is Rule 14. Nobody
@@ -825,7 +825,7 @@
   ----------------------------------------------------------------------
   She bears 209 T, 357 relative -- fine on the port bow, 9.5 nm.
   You see   green starboard light and her masthead light
-  She sees  red port light
+  She sees  both sidelights, bow-on,
   ----------------------------------------------------------------------
   Both her sidelights: she is bow-on, and this is Rule 14. Nobody
   stands on. Both of you alter to starboard. The colour decides nothing

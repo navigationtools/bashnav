@@ -15,10 +15,10 @@ New here? Start with [`CLAUDE.md`](CLAUDE.md), then
 | tool | version | size | what it is |
 |---|---|---|---|
 | `bin/celnav` | 1.6 | 258 KB | celestial navigation: almanac, sight reduction, plotting, fix, and a teaching track |
-| `bin/colregs` | 1.18 | 255 KB | rules of the road: lights, shapes, sounds, encounters, collision-avoidance scenarios, contact management, and an interactive review |
-| `bin/tides` | 1.4 | 2.9 MB | harmonic tide prediction, 8,334 stations worldwide, and the eight coastal work calculators |
-| `bin/deck-log` | 1.1 | 49 KB | the boat's records &mdash; deck, engine, provisions &mdash; append-only in UTC, spares derived by replaying the log |
-| `bin/weather` | 1.0 | 106 KB | reasons over the log's observations and shows its working; ten lessons, the Coriolis tier and the wind demonstration; forecast scoring |
+| `bin/colregs` | 1.19 | 275 KB | rules of the road: lights, shapes, sounds, encounters, collision-avoidance scenarios, contact management, and an interactive review |
+| `bin/tides` | 1.4 | 3.2 MB | harmonic tide prediction, 8,334 stations worldwide, and the eight coastal work calculators |
+| `bin/deck-log` | 1.1 | 50 KB | the boat's records &mdash; deck, engine, provisions &mdash; append-only in UTC, spares derived by replaying the log |
+| `bin/weather` | 1.0 | 221 KB | reasons over the log's observations and shows its working; ten lessons, the Coriolis tier and the wind demonstration; forecast scoring |
 | `bin/bashnav` | 1.0 | 3 KB | the launcher: a menu in front of the other five, and one home-screen icon on an iPad |
 
 Those sizes are measured, not remembered: the table had carried 153 KB for

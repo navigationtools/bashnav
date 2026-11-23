@@ -171,9 +171,10 @@
     3. Do not cross a channel if it impedes a vessel that can only
        navigate within it. If in doubt about her intentions, the doubt
        signal - five or more short blasts - is available.
-    4. Overtaking in a narrow channel needs the other vessel's agreement,
-       signalled by sound: two prolonged and one short means you intend to
-       pass on her starboard side.
+    4. Overtaking in a narrow channel, when she has to take action to let
+       you pass safely, needs her agreement, signalled by sound: two
+       prolonged and one short means you intend to pass on her starboard
+       side.
 
   'Shall not impede' is not the same as give way. It means you must keep
   clear early enough that the question of who gives way never arises.

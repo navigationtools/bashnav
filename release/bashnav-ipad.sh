@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=004151110
+BASHNAV_BYTES=004154311
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -5669,7 +5669,7 @@ bn_unpack() {
 #  A TRAINING AID ONLY.  The COLREGs themselves govern; see the notice
 #  printed by "colregs about".
 # =====================================================================
-COLREGS_VERSION=1.18
+COLREGS_VERSION=1.19
 
 : "${COLREGS_HOME:=$(bn_home .colregs)}"
 ENGINE="$COLREGS_HOME/engine-$COLREGS_VERSION.awk"
@@ -6555,6 +6555,8 @@ banner() {
   echo
   echo "  ==============================================================="
   echo "   COLREGS $COLREGS_VERSION   the rules of the road, in characters"
+  echo "   These are the International Rules (COLREGS 1972 as amended)."
+  echo "   US Inland waters differ in places."
   echo "  ==============================================================="
   nl=$(printf '%s' "$lessons" | tr ',' '\n' | grep -c '[A-Z]'); [ -n "$nl" ] || nl=0
   printf "   lessons %s of 15    drills %s/%s    [%s]\n" "$nl" "$sok" "$stry" "$cmode"
@@ -6786,7 +6788,7 @@ function ves_init(   i,n,a){
   VT[3]  = "sail|Sailing vessel under way|Rule 25|" SG ";" SR ";" ST "|Sidelights and a sternlight. No masthead light - that is the whole point."
   VT[4]  = "sailrg|Sailing vessel, optional all-round pair|Rule 25|" SG ";" SR ";" ST ";" ar(0.15,0,0.80,"R") ";" ar(0.15,0,0.70,"G") "|Red over green at the masthead, with normal sidelights and sternlight."
   VT[5]  = "anchor|Vessel at anchor, under 50 m|Rule 30|" ar(0.35,0,0.70,"W") "|A single all-round white light where it can best be seen."
-  VT[6]  = "anchor50|Vessel at anchor, 50 m or more|Rule 30|" ar(0.38,0,0.80,"W") ";" ar(-0.35,0,0.55,"W") "|Two all-round whites, forward one higher, and the decks lit."
+  VT[6]  = "anchor50|Vessel at anchor, 50 m or more|Rule 30|" ar(0.38,0,0.80,"W") ";" ar(-0.35,0,0.55,"W") "|Two all-round whites, forward one higher, and she may have her decks lit (required at 100 m and over)."
   VT[7]  = "aground|Vessel aground|Rule 30|" ar(0.35,0,0.72,"W") ";" ar(0.10,0,0.88,"R") ";" ar(0.10,0,0.78,"R") "|Anchor light or lights, plus two all-round reds in a vertical line."
   VT[8]  = "nuc|Not under command, making no way|Rule 27|" ar(0.10,0,0.88,"R") ";" ar(0.10,0,0.78,"R") "|Two all-round reds. Nothing else if she is not moving through the water."
   VT[9]  = "nucway|Not under command, making way|Rule 27|" ar(0.10,0,0.88,"R") ";" ar(0.10,0,0.78,"R") ";" SG ";" SR ";" ST "|Two all-round reds, and because she is making way, sidelights and sternlight too."
@@ -7553,6 +7555,19 @@ function hidden_note(key,th,   a,i,j,n,L,f,nv,X,H,C,pairs,col,d1,d2){
                  d1, (col=="G" ? "green" : (col=="R" ? "red" : "white")), d1-pairs)
 }
 
+#  WHY SHE IS A PLAIN SHAPE.  draw_lights() draws the hull the same at
+#  both ends on purpose: its length follows her aspect, but nothing in it
+#  says which end is her bow, because the drill is to read her lights,
+#  not her shape.  Without saying so the shape looks like a clue, or a
+#  mistake.  Larry approved these words on 22 November 2026, for the
+#  lights drill, the encounters' picture and the manual.
+function sil_note(){
+  print "  She is drawn as a plain silhouette, the same at both ends: it grows"
+  print "  longer as you see more of her side, but it never shows which end is"
+  print "  her bow. Read her lights, not her shape: at night the lights are all"
+  print "  a lookout has."
+  return 0
+}
 function show_lights(key,th){
   if(draw_lights(key,th)) return 1
   print ""
@@ -7570,6 +7585,7 @@ function show_lights(key,th){
     printf "  %s\n", cw(hidden_note(key,th),C_ACC)
   printf "  Letters are the colours: %s white  %s red  %s green  %s yellow\n",
      cw("W",K_W), cw("R",K_R), cw("G",K_G), cw("Y",K_Y)
+  sil_note()
   #  Left-and-right is where a light sits along her hull, seen from close
   #  to, and it reads backwards to a seaman's eye: a sidelight looks as
   #  though it ought to be forward, toward the bow, and it is drawn aft
@@ -7770,7 +7786,7 @@ function enc_init(){
   #          instead of describing her. Empty on the two fog signals,
   #          where you cannot see her, and on the seaplane, whose lights
   #          Rule 31 leaves as "as closely as possible" to Rule 23.
-  EC[1]="You are a power-driven vessel under way.|a power-driven vessel, both her sidelights and two masthead lights in line|352|8|180|d|"\
+  EC[1]="You are a power-driven vessel under way.|a power-driven vessel, both her sidelights and two masthead lights in line|359|1|180|d|"\
 "Stand on: keep your course and speed.;Give way: alter to port and pass down her starboard side.;Sound one short blast and hold on.;Alter course to starboard, and expect her to do the same.|"\
 "Head-on, or nearly so, between two power-driven vessels. Neither is the stand-on vessel: each alters to starboard so that they pass port to port. Seeing both her sidelights is the classic sign.|Rule 14||power50p"
   EC[2]="You are a power-driven vessel under way.|a power-driven vessel showing her red sidelight|030|100|290|b|"\
@@ -7800,18 +7816,18 @@ function enc_init(){
   EC[10]="You are a power-driven vessel in a deep-water channel.|a vessel showing three all-round red lights in a vertical line|300|060|170|b|"\
 "Stand on: a constrained vessel has no special status.;Give way: avoid impeding her safe passage.;Overtake her quickly on her starboard side.;Anchor until she has passed.|"\
 "Three all-round reds means a vessel constrained by her draught. She is not technically a stand-on vessel under Rule 18, but every vessel must avoid impeding her safe passage, and she may have very little water under her.|Rule 18(d)||draught"
-  EC[11]="You are a sailing vessel on the port tack.|a sailing vessel on the starboard tack|020|070|300|b|"\
+  EC[11]="You are a sailing vessel on the port tack.|a sailing vessel on the starboard tack|020|070|265|b|"\
 "Stand on: you were there first.;Give way: keep out of her way.;Give way only if she is to windward.;Tack immediately.|"\
-"When two sailing vessels have the wind on different sides, the one with the wind on the port side keeps out of the way of the other. You are on port tack, so you give way.|Rule 12|330|sail"
-  EC[12]="You are a sailing vessel to windward.|a sailing vessel to leeward, both of you on the same tack|100|150|020|b|"\
+"When two sailing vessels have the wind on different sides, the one with the wind on the port side keeps out of the way of the other. You are on port tack, so you give way.|Rule 12|315|sail"
+  EC[12]="You are a sailing vessel to windward.|a sailing vessel to leeward, both of you on the same tack|070|100|345|b|"\
 "Stand on: windward has right of way.;Give way: the windward vessel keeps clear of the leeward vessel.;Give way only in a narrow channel.;Both alter to starboard.|"\
-"With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.|Rule 12|320|sail"
+"With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.|Rule 12|300|sail"
   EC[13]="You are a power-driven vessel under way.|a vessel showing two all-round red lights and no sidelights|280|080|000|b|"\
 "Stand on: she is not moving.;Give way: keep well out of her way - she is not under command.;Sound five short blasts and hold on.;Pass close ahead - she cannot move.|"\
 "Two all-round reds and nothing else: not under command, and making no way through the water. She cannot manoeuvre at all. Everything keeps out of her way.|Rule 18||nuc"
   EC[14]="You are a power-driven vessel under way in fog, hearing but not seeing her.|a fog signal of one prolonged blast followed by two short|300|060|170|b|"\
-"Stand on: the signal tells you she will keep clear.;Reduce to bare steerage way - she may be a vessel restricted in her ability to manoeuvre, fishing, towing or under sail.;Alter boldly to port.;Sound five short blasts and continue.|"\
-"One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.|Rule 19||"
+"Stand on: the signal tells you she will keep clear.;Reduce to bare steerage way - she may be not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing or pushing.;Alter boldly to port.;Sound five short blasts and continue.|"\
+"One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing or pushing another vessel. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.|Rule 19||"
   EC[15]="You are a yacht of 11 m, under power, crossing a narrow buoyed channel.|a laden bulk carrier coming down the channel, which she cannot leave|020|090|300|b|"\
 "Stand on: you are crossing and she is on your starboard side, so Rule 15 applies.;Keep clear early: do not impede a vessel that can only navigate within the channel.;Cross ahead quickly to get out of her way.;Anchor in the channel until she has passed.|"\
 "Rule 9(b): a vessel of less than 20 metres or a sailing vessel shall not impede the passage of a vessel which can safely navigate only within a narrow channel. Shall not impede is stronger than give way - keep clear early enough that the question never arises.|Rule 9||draught"
@@ -7820,7 +7836,7 @@ function enc_init(){
 "Rule 10(j): a vessel under 20 metres or a sailing vessel shall not impede the safe passage of a power-driven vessel following a traffic lane. And Rule 10(c) says cross on a heading as nearly as practicable at right angles to the flow - heading, not ground track, because a beam-on aspect is what makes you visible and predictable.|Rule 10||power50p"
   EC[17]="You are a coaster overtaking a slower vessel in a narrow channel.|the vessel ahead, whose agreement you need before you pass|350|010|000|c|"\
 "Alter to starboard and pass, sounding one short blast.;Pass on whichever side has more water, without signalling.;Sound two prolonged and one short - I intend to overtake you on your starboard side - and wait for her answer.;Call her on VHF and pass when she does not object.|"\
-"Rule 9(e) with Rule 34(c): in a narrow channel, overtaking needs the other vessel indicating agreement. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.|Rule 9(e)||power50"
+"Rule 9(e) with Rule 34(c): in a narrow channel, when she has to take action to let you pass safely, you need her agreement before you overtake. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.|Rule 9(e)||power50"
   EC[18]="You are a power-driven vessel in thick fog, hearing but not seeing her.|two prolonged blasts, about two seconds apart|300|010|000|b|"\
 "Stand on: two prolonged means she is stopped, so she is no danger.;Reduce to the least speed at which you can be kept on course, and be ready to take all way off.;Alter boldly to port and pass down her starboard side.;Sound five short blasts and hold your speed.|"\
 "Two prolonged blasts is a power-driven vessel under way but stopped and making no way. In restricted visibility there is no stand-on vessel: Rule 19(e) requires you to reduce to bare steerage way on hearing a fog signal apparently forward of the beam, and if necessary take all your way off.|Rule 19||"
@@ -7833,9 +7849,16 @@ function enc_init(){
   EC[21]="You are a power-driven vessel in a deep-water route.|a loaded tanker showing three all-round red lights in a vertical line|300|060|170|b|"\
 "Stand on: she has no special status under Rule 18.;Avoid impeding her safe passage - she may have very little water under her keel.;Overtake her briskly on her starboard side.;Cross close ahead of her to clear the route.|"\
 "Three all-round reds means constrained by her draught. Rule 18(d) says every vessel shall, if the circumstances of the case admit, avoid impeding her safe passage, and she must navigate with particular caution.|Rule 18(d)||draught"
-  EC[22]="You are a power-driven vessel under way.|a seaplane on the water|020|070|280|a|"\
+  #  ON YOUR PORT BOW (1.19, Larry's ruling TBGH, 23 Nov 2026).  She was
+  #  on the starboard bow, where Rule 18(e) says she keeps clear "in
+  #  general" but, once risk of collision exists, Rule 15 makes YOU give
+  #  way to a power-driven vessel on your starboard side -- so the marked
+  #  "stand on" was wrong, and the why text stated the exception that
+  #  contradicted it (PILOT's QA, rated (a)).  To port, both rules give
+  #  the same answer and the answer stands.
+  EC[22]="You are a power-driven vessel under way.|a seaplane on the water|290|340|080|a|"\
 "Stand on: a seaplane on the water keeps well clear of all vessels.;Give way: an aircraft has right of way.;Give way: alter to starboard and pass astern of her.;Stop your engines.|"\
-"Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. In a risk-of-collision situation she then complies with the rules of this part like any other vessel.|Rule 18(e)||"
+"Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. Once risk of collision exists she complies with the rules of this part like any other vessel - and here she is on your port side, so Rule 15 makes her the give-way vessel too. Either way you stand on, and keep watching her under Rule 17.|Rule 18(e)||"
   EC[23]="You are a power-driven vessel under way.|a vessel showing three all-round green lights, one at the masthead and one at each yardarm|300|060|170|c|"\
 "Stand on: green lights mean she is under way and keeping clear.;Give way: alter to starboard and pass a cable astern of her.;Keep at least 1000 metres clear of her: she is engaged in mine clearance.;Sound one short blast and pass close ahead.|"\
 "Rule 27(f): three all-round greens marks a vessel engaged in mine clearance operations. Other vessels shall keep at least 1000 metres clear of her - much further than ordinary avoiding action.|Rule 27(f)||mineclear"
@@ -7854,6 +7877,27 @@ function enc_init(){
   EC[28]="You are a power-driven vessel crossing ahead of a tug and her tow at night.|three masthead lights in a vertical line, sidelights and a yellow light above her sternlight|020|080|300|c|"\
 "Stand on: the tug is restricted and will keep clear of you.;Give way: alter to port and pass between the tug and her tow.;Give way: alter to starboard and pass well astern of the whole tow - it is more than 200 metres long.;Cross close ahead of the tug to stay clear of the tow.|"\
 "Three masthead lights in a vertical line means the tow exceeds 200 metres. The tow itself may show only sidelights and a sternlight and is easy to miss, and the towline between them is not lit at all. Never pass between a tug and her tow.|Rule 24||tow200p"
+  #  HOW FAR HER DRAWN HEADING MAY SWING, either side of the target
+  #  heading, where 15 degrees is too much.  PILOT's QA of the 28
+  #  encounters (22 Nov 2026) stepped every bearing and heading the draw
+  #  can make and found pictures that contradicted their own answer:
+  #
+  #    1   head-on drawn with one sidelight in 83% of draws -- the text
+  #        says both.  1 degree each way on bearing and heading keeps
+  #        her within the 2.5-degree overlap arc_vis() allows, so every
+  #        draw shows both sidelights.
+  #    12  she was drawn abaft your beam in three draws out of four, so
+  #        she was overtaking you and Rule 13, not Rule 12, decided it.
+  #    6, 11, 15, 20, 28
+  #        at the far end of a 15-degree swing YOU come out more than
+  #        22.5 degrees abaft HER beam, which makes you the overtaking
+  #        vessel.  In 20 that reverses the answer (you would keep
+  #        clear, not stand on); in the others the answer survives but
+  #        the picture teaches the wrong rule.  10 degrees closes it.
+  #
+  #  tests/colregs-geometry.awk holds every encounter to these over
+  #  thousands of draws.  A scenario not named here swings 15 degrees.
+  ECH[1]=1; ECH[6]=10; ECH[11]=10; ECH[12]=5; ECH[15]=10; ECH[20]=10; ECH[28]=10
   NENC=28
   ENC_READY=1
   return 0
@@ -7863,14 +7907,15 @@ function enc_init(){
 #  they were being derived in enc_show only -- so the answer could not
 #  quote the bearing it had just asked about, and the wind test had to
 #  reproduce the draw itself, which is two more places for it to drift.
-function enc_geom(i,seed,   a,hi){
+function enc_geom(i,seed,   a,hi,sw){
   split(EC[i],a,"|")
+  sw = (i in ECH) ? ECH[i]+0 : 15
   xsrand(seed+0); xrand()
   ENC_BG = a[3]+0; hi = a[4]+0
   if(hi < ENC_BG) hi += 360
   ENC_BG   = nrm360(ENC_BG + xrand()*(hi-ENC_BG))
   ENC_RNG  = 0.55 + xrand()*0.35
-  ENC_THDG = nrm360(a[5]+0 + (xrand()*30-15))
+  ENC_THDG = nrm360(a[5]+0 + (xrand()*2*sw-sw))
   ENC_WND  = (10 in a ? a[10] : "")
   return 0
 }
@@ -7974,6 +8019,7 @@ function enc_lights(i,   a,relher,we){
   printf "  %s\n", aspect_line(V_IDX,relher)
   printf "  Letters are the colours: %s white  %s red  %s green  %s yellow\n",
      cw("W",K_W), cw("R",K_R), cw("G",K_G), cw("Y",K_Y)
+  sil_note()
   hr()
   #  WHAT THE PICTURE DOES NOT TELL YOU, which is the half the rule turns
   #  on in two of these scenarios.
@@ -8397,9 +8443,10 @@ function les(id,   vk,vn,vi){
     tp("  3. Do not cross a channel if it impedes a vessel that can only")
     tp("     navigate within it. If in doubt about her intentions, the doubt")
     tp("     signal - five or more short blasts - is available.")
-    tp("  4. Overtaking in a narrow channel needs the other vessel's agreement,")
-    tp("     signalled by sound: two prolonged and one short means you intend to")
-    tp("     pass on her starboard side.")
+    tp("  4. Overtaking in a narrow channel, when she has to take action to let")
+    tp("     you pass safely, needs her agreement, signalled by sound: two")
+    tp("     prolonged and one short means you intend to pass on her starboard")
+    tp("     side.")
     tb()
     tp("'Shall not impede' is not the same as give way. It means you must keep")
     tp("clear early enough that the question of who gives way never arises.")
@@ -9100,7 +9147,10 @@ function lt_arc(rel,   r){
   #  `rel` is the viewer's bearing FROM the subject, relative to the
   #  subject's bow.  What the viewer can see follows from that alone.
   r = nrm360(rel)
-  if(r <= 1.5 || r >= 358.5) return "both"
+  #  2.5, the same overlap arc_vis() draws (Annex I lets the cut-off fall
+  #  outside the sector), so the words never say one sidelight while the
+  #  picture beside them shows two.  It was 1.5 until 1.19.
+  if(r <= 2.5 || r >= 357.5) return "both"
   if(r < 112.5)              return "green"
   if(r > 247.5)              return "red"
   return "stern"

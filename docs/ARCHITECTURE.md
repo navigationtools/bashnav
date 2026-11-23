@@ -51,7 +51,7 @@ extraction repeats if the executable is newer than the extracted engine
 (`[ "$0" -nt "$ENGINE" ]`), so editing and re-running just works.
 
     ~/.celnav/    engine-1.6.awk  teach-1.6.awk  celnav.conf
-    ~/.colregs/   engine-1.18.awk  contacts-1.18.awk  review-1.18.awk  colregs.conf
+    ~/.colregs/   engine-1.19.awk  contacts-1.19.awk  review-1.19.awk  colregs.conf
     ~/.tides/     engine-1.6.awk  tables-1.6.awk  stations.dat  levels.dat  config  lastlist
     ~/.bashnav/   decklog-1.1.2.awk  weather-1.0.24.awk  log  boat  *.conf
 

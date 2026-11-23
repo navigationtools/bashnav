@@ -75,6 +75,10 @@ BEGIN{
     printf "  {\n   \"own\": %s,\n   \"target\": %s,\n   \"brglo\": %d,\n   \"brghi\": %d,\n   \"thdg\": %d,\n   \"answer\": %s,\n   \"options\": %s,\n   \"why\": %s,\n   \"rule\": %s",
       jstr(a[1]), jstr(a[2]), a[3]+0, a[4]+0, a[5]+0, jstr(a[6]),
       listof(a[7],";"), jstr(a[8]), jstr(a[9])
+    #  how far her heading swings either side of thdg: 15 unless the
+    #  scenario says otherwise (engine.awk, ECH[], and why).  Always
+    #  written, so the page never guesses a default of its own.
+    printf ",\n   \"hspr\": %d", ((i in ECH) ? ECH[i]+0 : 15)
     if(a[10]!="") printf ",\n   \"wind\": %d", a[10]+0
     if(a[11]!="") printf ",\n   \"vessel\": %s", jstr(a[11])
     printf "\n  }%s\n", (i<NENC?",":"")

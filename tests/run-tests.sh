@@ -774,7 +774,8 @@ WXLOG
         tests/contacts-check.awk tests/review-check.awk tests/tides-check.awk \
         tests/annex1-check.awk tests/fields-check.awk tests/count-check.awk \
         tests/colregs-wind.awk tests/colregs-vessel.awk tests/colregs-bearing.awk \
-        tests/colregs-r18.awk tests/motion-seen-check.awk tests/aspect-check.awk)
+        tests/colregs-r18.awk tests/motion-seen-check.awk tests/aspect-check.awk \
+        tests/colregs-geometry.awk)
   n=$(echo "$r" | tail -1 | $AW '{print $2}')
   if [ "$n" = 0 ]; then ok "no code assigns to one of awk's built-in variables"
   else bad "$n assignments to awk built-ins"; echo "$r" | grep -v "^BAD" | head -5; fi
@@ -1969,6 +1970,17 @@ WXLOG
     echo "$r" | grep '^  ok' >/dev/null && ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
   else
     bad "a sailing scenario contradicts its own wind"; echo "$r" | grep FAIL | head -4
+  fi
+  #  THE DRAWN ENCOUNTER IS THE ONE THE ANSWER IS ABOUT, for every draw:
+  #  nobody overtaking in a crossing or Rule 18 scenario, the range
+  #  closing, both sidelights in the head-on, both boats able to sail
+  #  their heading.  PILOT's QA of 22 November found 12 drawn as an
+  #  overtaking (Rule 13 reverses its answer) and 1 drawn with one
+  #  sidelight. Confirmed to fail on the old data: seven scenarios.
+  if r=$($AW $CSRC -f tests/colregs-geometry.awk -v cmode=plain </dev/null); then
+    echo "$r" | grep '^  ok' >/dev/null && ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
+  else
+    bad "an encounter can be drawn as a different situation"; echo "$r" | grep FAIL | head -4
   fi
 
   # ---- the reporting style -----------------------------------------

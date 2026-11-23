@@ -275,6 +275,8 @@ banner() {
   echo
   echo "  ==============================================================="
   echo "   COLREGS $COLREGS_VERSION   the rules of the road, in characters"
+  echo "   These are the International Rules (COLREGS 1972 as amended)."
+  echo "   US Inland waters differ in places."
   echo "  ==============================================================="
   nl=$(printf '%s' "$lessons" | tr ',' '\n' | grep -c '[A-Z]'); [ -n "$nl" ] || nl=0
   printf "   lessons %s of 15    drills %s/%s    [%s]\n" "$nl" "$sok" "$stry" "$cmode"
