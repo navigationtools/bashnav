@@ -223,5 +223,33 @@ for (var z = 0; z < Math.min(wantG.length, haveG.length); z++) {
 ok('generated: every record byte identical (' + wantG.length + ' records)', bad === 0,
    bad + ' differed');
 
+//  ---- weather alone, and a nav record that is all defaults --------
+//  WX's finding of 23 November 2026: an observation with a weather
+//  record and NO nav record came back with a nav record holding only
+//  the defaults -- a record that was never in the log, and so a
+//  conflict at the port upload. The wire wrote the nav side as the time
+//  alone, which is ALSO how a nav record whose every value equals the
+//  defaults was written. Both cases are here, so neither fix can
+//  quietly break the other.
+var EDGE = [
+  mk('2026-11-23T16:00Z', 'nav', [['lat','41 14.0N'],['lon','072 05.0W'],['who','LS'],['src','watch']]),
+  mk('2026-11-23T16:00Z', 'wx', [['mslp','1012.4'],['who','LS'],['src','watch']]),
+  //  weather only: no nav record may come back
+  mk('2026-11-23T16:10Z', 'wx', [['mslp','1012.3'],['who','LS'],['src','watch']]),
+  //  a nav record whose every key is on the defaults line
+  mk('2026-11-23T16:20Z', 'nav', [['who','LS'],['src','watch']]),
+];
+var ee = NT1.encode(EDGE.map(function (l) { return LOG.parse(l); }), { seq: 7, size: 1600 });
+var eg = [];
+ee.pieces.forEach(function (p) {
+  var d = NT1.decode(p, { ref: new Date('2026-11-24T00:00Z') });
+  ok('edge piece decodes', d.ok, d.err);
+  eg = eg.concat(NT1.lines(d));
+});
+var ew = EDGE.slice().sort(), eh = eg.slice().sort();
+ok('weather alone adds no nav record, and an all-defaults nav record survives',
+   ew.length === eh.length && ew.every(function (l, n) { return l === eh[n]; }),
+   'sent ' + ew.length + ', got ' + eh.length + '\n        ' + eh.join('\n        '));
+
 console.log((fail ? '  ' + fail + ' FAILED of ' : '  all ') + checks + ' checks');
 process.exit(fail ? 1 : 0);

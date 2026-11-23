@@ -343,6 +343,18 @@ var NT1 = (function () {
     }
 
     var nav = side(o.nav, NAV_POS);
+    //  A NAV RECORD MUST NEVER LOOK LIKE NO NAV RECORD.  On the wire a
+    //  nav side that is only the time means "no nav record" (see
+    //  pushObs).  A nav record whose every value equals the defaults
+    //  would otherwise be written exactly that way, so its keys are
+    //  written out as extras instead: a few characters more, and the
+    //  two cases can no longer be confused.  (WX's finding, 23 Nov 2026.)
+    if (o.nav && nav === '') {
+      var all = [], kk;
+      for (kk in o.nav.v) if (!SKIP[kk]) all.push(kk + '=' + venc(o.nav.v[kk]));
+      all.sort();
+      nav = all.join(',');
+    }
     var wx = o.wx ? side(o.wx, WX_POS) : null;
     //  no weather: the line has no ';' (contract 4.3, item 5)
     var line = tsWire(o.ts) + (nav === '' ? '' : ',' + nav);
@@ -546,10 +558,18 @@ var NT1 = (function () {
     var nv = navPart.split(',');
     if (nv[0].length !== 8) { out.bad++; return; }
     var ts = tsFull(nv[0], ref);
-    var v = {};
-    fill(v, NAV_POS, split(nv, 1), d);
-    for (var k in d) if (v[k] === undefined && NAV_ORDER.indexOf(k) >= 0) v[k] = d[k];
-    out.records.push({ ts: ts, type: 'nav', v: v, keys: NAV_ORDER });
+    //  THE TIME ALONE MEANS NO NAV RECORD.  A weather-only observation
+    //  is written "MMDDhhmm;..." and used to come back with a nav record
+    //  made of the defaults -- a record never in the log, and so a
+    //  conflict at the port upload (WX's finding, 23 Nov 2026).  encode
+    //  writes any real nav record with at least one field, so nothing
+    //  that was sent is lost by this.
+    if (nv.length > 1) {
+      var v = {};
+      fill(v, NAV_POS, split(nv, 1), d);
+      for (var k in d) if (v[k] === undefined && NAV_ORDER.indexOf(k) >= 0) v[k] = d[k];
+      out.records.push({ ts: ts, type: 'nav', v: v, keys: NAV_ORDER });
+    }
     if (wxPart !== null) {
       var wv = {};
       fill(wv, WX_POS, split(wxPart.split(','), 0), d);
