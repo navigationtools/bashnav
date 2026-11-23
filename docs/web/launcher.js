@@ -7,13 +7,13 @@
    plainly unavailable rather than as a link that goes nowhere.
    ===================================================================== */
 var TOOLS = [
-  { id: 'celnav',   name: 'celnav',   ver: '1.6',
+  { id: 'celnav',   name: 'celnav',   ver: '1.6.1',
     /*  SIGHT REDUCTION FIRST. The tile led with camera sight because that
         was the whole of the app when it was written; celnav is a sight
         reduction calculator first, a teaching track second, and the camera
         is the third way of getting an altitude into it.  */
     desc: 'Sight reduction, the fix, and 33 lessons', ready: true },
-  { id: 'colregs',  name: 'colregs',  ver: '1.20',
+  { id: 'colregs',  name: 'colregs',  ver: '1.21',
     desc: 'Lights, shapes, sounds and the rules of the road', ready: true },
   { id: 'tides',    name: 'tides',    ver: '1.1',
     desc: 'Harmonic prediction, 8,334 stations', ready: true },

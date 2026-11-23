@@ -6,7 +6,7 @@
 #  A TRAINING AID ONLY.  The COLREGs themselves govern; see the notice
 #  printed by "colregs about".
 # =====================================================================
-COLREGS_VERSION=1.20
+COLREGS_VERSION=1.21
 
 : "${COLREGS_HOME:=$(bn_home .colregs)}"
 ENGINE="$COLREGS_HOME/engine-$COLREGS_VERSION.awk"

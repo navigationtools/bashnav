@@ -6,7 +6,7 @@
 #
 #  Larry Sherman / built with Claude.  See celnav-manual.pdf.
 # =====================================================================
-CELNAV_VERSION=1.6
+CELNAV_VERSION=1.6.1
 
 : "${CELNAV_HOME:=$(bn_home .celnav)}"
 ENGINE="$CELNAV_HOME/engine-$CELNAV_VERSION.awk"

@@ -1,4 +1,4 @@
-// celnav's teaching track -- generated from bin/celnav v1.6 by running
+// celnav's teaching track -- generated from bin/celnav v1.6.1 by running
 // teach.awk's own lesson functions and dumping what they printed. The
 // modules and their order come from syl_init(); the answers come from
 // cmd=t_qmeta, because ques() only sets them on the branch that does not

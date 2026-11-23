@@ -1,3 +1,6 @@
+# swap: CC17 (colregs 1.21, Larry's ruling TBJN): the "why" paragraph below no
+# longer names the race he is sailing; the original is in the crew's
+# private register, until the race consents (TBID).
 about_why() {
   printf '%s\n' \
     '' \
@@ -16,10 +19,10 @@ about_why() {
     '  at the mouth of Long Island Sound, and the door you go out of' \
     '  from Groton.' \
     '' \
-    '  Thirty-six years on he is sailing round the world in the' \
-    '  Clipper Race, and he wanted a few things that would work on an' \
-    '  iPad in the middle of an ocean: no signal, no subscription, no' \
-    '  account to log in to, no data to download first.' \
+    '  Thirty-six years on he is sailing round the world, and he wanted' \
+    '  a few things that would work on an iPad in the middle of an ocean:' \
+    '  no signal, no subscription, no account to log in to, no data to' \
+    '  download first.' \
     '' \
     '  So: the rules of the road, drawn.  You learn lights by looking' \
     '  at lights, from the angle you would actually see them, and by' \

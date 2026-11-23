@@ -510,8 +510,8 @@ app are rebuilt from the built program by `capture.sh`.
 
 | Tool | Version | Manual | Quick reference | Web page |
 |---|---|---|---|---|
-| `celnav` | 1.6 | `docs/celnav-manual.pdf` | `docs/celnav-quickref.pdf` | owed |
-| `colregs` | 1.20 | `docs/colregs-manual.pdf` | `docs/colregs-quickref.pdf` | owed |
+| `celnav` | 1.6.1 | `docs/celnav-manual.pdf` | `docs/celnav-quickref.pdf` | owed |
+| `colregs` | 1.21 | `docs/colregs-manual.pdf` | `docs/colregs-quickref.pdf` | owed |
 | `tides` | 1.6 | `docs/tides-manual.pdf` | `docs/tides-quickref.pdf` | owed |
 | `deck-log` | 1.1.2 | `docs/deck-log-manual.pdf` | `docs/deck-log-quickref.pdf` | owed |
 | `weather` | 1.0.25 | `docs/weather-manual.pdf` | `docs/weather-quickref.pdf` | owed |

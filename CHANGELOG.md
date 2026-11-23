@@ -1,5 +1,30 @@
 # Changelog
 
+## celnav 1.6.1 / colregs 1.21: the About screens no longer name the race (TBJN)
+
+**What.** In both shell tools, the "Why this exists" screen (About, item 1) now reads "Thirty-six
+years on he is sailing round the world, and he wanted…", without the race's name. Each file carries
+a swap mark (`swap: CC16` for celnav, `CC17` for colregs); the words replaced are in the crew's
+private register. Nothing else on either screen changes.
+
+**Why.** Larry's ruling TBJN (23 November 2026): until the race consents to being named in his bio
+and story (TBID, clause 15.2(b) of his crew agreement), the bio lines stay neutral. They are swapped
+back if it consents.
+
+**What it touches.**
+
+- `src/celnav/25-about.sh`, `src/celnav/10-head.sh` (1.6.1); `src/colregs/25-about.sh`,
+  `src/colregs/10-head.sh` (1.21)
+- The browser builds, regenerated because their headers carry the version: `docs/web/celnav/lessons.js`
+  and `sw.js` (cache celnav-v25); `docs/web/colregs/data.js`, `contacts-lessons.js`,
+  `contacts-card.js`, `sw.js` (cache colregs-v27) and `README.md`. Their screens are unchanged:
+  the About text is the shell tools' only.
+- `docs/web/launcher.js` (1.6.1, 1.21) and `docs/web/sw.js` (cache bashnav-launcher-v11);
+  `docs/web/README.md`, `README.md`, `REPO-STATE.md`, `docs/ARCHITECTURE.md`
+- Both manuals and quick references rebuilt. The celnav manual states the new checksum and size
+  of `bin/celnav`.
+- `release/bashnav-ipad.sh`, rebuilt. No golden file changed.
+
 ## NT1: a weather-only observation no longer gains a nav record
 
 **What.** `docs/web/deck-log/nt1.js` makes two changes that work together:

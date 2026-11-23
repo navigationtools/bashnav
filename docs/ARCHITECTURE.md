@@ -50,8 +50,8 @@ fixed to `$HOME`** — see below. The extracted files are **versioned by filenam
 extraction repeats if the executable is newer than the extracted engine
 (`[ "$0" -nt "$ENGINE" ]`), so editing and re-running just works.
 
-    ~/.celnav/    engine-1.6.awk  teach-1.6.awk  celnav.conf
-    ~/.colregs/   engine-1.20.awk  contacts-1.20.awk  review-1.20.awk  colregs.conf
+    ~/.celnav/    engine-1.6.1.awk  teach-1.6.1.awk  celnav.conf
+    ~/.colregs/   engine-1.21.awk  contacts-1.21.awk  review-1.21.awk  colregs.conf
     ~/.tides/     engine-1.6.awk  tables-1.6.awk  stations.dat  levels.dat  config  lastlist
     ~/.bashnav/   decklog-1.1.2.awk  weather-1.0.25.awk  log  boat  *.conf
 

@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=004154955
+BASHNAV_BYTES=004155307
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -229,7 +229,7 @@ bn_unpack() {
 #
 #  Larry Sherman / built with Claude.  See celnav-manual.pdf.
 # =====================================================================
-CELNAV_VERSION=1.6
+CELNAV_VERSION=1.6.1
 
 : "${CELNAV_HOME:=$(bn_home .celnav)}"
 ENGINE="$CELNAV_HOME/engine-$CELNAV_VERSION.awk"
@@ -544,6 +544,9 @@ about_menu() {
     esac
   done
 }
+# swap: CC16 (celnav 1.6.1, Larry's ruling TBJN): the "why" paragraph below no
+# longer names the race he is sailing; the original is in the crew's
+# private register, until the race consents (TBID).
 about_why() {
   printf '%s\n' \
     '' \
@@ -562,8 +565,7 @@ about_why() {
     '  at the mouth of Long Island Sound, and the door you go out of' \
     '  from Groton.' \
     '' \
-    '  Thirty-six years on he is sailing round the world in the Clipper' \
-    '  Race, and he wanted a' \
+    '  Thirty-six years on he is sailing round the world, and he wanted a' \
     '  sight reduction that would work on an iPad in the middle of an' \
     '  ocean: no signal, no subscription, no account to log in to, no' \
     '  almanac to download first.' \
@@ -5669,7 +5671,7 @@ bn_unpack() {
 #  A TRAINING AID ONLY.  The COLREGs themselves govern; see the notice
 #  printed by "colregs about".
 # =====================================================================
-COLREGS_VERSION=1.20
+COLREGS_VERSION=1.21
 
 : "${COLREGS_HOME:=$(bn_home .colregs)}"
 ENGINE="$COLREGS_HOME/engine-$COLREGS_VERSION.awk"
@@ -5916,6 +5918,9 @@ about_menu() {
     esac
   done
 }
+# swap: CC17 (colregs 1.21, Larry's ruling TBJN): the "why" paragraph below no
+# longer names the race he is sailing; the original is in the crew's
+# private register, until the race consents (TBID).
 about_why() {
   printf '%s\n' \
     '' \
@@ -5934,10 +5939,10 @@ about_why() {
     '  at the mouth of Long Island Sound, and the door you go out of' \
     '  from Groton.' \
     '' \
-    '  Thirty-six years on he is sailing round the world in the' \
-    '  Clipper Race, and he wanted a few things that would work on an' \
-    '  iPad in the middle of an ocean: no signal, no subscription, no' \
-    '  account to log in to, no data to download first.' \
+    '  Thirty-six years on he is sailing round the world, and he wanted' \
+    '  a few things that would work on an iPad in the middle of an ocean:' \
+    '  no signal, no subscription, no account to log in to, no data to' \
+    '  download first.' \
     '' \
     '  So: the rules of the road, drawn.  You learn lights by looking' \
     '  at lights, from the angle you would actually see them, and by' \
