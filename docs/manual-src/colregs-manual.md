@@ -199,13 +199,16 @@ draws (`tests/colregs-geometry.awk`):
 2. **The range is closing.** A question about who keeps clear draws two
    vessels that are converging.
 3. **The head-on scenario shows both sidelights** in every draw, as its words
-   say.
+   say, and **a scenario that names one sidelight shows that one alone** —
+   you are always at least 5° off her bow, outside the small arc where both
+   show.
 4. **In the sailing scenarios both boats can sail their heading** — each at
    least 35° off the wind.
 
 How far her heading may swing is set per scenario: 15° either way unless the
 scenario needs less (1° for the head-on, 5° to 10° for the sailing and
-crossing cases).
+crossing cases). In the two crossing scenarios that name her red or her green
+sidelight, the bearing range keeps you clear of her bow instead.
 
 **The seaplane is on your port bow.** Rule 18(e) says a seaplane on the water
 keeps clear "in general"; once risk of collision exists she complies with

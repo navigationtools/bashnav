@@ -1,9 +1,9 @@
-// colregs data -- generated from bin/colregs v1.19 by running the awk
+// colregs data -- generated from bin/colregs v1.20 by running the awk
 // engine's own table initialisers and dumping what they built.  Do not
 // hand-edit: regenerate with docs/web/colregs/gen/make-colregs-web.sh so
 // the two cannot drift.
 window.COLREGS_DATA = {
- "version": "1.19",
+ "version": "1.20",
  "vessels": [
   {
    "key": "power50",
@@ -292,7 +292,7 @@ window.COLREGS_DATA = {
    "own": "You are a power-driven vessel under way.",
    "target": "a power-driven vessel showing her red sidelight",
    "brglo": 30,
-   "brghi": 100,
+   "brghi": 90,
    "thdg": 290,
    "answer": "b",
    "options": ["Stand on: she must keep clear of you.", "Give way: alter to starboard and pass under her stern.", "Give way: alter to port to cut across ahead of her.", "Slow down and let her decide."],
@@ -304,7 +304,7 @@ window.COLREGS_DATA = {
   {
    "own": "You are a power-driven vessel under way.",
    "target": "a power-driven vessel showing her green sidelight",
-   "brglo": 260,
+   "brglo": 270,
    "brghi": 330,
    "thdg": 70,
    "answer": "a",
@@ -556,7 +556,7 @@ window.COLREGS_DATA = {
    "brghi": 340,
    "thdg": 80,
    "answer": "a",
-   "options": ["Stand on: a seaplane on the water keeps well clear of all vessels.", "Give way: an aircraft has right of way.", "Give way: alter to starboard and pass astern of her.", "Stop your engines."],
+   "options": ["Stand on: a seaplane on the water in general keeps well clear of all vessels.", "Give way: an aircraft has right of way.", "Give way: alter to starboard and pass astern of her.", "Stop your engines."],
    "why": "Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. Once risk of collision exists she complies with the rules of this part like any other vessel - and here she is on your port side, so Rule 15 makes her the give-way vessel too. Either way you stand on, and keep watching her under Rule 17.",
    "rule": "Rule 18(e)",
    "hspr": 15

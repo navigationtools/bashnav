@@ -1,5 +1,42 @@
 # Changelog
 
+## colregs 1.20: one sidelight named, one sidelight drawn (TBGL)
+
+**What.** In the two crossing scenarios whose words name one sidelight (2, "showing her red
+sidelight"; 3, "showing her green sidelight"), she could be drawn within 2.5 degrees of end-on in
+about one draw in a hundred. There `arc_vis()` shows both sidelights, so the picture contradicted
+the words. The bearing range is trimmed 10 degrees at the end nearest her bow: 2 is now 030 to 090
+(was 030 to 100), 3 is now 270 to 330 (was 260 to 330). You are always at least 5 degrees off her
+bow, and the picture shows the one sidelight named. The answers do not change.
+
+**Also:** the seaplane's right answer (22) now reads "a seaplane on the water **in general** keeps
+well clear of all vessels", the two words Rule 18(e) uses. PILOT's re-check of 1.19 found them
+missing from the answer line (the why already had them), rated (c).
+
+**Why.** PILOT's QA part 1, item 5, rated (c). He offered two fixes: narrow the draw, or add a line
+to the why. Larry ruled TBGL (23 November): narrow it. That holds to the rule 1.19 set for every
+scenario: the picture is the situation the words describe.
+
+**How it is held.** `tests/colregs-geometry.awk` now also requires that a scenario whose words name
+"her red sidelight" or "her green sidelight" shows that one alone, with you at least 5 degrees off
+her bow, in all 3,000 draws. On the 1.19 data it fails for both 2 and 3; on 1.20 all 54,000 draws
+pass.
+
+**What it touches.**
+
+- `src/colregs/engine.awk` (`enc_init()` rows 2, 3 and 22, the `ECH[]` comment) and
+  `src/colregs/10-head.sh` (1.20)
+- `tests/colregs-geometry.awk`
+- `docs/web/colregs/`: `data.js`, `contacts-lessons.js` and `contacts-card.js` regenerated;
+  `sw.js` (cache colregs-v26); `README.md`
+- `docs/web/launcher.js` (1.20) and `docs/web/sw.js` (cache bashnav-launcher-v10)
+- `docs/web/README.md`, `README.md`, `REPO-STATE.md`, `docs/ARCHITECTURE.md` (1.20)
+- `docs/manual-src/colregs-manual.md` (section 6), both colregs PDFs rebuilt
+- `tests/golden/encounters.txt` (the only golden file that changed) and `release/bashnav-ipad.sh`
+  rebuilt
+- `docs/plates/encounter.txt` and `docs/img/colregs-encounter.svg`: the site's sample encounter is
+  scenario 2 at a fixed seed, so its picture moves with the new bearing range (`sh docs/make-site.sh`)
+
 ## colregs 1.19: PILOT's QA, part 1 -- the 28 encounters
 
 **What.** PILOT's QA of the 28 encounters (22 November) found two marked answers wrong in a way that

@@ -6,7 +6,7 @@ Drop this directory in at `docs/web/colregs/` in the bashnav repo.
 
 The colregs training aid, rebuilt for a browser. Lights, day shapes, sound
 signals, encounters and the fifteen rule lessons — the same content as
-`bin/colregs` v1.19, because the content was extracted *by running that
+`bin/colregs` v1.20, because the content was extracted *by running that
 engine*, not retyped.
 
 ## Why it is not just a port

@@ -29,6 +29,10 @@
 #       she closes does not change what you do;
 #    4  the head-on scenario shows both her sidelights in every draw,
 #       as its words say, using the same arc_vis() the picture uses;
+#       and a scenario whose words name ONE sidelight ("her red
+#       sidelight", "her green sidelight": 2 and 3) shows that one
+#       alone, with you at least 5 degrees off her bow (Larry's ruling
+#       TBGL, 1.20: about one draw in a hundred showed both);
 #    5  in the three sailing scenarios both boats are at least 35
 #       degrees off the wind, so each could actually be sailing that
 #       heading (PILOT: 11 was drawn with both boats 30 degrees off).
@@ -57,6 +61,12 @@ BEGIN{
         printf "  FAIL scenario %d seed %d: she bears %05.1f heading %05.1f and the range is opening\n", k, sd, bg, th; bad++; break }
       if(k==1 && !(arc_vis("S",me) && arc_vis("P",me))){
         printf "  FAIL scenario 1 seed %d: one sidelight only (you are %+.1f off her bow), the text says both\n", sd, me; bad++; break }
+      if(a[2] ~ /her (red|green) sidelight/){
+        want = (a[2] ~ /red/) ? "P" : "S"; other = (want=="P") ? "S" : "P"
+        if(!arc_vis(want,me) || arc_vis(other,me) || fabs(me)<5){
+          why = arc_vis(other,me) ? (arc_vis(want,me) ? "the picture shows both" : "the picture shows the other one") : "that is within 5 degrees of her bow"
+          printf "  FAIL scenario %d seed %d: you are %+.1f off her bow -- the words name one sidelight; %s\n", k, sd, me, why; bad++; break }
+      }
       if(k in SAIL){
         if(fabs(nrm180(w))<35 || fabs(nrm180(w-th))<35){
           printf "  FAIL scenario %d seed %d: wind %03d, her heading %05.1f -- one boat is under 35 degrees off the wind\n", k, sd, w, th; bad++; break }

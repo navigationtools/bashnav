@@ -69,11 +69,11 @@
        ..                .................                ..
       ..              ...                 ...              ..
      .              ...                     ...              .
-    ..             ..                         ..             ..
-    .              .             ^             .              .
-    .              .             |             ..             .
-    .              .            YOU            .     <::      .
     ..             ..                         ..       HER   ..
+    .              .             ^             .     <        .
+    .              .             |             ..     ::      .
+    .              .            YOU            .        ::    .
+    ..             ..                         ..             ..
      .              ...                     ...              .
       ..              ...                 ...              ..
        ..                .................                ..
@@ -96,21 +96,21 @@
   Not right.
   B is right -- Rule 15
   She is crossing from your starboard side, so you are the give-way vessel. Rule 15 says keep out of her way and, if the circumstances admit, avoid crossing ahead of her - so you alter to starboard and go under her stern.
-  (she bore 095 relative -- Green 95)
+  (she bore 086 relative -- Green 86)
 
   B is right -- Rule 15
   She is crossing from your starboard side, so you are the give-way vessel. Rule 15 says keep out of her way and, if the circumstances admit, avoid crossing ahead of her - so you alter to starboard and go under her stern.
-  (she bore 095 relative -- Green 95)
-
-  Not right.
-  B is right -- Rule 15
-  She is crossing from your starboard side, so you are the give-way vessel. Rule 15 says keep out of her way and, if the circumstances admit, avoid crossing ahead of her - so you alter to starboard and go under her stern.
-  (she bore 095 relative -- Green 95)
+  (she bore 086 relative -- Green 86)
 
   Not right.
   B is right -- Rule 15
   She is crossing from your starboard side, so you are the give-way vessel. Rule 15 says keep out of her way and, if the circumstances admit, avoid crossing ahead of her - so you alter to starboard and go under her stern.
-  (she bore 095 relative -- Green 95)
+  (she bore 086 relative -- Green 86)
+
+  Not right.
+  B is right -- Rule 15
+  She is crossing from your starboard side, so you are the give-way vessel. Rule 15 says keep out of her way and, if the circumstances admit, avoid crossing ahead of her - so you alter to starboard and go under her stern.
+  (she bore 086 relative -- Green 86)
 
 === encounter 3 ===
 
@@ -122,8 +122,8 @@
                ....                             ....
             ...                                     ...
           ..            HER                            ..
-        ...          :>                                 ...
-       ..         :::    .................                ..
+        ...         ::>                                 ...
+       ..         ::     .................                ..
       ..              ...                 ...              ..
      .              ...                     ...              .
     ..             ..                         ..             ..
@@ -152,22 +152,22 @@
 
   A is right -- Rule 17
   She is crossing from your port side, so she must keep out of your way and you are the stand-on vessel. Keep your course and speed - but Rule 17 also allows you to act as soon as it is clear she is not, and requires you to act when collision cannot be avoided by her action alone.
-  (she bore 325 relative -- Red 35)
+  (she bore 326 relative -- Red 34)
 
   Not right.
   A is right -- Rule 17
   She is crossing from your port side, so she must keep out of your way and you are the stand-on vessel. Keep your course and speed - but Rule 17 also allows you to act as soon as it is clear she is not, and requires you to act when collision cannot be avoided by her action alone.
-  (she bore 325 relative -- Red 35)
+  (she bore 326 relative -- Red 34)
 
   Not right.
   A is right -- Rule 17
   She is crossing from your port side, so she must keep out of your way and you are the stand-on vessel. Keep your course and speed - but Rule 17 also allows you to act as soon as it is clear she is not, and requires you to act when collision cannot be avoided by her action alone.
-  (she bore 325 relative -- Red 35)
+  (she bore 326 relative -- Red 34)
 
   Not right.
   A is right -- Rule 17
   She is crossing from your port side, so she must keep out of your way and you are the stand-on vessel. Keep your course and speed - but Rule 17 also allows you to act as soon as it is clear she is not, and requires you to act when collision cannot be avoided by her action alone.
-  (she bore 325 relative -- Red 35)
+  (she bore 326 relative -- Red 34)
 
 === encounter 4 ===
 
@@ -1231,7 +1231,7 @@
   You are a power-driven vessel under way.
   You see a seaplane on the water, fine on your port bow, heading as drawn.
   ----------------------------------------------------------------------
-   a) Stand on: a seaplane on the water keeps well clear of all vessels.
+   a) Stand on: a seaplane on the water in general keeps well clear of all vessels.
    b) Give way: an aircraft has right of way.
    c) Give way: alter to starboard and pass astern of her.
    d) Stop your engines.

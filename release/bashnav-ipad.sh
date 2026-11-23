@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=004154311
+BASHNAV_BYTES=004154853
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -5669,7 +5669,7 @@ bn_unpack() {
 #  A TRAINING AID ONLY.  The COLREGs themselves govern; see the notice
 #  printed by "colregs about".
 # =====================================================================
-COLREGS_VERSION=1.19
+COLREGS_VERSION=1.20
 
 : "${COLREGS_HOME:=$(bn_home .colregs)}"
 ENGINE="$COLREGS_HOME/engine-$COLREGS_VERSION.awk"
@@ -7789,10 +7789,10 @@ function enc_init(){
   EC[1]="You are a power-driven vessel under way.|a power-driven vessel, both her sidelights and two masthead lights in line|359|1|180|d|"\
 "Stand on: keep your course and speed.;Give way: alter to port and pass down her starboard side.;Sound one short blast and hold on.;Alter course to starboard, and expect her to do the same.|"\
 "Head-on, or nearly so, between two power-driven vessels. Neither is the stand-on vessel: each alters to starboard so that they pass port to port. Seeing both her sidelights is the classic sign.|Rule 14||power50p"
-  EC[2]="You are a power-driven vessel under way.|a power-driven vessel showing her red sidelight|030|100|290|b|"\
+  EC[2]="You are a power-driven vessel under way.|a power-driven vessel showing her red sidelight|030|090|290|b|"\
 "Stand on: she must keep clear of you.;Give way: alter to starboard and pass under her stern.;Give way: alter to port to cut across ahead of her.;Slow down and let her decide.|"\
 "She is crossing from your starboard side, so you are the give-way vessel. Rule 15 says keep out of her way and, if the circumstances admit, avoid crossing ahead of her - so you alter to starboard and go under her stern.|Rule 15||power50"
-  EC[3]="You are a power-driven vessel under way.|a power-driven vessel showing her green sidelight|260|330|070|a|"\
+  EC[3]="You are a power-driven vessel under way.|a power-driven vessel showing her green sidelight|270|330|070|a|"\
 "Stand on: keep your course and speed, and watch her.;Give way: alter to starboard.;Give way: alter to port.;Stop your engines at once.|"\
 "She is crossing from your port side, so she must keep out of your way and you are the stand-on vessel. Keep your course and speed - but Rule 17 also allows you to act as soon as it is clear she is not, and requires you to act when collision cannot be avoided by her action alone.|Rule 17||power50"
   EC[4]="You are a power-driven vessel making 18 knots.|a power-driven vessel making 8 knots, showing only her sternlight|350|010|000|b|"\
@@ -7857,7 +7857,7 @@ function enc_init(){
   #  contradicted it (PILOT's QA, rated (a)).  To port, both rules give
   #  the same answer and the answer stands.
   EC[22]="You are a power-driven vessel under way.|a seaplane on the water|290|340|080|a|"\
-"Stand on: a seaplane on the water keeps well clear of all vessels.;Give way: an aircraft has right of way.;Give way: alter to starboard and pass astern of her.;Stop your engines.|"\
+"Stand on: a seaplane on the water in general keeps well clear of all vessels.;Give way: an aircraft has right of way.;Give way: alter to starboard and pass astern of her.;Stop your engines.|"\
 "Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. Once risk of collision exists she complies with the rules of this part like any other vessel - and here she is on your port side, so Rule 15 makes her the give-way vessel too. Either way you stand on, and keep watching her under Rule 17.|Rule 18(e)||"
   EC[23]="You are a power-driven vessel under way.|a vessel showing three all-round green lights, one at the masthead and one at each yardarm|300|060|170|c|"\
 "Stand on: green lights mean she is under way and keeping clear.;Give way: alter to starboard and pass a cable astern of her.;Keep at least 1000 metres clear of her: she is engaged in mine clearance.;Sound one short blast and pass close ahead.|"\
@@ -7894,6 +7894,15 @@ function enc_init(){
   #        vessel.  In 20 that reverses the answer (you would keep
   #        clear, not stand on); in the others the answer survives but
   #        the picture teaches the wrong rule.  10 degrees closes it.
+  #
+  #    2, 3 (1.20, Larry's ruling TBGL, 23 Nov 2026)
+  #        the words name ONE sidelight, red in 2 and green in 3, and in
+  #        about one draw in a hundred she was drawn within 2.5 degrees
+  #        of end-on, where arc_vis() shows both.  Not by the swing: by
+  #        the bearing range, trimmed 10 degrees at the end nearest her
+  #        bow (2: 030-090, was 030-100; 3: 270-330, was 260-330), so
+  #        you are always at least 5 degrees off her bow and the picture
+  #        shows the one sidelight named.
   #
   #  tests/colregs-geometry.awk holds every encounter to these over
   #  thousands of draws.  A scenario not named here swings 15 degrees.
