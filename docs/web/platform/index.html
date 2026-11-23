@@ -114,6 +114,18 @@ p.note { color: var(--dim); font-size: 13px; }
 #camsay .big { display: block; font-size: 17px; margin: 4px 0; }
 #camsay .hit { color: #3f3; }
 #qrsay { font: 13px/1.5 var(--mono); word-break: break-all; color: var(--dim); }
+/*  the NT1 panel: big enough to read with a watch in the other hand  */
+#nt1panel { font: 13px/1.5 var(--mono); }
+#nt1panel .nt1sum { font-size: 17px; margin: 6px 0; }
+#nt1panel .nt1send { margin: 2px 0; }
+#nt1panel .good { color: var(--good); }
+#nt1panel .bad { color: var(--bad); }
+#nt1panel .nt1piece { border: 1px solid var(--line); border-radius: 6px;
+  background: var(--panel); padding: 8px 10px; margin: 8px 0; word-break: break-word; }
+#nt1panel .nt1piece.bad { border-color: var(--bad); }
+#nt1panel .nt1piece b { display: block; margin-bottom: 4px; }
+#nt1panel .nt1rec { color: var(--dim); }
+#nt1panel .nt1ts { color: var(--text); }
 #qrsay b { color: var(--text); }
 #probe { position: absolute; visibility: hidden;
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
@@ -189,6 +201,19 @@ p.note { color: var(--dim); font-size: 13px; }
         first run looked like nothing happening at all.  -->
   <p id="camsay" hidden></p>
 
+  <!--  THE NT1 PANEL (Larry's ruling TBJB, 23 Nov 2026).  Every distinct
+        code the camera reads is listed here, decoded with the Deck Log's
+        own nt1.js and its check code checked, so a hike's worth of
+        GlassLog codes shows whether EVERY one read correctly, and which
+        piece of a send is still missing.  Kept on this page only, never
+        stored or sent: reload and it is empty.  -->
+  <h2>NT1 pieces read</h2>
+  <p class="note">Each code the camera reads appears here once, newest
+    first: an NT1 piece is decoded and its check code checked; WG Log&rsquo;s
+    codes today show as Deck Log records. Reloading the page clears it.</p>
+  <div id="nt1panel"></div>
+  <div class="row"><button id="nt1clear">clear the list</button></div>
+
   <h2>The other probe</h2>
   <p class="note"><a href="scope/" style="color:#7fb7d9">Scope probe</a>
     &mdash; whether a manifest scope of <code>/</code> keeps a link to
@@ -207,12 +232,26 @@ p.note { color: var(--dim); font-size: 13px; }
      so these are fetched over the network like anything else here. -->
 <script src="../vendor/jsQR-1.4.0.js"></script>
 <script src="../shared/qr.js"></script>
+<script src="../deck-log/nt1.js"></script>
+<script src="nt1panel.js"></script>
 <script>
 (function () {
   "use strict";
 
   var probe = document.getElementById("probe");
   var tb    = document.getElementById("tb");
+
+  //  The NT1 panel (TBJB). If nt1.js or the panel did not load, say so
+  //  where the list would be, rather than show an empty list that looks
+  //  like "nothing read".
+  var nt1p = null;
+  if (typeof NT1Panel !== "undefined" && typeof NT1 !== "undefined") {
+    nt1p = NT1Panel.Panel(document.getElementById("nt1panel"));
+    document.getElementById("nt1clear").addEventListener("click", function () { nt1p.clear(); });
+  } else {
+    document.getElementById("nt1panel").textContent =
+      "The NT1 decoder did not load, so codes cannot be checked here.";
+  }
 
   //  Build the ruler labels once.  Every 20px, both axes.
   var r = document.getElementById("ruler"), i, b;
@@ -530,6 +569,7 @@ p.note { color: var(--dim); font-size: 13px; }
           hits++;
           if (ms > worst) worst = ms;
           seen[text] = 1; lastText = text; lastWhere = where;
+          if (nt1p) nt1p.add(text);
           hit();
         }
 

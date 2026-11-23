@@ -1324,6 +1324,16 @@ WXLOG
       bad "an NT1 record does not come back the way it went out"
       echo "$r" | head -10
     fi
+    #  THE PROBE PAGE'S NT1 PANEL (Larry's ruling TBJB, 23 Nov 2026):
+    #  what his GlassLog hike test is shown. A good piece reads OK with
+    #  every record, one changed character fails its check code, a piece
+    #  not scanned is named as missing, WG Log's form is recognised.
+    if r=$(node docs/web/tests/probe-nt1.js 2>&1); then
+      ok "the Probe page's NT1 panel checks every piece $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
+    else
+      bad "the Probe page's NT1 panel misreports a piece"
+      echo "$r" | head -6
+    fi
   else
     say "  --    the NT1 round-trip needs node, skipped"
   fi

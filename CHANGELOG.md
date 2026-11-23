@@ -1,5 +1,45 @@
 # Changelog
 
+## The Probe page checks every NT1 piece it reads (TBJB)
+
+**What.** `docs/web/platform/` has a new section under the camera, **NT1 pieces read**. Each
+distinct code the camera reads is listed there once, newest first:
+
+1. **An NT1 piece** (GlassLog's codes, D10/TBIX) is decoded with the Deck Log's own
+   `docs/web/deck-log/nt1.js`. Its CRC-16 check code is checked ("✓ check code OK" or "✗ check code
+   does not match"), and each observation is shown field by field: "11-23 16:40Z nav lat 41 14.0N ·
+   lon 072 05.0W · wspd 14 …".
+2. **WG Log's codes today** (whole Deck Log records) are recognised and shown the same way.
+3. **Anything else** is listed as not recognised, not dropped.
+4. **A summary at the top:** how many codes have been read, how many passed their check, and for each
+   send how many of its pieces have arrived. A missing piece is named: "Send 6: 2 of 3 pieces —
+   missing 1".
+
+Nothing is stored or sent; reloading the page clears the list. The panel's code is in
+`docs/web/platform/nt1panel.js`.
+
+**Why.** Larry's ruling TBJB (23 November 2026). His GlassLog hike test, with a prompt every 10
+minutes, ends with scanning the watch's codes into this page. Until now the page showed only the
+raw text of the last code and a count. That proved the codes read, not that every one read
+correctly. It also puts `nt1.js`, which the Scan screen will use, to work on real watch codes first.
+
+**How it is held.**
+
+1. `docs/web/tests/probe-nt1.js` (14 checks, in the suite) holds the panel to its job:
+   - a hike's worth of observations, packed by `nt1.js` into 271-byte pieces as GlassLog packs them,
+     reads back OK, every record;
+   - one character changed fails the check code;
+   - a piece not scanned is named as missing;
+   - WG Log's form is recognised, and anything else is reported.
+2. **End to end, in Chromium with a fake camera.** Three GlassLog-sized pieces, encoded as QR
+   (version 10 and 5, level L) and played as a flip-book at 1.5 s each, all read through the real
+   camera path, `qr.js`, jsQR and the panel: "3 codes read · NT1: 3 check code OK · Send 6: 3 of 3
+   pieces — complete", all 18 records. That proves the page. It says nothing about the watch's
+   screen, glare or focus; Larry's hike is that test.
+
+**What it impacts.** Only the Probe page, which has no service worker, so it is live as soon as it
+is pushed. `nt1.js` is unchanged by this entry. No tool version changes.
+
 ## celnav 1.6.1 / colregs 1.21: the About screens no longer name the race (TBJN)
 
 **What.** In both shell tools, the "Why this exists" screen (About, item 1) now reads "Thirty-six
