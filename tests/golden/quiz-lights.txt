@@ -25,12 +25,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Sailing vessel under way
@@ -131,12 +131,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Power-driven vessel of 50 m or more, under way
@@ -209,12 +209,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Restricted in her ability to manoeuvre
@@ -286,12 +286,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Sailing vessel under way
@@ -392,12 +392,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Sailing vessel under 20 m, combined lantern
@@ -498,12 +498,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Dredging or underwater operations, restricted
@@ -576,12 +576,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Mine clearance vessel
@@ -658,12 +658,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Vessel at anchor, under 50 m
@@ -736,12 +736,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Power-driven vessel under 12 m
@@ -814,12 +814,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Vessel at anchor, 50 m or more
@@ -892,12 +892,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Vessel trawling
@@ -997,12 +997,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Vessel aground
@@ -1074,12 +1074,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Pilot vessel on duty
@@ -1151,12 +1151,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Sailing vessel under 7 m, or a vessel under oars
@@ -1228,12 +1228,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Dredging or underwater operations, restricted
@@ -1310,12 +1310,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Not under command, making way
@@ -1388,12 +1388,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Sailing vessel under 20 m, combined lantern
@@ -1498,12 +1498,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Restricted in her ability to manoeuvre
@@ -1579,12 +1579,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Pushing ahead, or towing alongside
@@ -1689,12 +1689,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Constrained by her draught
@@ -1766,12 +1766,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Vessel at anchor, 50 m or more
@@ -1847,12 +1847,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Constrained by her draught
@@ -1929,12 +1929,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Power-driven vessel under 7 m, 7 knots or less
@@ -2039,12 +2039,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Pilot vessel on duty
@@ -2121,12 +2121,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Restricted in her ability to manoeuvre
@@ -2203,12 +2203,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Air-cushion vessel in non-displacement mode
@@ -2308,12 +2308,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Power-driven vessel under 50 m, under way
@@ -2386,12 +2386,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Restricted in her ability to manoeuvre
@@ -2463,12 +2463,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Power-driven vessel of 50 m or more, under way
@@ -2568,12 +2568,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Vessel being towed
@@ -2673,12 +2673,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Restricted in her ability to manoeuvre
@@ -2779,12 +2779,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Constrained by her draught
@@ -2861,12 +2861,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Constrained by her draught
@@ -2939,12 +2939,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Vessel trawling
@@ -3016,12 +3016,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Vessel trawling
@@ -3094,12 +3094,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Constrained by her draught
@@ -3200,12 +3200,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Fishing, other than trawling
@@ -3278,12 +3278,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Towing, tow over 200 m
@@ -3383,12 +3383,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Vessel trawling
@@ -3461,12 +3461,12 @@
   longer as you see more of her side, but it never shows which end is
   her bow. Read her lights, not her shape: at night the lights are all
   a lookout has.
-  Sideways spacing is where the lights sit along her hull, close to.
-  Annex I keeps sidelights abaft the forward masthead light, so a
-  sidelight falls toward her stern here, never toward her bow. And
-  at a bow aspect you see across her beam more than along her length,
-  so her green swings left - as it does bow-on. Not a heading cue:
-  at any real range every one of them is in line.
+  Sideways spacing is drawn to scale along her hull, closed up so the
+  lamps fit the picture. On a real ship the two masthead lights are at
+  least half her length apart, and how far apart they look is how you
+  read her aspect: in line, she is end on; wide open, she is beam on.
+  Annex I keeps her sidelights abaft the forward masthead light, so a
+  sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
      a) Vessel at anchor, 50 m or more

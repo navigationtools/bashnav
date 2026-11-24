@@ -89,11 +89,16 @@ starboard one does not.](fig/colregs-lights-stage.png)
 
 **What the drawing is telling you, and what it is not.**
 
-1. **The lamps are where the rules put them** — the vertical order and the
-   sectors are from the Convention, drawn rather than described.
-2. **Sideways spacing is where a lamp sits along the hull,** not a heading
-   cue. At any real range the lamps of one vessel are in line; the spread in
-   the drawing exists so you can see which lamp is which.
+1. **The vertical order and the sectors are the Convention's,** drawn rather
+   than described. One placement is the drawing's choice: a signal such as
+   red, white, red is drawn above the masthead light. Annex I 2(f) puts it
+   below where that is practicable, and allows above only where it is not.
+2. **Sideways spacing is drawn to scale along her hull, closed up so the
+   lamps fit the picture.** On a real ship the two masthead lights are at
+   least half her length apart (Annex I 3(a)), and how far apart they look is
+   how you read her aspect: in line, she is end on; wide open, she is beam on.
+   Annex I 3(b) keeps her sidelights abaft the forward masthead light, so a
+   sidelight is drawn toward her stern, never toward her bow.
 3. **The sidelight cut-off is ±2.5°, not exact.** Annex I allows the cut-off
    to fall up to 3° outside the prescribed sector, so there is a small arc
    right ahead where **both** sidelights are seen. The drawing shows that,
@@ -102,8 +107,8 @@ starboard one does not.](fig/colregs-lights-stage.png)
 4. **Every lamp carries its letter** — W white, R red, G green, Y yellow. The
    pattern has to read with no colour at all, because in night mode it has
    none, and because colour is the first thing a tired eye gets wrong.
-5. **A lamp marked `fl` flashes.** Annex I puts that at 120 or more flashes a
-   minute, and the rate is part of the identification.
+5. **A lamp marked `fl` flashes.** Rule 21(f) puts that at 120 or more flashes
+   a minute, and the rate is part of the identification.
 6. **She is a plain shape on purpose.** The drill and the encounters' picture
    both say so, in these words: *"She is drawn as a plain silhouette, the same
    at both ends: it grows longer as you see more of her side, but it never
@@ -126,8 +131,7 @@ answer — lamp colours for lights, the glyph stack for shapes, the sequence of
 blast kinds for sounds — and the closest four are offered, with a little noise
 so the same question is not always the same five rows. Over the whole data
 set the candidates offered share 3.79 lamp colours with the answer against
-2.74 for random picks. **A trawler is set against a mine clearance vessel and
-a pilot vessel on duty, not against a seaplane.**
+2.74 for random picks.
 
 A wrong tap marks that row and leaves the others live, so a miss costs you
 another look at the picture rather than ending the question.
@@ -181,7 +185,7 @@ bears and heading as she heads. Four answers are offered, and they are not
 "stand on / give way" alone — each names the **action**, because the rules
 require an action and not a category:
 
-> *Give way: alter to starboard and pass down her port side.*
+> *Give way: alter to starboard and pass under her stern.*
 
 The wrong answers are the plausible ones: altering to port in a crossing
 situation, standing on when you are the give-way vessel, assuming a restricted
@@ -335,8 +339,8 @@ one that catches people, and C3 covers three of them:
 1. **A very large vessel.** You plotted her bridge. Her bow is a ship's length
    nearer, and it is the bow that arrives.
 2. **A tow.** The tug clears. The barge on the wire behind her does not.
-3. **Close range.** Drift goes as the square of the range, so at close quarters
-   a safe-looking drift is a small miss.
+3. **Close range.** For a given miss, drift falls off as the square of the
+   range, so at close quarters a safe-looking drift is a small miss.
 
 ### The report
 
@@ -356,6 +360,9 @@ unchanged between the two legs, so all of the change in bearing rate belongs
 to own ship:
 
     R(kyd) = 1.91 × ΔS⊥(kt) / Δω(°/min)        S⊥ = own speed × sin(course − bearing)
+
+The 1.91 is for a 2,000-yard mile, the mile of the three-minute rule. With the
+nautical mile's true 2,025.4 yards it is 1.934, about 1% more.
 
 Checked against the true range over 59,000 geometries to 8×10⁻¹⁴ relative
 error, and over 300 generated leg pairs the worst recovery is 5.9% — which is

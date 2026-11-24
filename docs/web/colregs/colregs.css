@@ -322,7 +322,7 @@ input[type="range"]::-moz-range-thumb {
 .decknote strong { color: var(--text); }
 
 /* ---------- flashing lamps ----------
-   Annex I's minimum is 120 flashes per minute, so 500 ms per cycle.  A
+   Rule 21(f)'s minimum is 120 flashes per minute, so 500 ms per cycle.  A
    short on-period rather than a 50% blink, because that is what a flashing
    navigation light looks like.  steps() so it snaps rather than fades - a
    lamp is on or it is off.

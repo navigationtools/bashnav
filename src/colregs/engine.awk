@@ -928,25 +928,24 @@ function show_lights(key,th){
   printf "  Letters are the colours: %s white  %s red  %s green  %s yellow\n",
      cw("W",K_W), cw("R",K_R), cw("G",K_G), cw("Y",K_Y)
   sil_note()
-  #  Left-and-right is where a light sits along her hull, seen from close
-  #  to, and it reads backwards to a seaman's eye: a sidelight looks as
-  #  though it ought to be forward, toward the bow, and it is drawn aft
-  #  of the masts.  That is not the drawing being wrong.  Annex I 3(b)
-  #  says the sidelights "shall not be placed in front of the forward
-  #  masthead lights", so aft of the masts is where they belong - and at
-  #  a bow aspect you are looking across her beam more than along her
-  #  length, which swings her starboard light further to your left
-  #  still.  It is the same geometry as bow-on, where her green is on
-  #  your left and her red on your right; it just fades out as she comes
-  #  beam-on.  None of it survives to any real range: a 5 m offset at
-  #  2 miles is a fifteenth of a degree.  Height and colour are what you
-  #  actually get.  This question has been asked twice; hence the note.
-  printf "  %s\n", cwd("Sideways spacing is where the lights sit along her hull, close to.")
-  printf "  %s\n", cwd("Annex I keeps sidelights abaft the forward masthead light, so a")
-  printf "  %s\n", cwd("sidelight falls toward her stern here, never toward her bow. And")
-  printf "  %s\n", cwd("at a bow aspect you see across her beam more than along her length,")
-  printf "  %s\n", cwd("so her green swings left - as it does bow-on. Not a heading cue:")
-  printf "  %s\n", cwd("at any real range every one of them is in line.")
+  #  SIDEWAYS SPACING IS A HEADING CUE, and the note says so (colregs
+  #  1.22, PILOT's QA part 3, rated (b)).  It used to say the opposite --
+  #  that at any real range every lamp is in line -- which is the reverse
+  #  of what the rules and the encounters teach: Annex I 3(a) puts a
+  #  ship's two masthead lights at least half her length apart, and
+  #  Rule 14(b) defines head-on by "masthead lights in a line or nearly
+  #  in a line".  How far apart they open is how you read her aspect.
+  #  The drawing keeps the lamps in their places along the hull but
+  #  closes them up (a quarter of her length between the masthead
+  #  lights) so they fit the picture.  Annex I 3(b) keeps the sidelights
+  #  abaft the forward masthead light, which is why a sidelight is drawn
+  #  toward her stern -- a question asked twice, hence that line.
+  printf "  %s\n", cwd("Sideways spacing is drawn to scale along her hull, closed up so the")
+  printf "  %s\n", cwd("lamps fit the picture. On a real ship the two masthead lights are at")
+  printf "  %s\n", cwd("least half her length apart, and how far apart they look is how you")
+  printf "  %s\n", cwd("read her aspect: in line, she is end on; wide open, she is beam on.")
+  printf "  %s\n", cwd("Annex I keeps her sidelights abaft the forward masthead light, so a")
+  printf "  %s\n", cwd("sidelight is drawn toward her stern, never toward her bow.")
   print ""
   return 0
 }

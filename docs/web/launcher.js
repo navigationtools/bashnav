@@ -13,7 +13,7 @@ var TOOLS = [
         reduction calculator first, a teaching track second, and the camera
         is the third way of getting an altitude into it.  */
     desc: 'Sight reduction, the fix, and 33 lessons', ready: true },
-  { id: 'colregs',  name: 'colregs',  ver: '1.21',
+  { id: 'colregs',  name: 'colregs',  ver: '1.22',
     desc: 'Lights, shapes, sounds and the rules of the road', ready: true },
   { id: 'tides',    name: 'tides',    ver: '1.1',
     desc: 'Harmonic prediction, 8,334 stations', ready: true },

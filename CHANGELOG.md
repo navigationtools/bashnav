@@ -1,5 +1,61 @@
 # Changelog
 
+## colregs 1.22: PILOT's QA part 3, the manual (and the lights drill's note)
+
+**What.** PILOT's QA of the manual (23 November) found three faults rated (b) and three items rated
+(c). This release fixes the (b) faults and two of the (c) items; one (c) item waits on part 2.
+
+1. **Sideways spacing is a heading cue, and the drill now says so (b).** The manual's section 3,
+   item 2, and the note under every picture in the terminal's lights drill both said the opposite:
+   that the spacing was "not a heading cue" and that at any real range a vessel's lamps are in line.
+   But Annex I 3(a) puts a ship's two masthead lights at least half her length apart, and Rule 14(b)
+   defines head-on by "masthead lights in a line or nearly in a line". How far apart they open is
+   how you read her aspect. Both now say, in PILOT's words: "Sideways spacing is drawn to scale
+   along her hull, closed up so the lamps fit the picture. On a real ship the two masthead lights
+   are at least half her length apart, and how far apart they look is how you read her aspect: in
+   line, she is end on; wide open, she is beam on." The line on why a sidelight is drawn toward her
+   stern (Annex I 3(b)) stays.
+2. **Rule 21(f), not Annex I, sets the 120 flashes a minute (b),** in the manual (section 3,
+   item 5), on the browser's lights screen, and in two code comments and a stylesheet comment.
+3. **The quoted encounter answer is a real one (b).** Section 6 quoted "alter to starboard and pass
+   down her port side", which no encounter marks right. It now quotes "Give way: alter to starboard
+   and pass under her stern."
+4. **"Drift goes as the square of the range" (c)** now reads "for a given miss, drift falls off as
+   the square of the range", in the manual (section 8) and the quick reference.
+5. **Where a signal light is drawn (c).** Section 3, item 1, no longer says the lamps are "where the
+   rules put them". It says the vertical order and the sectors are the Convention's, and that a
+   signal such as red, white, red is drawn above the masthead light, where Annex I 2(f) puts it
+   below wherever that is practicable.
+6. **The Ekelund constant (q):** the manual says the 1.91 is for a 2,000-yard mile, and is 1.934
+   with the true 2,025.4.
+7. **A claim taken out.** The manual and the browser README said a trawler "is set against a mine
+   clearance vessel and a pilot vessel on duty, not against a seaplane". There is no seaplane in the
+   vessel list (PILOT, (q)). Measured over 3,000 seeds of the lights drill, the trawler was asked
+   103 times. Her most frequent rivals were a power-driven vessel under 12 m (19), a sailing vessel
+   (17) and a vessel at anchor (17); mine clearance came up 5 times and the pilot 8. The sentence
+   is removed rather than rewritten. The measured averages before it (3.79 lamp colours shared
+   against 2.74 for random picks) stay.
+
+**Not done, and why.**
+- **What the drill does when two vessels look the same from that bearing (c).** This is part 2's
+  fix 1, and needs Larry's ruling first. The manual's sentence comes with that fix.
+- **Two (q) items with no source:** the twenty minutes of dark adaptation, and "common in US and
+  merchant practice" for the reporting styles. They are not changed.
+- **The front-page line on US Inland** was done in 1.19.
+
+**What it touches.**
+
+- `src/colregs/engine.awk` (the note in `show_lights()`) and `src/colregs/10-head.sh` (1.22)
+- `docs/manual-src/colregs-manual.md`, `colregs-quickref.md`; both PDFs rebuilt
+- `docs/web/colregs/index.html`, `colregs.js` and `colregs.css` (comments), `README.md`;
+  `data.js`, `contacts-lessons.js` and `contacts-card.js` regenerated (version in their headers);
+  `sw.js` (cache colregs-v28)
+- `docs/web/launcher.js` (1.22), `docs/web/sw.js` (cache bashnav-launcher-v12),
+  `docs/web/README.md`, `README.md`, `REPO-STATE.md`, `docs/ARCHITECTURE.md`
+- `tests/golden/lights.txt` and `quiz-lights.txt` (the note); `release/bashnav-ipad.sh`
+
+Found-by: PILOT's COLREGS QA, part 3 (23 November 2026); the trawler measurement by NAV.
+
 ## The Probe page's camera stays off after "stop"
 
 **What.** On `docs/web/platform/`, tapping **stop** now turns the camera off, and it stays off.

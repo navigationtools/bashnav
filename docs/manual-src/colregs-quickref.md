@@ -67,7 +67,7 @@ the bearing sweeps one way and cannot come back.
 
 1. a very large vessel — you plotted her bridge, her bow is nearer;
 2. a tow — the tug clears, the barge on the wire does not;
-3. close range — drift goes as the square of the range.
+3. close range — for a given miss, drift falls off as the square of the range.
 
 ## The report
 

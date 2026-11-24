@@ -190,7 +190,7 @@ var lightIdx = 0, lightBrg = 40;
 /* =====================================================================
    FLASHING LIGHTS
 
-   Annex I defines a flashing light as one flashing "at regular intervals
+   Rule 21(f) defines a flashing light as one flashing "at regular intervals
    at a frequency of 120 flashes or more per minute" - so 2 Hz is the
    defined minimum, and that is what is rendered here.  The rate is part
    of the identification, not decoration: a steady yellow all-round light
@@ -207,7 +207,7 @@ var lightIdx = 0, lightBrg = 40;
    ===================================================================== */
 var FLASHING = {
   /* vessel key : which lamps flash, by colour and arc, and with what rhythm.
-     'flash' is Annex I's 120-a-minute.  'group3' is the submarine's, which is
+     'flash' is Rule 21(f)'s 120-a-minute.  'group3' is the submarine's, which is
      a different rhythm and therefore a different recognition. */
   hover:     [{ col: 'Y', arc: 'A', pat: 'flash',  mark: 'fl' }],
   /* Rule 23(b) - all-round flashing yellow */
@@ -618,7 +618,7 @@ function soundsReveal() {
    its signature it shares with the answer -- lamp colours for lights,
    the glyph stack for day shapes, the blast pattern for sounds -- and
    the closest four are used.  A trawler against a vessel not under
-   command teaches you something.  A trawler against a seaplane does not.
+   command teaches you something.  A trawler against a vessel she shares no lamp with does not.
 
    A wrong tap marks that row and leaves the rest live, so a miss costs
    you another look at the picture instead of ending the question.

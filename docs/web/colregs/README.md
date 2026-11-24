@@ -6,7 +6,7 @@ Drop this directory in at `docs/web/colregs/` in the bashnav repo.
 
 The colregs training aid, rebuilt for a browser. Lights, day shapes, sound
 signals, encounters and the fifteen rule lessons — the same content as
-`bin/colregs` v1.21, because the content was extracted *by running that
+`bin/colregs` v1.22, because the content was extracted *by running that
 engine*, not retyped.
 
 ## Why it is not just a port
@@ -87,8 +87,7 @@ sequence of blast kinds for sounds — and the closest four are offered, with
 a little noise so the same question is not always the same five rows.
 Measured over the whole data set, the candidates offered share 3.79 lamp
 colours with the answer against 2.74 for random picks; shapes 0.68 against
-0.38; sounds 2.05 against 1.25. A trawler is therefore set against a mine
-clearance vessel and a pilot vessel on duty, not against a seaplane.
+0.38; sounds 2.05 against 1.25.
 
 A wrong tap marks that row and leaves the other rows live, so a miss costs
 you another look at the picture rather than ending the question.

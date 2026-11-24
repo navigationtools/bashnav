@@ -1,4 +1,4 @@
-// the contacts reference card -- generated from bin/colregs v1.21 by
+// the contacts reference card -- generated from bin/colregs v1.22 by
 // running ct_ref() once per reporting style and capturing what it
 // printed. The card names a relative bearing, and which words it uses
 // is the reader's setting, so there is a variant for each. Do not
