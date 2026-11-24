@@ -1,5 +1,35 @@
 # Changelog
 
+## The Probe page's camera stays off after "stop"
+
+**What.** On `docs/web/platform/`, tapping **stop** now turns the camera off, and it stays off.
+
+**Why.** Larry, 23 November 2026, on his iPad after the GlassLog hike: "I press stop and it keeps
+starting up again." The cause was two handlers on one button:
+1. one, added with `addEventListener`, started the camera;
+2. the other, `btn.onclick`, was set to stop it once it was running.
+
+A press on "stop" ran both. The first asked for a new stream while the second stopped the old one,
+so the camera came straight back. Reproduced in Chromium with a fake camera before the fix: 2.5 s
+after "stop" a track was still live and the button still said "stop".
+
+**The fix.** One handler with two states. `camStop` is set only while a stream is running, and a
+press then stops it and does nothing else. Stopping also clears the video's source. The
+`play()` promise that a quick stop interrupts is caught, because that interruption is expected,
+not an error. The page's note under the button says that one tap of **stop** turns the camera off.
+
+**How it is held.** `docs/web/tests/probe-camera-stop.js`, in the suite: start, then stop and
+check 2.5 s later; twice; no page errors.
+1. It failed on the old page (2 of 5) and passes on the new one, three runs in a row.
+2. It needs a browser. Where none can be launched (the Mac's VM) it says SKIP, as the display-mode
+   test does.
+3. The NT1 panel was run again end to end through the fake camera after the fix: 3 codes, 3 check
+   codes OK.
+
+**What it impacts.** The Probe page only, and `docs/web/tests/README.md` (a new section on the
+Probe page's two tests). No manual describes the Probe page; the line for the reader is on the page
+itself.
+
 ## The Probe page checks every NT1 piece it reads (TBJB)
 
 **What.** `docs/web/platform/` has a new section under the camera, **NT1 pieces read**. Each

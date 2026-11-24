@@ -291,3 +291,20 @@ mechanism with its own payload: a tab-separated dump split a record
 whose value was a literal tab, and a `pkill -f` pattern matched the
 shell running it. The lesson has a shape — **never key a test on
 something the data can also contain.**
+
+# The Probe page
+
+`docs/web/platform/` is a measuring instrument, not an app: what the iPad
+reports about itself, and a live QR reader for the watch's codes.
+
+| | |
+|---|---|
+| `probe-nt1.js` | the NT1 panel: a good piece reads OK, a changed character fails its check code, a missing piece is named, WG Log's form is recognised |
+| `probe-camera-stop.js` | the camera turns off on "stop" and stays off, twice, in a browser with a fake camera |
+
+**Two handlers on one button.** The camera button started the camera from
+an `addEventListener` handler and stopped it from `btn.onclick`. A press on
+"stop" ran both: one stopped the stream and the other asked for a new one,
+so on Larry's iPad the camera came straight back. Now there is one handler
+with two states, and the test failed on the old page before it passed on
+the new one.

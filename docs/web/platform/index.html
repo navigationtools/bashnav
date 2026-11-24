@@ -188,7 +188,8 @@ p.note { color: var(--dim); font-size: 13px; }
     <button id="camgo">try the camera on it</button>
   </div>
   <p class="note">Point it at the picture above on another screen, or at the
-    watch. Nothing is sent anywhere and nothing is kept.</p>
+    watch. Nothing is sent anywhere and nothing is kept. Tap
+    <b>stop</b> once and the camera turns off and stays off.</p>
   <div id="camwrap">
     <video id="cam" playsinline muted></video>
     <div id="aim"></div>
@@ -479,7 +480,18 @@ p.note { color: var(--dim); font-size: 13px; }
   //  that is silent when the answer is "no" is not a probe. Frames,
   //  resolution, reads and the slowest decode are on screen throughout,
   //  so a failure is still a measurement.
+  //  ONE HANDLER, TWO STATES.  The button used to start the camera from
+  //  an addEventListener handler and stop it from btn.onclick -- two
+  //  handlers on one button, and BOTH ran on "stop": the onclick stopped
+  //  the stream while the listener asked for a new one, so the camera
+  //  came straight back.  Larry, 23 Nov 2026, on his iPad: "I press stop
+  //  and it keeps starting up again."  Reproduced in Chromium with a
+  //  fake camera before the fix (still live 2.5 s after stop), and held
+  //  by docs/web/tests/probe-camera-stop.js.  camStop is set only while
+  //  a stream is running; a press then stops it, and does nothing else.
+  var camStop = null;
   document.getElementById("camgo").addEventListener("click", function () {
+    if (camStop) { camStop(); return; }
     var btn = this, vid = document.getElementById("cam");
     var wrap = document.getElementById("camwrap");
     var aim = document.getElementById("aim");
@@ -510,7 +522,11 @@ p.note { color: var(--dim); font-size: 13px; }
     navigator.mediaDevices.getUserMedia(want)
       .then(function (stream) {
         wrap.style.display = "block"; say.hidden = false;
-        vid.srcObject = stream; vid.play();
+        vid.srcObject = stream;
+        //  play() returns a promise that rejects if the stream is taken
+        //  away before playback starts -- which a quick "stop" now does,
+        //  cleanly. That is not an error, so it is not reported as one.
+        var pp = vid.play(); if (pp && pp.catch) pp.catch(function () {});
         //  Put the picture and its readout on the screen together. The
         //  button is near the middle of a long page and the video opens
         //  below it; without this the viewer is aiming at something they
@@ -605,12 +621,13 @@ p.note { color: var(--dim); font-size: 13px; }
         status();
         btn.textContent = "stop";
         btn.disabled = false;
-        btn.onclick = function () {
+        camStop = function () {
+          camStop = null;
           clearInterval(tick);
           stream.getTracks().forEach(function (t) { t.stop(); });
+          vid.srcObject = null;
           wrap.style.display = "none"; say.hidden = true; aim.className = "";
           btn.textContent = "try the camera on it";
-          btn.onclick = null;
         };
       })
       .catch(function (e) {

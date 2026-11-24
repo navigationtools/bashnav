@@ -1489,6 +1489,23 @@ WXLOG
     say "  --    the display-mode check needs node, skipped"
   fi
 
+  #  THE PROBE PAGE'S CAMERA STOPS WHEN TOLD TO (Larry, 23 Nov 2026: "I
+  #  press stop and it keeps starting up again"). Two handlers on one
+  #  button both ran on "stop". Driven in a browser with a fake camera;
+  #  SKIP where no browser can be launched, as above.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/probe-camera-stop.js 2>&1); then
+      case "$r" in
+        *"PROBE-CAMERA SKIP"*)
+          say "  --    the Probe page's camera stop needs a browser, skipped" ;;
+        *) ok "the Probe page's camera stops when told to, twice $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')" ;;
+      esac
+    else
+      bad "the Probe page's camera does not stay stopped"
+      echo "$r" | head -8
+    fi
+  fi
+
   if command -v node >/dev/null 2>&1; then
     if r=$(node docs/web/tests/polar.js 2>&1); then
       ok "the polar interpolates, and refuses to guess outside its table $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
