@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=004155246
+BASHNAV_BYTES=004155824
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -5671,7 +5671,7 @@ bn_unpack() {
 #  A TRAINING AID ONLY.  The COLREGs themselves govern; see the notice
 #  printed by "colregs about".
 # =====================================================================
-COLREGS_VERSION=1.22
+COLREGS_VERSION=1.23
 
 : "${COLREGS_HOME:=$(bn_home .colregs)}"
 ENGINE="$COLREGS_HOME/engine-$COLREGS_VERSION.awk"
@@ -7328,7 +7328,7 @@ function seen_sig(idx,th,   i,np,txt,PH){
   return "She shows " txt "."
 }
 
-function light_sig(idx,th,   a,n,L,i,f,cnt,j,t1,t2,sig){
+function light_sig(idx,th,   a,n,L,i,f,cnt,j,t1,t2,t3,sig){
   ves_init()
   split(VT[idx],a,"|"); n=split(a[4],L,";")
   cnt=0
@@ -7339,13 +7339,21 @@ function light_sig(idx,th,   a,n,L,i,f,cnt,j,t1,t2,sig){
     #  what you can actually judge: the colour, and how far the light sits
     #  left or right of the others.  Absolute height is not something you can
     #  measure at night, so it is deliberately left out.
-    SGC[cnt]=f[5] sprintf("%d", int(((f[1]+0)*sind(th) - (f[2]+0)*cosd(th))/0.06 + 100))
+    SGC[cnt]=f[5]
+    SGU[cnt]=(f[1]+0)*sind(th) - (f[2]+0)*cosd(th)
   }
-  for(i=2;i<=cnt;i++){ t1=SGH[i]; t2=SGC[i]; j=i-1
-    while(j>=1 && SGH[j]<t1){ SGH[j+1]=SGH[j]; SGC[j+1]=SGC[j]; j-- }
-    SGH[j+1]=t1; SGC[j+1]=t2 }
+  for(i=2;i<=cnt;i++){ t1=SGH[i]; t2=SGC[i]; t3=SGU[i]; j=i-1
+    while(j>=1 && SGH[j]<t1){ SGH[j+1]=SGH[j]; SGC[j+1]=SGC[j]; SGU[j+1]=SGU[j]; j-- }
+    SGH[j+1]=t1; SGC[j+1]=t2; SGU[j+1]=t3 }
+  #  LEFT OR RIGHT OF THE OTHERS, NOT OF HER BOW.  Until 24 November 2026
+  #  each lamp was placed from the vessel's own reference point, which the
+  #  eye cannot see: one degree off her stern a lone sternlight and a lone
+  #  anchor light were "different" because one sits aft and one forward,
+  #  so the quiz could offer both and mark one wrong.  Measured from the
+  #  top lamp, a single lamp is just its colour, as it is at night.
+  #  Found by docs/web/tests/colregs-twins.js (Larry's ruling TBKP).
   sig=""
-  for(i=1;i<=cnt;i++) sig=sig SGC[i] ","
+  for(i=1;i<=cnt;i++) sig=sig SGC[i] sprintf("%d", int((SGU[i]-SGU[1])/0.06 + 100)) ","
   return sig
 }
 function arc_vis(arc,th){

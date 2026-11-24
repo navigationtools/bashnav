@@ -1297,6 +1297,23 @@ WXLOG
     bad "the web and shell colregs disagree"; echo "$r" | head -6
   fi
 
+  #  2a. NO DRAW MARKS A LOOK-ALIKE WRONG (Larry's ruling TBKP, 24 November
+  #     2026). Every pair of vessels from every bearing, then the drill
+  #     itself tapped row by row from every vessel and bearing: a vessel
+  #     that would show the same lamps is "Right: from here she could be
+  #     either", with what tells them apart; anything else is "Not her".
+  #     The sounds drill the same for its one shared pattern.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node docs/web/tests/colregs-twins.js 2>&1); then
+      ok "no lights or sounds draw marks a look-alike wrong $(echo "$r" | sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p')"
+    else
+      bad "the colregs drill marks a look-alike wrong, or explains it falsely"
+      echo "$r" | head -6
+    fi
+  else
+    say "  --    the look-alike check needs node, skipped"
+  fi
+
   #  2b. THE FIGURES DRAW, AND EVERY COLOUR THEY USE IS DEFINED. The
   #     contacts plots and the compass rose take their colours from
   #     classes in colregs.css instead of reading the custom properties

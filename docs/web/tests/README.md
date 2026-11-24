@@ -308,3 +308,28 @@ an `addEventListener` handler and stopped it from `btn.onclick`. A press on
 so on Larry's iPad the camera came straight back. Now there is one handler
 with two states, and the test failed on the old page before it passed on
 the new one.
+
+# colregs
+
+The colregs tests are mostly in `tests/` (the shell goldens, and
+`tests/colregs-web-diff.sh`, which runs the shared functions in node and
+in every awk on the machine and compares them line for line). One lives
+here, because it taps the browser's drill:
+
+| | |
+|---|---|
+| `colregs-twins.js` | no lights or sounds draw marks a look-alike wrong: every pair of vessels from every bearing, then the drill itself tapped row by row on a stand-in page; every "what tells them apart" line is checked against the lamps it describes |
+
+**The test found two faults before it passed, one of them in the shell.**
+Larry's ruling TBKP (24 November 2026) says a tap on a vessel that would
+show the same lamps is right. The first build used the shell's
+`light_sig()` as "the same", and the test failed on two counts. First,
+`light_sig()` placed each lamp from the vessel's own reference point, so
+one degree off her stern a lone sternlight and a lone anchor light were
+"different", although both are one white light; the shell's quiz had the
+same fault, and both now measure from the top lamp. Second, even then
+`light_sig()` counts spacing, and a sailing vessel and the combined lantern
+seen from ahead were still "Not her", while the line it gave read the same
+words twice ("she shows white over red, and ... shows white over red"). The
+look-alike test is now what a lookout would say she shows; spacing only
+decides whether to say that spacing is the one difference left.

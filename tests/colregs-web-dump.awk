@@ -11,6 +11,16 @@ BEGIN{
     split(VT[v],K,"|")
     for(t=-180;t<=180;t++) printf "ltnote\t%s\t%d\t%s\n", K[1], t, lt_note(K[1],t)
   }
+  #  THE LIGHTS SIGNATURE, every vessel from every bearing. The shell's
+  #  quiz uses it to keep look-alikes out of its options; since Larry's
+  #  ruling TBKP (24 November 2026) the browser's lights drill uses it to
+  #  say when the spacing of her lamps is the only difference left. If
+  #  the two ever computed it differently, one would call a pair twins
+  #  that the other does not.
+  for(v=1;v<=NVES;v++){
+    split(VT[v],K,"|")
+    for(t=-180;t<=180;t++) printf "ltsig\t%s\t%d\t%s\n", K[1], t, light_sig(v,t)
+  }
   n=split("M S P T Y A",A," ")
   for(i=1;i<=n;i++) for(t=-180;t<=180;t++)
     printf "arc\t%s\t%d\t%d\n", A[i], t, (arc_vis(A[i],t)?1:0)

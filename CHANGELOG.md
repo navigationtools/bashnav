@@ -1,5 +1,65 @@
 # Changelog
 
+## colregs 1.23: a look-alike is not a wrong answer (TBKP)
+
+**What.** PILOT's QA part 2, item 1 (b): from some bearings another vessel in the list shows exactly
+what the answer shows, and when the lights drill offered her and the reader tapped her it said "Not
+her", marking a correct reading wrong. The sounds drill did the same with one prolonged blast (item
+2). Larry's ruling TBKP (24 November 2026, 11:37 Eastern): accept either, and teach the difference.
+
+1. **The lights drill (browser).** Before it marks a tap wrong, the drill asks whether the tapped
+   vessel would read the same from this bearing: the same colours, top first, lamps at one height
+   together, flashing alike (`lightsLookSame()`). If so the tap is right, the answer is lit beside
+   it, and the verdict is "Right: from here she could be either", then the nearest bearing where the
+   two read differently and what each shows there, e.g. "If you were on her starboard beam, she
+   would show white over green, and a vessel being towed would show green." Four groups
+   never come apart by their lights; the line says so, and where they differ only in spacing it says how
+   far apart lights look depends on her range as well as on her. The reader's slider is honoured:
+   the tap is judged against the bearing on screen, not the one drawn.
+2. **The sounds drill (browser).** The bend (Rule 34(e)) and a power-driven vessel making way in fog
+   (Rule 35(a)) are one prolonged blast; either tap is right, and the verdict gives both rules.
+3. **A fault in the shell's `light_sig()`, found by the new test.** It placed each lamp from the
+   vessel's own reference point, which the eye cannot see, so one degree off her stern a lone
+   sternlight and a lone anchor light counted as different. The shell's lights quiz uses it to keep
+   look-alikes out of its options, so it could offer both and mark one wrong. It now measures from
+   the top lamp, in the shell and the browser alike; `tests/golden/quiz-lights.txt` changes (one
+   more look-alike named, and so different options drawn).
+4. **The manual** (section 3, PILOT's part 3 item 5; and section 5) says what the drill does with a
+   look-alike, how often (43% of draws), and which four groups never come apart.
+
+Measured: 43.3% of draws (28 vessels x 360 bearings) have a look-alike in the list. PILOT measured
+46% by colour and vertical order; the three points between them are not reconciled yet.
+
+**Not done, and why.** The shell's quiz still keeps look-alikes out of its options rather than
+accepting them, and still counts spacing as a difference (`light_sig()`). Whether to bring it in
+line is Larry's call.
+
+**Tests.** `docs/web/tests/colregs-twins.js` (new, in the suite): every pair of vessels from every
+bearing, and the drill itself tapped row by row from every vessel and bearing on a stand-in page
+(50,540 taps); no look-alike is marked wrong, no other tap is marked right, and every "what tells
+them apart" line is checked against the lamps it names. `tests/colregs-web-diff.sh` now also
+compares `light_sig()`, every vessel from every bearing (33,538 comparisons); it leaves out an awk
+built without maths and says so, as the contacts diff already did.
+
+**What it touches.**
+
+- `src/colregs/engine.awk` (`light_sig()`), `src/colregs/10-head.sh` (1.23)
+- `docs/web/colregs/colregs.js` (`light_sig`, `lightsLookSame`, `lampWords`, `lightTwin`,
+  `soundTwin`, `aName`, `drill`, `lightsDrill`, `soundsDrill`), `README.md`; `sw.js` (colregs-v29)
+- `docs/web/launcher.js` (1.23), `docs/web/sw.js` (bashnav-launcher-v13), `docs/web/README.md`,
+  `README.md`, `REPO-STATE.md`, `docs/ARCHITECTURE.md`
+- `docs/manual-src/colregs-manual.md`; manual PDF rebuilt
+- `docs/web/tests/colregs-twins.js` (new), `docs/web/tests/README.md`, `tests/colregs-web-dump.awk`,
+  `tests/colregs-web-dump.js`, `tests/colregs-web-diff.sh`, `tests/run-tests.sh`
+- `tests/golden/quiz-lights.txt`; `release/bashnav-ipad.sh`
+
+Fault: the lights and sounds drills marked a look-alike "Not her"; the shell's `light_sig()` counted
+a lamp's place along her hull, which cannot be seen.
+Introduced-in: the browser drill's confusable candidates (rows); `light_sig()` since the shell's
+lights quiz.
+Found-by: PILOT's COLREGS QA, part 2, items 1 and 2 (23 November 2026); the `light_sig()` fault by
+`docs/web/tests/colregs-twins.js` (NAV, 24 November 2026).
+
 ## colregs 1.22: PILOT's QA part 3, the manual (and the lights drill's note)
 
 **What.** PILOT's QA of the manual (23 November) found three faults rated (b) and three items rated

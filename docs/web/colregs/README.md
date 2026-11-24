@@ -6,7 +6,7 @@ Drop this directory in at `docs/web/colregs/` in the bashnav repo.
 
 The colregs training aid, rebuilt for a browser. Lights, day shapes, sound
 signals, encounters and the fifteen rule lessons — the same content as
-`bin/colregs` v1.22, because the content was extracted *by running that
+`bin/colregs` v1.23, because the content was extracted *by running that
 engine*, not retyped.
 
 ## Why it is not just a port
@@ -91,6 +91,29 @@ colours with the answer against 2.74 for random picks; shapes 0.68 against
 
 A wrong tap marks that row and leaves the other rows live, so a miss costs
 you another look at the picture rather than ending the question.
+
+**A look-alike is not a wrong tap** (Larry's ruling TBKP, 24 November 2026).
+Choosing confusable candidates means that, from some bearings, a candidate
+shows exactly what the answer shows: PILOT's QA found it in 46% of draws,
+measured here at 43% (same colours, top first, lamps at one height together,
+flashing alike; the three points between the two figures are not yet
+reconciled). The drill used to say "Not her" to that tap. Now, before it
+marks a tap wrong, `lightTwin()` asks whether the tapped vessel would read
+the same from this bearing; if so the tap is right, the answer is lit beside
+it, and the verdict says *"Right: from here she could be either"* and gives
+the nearest bearing where the two read differently, with what each shows
+there. Pairs that never come apart say so; pairs whose lamps differ only in
+spacing say that how far apart lights look depends on her range as well as
+on her. `soundTwin()` does the same for the one pattern two signals share,
+one prolonged blast (Rule 34(e) and Rule 35(a)).
+
+`light_sig()` is ported from the shell and diffed with it, every vessel from
+every bearing. It counts colour and how far each lamp sits left or right of
+the top one, so it is not the look-alike test (spacing cannot be judged
+without range); it decides only whether to say that spacing is the one
+difference. `docs/web/tests/colregs-twins.js` taps every row of the drill
+from every vessel and every bearing and fails if a look-alike is marked
+wrong, or if any "what tells them apart" line is not true.
 
 **This also repaired a night-mode fault in the encounter rows.** Right and
 wrong were distinguished by a green or red border, and in NIGHT mode every

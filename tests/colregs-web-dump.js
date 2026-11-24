@@ -28,6 +28,8 @@ DATA.encounters.forEach((e, i) =>
   out.push('heard\t' + (i + 1) + '\t' + (F.heard(e.target) ? 1 : 0)));
 for (const v of DATA.vessels) for (let t = -180; t <= 180; t++)
   out.push('ltnote\t' + v.key + '\t' + t + '\t' + F.lt_note(v.key, t));
+for (const v of DATA.vessels) for (let t = -180; t <= 180; t++)
+  out.push('ltsig\t' + v.key + '\t' + t + '\t' + F.light_sig(v, t));
 for (const a of ['M','S','P','T','Y','A']) for (let t = -180; t <= 180; t++)
   out.push('arc\t' + a + '\t' + t + '\t' + (F.arc_vis(a, t) ? 1 : 0));
 for (const st of ['rn', 'usn', 'rel360', 'words', 'none']) {

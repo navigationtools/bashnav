@@ -1,4 +1,4 @@
-// the seven contacts lessons -- generated from bin/colregs v1.22 by
+// the seven contacts lessons -- generated from bin/colregs v1.23 by
 // running the awk's own ct_lesson() and dumping what it printed. The
 // figures are the parameters ct_plot() and ct_rose() were called with,
 // not a picture of the character grid: the browser draws SVG from the

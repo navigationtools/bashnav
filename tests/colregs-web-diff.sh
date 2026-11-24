@@ -44,6 +44,14 @@ AWKS=
 for a in mawk gawk awk original-awk busybox; do
   command -v "$a" >/dev/null 2>&1 || continue
   [ "$a" = busybox ] && { busybox awk '' >/dev/null 2>&1 || continue; }
+  #  A busybox can be built without its maths library, and then its awk
+  #  stops at the first sin(). The dump did not call one until 24 November
+  #  2026, when the lights signature joined it (TBKP): light_sig places
+  #  each lamp left or right with sind and cosd. Such an awk cannot run
+  #  the colregs app at all, so there is nothing of the app's to compare.
+  [ "$a" = busybox ] && { busybox awk 'BEGIN { x = sin(1) }' >/dev/null 2>&1 || {
+    echo "  --    busybox's awk here has no maths (sin), so it cannot run colregs: not compared"
+    continue; }; }
   AWKS="$AWKS $a"
 done
 [ -n "$AWKS" ] || AWKS=awk

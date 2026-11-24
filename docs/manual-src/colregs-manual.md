@@ -136,6 +136,23 @@ set the candidates offered share 3.79 lamp colours with the answer against
 A wrong tap marks that row and leaves the others live, so a miss costs you
 another look at the picture rather than ending the question.
 
+**From some bearings two vessels look exactly the same, and then either
+answer is right.** Before it marks a tap wrong, the drill asks whether the
+vessel you tapped would show what the picture shows from this bearing: the
+same colours, top first, flashing alike. If she would, it says *"Right: from
+here she could be either"*, lights the answer beside your tap, and tells you
+the nearest bearing where the two read differently and what each shows there.
+In 43% of draws some other vessel in the list looks the same as the answer;
+from astern, ten of them are one white light. Four groups never come apart by
+their lights from any bearing: a sailing vessel, a vessel being towed and the
+combined lantern; a vessel at anchor under 50 m, a sailing vessel under 7 m
+and a power-driven vessel under 7 m; power-driven under 50 m and under 12 m;
+and power-driven of 50 m or more and a vessel pushing ahead or towing
+alongside. For those the drill says so. Where only the spacing of the lamps
+differs, it says that too, and that how far apart lights look depends on her
+range as well as on her. A test taps every row from every vessel and every
+bearing, and fails if a look-alike is ever marked wrong.
+
 ---
 
 ## 4. Day shapes
@@ -170,6 +187,11 @@ you the wrong thing.
 
 The question is the same shape as the others — what is she saying, five
 candidates, one row that gives up.
+
+**One prolonged blast means two things.** A vessel nearing a bend (Rule 34(e))
+and a power-driven vessel making way in fog (Rule 35(a)) make the same sound.
+If you tap the other one, the drill says *"Right: that signal means either"*,
+and gives both rules: where you are decides which she means.
 
 ---
 

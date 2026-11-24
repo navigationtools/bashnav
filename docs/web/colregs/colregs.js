@@ -356,8 +356,18 @@ function lightsShow(i, th) {
                                                : String(Math.round(nrm360(th))));
   drawLights(D.vessels[i], th);
   $('light-answer').hidden = true;
+  lightsDrill(i);
+}
+/* The five rows for vessel i.  Split out of lightsShow so the test
+   (docs/web/tests/colregs-twins.js) taps the same rows the reader does. */
+function lightsDrill(i) {
+  lightIdx = i;
   drill('light', D.vessels, i, sigVessel, function (v) { return v.name; },
-        lightsReveal, 'Show me what she is');
+        lightsReveal, 'Show me what she is',
+        /* lightBrg, not th: the slider can move her after the draw, and
+           the tap is judged against the picture the reader is looking at */
+        function (a, b) { return lightTwin(a, b, lightBrg); },
+        'Right: from here she could be either.');
 }
 function lightsNext() {
   lightsShow(Math.floor(Math.random() * D.vessels.length),
@@ -593,8 +603,13 @@ function drawSound(sd) {
 }
 function soundsShow(i) {
   soundIdx = i; drawSound(D.sounds[i]); $('sound-answer').hidden = true;
+  soundsDrill(i);
+}
+function soundsDrill(i) {
+  soundIdx = i;
   drill('sound', D.sounds, i, sigSound, function (s) { return s.meaning; },
-        soundsReveal, 'Tell me what she is saying');
+        soundsReveal, 'Tell me what she is saying', soundTwin,
+        'Right: that signal means either.');
 }
 function soundsNext() { soundsShow(Math.floor(Math.random() * D.sounds.length)); }
 function soundsReveal() {
@@ -686,9 +701,126 @@ function optRow(ltr, text, cls) {
   return b;
 }
 
+/* =====================================================================
+   LOOK-ALIKES  --  Larry's ruling TBKP, 24 November 2026
+
+   From some bearings two vessels show exactly the same lamps: from astern
+   ten of them are one white light, and a sailing vessel, a vessel being
+   towed and the combined lantern look the same from everywhere.  PILOT's
+   QA (part 2, item 1) found that in 46% of draws another vessel in the
+   list looks the same, and if the drill offered her and you tapped her it
+   said "Not her" -- marking a correct reading wrong.
+
+   So before marking a tap wrong, the drill asks whether the tapped vessel
+   would look exactly the same from this bearing.  If she would, the tap
+   is right, and the drill says what WOULD tell them apart.  The sounds
+   drill does the same for its one pair (one prolonged blast).
+
+   "The same" is what a lookout would say she shows: the colours, top
+   first, lamps at one height together, and which of them flash
+   (lightsLookSame).  That is PILOT's measure, and the one Larry ruled on.
+
+   light_sig() is the shell's, ported function for function and diffed
+   against it over every vessel and bearing (tests/colregs-web-diff.sh):
+   colour, and how far each lamp sits left or right of the top one.  The
+   shell's quiz uses it to keep look-alikes out of its options; here it
+   only decides whether to say that the spacing is the one difference
+   left, and that it cannot be judged without her range.
+   ===================================================================== */
+function light_sig(v, th) {
+  var hs = [], cs = [], us = [], i, j, L, t1, t2, t3;
+  for (i = 0; i < v.lights.length; i++) {
+    L = v.lights[i];
+    if (!arc_vis(L.arc, th)) continue;
+    hs.push(L.h); cs.push(L.col); us.push(L.x * sind(th) - L.y * cosd(th));
+  }
+  for (i = 1; i < hs.length; i++) {       /* the shell's insertion sort, */
+    t1 = hs[i]; t2 = cs[i]; t3 = us[i]; j = i - 1;   /* ties keep order  */
+    while (j >= 0 && hs[j] < t1) { hs[j + 1] = hs[j]; cs[j + 1] = cs[j]; us[j + 1] = us[j]; j--; }
+    hs[j + 1] = t1; cs[j + 1] = t2; us[j + 1] = t3;
+  }
+  /* left or right of the top lamp, not of her bow, which cannot be seen:
+     a single lamp is just its colour (the shell's comment says more) */
+  return cs.map(function (c, k) {
+    return c + String(Math.trunc((us[k] - us[0]) / 0.06 + 100)) + ',';
+  }).join('');
+}
+function flashSig(v, th) {
+  return v.lights.filter(function (L) { return arc_vis(L.arc, th); })
+    .map(function (L) { var f = lampFlash(v.key, L); return f ? L.col + f.pat : ''; })
+    .filter(Boolean).sort().join(',');
+}
+/* The same colours, in the same vertical order, flashing alike: what a
+   lookout can read.  Not light_sig, which also counts how far apart the
+   lamps sit -- the picture draws that, but at sea the spacing you see is
+   real spacing over range, and without her range it tells you nothing.
+   With light_sig a sailing vessel and the combined lantern from ahead
+   were still "Not her" (found by docs/web/tests/colregs-twins.js). */
+function lightsLookSame(a, b, th) {
+  return lampWords(a, th) === lampWords(b, th) && flashSig(a, th) === flashSig(b, th);
+}
+var COLW = { W: 'white', R: 'red', G: 'green', Y: 'yellow' };
+/* What she shows from th, top first: "white over red and green". */
+function lampWords(v, th) {
+  var lit = v.lights.filter(function (L) { return arc_vis(L.arc, th); })
+    .slice().sort(function (a, b) { return b.h - a.h; });
+  if (!lit.length) return 'no lights at all';
+  var rows = [], cur = null;
+  lit.forEach(function (L) {
+    var f = lampFlash(v.key, L), w = (f ? 'flashing ' : '') + COLW[L.col];
+    if (cur && Math.abs(cur.h - L.h) < 0.005) cur.w.push(w);
+    else { cur = { h: L.h, w: [w] }; rows.push(cur); }
+  });
+  return rows.map(function (r) { return r.w.join(' and '); }).join(' over ');
+}
+/* "a vessel being towed", "a vessel towing, tow under 200 m", "an
+   air-cushion vessel ...", "a WIG craft ...": the list's names made into
+   the subject of a sentence.  Names that start with what she is doing
+   get "a vessel"; an acronym keeps its capitals. */
+function aName(v) {
+  var n = v.name;
+  if (n.charAt(1) !== n.charAt(1).toUpperCase()) n = n.charAt(0).toLowerCase() + n.slice(1);
+  if (/^(not|restricted|constrained|fishing|towing|pushing)\b/.test(n)) n = 'vessel ' + n;
+  if (/^dredging\b/.test(n)) n = 'vessel engaged in ' + n;
+  return (/^[aeiou]/.test(n) ? 'an ' : 'a ') + n;
+}
+/* null if the two look different from th; otherwise what tells them apart:
+   the nearest bearing where the two would be described differently. */
+function lightTwin(ans, other, th) {
+  if (!lightsLookSame(ans, other, th)) return null;
+  var d, k, t, c, wa, wb, spaced = false;
+  for (d = 1; d <= 180; d++) {
+    c = [th + d, th - d];
+    for (k = 0; k < 2; k++) {
+      t = nrm180(c[k]);
+      wa = lampWords(ans, t); wb = lampWords(other, t);
+      if (wa !== wb)
+        return 'If you were ' + rel_phrase(t, 'her', 2.5) + ', she would show ' + wa +
+               ', and ' + aName(other) + ' would show ' + wb + '.';
+      if (light_sig(ans, t) !== light_sig(other, t)) spaced = true;
+    }
+  }
+  /* How far apart two lamps look is their real spacing over her range, so
+     the picture's spacing is not the clue it seems: say so. */
+  if (spaced)
+    return 'From every bearing the two show the same colours in the same order; only the ' +
+           'spacing of the lights differs, and how far apart lights look depends on her ' +
+           'range as well as on her. Watch what she does, and by day look for her shape.';
+  return 'Her lights never tell them apart, from any bearing: watch what she does, ' +
+         'and by day look for her shape.';
+}
+/* the sounds: the same pattern is the same sound.  The table's own words,
+   whole, rather than stitched into one sentence: "I am approaching a bend"
+   is a quotation and loses its sense lower-cased mid-sentence. */
+function soundTwin(ans, other) {
+  if (ans.pattern !== other.pattern) return null;
+  function one(s) { return s.rule + ': ' + s.meaning.replace(/\.$/, '') + '. ' + s.when; }
+  return 'Both use it. ' + one(ans) + ' ' + one(other) + ' Where you are decides which she means.';
+}
+
 /* Build the six rows for one view.  nameOf turns a record into its label;
    reveal opens that view's answer panel; tell is the sixth row's wording. */
-function drill(pfx, list, idx, sigOf, nameOf, reveal, tell) {
+function drill(pfx, list, idx, sigOf, nameOf, reveal, tell, twin, twinHead) {
   var box = $(pfx + '-opts'), verdict = $(pfx + '-verdict');
   box.textContent = '';
   verdict.hidden = true; verdict.textContent = ''; verdict.dataset.state = '';
@@ -696,12 +828,12 @@ function drill(pfx, list, idx, sigOf, nameOf, reveal, tell) {
   var picks = shuffled(nearest(list, idx, sigOf, 4).concat([idx]));
   var done = false;
 
-  function settle(right) {
+  function settle(right, said) {
     done = true;
     for (var i = 0; i < box.children.length; i++) box.children[i].disabled = true;
     reveal();
     verdict.dataset.state = right ? 'right' : '';
-    verdict.textContent = right ? 'Right.' : 'The answer, then.';
+    verdict.textContent = said || (right ? 'Right.' : 'The answer, then.');
     verdict.hidden = false;
   }
 
@@ -709,9 +841,16 @@ function drill(pfx, list, idx, sigOf, nameOf, reveal, tell) {
     var row = optRow(LTRS[n], nameOf(list[p]));
     row.addEventListener('click', function () {
       if (done || row.disabled) return;
+      var same = (p !== idx && twin) ? twin(list[idx], list[p]) : null;
       if (p === idx) {
         row.dataset.state = 'right';
         settle(true);
+      } else if (same) {
+        /* a look-alike: right, and the reason it could be either (TBKP) */
+        row.dataset.state = 'right';
+        for (var q = 0; q < box.children.length; q++)
+          if (picks[q] === idx) box.children[q].dataset.state = 'right';
+        settle(true, twinHead + ' ' + same);
       } else {
         row.dataset.state = 'wrong';
         row.disabled = true;
@@ -1805,6 +1944,12 @@ if (typeof module !== 'undefined' && module.exports) {
     nrm180: nrm180, nrm360: nrm360, fabs: fabs,
     arc_vis: arc_vis, rel_phrase: rel_phrase,
     aspect_words: aspect_words, lt_arc: lt_arc_web, lt_note: lt_note,
+    light_sig: light_sig, lightsLookSame: lightsLookSame, lightTwin: lightTwin,
+    soundTwin: soundTwin, lampWords: lampWords, aName: aName,
+    //  docs/web/tests/colregs-twins.js runs the drill itself on a stand-in
+    //  page, so the test taps the rows the reader taps
+    lightsDrill: function (i, th) { lightBrg = th; lightsDrill(i); },
+    soundsDrill: soundsDrill,
     red_green: red_green, rel_other: rel_other, enc_bore: function (bg, st) { var o = RSTYLE; RSTYLE = st; var r = enc_bore(bg); RSTYLE = o; return r; },
     rel_other_as: function (rel, st) { var o = RSTYLE; RSTYLE = st; var r = rel_other(rel); RSTYLE = o; return r; },
     rel_style: function (rel, st) { var o = RSTYLE; RSTYLE = st; var r = rel_style(rel); RSTYLE = o; return r; },

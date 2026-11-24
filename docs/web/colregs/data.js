@@ -1,9 +1,9 @@
-// colregs data -- generated from bin/colregs v1.22 by running the awk
+// colregs data -- generated from bin/colregs v1.23 by running the awk
 // engine's own table initialisers and dumping what they built.  Do not
 // hand-edit: regenerate with docs/web/colregs/gen/make-colregs-web.sh so
 // the two cannot drift.
 window.COLREGS_DATA = {
- "version": "1.22",
+ "version": "1.23",
  "vessels": [
   {
    "key": "power50",

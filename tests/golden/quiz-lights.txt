@@ -294,72 +294,71 @@
   sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
-     a) Sailing vessel under way
-     b) Air-cushion vessel in non-displacement mode
-     c) Power-driven vessel under 12 m
-     d) Fishing other than trawling, gear out over 150 m
+     a) Power-driven vessel under 12 m
+     b) Fishing, other than trawling
+     c) Air-cushion vessel in non-displacement mode
+     d) Sailing vessel under way
 
   Q2  Which way is she going?
-     a) Going away from you - you are overtaking her.
-     b) Crossing from your left to your right.
-     c) Crossing from your right to your left.
-     d) End on, or nearly: she is coming straight at you.
+     a) Crossing from your left to your right.
+     b) Going away from you - you are overtaking her.
+     c) End on, or nearly: she is coming straight at you.
+     d) Crossing from your right to your left.
 
   Not quite.
-  Q1  A is right -- Sailing vessel under way
+  Q1  D is right -- Sailing vessel under way
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
-  Q2  C is right -- Crossing from your right to your left.
+  Q2  D is right -- Crossing from your right to your left.
       She shows her red sidelight. Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are broad on her port bow.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Vessel being towed.
+  These would look exactly the same to you: Vessel being towed; Sailing vessel under 20 m, combined lantern.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  A is right -- Sailing vessel under way
+  Q1  D is right -- Sailing vessel under way
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
-  Q2  C is right -- Crossing from your right to your left.
+  Q2  D is right -- Crossing from your right to your left.
       She shows her red sidelight. Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are broad on her port bow.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Vessel being towed.
+  These would look exactly the same to you: Vessel being towed; Sailing vessel under 20 m, combined lantern.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  A is right -- Sailing vessel under way
+  Q1  D is right -- Sailing vessel under way
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
-  Q2  C is right -- Crossing from your right to your left.
+  Q2  D is right -- Crossing from your right to your left.
       She shows her red sidelight. Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are broad on her port bow.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Vessel being towed.
+  These would look exactly the same to you: Vessel being towed; Sailing vessel under 20 m, combined lantern.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
-  Not quite.
-  Q1  A is right -- Sailing vessel under way
+  Q1  D is right -- Sailing vessel under way
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
-  Q2  C is right -- Crossing from your right to your left.
+  Q2  D is right -- Crossing from your right to your left.
       She shows her red sidelight. Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are broad on her port bow.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Vessel being towed.
+  These would look exactly the same to you: Vessel being towed; Sailing vessel under 20 m, combined lantern.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
@@ -400,72 +399,72 @@
   sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
-     a) Sailing vessel under 20 m, combined lantern
-     b) Towing, tow over 200 m
-     c) Vessel being towed
-     d) Submarine on the surface (US Navy identification light)
+     a) Pilot vessel on duty
+     b) Vessel being towed
+     c) Submarine on the surface (US Navy identification light)
+     d) Vessel trawling
 
   Q2  Which way is she going?
-     a) Going away from you - you are overtaking her.
-     b) End on, or nearly: she is coming straight at you.
+     a) Crossing from your right to your left.
+     b) She is not under way, or not making way through the water.
      c) Crossing from your left to your right.
-     d) Crossing from your right to your left.
+     d) Going away from you - you are overtaking her.
 
   Not quite.
-  Q1  C is right -- Vessel being towed
+  Q1  B is right -- Vessel being towed
       Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
 
-  Q2  A is right -- Going away from you - you are overtaking her.
+  Q2  D is right -- Going away from you - you are overtaking her.
       She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. She is BEING TOWED: the tow line and whatever is on the end of it may be a long way astern of the vessel showing these lights, so pass well clear of all of it.
       You are broad on her port quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Pushing ahead, or towing alongside.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  C is right -- Vessel being towed
+  Q1  B is right -- Vessel being towed
       Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
 
-  Q2  A is right -- Going away from you - you are overtaking her.
+  Q2  D is right -- Going away from you - you are overtaking her.
       She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. She is BEING TOWED: the tow line and whatever is on the end of it may be a long way astern of the vessel showing these lights, so pass well clear of all of it.
       You are broad on her port quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Pushing ahead, or towing alongside.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  C is right -- Vessel being towed
+  Q1  B is right -- Vessel being towed
       Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
 
-  Q2  A is right -- Going away from you - you are overtaking her.
+  Q2  D is right -- Going away from you - you are overtaking her.
       She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. She is BEING TOWED: the tow line and whatever is on the end of it may be a long way astern of the vessel showing these lights, so pass well clear of all of it.
       You are broad on her port quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Pushing ahead, or towing alongside.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  C is right -- Vessel being towed
+  Q1  B is right -- Vessel being towed
       Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
 
-  Q2  A is right -- Going away from you - you are overtaking her.
+  Q2  D is right -- Going away from you - you are overtaking her.
       She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. She is BEING TOWED: the tow line and whatever is on the end of it may be a long way astern of the vessel showing these lights, so pass well clear of all of it.
       You are broad on her port quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Pushing ahead, or towing alongside.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
@@ -666,48 +665,75 @@
   sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
-     a) Vessel at anchor, under 50 m
-     b) Towing, tow under 200 m
-     c) Dredging or underwater operations, restricted
-     d) Vessel at anchor, 50 m or more
+     a) Vessel at anchor, 50 m or more
+     b) Not under command, making way
+     c) Vessel being towed
+     d) Vessel at anchor, under 50 m
 
   Q2  Which way is she going?
      a) Crossing from your left to your right.
      b) End on, or nearly: she is coming straight at you.
-     c) She is not under way, or not making way through the water.
-     d) Crossing from your right to your left.
+     c) Crossing from your right to your left.
+     d) She is not under way, or not making way through the water.
 
   Not quite.
-  Q1  A is right -- Vessel at anchor, under 50 m
+  Q1  D is right -- Vessel at anchor, under 50 m
       Rule 30.  A single all-round white light where it can best be seen.
 
-  Q2  C is right -- She is not under way, or not making way through the water.
+  Q2  D is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
+  But from this angle she is genuinely ambiguous.
+  These would look exactly the same to you: Sailing vessel under 7 m, or a vessel under oars; Power-driven vessel under 7 m, 7 knots or less.
+  That is a real limitation of a single look, not a fault in the
+  question - it is why you keep watching until the bearing, the
+  range or a change of aspect tells you which one she is. Those
+  were left out of the answers above so the question had one answer.
+
   Not quite.
-  Q1  A is right -- Vessel at anchor, under 50 m
+  Q1  D is right -- Vessel at anchor, under 50 m
       Rule 30.  A single all-round white light where it can best be seen.
 
-  Q2  C is right -- She is not under way, or not making way through the water.
+  Q2  D is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
+  But from this angle she is genuinely ambiguous.
+  These would look exactly the same to you: Sailing vessel under 7 m, or a vessel under oars; Power-driven vessel under 7 m, 7 knots or less.
+  That is a real limitation of a single look, not a fault in the
+  question - it is why you keep watching until the bearing, the
+  range or a change of aspect tells you which one she is. Those
+  were left out of the answers above so the question had one answer.
+
   Not quite.
-  Q1  A is right -- Vessel at anchor, under 50 m
+  Q1  D is right -- Vessel at anchor, under 50 m
       Rule 30.  A single all-round white light where it can best be seen.
 
-  Q2  C is right -- She is not under way, or not making way through the water.
+  Q2  D is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
-  Not quite.
-  Q1  A is right -- Vessel at anchor, under 50 m
+  But from this angle she is genuinely ambiguous.
+  These would look exactly the same to you: Sailing vessel under 7 m, or a vessel under oars; Power-driven vessel under 7 m, 7 knots or less.
+  That is a real limitation of a single look, not a fault in the
+  question - it is why you keep watching until the bearing, the
+  range or a change of aspect tells you which one she is. Those
+  were left out of the answers above so the question had one answer.
+
+  Q1  D is right -- Vessel at anchor, under 50 m
       Rule 30.  A single all-round white light where it can best be seen.
 
-  Q2  C is right -- She is not under way, or not making way through the water.
+  Q2  D is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
+
+  But from this angle she is genuinely ambiguous.
+  These would look exactly the same to you: Sailing vessel under 7 m, or a vessel under oars; Power-driven vessel under 7 m, 7 knots or less.
+  That is a real limitation of a single look, not a fault in the
+  question - it is why you keep watching until the bearing, the
+  range or a change of aspect tells you which one she is. Those
+  were left out of the answers above so the question had one answer.
 
 === qlight 9 ===
 
@@ -901,18 +927,18 @@
 
   Q1  What is she?
      a) Vessel trawling
-     b) Mine clearance vessel
-     c) Sailing vessel under 7 m, or a vessel under oars
-     d) Vessel aground
+     b) Towing, tow under 200 m
+     c) Not under command, making no way
+     d) Sailing vessel under 7 m, or a vessel under oars
 
   Q2  Which way is she going?
-     a) Going away from you - you are overtaking her.
-     b) Crossing from your left to your right.
+     a) Crossing from your left to your right.
+     b) Going away from you - you are overtaking her.
      c) She is not under way, or not making way through the water.
-     d) Crossing from your right to your left.
+     d) End on, or nearly: she is coming straight at you.
 
   Not quite.
-  Q1  C is right -- Sailing vessel under 7 m, or a vessel under oars
+  Q1  D is right -- Sailing vessel under 7 m, or a vessel under oars
       Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   Q2  C is right -- She is not under way, or not making way through the water.
@@ -920,14 +946,14 @@
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 20 m, combined lantern; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  C is right -- Sailing vessel under 7 m, or a vessel under oars
+  Q1  D is right -- Sailing vessel under 7 m, or a vessel under oars
       Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   Q2  C is right -- She is not under way, or not making way through the water.
@@ -935,28 +961,14 @@
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 20 m, combined lantern; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
-  That is a real limitation of a single look, not a fault in the
-  question - it is why you keep watching until the bearing, the
-  range or a change of aspect tells you which one she is. Those
-  were left out of the answers above so the question had one answer.
-
-  Q1  C is right -- Sailing vessel under 7 m, or a vessel under oars
-      Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
-
-  Q2  C is right -- She is not under way, or not making way through the water.
-      She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
-      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
-
-  But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 20 m, combined lantern; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  C is right -- Sailing vessel under 7 m, or a vessel under oars
+  Q1  D is right -- Sailing vessel under 7 m, or a vessel under oars
       Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   Q2  C is right -- She is not under way, or not making way through the water.
@@ -964,7 +976,22 @@
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 20 m, combined lantern; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
+  That is a real limitation of a single look, not a fault in the
+  question - it is why you keep watching until the bearing, the
+  range or a change of aspect tells you which one she is. Those
+  were left out of the answers above so the question had one answer.
+
+  Not quite.
+  Q1  D is right -- Sailing vessel under 7 m, or a vessel under oars
+      Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
+
+  Q2  C is right -- She is not under way, or not making way through the water.
+      She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
+
+  But from this angle she is genuinely ambiguous.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
@@ -1396,76 +1423,76 @@
   sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
-     a) Sailing vessel under 20 m, combined lantern
-     b) Pushing ahead, or towing alongside
-     c) Vessel at anchor, under 50 m
-     d) Air-cushion vessel in non-displacement mode
+     a) Not under command, making no way
+     b) Sailing vessel under 20 m, combined lantern
+     c) Fishing other than trawling, gear out over 150 m
+     d) Not under command, making way
 
   Q2  Which way is she going?
-     a) She is not under way, or not making way through the water.
-     b) Going away from you - you are overtaking her.
-     c) Crossing from your left to your right.
-     d) Crossing from your right to your left.
+     a) Going away from you - you are overtaking her.
+     b) End on, or nearly: she is coming straight at you.
+     c) Crossing from your right to your left.
+     d) Crossing from your left to your right.
 
   Not quite.
-  Q1  A is right -- Sailing vessel under 20 m, combined lantern
+  Q1  B is right -- Sailing vessel under 20 m, combined lantern
       Rule 25(b).  Sidelights and sternlight combined in one lantern at or near the top of the mast. Only a sailing vessel under 20 metres may do this.
       Watch out: She may not also show the optional red over green of Rule 25(c): it is one or the other. And every light she has comes from a single point high up, so there is nothing in her lights to tell you her length, and a small bright lantern well above the water reads as further away than she is.
 
-  Q2  B is right -- Going away from you - you are overtaking her.
+  Q2  A is right -- Going away from you - you are overtaking her.
       She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
       You are broad on her port quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 7 m, or a vessel under oars; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 7 m, or a vessel under oars; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  A is right -- Sailing vessel under 20 m, combined lantern
+  Q1  B is right -- Sailing vessel under 20 m, combined lantern
       Rule 25(b).  Sidelights and sternlight combined in one lantern at or near the top of the mast. Only a sailing vessel under 20 metres may do this.
       Watch out: She may not also show the optional red over green of Rule 25(c): it is one or the other. And every light she has comes from a single point high up, so there is nothing in her lights to tell you her length, and a small bright lantern well above the water reads as further away than she is.
 
-  Q2  B is right -- Going away from you - you are overtaking her.
+  Q2  A is right -- Going away from you - you are overtaking her.
       She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
       You are broad on her port quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 7 m, or a vessel under oars; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 7 m, or a vessel under oars; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  A is right -- Sailing vessel under 20 m, combined lantern
+  Q1  B is right -- Sailing vessel under 20 m, combined lantern
       Rule 25(b).  Sidelights and sternlight combined in one lantern at or near the top of the mast. Only a sailing vessel under 20 metres may do this.
       Watch out: She may not also show the optional red over green of Rule 25(c): it is one or the other. And every light she has comes from a single point high up, so there is nothing in her lights to tell you her length, and a small bright lantern well above the water reads as further away than she is.
 
-  Q2  B is right -- Going away from you - you are overtaking her.
+  Q2  A is right -- Going away from you - you are overtaking her.
       She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
       You are broad on her port quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 7 m, or a vessel under oars; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 7 m, or a vessel under oars; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  A is right -- Sailing vessel under 20 m, combined lantern
+  Q1  B is right -- Sailing vessel under 20 m, combined lantern
       Rule 25(b).  Sidelights and sternlight combined in one lantern at or near the top of the mast. Only a sailing vessel under 20 metres may do this.
       Watch out: She may not also show the optional red over green of Rule 25(c): it is one or the other. And every light she has comes from a single point high up, so there is nothing in her lights to tell you her length, and a small bright lantern well above the water reads as further away than she is.
 
-  Q2  B is right -- Going away from you - you are overtaking her.
+  Q2  A is right -- Going away from you - you are overtaking her.
       She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
       You are broad on her port quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 7 m, or a vessel under oars; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 7 m, or a vessel under oars; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
@@ -1937,76 +1964,76 @@
   sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
-     a) Power-driven vessel under 7 m, 7 knots or less
-     b) Sailing vessel under way
-     c) Towing, tow under 200 m
-     d) Not under command, making no way
+     a) Mine clearance vessel
+     b) Power-driven vessel under 7 m, 7 knots or less
+     c) Air-cushion vessel in non-displacement mode
+     d) Vessel at anchor, 50 m or more
 
   Q2  Which way is she going?
-     a) Crossing from your right to your left.
-     b) End on, or nearly: she is coming straight at you.
-     c) She is not under way, or not making way through the water.
-     d) Going away from you - you are overtaking her.
+     a) She is not under way, or not making way through the water.
+     b) Crossing from your right to your left.
+     c) Going away from you - you are overtaking her.
+     d) Crossing from your left to your right.
 
   Not quite.
-  Q1  A is right -- Power-driven vessel under 7 m, 7 knots or less
+  Q1  B is right -- Power-driven vessel under 7 m, 7 knots or less
       Rule 23(d).  Under 7 metres, and not able to exceed 7 knots, she may show an all-round white light alone -- with sidelights as well if that is practicable.
       Watch out: A single white light is the most ambiguous thing you can see at night. It is this, or a vessel at anchor, or a sailing vessel under 7 m showing a torch, or the sternlight of a ship. It will not tell you which, and it will not tell you her heading.
 
-  Q2  C is right -- She is not under way, or not making way through the water.
+  Q2  A is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. Nothing in her lights says why she has stopped.
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Power-driven vessel under 12 m.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  A is right -- Power-driven vessel under 7 m, 7 knots or less
+  Q1  B is right -- Power-driven vessel under 7 m, 7 knots or less
       Rule 23(d).  Under 7 metres, and not able to exceed 7 knots, she may show an all-round white light alone -- with sidelights as well if that is practicable.
       Watch out: A single white light is the most ambiguous thing you can see at night. It is this, or a vessel at anchor, or a sailing vessel under 7 m showing a torch, or the sternlight of a ship. It will not tell you which, and it will not tell you her heading.
 
-  Q2  C is right -- She is not under way, or not making way through the water.
+  Q2  A is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. Nothing in her lights says why she has stopped.
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Power-driven vessel under 12 m.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  A is right -- Power-driven vessel under 7 m, 7 knots or less
+  Q1  B is right -- Power-driven vessel under 7 m, 7 knots or less
       Rule 23(d).  Under 7 metres, and not able to exceed 7 knots, she may show an all-round white light alone -- with sidelights as well if that is practicable.
       Watch out: A single white light is the most ambiguous thing you can see at night. It is this, or a vessel at anchor, or a sailing vessel under 7 m showing a torch, or the sternlight of a ship. It will not tell you which, and it will not tell you her heading.
 
-  Q2  C is right -- She is not under way, or not making way through the water.
+  Q2  A is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. Nothing in her lights says why she has stopped.
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Power-driven vessel under 12 m.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  A is right -- Power-driven vessel under 7 m, 7 knots or less
+  Q1  B is right -- Power-driven vessel under 7 m, 7 knots or less
       Rule 23(d).  Under 7 metres, and not able to exceed 7 knots, she may show an all-round white light alone -- with sidelights as well if that is practicable.
       Watch out: A single white light is the most ambiguous thing you can see at night. It is this, or a vessel at anchor, or a sailing vessel under 7 m showing a torch, or the sternlight of a ship. It will not tell you which, and it will not tell you her heading.
 
-  Q2  C is right -- She is not under way, or not making way through the water.
+  Q2  A is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. Nothing in her lights says why she has stopped.
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Power-driven vessel under 12 m.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
@@ -2471,18 +2498,19 @@
   sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
-     a) Power-driven vessel of 50 m or more, under way
-     b) Air-cushion vessel in non-displacement mode
-     c) Pilot vessel on duty
-     d) Dredging or underwater operations, restricted
+     a) Vessel aground
+     b) Fishing, other than trawling
+     c) Power-driven vessel of 50 m or more, under way
+     d) Submarine on the surface (US Navy identification light)
 
   Q2  Which way is she going?
      a) Going away from you - you are overtaking her.
-     b) Crossing from your left to your right.
-     c) End on, or nearly: she is coming straight at you.
-     d) She is not under way, or not making way through the water.
+     b) She is not under way, or not making way through the water.
+     c) Crossing from your right to your left.
+     d) End on, or nearly: she is coming straight at you.
 
-  Q1  A is right -- Power-driven vessel of 50 m or more, under way
+  Not quite.
+  Q1  C is right -- Power-driven vessel of 50 m or more, under way
       Rule 23.  Two masthead lights, the after one higher.
 
   Q2  A is right -- Going away from you - you are overtaking her.
@@ -2490,14 +2518,14 @@
       You are fine on her port quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Sailing vessel under way; Vessel being towed; Pushing ahead, or towing alongside.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  A is right -- Power-driven vessel of 50 m or more, under way
+  Q1  C is right -- Power-driven vessel of 50 m or more, under way
       Rule 23.  Two masthead lights, the after one higher.
 
   Q2  A is right -- Going away from you - you are overtaking her.
@@ -2505,14 +2533,14 @@
       You are fine on her port quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Sailing vessel under way; Vessel being towed; Pushing ahead, or towing alongside.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  A is right -- Power-driven vessel of 50 m or more, under way
+  Q1  C is right -- Power-driven vessel of 50 m or more, under way
       Rule 23.  Two masthead lights, the after one higher.
 
   Q2  A is right -- Going away from you - you are overtaking her.
@@ -2520,14 +2548,14 @@
       You are fine on her port quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Sailing vessel under way; Vessel being towed; Pushing ahead, or towing alongside.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  A is right -- Power-driven vessel of 50 m or more, under way
+  Q1  C is right -- Power-driven vessel of 50 m or more, under way
       Rule 23.  Two masthead lights, the after one higher.
 
   Q2  A is right -- Going away from you - you are overtaking her.
@@ -2535,7 +2563,7 @@
       You are fine on her port quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Sailing vessel under way; Vessel being towed; Pushing ahead, or towing alongside.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
@@ -2577,15 +2605,15 @@
 
   Q1  What is she?
      a) Vessel being towed
-     b) Sailing vessel under 20 m, combined lantern
-     c) Restricted in her ability to manoeuvre
-     d) Pilot vessel on duty
+     b) Vessel at anchor, 50 m or more
+     c) Towing, tow over 200 m
+     d) Dredging or underwater operations, restricted
 
   Q2  Which way is she going?
      a) Going away from you - you are overtaking her.
-     b) She is not under way, or not making way through the water.
-     c) End on, or nearly: she is coming straight at you.
-     d) Crossing from your left to your right.
+     b) Crossing from your right to your left.
+     c) She is not under way, or not making way through the water.
+     d) End on, or nearly: she is coming straight at you.
 
   Q1  A is right -- Vessel being towed
       Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
@@ -2595,7 +2623,7 @@
       You are fine on her starboard quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Pushing ahead, or towing alongside.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
@@ -2610,7 +2638,7 @@
       You are fine on her starboard quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Pushing ahead, or towing alongside.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
@@ -2625,7 +2653,7 @@
       You are fine on her starboard quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Pushing ahead, or towing alongside.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
@@ -2640,7 +2668,7 @@
       You are fine on her starboard quarter.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Pushing ahead, or towing alongside.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Sailing vessel under 7 m, or a vessel under oars; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
@@ -2681,72 +2709,72 @@
   sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
-     a) Restricted in her ability to manoeuvre
-     b) Power-driven vessel under 12 m
-     c) Sailing vessel under way
-     d) Pilot vessel on duty
+     a) Dredging or underwater operations, restricted
+     b) Sailing vessel under way
+     c) Not under command, making way
+     d) Power-driven vessel under 12 m
 
   Q2  Which way is she going?
-     a) End on, or nearly: she is coming straight at you.
-     b) Going away from you - you are overtaking her.
-     c) She is not under way, or not making way through the water.
-     d) Crossing from your left to your right.
+     a) Crossing from your right to your left.
+     b) End on, or nearly: she is coming straight at you.
+     c) Crossing from your left to your right.
+     d) She is not under way, or not making way through the water.
 
   Not quite.
-  Q1  C is right -- Sailing vessel under way
+  Q1  B is right -- Sailing vessel under way
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
-  Q2  D is right -- Crossing from your left to your right.
+  Q2  C is right -- Crossing from your left to your right.
       She shows her green sidelight. Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are on her starboard beam: you see her whole starboard side.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Vessel being towed.
+  These would look exactly the same to you: Vessel being towed; Sailing vessel under 20 m, combined lantern.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  C is right -- Sailing vessel under way
+  Q1  B is right -- Sailing vessel under way
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
-  Q2  D is right -- Crossing from your left to your right.
+  Q2  C is right -- Crossing from your left to your right.
       She shows her green sidelight. Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are on her starboard beam: you see her whole starboard side.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Vessel being towed.
+  These would look exactly the same to you: Vessel being towed; Sailing vessel under 20 m, combined lantern.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  C is right -- Sailing vessel under way
+  Q1  B is right -- Sailing vessel under way
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
-  Q2  D is right -- Crossing from your left to your right.
+  Q2  C is right -- Crossing from your left to your right.
       She shows her green sidelight. Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are on her starboard beam: you see her whole starboard side.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Vessel being towed.
+  These would look exactly the same to you: Vessel being towed; Sailing vessel under 20 m, combined lantern.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  C is right -- Sailing vessel under way
+  Q1  B is right -- Sailing vessel under way
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
-  Q2  D is right -- Crossing from your left to your right.
+  Q2  C is right -- Crossing from your left to your right.
       She shows her green sidelight. Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are on her starboard beam: you see her whole starboard side.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Vessel being towed.
+  These would look exactly the same to you: Vessel being towed; Sailing vessel under 20 m, combined lantern.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
@@ -3102,72 +3130,72 @@
   sidelight is drawn toward her stern, never toward her bow.
 
   Q1  What is she?
-     a) Constrained by her draught
-     b) Vessel being towed
-     c) Sailing vessel under 7 m, or a vessel under oars
-     d) Mine clearance vessel
+     a) Mine clearance vessel
+     b) Sailing vessel under 7 m, or a vessel under oars
+     c) Towing, tow over 200 m
+     d) Constrained by her draught
 
   Q2  Which way is she going?
-     a) Crossing from your left to your right.
-     b) Going away from you - you are overtaking her.
-     c) Crossing from your right to your left.
-     d) She is not under way, or not making way through the water.
+     a) Going away from you - you are overtaking her.
+     b) End on, or nearly: she is coming straight at you.
+     c) She is not under way, or not making way through the water.
+     d) Crossing from your left to your right.
 
   Not quite.
-  Q1  C is right -- Sailing vessel under 7 m, or a vessel under oars
+  Q1  B is right -- Sailing vessel under 7 m, or a vessel under oars
       Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
-  Q2  D is right -- She is not under way, or not making way through the water.
+  Q2  C is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 20 m, combined lantern; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  C is right -- Sailing vessel under 7 m, or a vessel under oars
+  Q1  B is right -- Sailing vessel under 7 m, or a vessel under oars
       Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
-  Q2  D is right -- She is not under way, or not making way through the water.
+  Q2  C is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 20 m, combined lantern; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  C is right -- Sailing vessel under 7 m, or a vessel under oars
+  Q1  B is right -- Sailing vessel under 7 m, or a vessel under oars
       Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
-  Q2  D is right -- She is not under way, or not making way through the water.
+  Q2  C is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 20 m, combined lantern; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
   were left out of the answers above so the question had one answer.
 
   Not quite.
-  Q1  C is right -- Sailing vessel under 7 m, or a vessel under oars
+  Q1  B is right -- Sailing vessel under 7 m, or a vessel under oars
       Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
-  Q2  D is right -- She is not under way, or not making way through the water.
+  Q2  C is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
       Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   But from this angle she is genuinely ambiguous.
-  These would look exactly the same to you: Sailing vessel under 20 m, combined lantern; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
+  These would look exactly the same to you: Power-driven vessel under 50 m, under way; Power-driven vessel of 50 m or more, under way; Sailing vessel under way; Vessel at anchor, under 50 m; Vessel being towed; Sailing vessel under 20 m, combined lantern; Pushing ahead, or towing alongside; Power-driven vessel under 12 m; Power-driven vessel under 7 m, 7 knots or less.
   That is a real limitation of a single look, not a fault in the
   question - it is why you keep watching until the bearing, the
   range or a change of aspect tells you which one she is. Those
