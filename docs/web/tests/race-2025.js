@@ -2,8 +2,8 @@
 //
 //  tests/router.js holds the router to courses small enough to sail in
 //  your head.  This holds it to a race that was sailed: PILOT's course,
-//  coastline, wind, stream and polar, and what eleven real boats did,
-//  line by line, from the race's tracker.  It is board item B3.
+//  coastline, wind, stream and polar, and the real boats' finishing
+//  times as RORC published them.  It is board item B3.
 //
 //  WHAT IS HELD, AND WHY THESE FOUR (Larry, 14 November 2026).
 //
@@ -28,35 +28,26 @@
 //               Twice a published figure moved because the search
 //               changed; both were right, and both were found by hand.
 //
-//    boats      The real boats.  The router's boat is a generic 70 ft
-//               racing yacht with free tacks and a forecast it knows in
-//               advance, so it should lead every real boat at every
-//               line.  It does from Portland Bill on, and that is held.
-//               Hurst and St Alban's Head, outbound, are a STATED
-//               EXCEPTION, each for its own reason (15 November 2026,
-//               on the Copernicus stream):
-//                 Hurst: real boats lead the router by 4 to 7 minutes.
-//                   Larry read the chart's streams there (PILOT's
-//                   stream_check_readings_2025_v1.txt): the model's ebb
-//                   is about a quarter weaker than the chart's, 2.7 kn
-//                   against 3.6, so the router is given less ebb than
-//                   the boats had.  Larry: teach the model as it is,
-//                   with that caveat.
-//                 St Alban's Head: a tie.  The router leads the closest
-//                   real boat by about a minute, inside what the search
-//                   resolves, so neither "leads" nor "is led" is a claim.
-//               The exception is itself checked: each line stands only
-//               while an observed boat is ahead of the router there, or
-//               within the two minutes the search cannot tell apart.
-//               When the router is clearly ahead at one, this file fails
-//               until that line is taken out of the exception.
+//    boats      The real boats, at the finish.  The router's boat is a
+//               generic 70 ft racing yacht with free tacks and a forecast
+//               it knows in advance, so it should finish ahead of every
+//               real boat, and that is held against each boat's elapsed
+//               time in RORC's published results (RORC_RESULTS below).
 //
-//  WHAT IS NOT HELD.  Single legs: the router is slower than the fastest
-//  real boat on three of them, two fairly -- a real boat can have a
-//  better tide on one leg for arriving at a different hour.  And PILOT's
-//  Clipper 68 run against the real Clipper 68s: that polar was measured
-//  in this same race, so it would be the method agreeing with itself.
+//               UNTIL LARRY CONFIRMS THOSE FIGURES THE PART IS NOT HELD,
+//               and says so on every run; it never passes for want of
+//               them.  Under Larry's ruling TBNM (25 November 2026) this
+//               part no longer reads the real boats' times at nine lines
+//               (PILOT's legs file).  Those times were worked out from
+//               tracker data that had been fetched without its
+//               publishers' permission (PILOT's record, 25 November
+//               2026), so they are not used here or quoted in ROUTER.md.
+//               The nine lines stay: the router's own times at them are
+//               pinned, which needs no one else's data.
 //
+//  WHAT IS NOT HELD.  Single legs, and any boat's time between the start
+//  and the finish: RORC publishes the finish.
+
 //  THE DATA IS READ WHERE IT LIVES (Larry, 14 November 2026): PILOT's
 //  folder, practical-navigator/data/2025/, beside this repository.
 //  Nothing is copied, because a copy would have missed both of the
@@ -134,8 +125,9 @@ if (!DATA || !fs.existsSync(path.join(DATA, 'course_2025_v3.txt'))) {
 //  still water; the Copernicus North-West Shelf model covers it.  PILOT's
 //  Shom runs stay in its folder, unchanged, and are no longer read here.
 //
-//  LARRY'S STREAM READINGS ARE PINNED TOO, because the exception at Hurst
-//  below rests on them: if they change, the reason for the exception has.
+//  LARRY'S STREAM READINGS ARE PINNED TOO, because ROUTER.md's first run
+//  quotes them (the model's ebb at Hurst runs light): if they change, so
+//  does what the documents say about the stream there.
 var AS_SAILED = 'run_2025_as_sailed_cmems_v1.txt';
 var HEADLANDS = 'run_2025_headlands_1nm_cmems_v1.txt';
 var PINNED = {
@@ -147,7 +139,6 @@ var PINNED = {
   'polar_generic70_v1.txt':              '4646a1e3b720aab6',
   'run_2025_as_sailed_cmems_v1.txt':     'c7ed2127729e5745',
   'run_2025_headlands_1nm_cmems_v1.txt': '4187a58e653a109d',
-  'legs_2025_real_v2.txt':               'e8fa6c8b3d679048',
   'stream_check_readings_2025_v1.txt':   '51ecd1f0aa4c7a1f'
 };
 function fileText(name) {
@@ -485,10 +476,11 @@ function pinned(r) {
      'If the router was changed on purpose, say why in the CHANGELOG and pin the new time; if not, something moved it.');
 }
 
-// ---- the lines the real boats were timed at ----------------------------
-//  PILOT's lines (legs_2025_real_v2.txt): a meridian crossed westward
-//  going out and eastward coming home; the Eddystone row is the closest
-//  the boat came to the light; the finish is the finish.
+// ---- the nine lines the router is timed at -------------------------------
+//  PILOT's lines: a meridian crossed westward going out and eastward
+//  coming home, off each headland; the Eddystone row is the closest she
+//  came to the light; the finish is the finish.  They are geometry, and
+//  the router's own times at them are pinned below.
 var LIGHT = [50.1807, -4.2657];
 var LINES = [
   { name: 'Hurst narrows (out)', lon: -1.550, way: 'w' },
@@ -501,12 +493,6 @@ var LINES = [
   { name: "St Alban's Head (back)", lon: -2.057, way: 'e' },
   { name: 'North Head (finish)' }
 ];
-var HELD_FROM = 2;                   //  Portland Bill (out): the first line the claim is held at
-//  why each line before it is excepted: the header says it in full
-var EXCEPTED_WHY = {
-  'Hurst narrows (out)': 'the model\'s ebb at Hurst is about a quarter weaker than the chart\'s (stream_check_readings_2025_v1.txt)',
-  "St Alban's Head (out)": 'a tie: the router and the closest real boat are within what the search resolves'
-};
 function hoursAt(r) {
   var turn = nearest(r.rows, LIGHT[0], LIGHT[1]).ms, out = {};
   LINES.forEach(function (ln) {
@@ -536,18 +522,18 @@ var AT_LINES = {
   "St Alban's Head (back)": 21.8904,
   'North Head (finish)': 23.5042
 };
-//  the real boats, from PILOT's file
-function realBoats() {
-  var t = fileText('legs_2025_real_v2.txt'), boats = [], by = {}, rowsSeen = 0, ended = false, said = null;
-  if (t === null) return { err: 'legs_2025_real_v2.txt is not in ' + DATA };
-  t.split('\n').forEach(function (l) {
-    var p = l.split(' | ');
-    if (p[0] === 'boat') { by[p[1]] = { id: p[1], type: p[2], at: {} }; boats.push(by[p[1]]); }
-    else if (p[0] === 'gate' && by[p[1]]) { by[p[1]].at[p[2]] = { hours: parseFloat(p[4]), guessed: p[7].trim() === 'yes' }; rowsSeen++; }
-    else if (/^# \d+ boats, \d+ gate rows/.test(l)) said = l.match(/^# (\d+) boats, (\d+) gate rows/);
-    else if (l.trim() === 'end') ended = true;
-  });
-  return { boats: boats, rows: rowsSeen, ended: ended, said: said };
+//  THE REAL BOATS' FINISHES, FROM RORC'S PUBLISHED RESULTS (TBNM).
+//  Each entry: the boat as RORC lists her (type is enough), her elapsed
+//  time as "h:mm:ss", and `source` the page it was read from.  EMPTY
+//  UNTIL LARRY CONFIRMS THE FIGURES: then the part below holds them.
+//  Example of the form, not a figure:  { boat: 'Clipper 68', elapsed: 'h:mm:ss' }
+var RORC_RESULTS = {
+  source: '',
+  boats: []
+};
+function hrs(hms) {
+  var m = /^(\d+):(\d\d):(\d\d)$/.exec(hms || '');
+  return m ? +m[1] + m[2] / 60 + m[3] / 3600 : null;
 }
 
 // =====================================================================
@@ -585,60 +571,23 @@ if (asked('pins')) {
 }
 
 if (asked('boats')) {
-  var r2 = asSailed(), real = realBoats();
-  ok('PILOT\'s leg times read', !real.err && real.boats.length > 0, real.err);
-  if (sound(r2) && !real.err) {
-    ok('the file is whole: it ends with "end", and holds the boats and rows it says it does',
-       real.ended && real.said && +real.said[1] === real.boats.length && +real.said[2] === real.rows,
-       real.boats.length + ' boats, ' + real.rows + ' rows, ' + (real.said ? 'and it says ' + real.said[1] + ' and ' + real.said[2] : 'and no count line') +
-       (real.ended ? '' : '; no "end"'));
-    ok('every boat has a time at every line', real.boats.every(function (b) {
-      return LINES.every(function (ln) { return b.at[ln.name] && isFinite(b.at[ln.name].hours); });
-    }));
-    var h2 = hoursAt(r2), tbl = [], held = 0, guessed = 0, behind = [], least = null;
-    function cell(s, n) { s = String(s); while (s.length < n) s = ' ' + s; return s; }
-    tbl.push(cell('hours from the gun', 24) + cell('router', 8) + real.boats.map(function (b) { return cell('#' + b.id, 8); }).join(''));
-    LINES.forEach(function (ln, k) {
-      tbl.push(cell(ln.name, 24) + cell(h2[ln.name] === null ? '-' : h2[ln.name].toFixed(2), 8) + real.boats.map(function (b) {
-        var c = b.at[ln.name]; return cell(c ? c.hours.toFixed(2) + (c.guessed ? '?' : '') : '-', 8);
-      }).join('') + (k < HELD_FROM ? '   excepted' : '   held'));
-      if (k < HELD_FROM || h2[ln.name] === null) return;
-      real.boats.forEach(function (b) {
-        var c = b.at[ln.name];
-        if (!c) return;
-        //  a time the tracker did not observe is not evidence either way
-        if (c.guessed) { guessed++; return; }
-        held++;
-        var lead = c.hours - h2[ln.name];
-        if (lead <= 0) behind.push('boat ' + b.id + ' (' + b.type + ') at ' + ln.name + ': ' + c.hours.toFixed(2) + ' h, the router ' + h2[ln.name].toFixed(2));
-        if (least === null || lead < least.lead) least = { lead: lead, who: 'boat ' + b.id + ' (' + b.type + ') at ' + ln.name };
+  if (!RORC_RESULTS.boats.length) {
+    //  not a pass and not a fail: a part that has nothing to hold says so
+    say('  --    boats: NOT HELD YET. RORC\'s published finishing times are awaited (TBNM);');
+    say('        no time worked out from the tracker is used. Fill RORC_RESULTS to hold it.');
+  } else {
+    var r2 = asSailed();
+    ok('RORC\'s results name their source', !!RORC_RESULTS.source, 'RORC_RESULTS.source is empty');
+    ok('every RORC time reads as h:mm:ss', RORC_RESULTS.boats.every(function (b) { return hrs(b.elapsed) !== null; }));
+    if (sound(r2)) {
+      var mine = secs(r2) / 3600, behind = [];
+      RORC_RESULTS.boats.forEach(function (b) {
+        var h = hrs(b.elapsed);
+        if (h !== null && (h - mine) * 3600 <= TOL) behind.push(b.boat + ' ' + b.elapsed);
       });
-    });
-    say('');
-    tbl.forEach(function (l) { say('  ' + l); });
-    say('  ' + real.boats.map(function (b) { return '#' + b.id + ' ' + b.type; }).join('; '));
-    say('  ? = the tracker was silent across the line: interpolated, and not held');
-    say('');
-    ok('the router crosses every one of PILOT\'s lines', LINES.every(function (ln) { return h2[ln.name] !== null; }));
-    ok('from Portland Bill on, the router leads every real boat at every line it was observed at',
-       behind.length === 0 && held > 0, behind.join('\n        '));
-    ok('and that was a real comparison: more than sixty observed times, and a lead of over a quarter of an hour at the closest',
-       held > 60 && least && least.lead > 0.25, held + ' observed times held, ' + guessed + ' interpolated and left out' +
-       (least ? '; the closest is ' + least.who + ', ' + (least.lead * 60).toFixed(0) + ' minutes behind the router' : ''));
-    if (SHOW && least) say('  boats ' + held + ' held, ' + guessed + ' guessed; closest ' + least.who + ' ' + (least.lead * 60).toFixed(1) + ' min');
-    //  THE EXCEPTION IS CHECKED TOO.  It stands only while it is needed:
-    //  while an observed boat is ahead of the router at the line, or
-    //  within the two minutes the search cannot tell apart from it.
-    LINES.slice(0, HELD_FROM).forEach(function (ln) {
-      var near = real.boats.filter(function (b) {
-        var c = b.at[ln.name];
-        return c && !c.guessed && (c.hours - h2[ln.name]) * 3600 <= TOL;
-      });
-      ok('the exception at ' + ln.name + ' is still needed (' + EXCEPTED_WHY[ln.name] + '): a real boat is ahead of the router there, or within ' + TOL + ' s',
-         near.length > 0, 'the router is now clearly ahead of every observed boat at ' + ln.name + '. Take this line out of ' +
-         'the exception (HELD_FROM and EXCEPTED_WHY) so that it is held like the rest, and say why in the CHANGELOG.');
-      if (SHOW) say('  excepted ' + ln.name + ': ' + near.length + ' real boats ahead or within ' + TOL + ' s');
-    });
+      ok('the router finishes ahead of every real boat in RORC\'s results, by more than ' + TOL + ' s',
+         behind.length === 0, 'not ahead of: ' + behind.join('; '));
+    }
   }
 }
 

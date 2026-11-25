@@ -1,5 +1,56 @@
 # Changelog
 
+## The router is held to RORC's published finishes, not to tracker times (TBNM)
+
+**What.** The router's documents and its real-race test no longer quote or use the real boats' times
+at the nine lines of the 2025 Myth of Malham. Larry's ruling TBNM, 25 November 2026.
+
+**Why.** Those times were worked out from the race's tracker positions (PILOT's legs file). The
+positions had been fetched from a public replay site by script, without its publishers'
+permission (PILOT's record, 25 November 2026). bashnav's repository is public, so the times are
+taken out of it now. The rest of Level 3's data is being decided separately.
+
+1. **`docs/web/route/ROUTER.md`:** the section "The router beside the real boats" is gone, with
+   the exception at Hurst and St Alban's Head that rested on it. "Held to the real race" now
+   says what is held, why the boats are held at the finish only, and that they are not held yet.
+   "The real Clipper 68s took about 44 hours" becomes "far longer", until RORC's figure is
+   confirmed. `ROUTER.pdf` is rebuilt.
+2. **`docs/web/tests/race-2025.js`:** the `boats` part no longer reads the legs file, and the file
+   is no longer pinned. It holds the router ahead of each real boat's elapsed time in RORC's
+   published results (`RORC_RESULTS`). **That table is empty until Larry confirms the figures.**
+   Until then the part prints "not held yet" on every run, and never passes for want of them. Both
+   ways were tried: empty, it says so; with a boat level with the router, it fails.
+3. **`tests/run-tests.sh`:** the suite's line says the boats are not held yet, while they are not.
+4. **This file:** the real boats' times in the B3 entry and two later ones are taken out, each
+   marked where it was.
+
+**What is unchanged.** The router; every pinned time; the nine lines, where the router's own
+times are still pinned; the rules, orderings, crews, limits, steps and motor parts. What the
+stream at Hurst teaches stands on Larry's own chart readings.
+
+**Found in the same search, and not changed** (each needs Larry's ruling):
+
+1. **The weather app's routing lesson** quotes three finishing times (04:43:58, 03:58:31 and
+   02:48:09 on 26 May), with hours to the Eddystone and when she tacked. They come from Level 3's
+   able-crew runs, which sail on the as-sailed Clipper 68 polar, and that polar was built from the
+   same tracker positions. The figures are written in `src/weather/wx.awk` (`rt_init`),
+   `docs/web/weather/wx.js` (`WX.RT`), `bin/weather`, the iPad bundle and `docs/SOURCES.md`
+   (item 7). The lesson and its chart print them (`src/weather/teach.awk`, `grid.awk`), and
+   `tests/golden/weather.txt` holds what it prints: "To the Eddystone: 25.7, 25.8 and 25.5
+   hours", and the tack times.
+2. **The Eddystone berth of 0.15 nm** in PILOT's passage file is "the berth the tracked Clipper
+   68s show" (`ROUTER.md`, "The 2025 race with its passing marks"; `COURSE.md`, "Why two
+   decimals"). It is an input to the published passage-plan runs.
+
+**Not in scope:** git history. The earlier text stays in the repository's history; whether to
+rewrite it is a separate decision for Larry.
+
+**What it touches.** `docs/web/route/ROUTER.md`, `ROUTER.pdf`; `docs/web/tests/race-2025.js`;
+`tests/run-tests.sh`; `CHANGELOG.md`.
+
+Found-by: NAV, in the router side of Level 3's analysis (`2026-11-25_nav-l3-router-side.md`,
+section 3); ruled by Larry as TBNM.
+
 ## colregs 1.23: a look-alike is not a wrong answer (TBKP)
 
 **What.** PILOT's QA part 2, item 1 (b): from some bearings another vessel in the list shows exactly
@@ -2568,27 +2619,15 @@ readings (`stream_check_readings_2025_v1.txt`), because the exception at Hurst
 rests on them. The Shom runs stay in PILOT's folder, unchanged, and are no
 longer read.
 
-**The exception at Hurst and St Alban's Head is narrowed, each line for its
-own reason:**
+**The stream at Hurst.** Larry read the chart's streams there: the model's ebb
+is about a quarter weaker than the chart's (2.7 knots against 3.6), with the
+timing right. Larry ruled to teach the model as it is, with that caveat.
 
-- **Hurst:** two real boats lead the router there, by four and seven
-  minutes. Larry read the chart's streams there: the model's ebb is about a
-  quarter weaker than the chart's (2.7 knots against 3.6), with the timing
-  right. Larry ruled to teach the model as it is, with that caveat; PILOT
-  asked that the exception stay, narrowed to that cause.
-- **St Alban's Head, outbound:** a tie. The router leads the closest real
-  boat (the Ker 46) by about a minute, inside what the search resolves. PILOT
-  and the XO left this judgment to bashnav; holding the line would rest the
-  claim on a margin the search cannot see.
-- **The exception still checks itself.** A line stands only while an
-  observed boat is ahead of the router there, or within two minutes. When
-  the router is clearly ahead, the check fails until that line is taken out.
-- **From Portland Bill on she leads every real boat,** at 69 observed times.
-  The closest is 42 minutes behind, where it was 31 minutes before.
+*(Real boats' times removed from this entry under TBNM, 25 November 2026: see that entry.)*
 
 **ROUTER.md's 2025 sections are redone on the new stream:** the step table,
 the passing-mark plans, the four crews, the first run with its passage log,
-the real boats, and the motorboat's table. One finding changed: steps under
+and the motorboat's table. One finding changed: steps under
 five minutes now go both ways (three minutes twenty gains under four
 minutes, two and a half loses five). The time is still good to about ten
 minutes in a day. COURSE.md's MOTOR 1 example follows the new run.
@@ -2747,17 +2786,13 @@ Board item B3.
 | rules | Every step of every route against all of the coastline, each clearance, each berth, the hand each mark was left on, each passing mark, the start and the finish. By arithmetic of the test's own. |
 | orderings | A restriction never makes her faster; a worse crew is never quicker; a five-minute step is never slower than a ten-minute one. |
 | pins | The ten finishing times the documents quote, and the as-sailed run's time at nine lines. |
-| boats | From Portland Bill on, the router leads every real boat at every line it was observed at. |
+| boats | The router leads the real boats. (Held at the finish only since TBNM, 25 November 2026.) |
 
 **Why these.** Larry ruled each choice, 14 November 2026.
 
 1. **Against the real boats, one claim that can fail.** The router's boat is a
    generic 70 ft racing yacht with free tacks, so it should lead every real
-   boat. It does from Portland Bill on: 69 observed times, the closest 31
-   minutes behind. At Hurst and St Alban's Head, outbound, real boats lead it,
-   because the stream data does not cover the Solent. Those two lines are a
-   stated exception, and the exception is checked: when it is no longer needed
-   the test fails until it is taken out.
+   boat. *(Real boats' times removed from this entry under TBNM, 25 November 2026: see that entry.)*
 2. **The data is read where it lives,** in PILOT's folder, each file pinned by
    its checksum. A copy would have missed both of PILOT's corrections. A
    changed file is named as the cause.
@@ -2765,9 +2800,8 @@ Board item B3.
    minutes, so it is not in the one-second gate, and `tests/run-tests.sh` runs
    it after its loop over shells, showing its progress.
 
-**Not held, on purpose.** Single legs: a real boat can have a better tide on
-one leg for arriving at a different hour. PILOT's Clipper 68 run against the
-real Clipper 68s: that polar was measured in this same race.
+**Not held, on purpose.** Single legs. PILOT's Clipper 68 run against the
+real Clipper 68s.
 
 **What it affects.** Nothing in the router changes. A change to the router
 that moves a published time now fails this check until the new time is pinned
@@ -3156,8 +3190,8 @@ router beat it - and the comment now says so.
 23.7 hours with a generic 70 ft polar, a dead beat to the Eddystone in a
 south-westerly of 16 to 24 knots, in three seconds of computing. Checked
 afterwards by brute force: no step crosses the coastline. The real boats took
-about 44 hours, which is the difference between a generic racing polar sailed
-perfectly and a heavy boat sailed by people.
+far longer, which is the difference between a generic racing polar sailed
+perfectly and a heavy boat sailed by people. *(Real boats' times removed from this entry under TBNM, 25 November 2026: see that entry.)*
 
 **What it affects.** No page loads the router yet, so nothing a user sees has
 changed. `route.js`'s `step()` is split into `conditions()` and `sailFrom()`

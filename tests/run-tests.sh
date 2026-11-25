@@ -2109,7 +2109,14 @@ say "the router held to the real 2025 race (once; two to three minutes)"
 if command -v node >/dev/null 2>&1; then
   { node docs/web/tests/race-2025.js 2>&1; echo $? > "$tmp/race.rc"; } | tee "$tmp/race.out"
   if [ "$(cat "$tmp/race.rc" 2>/dev/null)" = "0" ]; then
-    ok "the router keeps the rules, the orderings and the published times on the real race, and leads the real boats from Portland Bill on $(sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p' "$tmp/race.out")"
+    #  the real boats are held at the finish, against RORC's published
+    #  results, once Larry has confirmed them (TBNM); until then the test
+    #  says "not held yet", and so does this line
+    if grep -q 'boats: NOT HELD YET' "$tmp/race.out"; then
+      ok "the router keeps the rules, the orderings and the published times on the real race $(sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p' "$tmp/race.out"); the real boats' finishes are not held yet (TBNM: RORC's figures awaited)"
+    else
+      ok "the router keeps the rules, the orderings and the published times on the real race, and finishes ahead of every real boat in RORC's results $(sed -n 's/^  all \([0-9]*\) checks/(\1 checks)/p' "$tmp/race.out")"
+    fi
   else
     bad "the router breaks a rule, an ordering or a published time on the real race, or PILOT's data is not where it is read"
   fi

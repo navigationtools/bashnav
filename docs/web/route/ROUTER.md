@@ -798,7 +798,9 @@ is right everywhere. The model's ebb at Hurst is about a quarter weaker than
 the chart's: 2.7 knots against 3.6. Larry's ruling: teach the model as it is,
 with that caveat.
 
-**The real Clipper 68s took about 44 hours.** The difference is the point, not
+**The real Clipper 68s took far longer,** as RORC's published results show
+(their elapsed times will be quoted here from those results once Larry has
+confirmed them: TBNM). The difference is the point, not
 a fault: this is the fastest a generic 70-footer could go, tacking for nothing,
 steered perfectly, in a forecast that came exactly true.
 
@@ -886,8 +888,8 @@ tack".
 ## Held to the real race
 
 `docs/web/tests/race-2025.js` holds the router to the race that was sailed:
-PILOT's course, coastline, wind, stream and polar, and what eleven real boats
-did, from the race's tracker. It is board item B3.
+PILOT's course, coastline, wind, stream and polar, and the real boats'
+finishing times as RORC published them. It is board item B3.
 
 ```
    W                                                                        E
@@ -896,74 +898,52 @@ did, from the race's tracker. It is board item B3.
      4.27W        3.640W             2.457W         2.057W      1.550W    ][
 
        <------------+------------------+--------------+-----------+------  out
-                  held               held          EXCEPTED    EXCEPTED
-
        -------------+------------------+--------------+------------------>  home
-     held         held               held           held            held
+
+       the router's own time at each of the nine lines is pinned
 ```
 
-PILOT timed every real boat where she crossed four meridians, out and home,
-where she came closest to the light, and at the finish: nine lines. The router
-is timed at the same nine, from the same gun.
+The nine lines are four meridians off the headlands, out and home, the
+nearest she comes to the light, and the finish. The router is timed at
+each, from the gun.
 
-### What is held (Larry, 14 November 2026)
+### What is held (Larry, 14 November 2026; the boats, TBNM, 25 November 2026)
 
 | | what it checks | why |
 |---|---|---|
 | **rules** | Every step of every route against every piece of the coastline and each layer's clearance; each berth; the hand each mark was left on; each passing mark made; the start and the finish; each row handing on to the next. | By arithmetic of the test's own, that owes nothing to the router. The router keeps its water in a table of squares for speed; this goes through all of it. |
 | **orderings** | A restriction never makes her faster: headlands to keep off, a wider berth, passing marks. A worse crew is never quicker. A five-minute step is never slower than a ten-minute one. | These must be so whatever the answer is. Every fault found in the search so far was found by one of them and not by a wrong number. |
 | **pins** | The ten finishing times the documents and lessons quote, and the as-sailed run's time at each of the nine lines. | A change that moves one is seen, and must be made on purpose, with its reason in the CHANGELOG. |
-| **boats** | From Portland Bill on, the router leads every real boat at every line it was observed at. | Its boat is a generic 70 ft racing yacht with free tacks and a forecast it knows in advance. It should lead. |
+| **boats** | The router finishes ahead of every real boat's elapsed time in RORC's published results. | Its boat is a generic 70 ft racing yacht with free tacks and a forecast it knows in advance. It should finish first. |
+
+**The boats are not held yet.** The test holds them as soon as RORC's
+published finishing times are written into it, with the page they came from.
+Until Larry has confirmed those figures it says "not held yet" on every run,
+and the suite says so too; it never passes for want of them.
 
 **Every comparison of two times allows two minutes,** which is what the search
 cannot tell apart ("What the search can resolve").
 
-### The router beside the real boats
+### Why the real boats are held at the finish only
 
-Hours from each boat's own gun. The router is the as-sailed run, tacks free,
-on the Copernicus stream.
+The real boats' times at the nine lines were worked out from the race's
+tracker positions. Those positions had been fetched from a public replay site
+by script, without its publishers' permission (PILOT's record, 25 November
+2026). Under Larry's ruling TBNM the router is no longer compared with them,
+and no time taken from them is quoted here. RORC publishes every boat's
+finish, so the router is held to that.
 
-| line | router | Ker 46 | Sydney GTS 43 | Open 50 | Carroll Marine 60 | fastest Clipper 68 |
-|---|---|---|---|---|---|---|
-| Hurst narrows (out) | 1.27 | **1.16** | **1.20** | 1.29 | *1.27* | 1.50 |
-| St Alban's Head (out) | 4.02 | *4.04* | 4.29 | 4.91 | 5.12 | 7.36 |
-| Portland Bill (out) | 5.91 | 6.62 | 6.70? | 8.05? | 8.22 | 10.98 |
-| Start Point (out) | 12.42 | 14.27 | 14.38 | 16.53 | 15.08 | 23.43 |
-| Eddystone | 15.16 | 18.60 | 18.89 | 21.37 | 19.62 | 28.48 |
-| Start Point (back) | 16.94 | 20.60 | 21.24 | 24.55 | 23.95 | 31.23 |
-| Portland Bill (back) | 20.70 | 25.65 | 26.68? | 29.93 | 31.16 | 37.68 |
-| St Alban's Head (back) | 21.89 | 27.49 | 28.50? | 31.04 | 32.67 | 41.16 |
-| finish | 23.50 | 29.07? | 30.44 | 32.92 | 35.52 | 43.94 |
-
-**Bold** is a real boat ahead of the router; *italic* is one within the two
-minutes the search cannot tell apart. `?` is a time the tracker did not
-observe: it was silent across the line, the time is interpolated, and it is
-not held either way. The test prints all eleven boats.
-
-1. **From Portland Bill on she leads every boat,** at 69 observed times. The
-   closest is the Ker 46 at Portland Bill, 42 minutes behind her.
-2. **Hurst narrows is a stated exception: two real boats lead her there, and a
-   third is level.** The model's ebb at Hurst is about a quarter weaker than
-   the chart's (Larry's readings, under "The first run"), so the router is
-   given less ebb than the boats had.
-3. **St Alban's Head, outbound, is a stated exception too, as a tie.** She
-   leads the Ker 46 there by about a minute: inside what the search resolves,
-   so neither "she leads" nor "she is led" is a claim to hold.
-4. **The exception is itself checked.** Each line stands only while an
-   observed boat is ahead of her there, or within those two minutes. When she
-   is clearly ahead at one, the test fails until that line is taken out of
-   the exception, and it is then held like the rest.
+What the stream at Hurst teaches still stands without the boats: Larry's own
+chart readings show the model's ebb there about a quarter weaker than the
+chart's ("The first run").
 
 ### What is not held, and why
 
-1. **Single legs.** She is slower than the fastest real boat on three of the
-   nine legs. One is the Solent, by seven minutes, where the model's ebb is
-   light. One is fair: the Open 50 had a better tide from Portland Bill to St
-   Alban's for arriving at a different hour. The last leg is a tie, against an
-   interpolated time. The router makes the best passage, not
-   the best of every leg.
-2. **PILOT's Clipper 68 run against the real Clipper 68s.** That polar was
-   measured in this same race, so it would be the method agreeing with itself.
+1. **Single legs, and any time between the start and the finish.** RORC
+   publishes the finish. The router makes the best passage, not the best of
+   every leg.
+2. **A Clipper 68 against the real Clipper 68s.** No Clipper polar is
+   published, and the router's boat is a generic one.
 
 ### The data is read where it lives
 
@@ -1248,16 +1228,18 @@ whoever else came was tried, could not be told from this one by any check or
 by the 2025 race, and was taken out. Every earlier fault list was then put
 back against the new search, 97 faults in all, and each is still caught.
 
-The real race is checked in `race-2025.js`, 86 checks. Its own checks were
-proven the same way, with 24 faults, none of them put into either repository:
-the router was faulted in a scratch copy, and PILOT's data in a scratch copy of
-the folder. In the router: the coastline clearance ignored, no berth, the
-stream not sampled, a crew not charged, a plan's berth or its passing marks
-ignored, an `avoid` dropped. In the data: a pinned file changed in place, a real
-boat put ahead of the router at Portland Bill, the leg times cut short, the
-exception made unnecessary, the folder taken away. Each is caught by the check
-meant for it, and an interpolated time put ahead of the router, which is not
-evidence, rightly passes. One got through at first. A router that ignored the
+The real race is checked in `race-2025.js`: 104 checks while the real boats'
+finishes are not yet held (55 in the files, rules, pins, boats and crews parts,
+and 49 in limits, steps and motor). Its own checks were proven the same way,
+with faults put only into scratch copies of the router and of PILOT's data,
+never into either repository. In the router: the coastline clearance ignored,
+no berth, the stream not sampled, a crew not charged, a plan's berth or its
+passing marks ignored, an `avoid` dropped. In the data: a pinned file changed
+in place, the folder taken away. Each is caught by the check meant for it. The
+faults once put into the real boats' leg times went with those times, under
+TBNM ("Why the real boats are held at the finish only"); the finish check that
+replaced them was tried both ways, empty and with a boat level with the router,
+which it catches. One got through at first. A router that ignored the
 plan's berth passed, because the test read the berth from the route's own
 summary and so held it to the figure it had used; it now reads what was asked.
 
