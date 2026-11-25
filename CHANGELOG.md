@@ -1,5 +1,21 @@
 # Changelog
 
+## Deck Log's manual and quick reference say 1.1.2
+
+**What.** Both Deck Log PDFs are rebuilt. They said "DECK-LOG 1.1" on every page, built on 12
+November; the tool is 1.1.2.
+
+**Why.** Larry's rule 19: the app and its documentation agree before a release. Found while
+checking every manual's footer against its tool (25 November 2026, after the COLREGS 1.23 footers).
+
+**What changed, and what did not.** Deck Log 1.1.1 and 1.1.2 changed two sentences the tool writes
+(the glass graded on the Met Office's bands; the cloud base "a sixth" too low, not "a fifth"). Neither
+document quotes either, and none of the four figures shows them: the log figure shows raw records,
+and the home figure's "build 7" is still the build served. So the text and figures are unchanged,
+and only the version and build date on each page move. 11 pages and 4 figures, as before.
+
+**What it touches.** `docs/deck-log-manual.pdf`, `docs/deck-log-quickref.pdf`.
+
 ## weather 1.0.26: "test the route" on the lesson's own boat (TBOK)
 
 **What.** The routing lesson's step 7, "Test the route", taught with three router runs of the 2025
