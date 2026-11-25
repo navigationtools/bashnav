@@ -1,5 +1,32 @@
 # Changelog
 
+## The Eddystone berth no longer rests on the tracks (TBQH)
+
+**What.** `ROUTER.md` ("The 2025 race with its passing marks") and `COURSE.md` ("Why two decimals")
+said the 0.15 nm Eddystone berth in PILOT's passage file was "the berth the tracked Clipper 68s
+show". Both now say it is our own pilotage choice, being re-sourced from the chart. The number is
+unchanged, in the passage file and in every run and pinned time. Both PDFs are rebuilt.
+
+**Why.** Larry's ruling TBQH, 25 November 2026. The tracks were fetched without their publishers'
+permission (PILOT's record), and the letters to YB, RORC and DeepRegatta say that everything
+taken from them has been removed from bashnav's current files. PILOT gives the berth from the
+chart under TBNF (item 1.3); the wording changes again then.
+
+**The sweep that came with it.** No other figure in bashnav's current files rests on the tracks.
+What remains are mentions that explain what was removed and why: this file's entries for TBNM,
+weather 1.0.26 and the CHANGELOG correction; `ROUTER.md`, "Why the real boats are held at the
+finish only"; the comments in `race-2025.js` and `wx.awk`; `docs/SOURCES.md` item 7.2. Three
+mentions are listed for Larry's eye, not changed:
+1. this file's TBNM entry quotes the removed phrases "about 44 hours" and "the berth the tracked
+   Clipper 68s show"; RORC's published results give the same 44 hours;
+2. `COURSE.md`, the `scale` line: "`current 0.5` is the OSCAR question", a name for a question
+   about a model, with no data in it;
+3. the CHANGELOG's past entries name the Clipper 68s (ruling TBPS asks for "68-foot ocean racer";
+   NAV's question to Larry on past entries is open).
+
+**What it touches.** `docs/web/route/ROUTER.md`, `ROUTER.pdf`, `COURSE.md`, `COURSE.pdf`;
+`CHANGELOG.md`.
+
 ## The CHANGELOG no longer repeats the figures it took out
 
 **What.** The TBNM entry and the weather 1.0.26 entry, both of 25 November 2026, quoted the three

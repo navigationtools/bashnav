@@ -685,8 +685,9 @@ a buoy to well off a reef. It means what `round` means: she rounds on the right
 side and is never nearer than that, at any time.
 
 **Why two decimals.** Larry first suggested a count of tenths. Tenths cannot
-hold 0.15, the berth the tracked Clipper 68s show at the Eddystone, and these
-formats state their units outright. A hundredth of a mile is about twenty
+hold 0.15, the Eddystone berth in PILOT's passage file (our own pilotage
+choice, being re-sourced from the chart: TBQH), and these formats state their
+units outright. A hundredth of a mile is about twenty
 yards, which is as fine as a chart gives a berth.
 
 ## The mark that ends the finish line takes no berth

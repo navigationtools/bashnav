@@ -340,7 +340,8 @@ polar's and not as a fact about boats (PILOT's).
 ### The 2025 race with its passing marks
 
 PILOT's passage file (`passage_2025_v1.txt`): the race as set, with the
-Eddystone at the 0.15 nm berth the tracked Clipper 68s show; and Level 1, south
+Eddystone at a berth of 0.15 nm, our own pilotage choice, which PILOT is
+re-sourcing from the chart (TBQH); and Level 1, south
 of St Alban's Head and Portland Bill inside two miles, out and home. The same
 boat, weather and Copernicus stream as the first run below.
 
