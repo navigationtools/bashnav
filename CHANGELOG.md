@@ -1,5 +1,87 @@
 # Changelog
 
+## weather 1.0.26: "test the route" on the lesson's own boat (TBOK)
+
+**What.** The routing lesson's step 7, "Test the route", taught with three router runs of the 2025
+Myth of Malham: the forecast wind, ten per cent lighter and ten per cent stronger. It now teaches
+the same test on the lesson's own made-up boat: the all-in beat of step 5, sailed with every one of
+her speeds ten per cent lower and higher. Larry's ruling TBOK, 25 November 2026.
+
+**Why.** The three runs sailed on the as-sailed Clipper 68 polar. That polar was built from the
+race's tracker positions, which had been fetched without their publishers' permission (PILOT's
+record, 25 November 2026). The same reason took the real boats' times out of the router's documents
+(TBNM). The lesson's method is unchanged; only the example is.
+
+**What the lesson shows now.**
+
+| her speeds | going right | middle | left |
+|---|---|---|---|
+| x 0.9 | 2 h 40 | 3 h 01 | 3 h 21 |
+| x 1.0 | 2 h 26 | 2 h 43 | 3 h 04 |
+| x 1.1 | 2 h 15 | 2 h 29 | 2 h 49 |
+
+1. **The call holds:** going right is fastest at every speed.
+2. **The clock does not:** 25 minutes between the slowest and the fastest.
+3. **The limit, as before:** scaling her speed leaves the veer at the forecast's own time, an hour
+   in, so testing the timing takes another run or another model. The figure draws that line.
+4. **Every number is the model's own, computed live,** in the terminal and the browser alike:
+   `rt_allin_k` in `wx.awk` and `WX.rtAllinK` in `wx.js` (at speed 1.0 it is the all-in case
+   exactly). No figure is stored.
+5. **"Say it in sailing terms"** is written for the same beat: port tack, out to the right, for
+   the first hour; the veer of 20 forecast an hour in; tack when it has veered and held; if it does
+   not come, or it backs, call the navigator. The Lyme Bay brief it replaces came from the same
+   runs.
+
+**Bringing the race back, if permission is given** (Larry, 25 November 2026: record the commit and
+the router so that it can be re-sailed and compared).
+
+1. **The text and figures as they were** are in bashnav commit **76585f0** (25 November 2026):
+   - `src/weather/wx.awk`, `rt_init` (the `RT_RUN` line and its comment);
+   - `src/weather/grid.awk`, `rt_whatif_figure`; `src/weather/teach.awk` (step 7 and the brief);
+   - `docs/web/weather/wx.js` (`RT.RUN`) and `weather.js` (`rtWhatifDemo`);
+   - `docs/web/tests/weather-route.js` (its `RT.RUN` checks);
+   - `docs/manual-src/weather-manual.md` (Figure 24 and step 7) and `fig/weather-rtwhatif.png`;
+   - `docs/SOURCES.md` (items 7.2 and 8); `tests/golden/weather.txt`.
+2. **The runs** are PILOT's, in `practical-navigator/data/2025/`, untouched by this release:
+   `run_2025_clipper68_crew_able_wind090_cmems_v1.txt`, `run_2025_clipper68_crew_able_cmems_v1.txt`
+   and `run_2025_clipper68_crew_able_wind110_cmems_v1.txt` (sha256, first 16: `b18ceb54b540bc3d`,
+   `b4070e834cbdabc7`, `894a9e94b91a3e2a`). The copies in `data/2025/level3/` differ from these by
+   checksum (`03d379f60b6ff79b`, `8aa6d186eb44411b`, `cba127ab49bbd2fa`). Their inputs:
+   `polar_as_sailed_clipper68_2025_v2.txt` (`ea65d0968e41f36b`), `crew_starting_v1.txt` (able,
+   `18d6cce6d6a65360`), `course_2025_v3.txt` (`e840534aa9c58780`), `wind_20250524_00z_v2.grid`
+   (`6b112cc12af4944d`), `current_20250524_cmems_v1.grid` (`c8790f97dbfaebec`),
+   `areas_rules_2025.txt` (`37d2ff50b2a3f532`), `areas_coast_emodnet_2025.txt` (`8909ebf7ff006bd2`).
+3. **The router has no version number of its own; its commit is its version.** The runs were first
+   sailed on 16 November 2026, between 10:17 and 14:28 Eastern by their files' times. Two router
+   commits fall around then: cd9e0b6 (08:53) and ce6ccff ("router bounds", 11:55), so the run at
+   1.0 came before ce6ccff and the other two after it.
+4. **On 25 November the router at 76585f0 sailed the three `data/2025` files again and matched
+   every finish to the second:** 04:43:58, 03:58:31 and 02:48:09 UTC on 26 May. So 76585f0 is a
+   router known to reproduce them.
+5. **To bring them back:** check out commit 76585f0's `docs/web/route/` beside the router of the
+   day, sail the three runs with each (`node docs/web/route/sail.js <folder> <run>`), and compare.
+   If both agree, restore the files in item 1 from 76585f0. If they differ, the difference is the
+   router's, and the lesson's figures are written from the new runs, with the reason here.
+
+**Tests.** `docs/web/tests/weather-route.js` holds the new figure: each bar is the model's time
+going right; the three times written are the model's; going right is fastest at every speed; the
+veer stands an hour in on every bar; the spread is written as the model gives it; a moved veer
+mark is caught. Four new arithmetic checks: at speed 1.0 the scaled beat is the all-in case
+exactly; twice her speed covers the first hour's ground twice and the rest in half the time; going
+right is fastest at every speed; a faster boat is never slower. The awk and the browser agree
+character for character (`routedump`, its `k` lines replacing the `r` lines). 58 checks, all hold.
+
+**What it touches.** `src/weather/wx.awk`, `grid.awk`, `teach.awk`, `10-head.sh` (1.0.26);
+`docs/web/weather/wx.js`, `weather.js`, `lessons.js` (generated), `sw.js` (cache `weather-v43`);
+`docs/web/tests/weather-route.js`; `docs/manual-src/weather-manual.md`, `fig/weather-rtwhatif.png`,
+both weather PDFs rebuilt; `docs/SOURCES.md`; `README.md`, `docs/ARCHITECTURE.md` (1.0.26);
+`tests/golden/weather.txt`; the menu picture; the iPad bundle.
+
+Fault: the weather lesson quoted router runs that sailed on a polar built from data fetched
+without permission.
+Introduced-in: weather 1.0.21 (W35, the routing lesson).
+Found-by: NAV, in the search under TBNM (25 November 2026); ruled by Larry as TBOK.
+
 ## The router is held to RORC's published finishes, not to tracker times (TBNM)
 
 **What.** The router's documents and its real-race test no longer quote or use the real boats' times

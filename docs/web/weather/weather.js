@@ -2701,43 +2701,42 @@ function rtScaleDemo(host) {
   host.appendChild(D.wrap);
 }
 
-/*  7. TESTING.  The 2025 Myth of Malham, routed three times by bashnav's
-    router for the course's routing page: the forecast wind, ten per cent
-    lighter, ten per cent stronger.  One bar a run: out to the Eddystone,
-    then home; a mark where she tacked for Start Point.  */
+/*  7. TESTING.  The all-in beat above, sailed three times with her speeds
+    ten per cent lower and higher (weather 1.0.26, TBOK).  */
 function rtWhatifDemo(host) {
-  var RT = WX.RT, X0 = 112, PX = 10.6, START = 10;      /* she started at 10:00 UTC */
-  var name = function (s) { return s === 1 ? 'as forecast' : 'wind × ' + s.toFixed(1); };
-  var D = rtSvg(330, 'The 2025 Myth of Malham routed three times by bashnav’s router. ' +
-    RT.RUN.map(function (r) { return name(r[0]) + ': ' + r[1].toFixed(1) + ' hours to the Eddystone, ' + (r[2] - r[1]).toFixed(1) +
-      ' home, ' + WX.rtHm(r[2]) + ' in all, tacking for Start Point at ' + r[3]; }).join('. ') +
-    '. The call held; the clock did not.');
-  D.t(16, 22, 'The 2025 Myth of Malham, routed three times by bashnav’s router', D.text, { 'font-weight': 700, 'font-size': 13 });
-  D.t(X0, 56, 'out to the Eddystone', D.dim, { 'font-size': 12 });
-  D.t(X0 + 26 * PX + 4, 56, 'the run home', D.acc, { 'font-size': 12 });
-  D.t(X0 + 43.6 * PX, 56, 'in all', D.dim, { 'font-size': 12 });
-  var tackX = [];
-  RT.RUN.forEach(function (r, i) {
-    var y = 68 + i * 46, hh = +r[3].slice(0, 2), mm = +r[3].slice(3), tk = 24 - START + hh + mm / 60;
-    D.t(16, y + 19, name(r[0]), D.text, { 'font-size': 13, 'font-weight': 700 });
-    D.e('rect', { x: X0, y: y, width: (r[1] * PX).toFixed(1), height: 28, fill: D.dim, 'fill-opacity': 0.45, 'data-part': 'out-' + i, 'data-hours': r[1] });
-    D.e('rect', { x: (X0 + r[1] * PX).toFixed(1), y: y, width: ((r[2] - r[1]) * PX).toFixed(1), height: 28, fill: D.acc,
-                  'data-part': 'home-' + i, 'data-hours': (r[2] - r[1]).toFixed(2) });
-    D.t(X0 + r[1] * PX - 8, y + 19, r[1].toFixed(1) + ' h', D.text, { 'font-size': 12, 'text-anchor': 'end' });
-    D.t(X0 + r[1] * PX + 8, y + 19, (r[2] - r[1]).toFixed(1) + ' h', D.ground, { 'font-size': 12, 'font-weight': 700, 'data-part': 'home-lab-' + i });
-    D.t(X0 + 43.6 * PX, y + 19, WX.rtHm(r[2]), D.text, { 'font-size': 13, 'font-weight': 700, 'data-part': 'total-' + i });
-    D.e('line', { x1: (X0 + tk * PX).toFixed(1), y1: y - 5, x2: (X0 + tk * PX).toFixed(1), y2: y + 33, stroke: D.warn, 'stroke-width': 2.6,
-                  'data-part': 'tack-' + i, 'data-at': r[3] });
-    tackX.push(X0 + tk * PX);
+  /*  TEST THE ROUTE (weather 1.0.26, Larry's ruling TBOK): the all-in beat
+      sailed three times with her speeds scaled, drawn from WX.rtAllinK as
+      rt_whatif_figure() in grid.awk draws it in characters.  Each bar is
+      the time going right; the red line is the veer, an hour in at every
+      speed, because scaling her speed does not move the forecast's clock. */
+  var RT = WX.RT, X0 = 104, PX = 2.1, COL = [532, 584, 632], SIDE = ['right', 'middle', 'left'];
+  var rows = RT.K.map(function (k) { return { k: k, t: [1, 0.5, 0].map(function (a) { return WX.rtAllinK(a, RT.SHIFT, k); }) }; });
+  var mins = function (t) { return Math.trunc(t * 60 + 0.5); };
+  var name = function (k) { return k === 1 ? 'as she is' : '× ' + k.toFixed(1); };
+  var spread = mins(rows[0].t[0]) - mins(rows[rows.length - 1].t[0]);
+  var D = rtSvg(310, 'The beat above, sailed three times with her speeds scaled. ' +
+    rows.map(function (r) { return 'Speeds ' + name(r.k) + ': right ' + WX.rtHm(r.t[0]) + ', middle ' + WX.rtHm(r.t[1]) + ', left ' + WX.rtHm(r.t[2]); }).join('. ') +
+    '. Going right is fastest every time; the clock moved ' + spread + ' minutes.');
+  D.t(16, 22, 'The beat above, sailed three times, her speeds scaled', D.text, { 'font-weight': 700, 'font-size': 13 });
+  D.t(X0, 56, 'going right', D.acc, { 'font-size': 12 });
+  SIDE.forEach(function (w, j) { D.t(COL[j], 56, w, D.dim, { 'font-size': 12, 'text-anchor': 'end' }); });
+  var vx = X0 + 60 * RT.TS * PX;
+  rows.forEach(function (r, i) {
+    var y = 68 + i * 46;
+    D.t(16, y + 19, name(r.k), D.text, { 'font-size': 13, 'font-weight': 700 });
+    D.e('rect', { x: X0, y: y, width: (r.t[0] * 60 * PX).toFixed(1), height: 28, fill: D.acc, 'data-part': 'right-' + i, 'data-hours': r.t[0].toFixed(4) });
+    D.e('line', { x1: vx.toFixed(1), y1: y - 5, x2: vx.toFixed(1), y2: y + 33, stroke: D.warn, 'stroke-width': 2.6, 'data-part': 'veer-' + i });
+    r.t.forEach(function (t, j) {
+      D.t(COL[j], y + 19, WX.rtHm(t), j === 0 ? D.text : D.dim,
+          { 'font-size': 13, 'font-weight': j === 0 ? 700 : 400, 'text-anchor': 'end', 'data-part': SIDE[j] + '-lab-' + i });
+    });
   });
   var ty = 68 + 3 * 46;
-  D.t(tackX[1], ty + 8, 'she tacks for Start Point: ' + RT.RUN.map(function (r) { return r[3]; }).join(', ') + ' UTC', D.warn,
-      { 'font-size': 12, 'text-anchor': 'middle', 'font-weight': 700 });
-  D.t(16, ty + 44, 'THE CALL HELD: the same tack in Lyme Bay, within ten minutes, in all three winds.', D.text, { 'font-size': 13 });
-  D.t(16, ty + 66, 'THE CLOCK DID NOT: ' + WX.rtHm(RT.RUN[0][2] - RT.RUN[2][2]) + ' between the lightest wind and the strongest,', D.text,
+  D.t(vx, ty + 8, 'the veer of ' + RT.SHIFT + ', an hour in, every time', D.warn, { 'font-size': 12, 'text-anchor': 'middle', 'font-weight': 700 });
+  D.t(16, ty + 44, 'THE CALL HELD: going right is fastest at every speed.', D.text, { 'font-size': 13, 'data-part': 'call' });
+  D.t(16, ty + 66, 'THE CLOCK DID NOT: ' + spread + ' minutes between the slowest and the fastest.', D.text,
       { 'font-size': 13, 'data-part': 'spread' });
-  D.t(16, ty + 84, 'nearly all of it on the run home.', D.text, { 'font-size': 13 });
-  D.t(16, ty + 108, 'From the Practical Navigator course’s routing page. Not for navigation.', D.dim, { 'font-size': 12 });
+  D.t(16, ty + 90, 'The lesson’s own made-up boat. Not for navigation.', D.dim, { 'font-size': 12 });
   host.appendChild(D.wrap);
 }
 

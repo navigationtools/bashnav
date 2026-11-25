@@ -31,8 +31,10 @@
                     ends at the finish; the minutes up and down are the table's
          rtscale    each bar is the GRIB's 20 knots plus the scaling; the
                     stream's too
-         rtwhatif   each run's two bars are its hours; the tack marks stand
-                    at the hours written; the spread is the first less the last
+         rtwhatif   each bar is the time going right at that speed; the
+                    three times written are the model's; going right is the
+                    fastest at every speed; the veer stands an hour in on
+                    every bar; the spread is the first less the last
        Colours from the page; nothing outside the box.
 
     4. THE LESSON'S WORDS carry the figures' numbers.
@@ -80,7 +82,7 @@ got += 'w ' + WX.rtWidth(RT.REACH, 0, RT.LANE).toFixed(1) + ' ' + WX.rtWidth(0, 
 RT.HZ.forEach(h => { got += 'h ' + h.join(' ') + '\n'; });
 RT.SC.forEach(s => { got += 's ' + s[0] + ' ' + s[1].toFixed(2) + ' ' + (20 * s[1]).toFixed(0) + '\n'; });
 got += 's stream ' + RT.CUR.toFixed(2) + ' ' + (2 * RT.CUR).toFixed(1) + '\n';
-RT.RUN.forEach(r => { got += 'r ' + r[0].toFixed(1) + ' ' + r[1].toFixed(2) + ' ' + r[2].toFixed(2) + ' ' + (r[2] - r[1]).toFixed(2) + ' ' + r[3] + '\n'; });
+RT.K.forEach(k => { got += 'k ' + k.toFixed(1) + ' ' + WX.rtHm(WX.rtAllinK(1, RT.SHIFT, k)) + ' ' + WX.rtHm(WX.rtAllinK(0.5, RT.SHIFT, k)) + ' ' + WX.rtHm(WX.rtAllinK(0, RT.SHIFT, k)) + '\n'; });
 const nLines = want.split('\n').filter(Boolean).length;
 ok('the awk dumps the model: 941 lines', nLines === 941, String(nLines));
 if (got !== want) {
@@ -142,10 +144,16 @@ if (got !== want) {
   ok('and does it at ' + v.toFixed(2) + ' knots, between her 6.0 and her 6.9', v > 6.0 && v < 6.9, v.toFixed(3));
   ok('hours and minutes: 2.5 is 2 h 30, 0.99 is 0 h 59, 41.9753 is 41 h 59',
      WX.rtHm(2.5) === '2 h 30' && WX.rtHm(0.99) === '0 h 59' && WX.rtHm(41.9753) === '41 h 59');
-  /*  the course's three runs: finish less start, by the clock  */
-  const fin = [[4, 43, 58], [3, 58, 31], [2, 48, 9]];
-  ok('the three runs\' hours are their finishes, 26 May, less the start at 10:00 on the 24th',
-     RT.RUN.every((r, i) => near(r[2], 38 + fin[i][0] + fin[i][1] / 60 + fin[i][2] / 3600, 0.0001)));
+  /*  TEST THE ROUTE (weather 1.0.26, TBOK): her speeds scaled.  At 1.0 it
+      is the all-in case itself; the shift still comes an hour in, so the
+      first hour covers k times the ground; and at every speed going right
+      is the fastest, which is the call the lesson says holds.  */
+  ok('at her own speeds the scaled beat is the all-in case', [1, 0.5, 0].every(a => WX.rtAllinK(a, RT.SHIFT, 1) === WX.rtAllin(a, RT.SHIFT)));
+  ok('twice her speed covers the beat in the first hour plus half the rest',
+     near(WX.rtAllinK(1, 0, 2) - RT.TS, WX.rtG(-2 * RT.TS * RT.V[0][0], RT.BEAT - 2 * RT.TS * RT.V[0][1], 0) / 2, 1e-12));
+  ok('at 0.9, 1.0 and 1.1 going right is the fastest of the three', RT.K.every(k =>
+     WX.rtAllinK(1, RT.SHIFT, k) < WX.rtAllinK(0.5, RT.SHIFT, k) && WX.rtAllinK(1, RT.SHIFT, k) < WX.rtAllinK(0, RT.SHIFT, k)));
+  ok('and a faster boat is never slower', RT.K.every((k, i) => i === 0 || WX.rtAllinK(1, RT.SHIFT, k) < WX.rtAllinK(1, RT.SHIFT, RT.K[i - 1])));
 }
 
 /* ---- 3. the figures --------------------------------------------------- */
@@ -296,21 +304,20 @@ function checkRoute(figs) {
   if (!near((sf + se) / sf, RT.CUR, 0.001)) fail('scale: the stream\'s bar is ' + ((sf + se) / sf).toFixed(3));
   if (q(s, 'stream-kn').textContent !== (2 * RT.CUR).toFixed(1) + ' knots') fail('scale: the stream is written ' + q(s, 'stream-kn').textContent);
 
-  /* rtwhatif */
-  s = byKind.rtwhatif; var pxh = null, x0b = null;
-  RT.RUN.forEach(function (r, i) {
-    var o = q(s, 'out-' + i), h = q(s, 'home-' + i);
-    if (pxh === null) { pxh = num(o, 'width') / r[1]; x0b = num(o, 'x'); }
-    if (!near(num(o, 'width') / pxh, r[1], 0.02)) fail('whatif: run ' + i + '\'s first bar is ' + (num(o, 'width') / pxh).toFixed(2) + ' hours');
-    if (!near(num(h, 'width') / pxh, r[2] - r[1], 0.02)) fail('whatif: run ' + i + '\'s second bar is ' + (num(h, 'width') / pxh).toFixed(2) + ' hours');
-    if (!near(num(h, 'x'), num(o, 'x') + num(o, 'width'), 0.11)) fail('whatif: run ' + i + '\'s bars do not join');
-    if (q(s, 'total-' + i).textContent !== WX.rtHm(r[2])) fail('whatif: run ' + i + '\'s total is written ' + q(s, 'total-' + i).textContent);
-    if (q(s, 'home-lab-' + i).textContent !== (r[2] - r[1]).toFixed(1) + ' h') fail('whatif: run ' + i + '\'s run home is written ' + q(s, 'home-lab-' + i).textContent);
-    /*  the tack: its hours after the 10:00 start, by the time written  */
-    var at = q(s, 'tack-' + i).getAttribute('data-at'), hrs = 14 + (+at.slice(0, 2)) + (+at.slice(3)) / 60;
-    if (at !== r[3] || !near((num(q(s, 'tack-' + i), 'x1') - x0b) / pxh, hrs, 0.02)) fail('whatif: run ' + i + '\'s tack mark');
+  /* rtwhatif (weather 1.0.26, TBOK): the beat sailed at three speeds */
+  s = byKind.rtwhatif; var pxm = null, x0b = null;
+  RT.K.forEach(function (k, i) {
+    var b = q(s, 'right-' + i), t = [1, 0.5, 0].map(function (a) { return WX.rtAllinK(a, RT.SHIFT, k); });
+    if (pxm === null) { pxm = num(b, 'width') / (t[0] * 60); x0b = num(b, 'x'); }
+    if (!near(num(b, 'width') / pxm / 60, t[0], 0.02)) fail('whatif: speed ' + k + '\'s bar is ' + (num(b, 'width') / pxm / 60).toFixed(2) + ' hours');
+    ['right', 'middle', 'left'].forEach(function (w, j) {
+      if (q(s, w + '-lab-' + i).textContent !== WX.rtHm(t[j])) fail('whatif: speed ' + k + '\'s ' + w + ' is written ' + q(s, w + '-lab-' + i).textContent);
+    });
+    if (!(t[0] < t[1] && t[0] < t[2])) fail('whatif: going right is not the fastest at speed ' + k);
+    if (!near((num(q(s, 'veer-' + i), 'x1') - x0b) / pxm / 60, RT.TS, 0.02)) fail('whatif: speed ' + k + '\'s veer is not an hour in');
   });
-  if (q(s, 'spread').textContent.indexOf(WX.rtHm(RT.RUN[0][2] - RT.RUN[2][2])) < 0) fail('whatif: the spread is written ' + q(s, 'spread').textContent);
+  var sp = Math.trunc(WX.rtAllinK(1, RT.SHIFT, RT.K[0]) * 60 + 0.5) - Math.trunc(WX.rtAllinK(1, RT.SHIFT, RT.K[RT.K.length - 1]) * 60 + 0.5);
+  if (q(s, 'spread').textContent.indexOf(sp + ' minutes') < 0) fail('whatif: the spread is written ' + q(s, 'spread').textContent);
   return bad;
 }
 
@@ -353,8 +360,8 @@ function checkRoute(figs) {
       return { faults: checkRoute(figs), box,
                accent: ['iso-3'].every(n => q(0, n).getAttribute('stroke') === tk('--accent')) &&
                        q(3, 'sail').getAttribute('stroke') === tk('--accent') && q(4, 'track-0').getAttribute('stroke') === tk('--accent') &&
-                       q(6, 'home-0').getAttribute('fill') === tk('--accent'),
-               warn: q(6, 'tack-0').getAttribute('stroke') === (tk('--warn') || tk('--bad')) &&
+                       q(6, 'right-0').getAttribute('fill') === tk('--accent'),
+               warn: q(6, 'veer-0').getAttribute('stroke') === (tk('--warn') || tk('--bad')) &&
                      q(1, 'horizon').getAttribute('stroke') === (tk('--warn') || tk('--bad')),
                text: q(0, 'route').getAttribute('stroke') === tk('--text') };
     }, KINDS);
@@ -385,7 +392,8 @@ function checkRoute(figs) {
   ok('the words give the scaling: 1.15, 1.20, 1.25 and 1.30',
      words.includes('times 1.15 in the tropics, 1.20 in mid-latitudes and 1.25 in high latitudes') && words.includes('times 1.30'));
   ok('the words give NOAA\'s figures as nine, eight and half', /nine times in ten.*eight in ten.*about half/.test(words));
-  ok('the words give the three runs\' spread: ' + WX.rtHm(RT.RUN[0][2] - RT.RUN[2][2]), words.includes('by ' + WX.rtHm(RT.RUN[0][2] - RT.RUN[2][2])));
+  const spread = Math.trunc(WX.rtAllinK(1, RT.SHIFT, RT.K[0]) * 60 + 0.5) - Math.trunc(WX.rtAllinK(1, RT.SHIFT, RT.K[RT.K.length - 1]) * 60 + 0.5);
+  ok('the words give the three speeds\' spread: ' + spread + ' minutes', words.includes('by ' + spread + ' minutes'));
   ok('the lesson says the app does not route (gap list rule 3)', words.includes('bashnav weather does not route, and never forecasts from a model'));
 
   /* ---- 5. planted faults ---- */
@@ -405,7 +413,7 @@ function checkRoute(figs) {
     out.allin = checkRoute(c).length;
     c = copy(); e = q(c, 5, 'extra-0'); e.setAttribute('width', +e.getAttribute('width') * 2);
     out.scale = checkRoute(c).length;
-    c = copy(); e = q(c, 6, 'tack-2'); e.setAttribute('x1', +e.getAttribute('x1') + 30);
+    c = copy(); e = q(c, 6, 'veer-2'); e.setAttribute('x1', +e.getAttribute('x1') + 30);
     out.whatif = checkRoute(c).length;
     return out;
   });
@@ -415,7 +423,7 @@ function checkRoute(figs) {
   ok('planted: the extra miles written wrong is caught', planted.motor > 0);
   ok('planted: the right and left boats\' times swapped is caught', planted.allin > 0);
   ok('planted: a wind bar drawn too long is caught', planted.scale > 0);
-  ok('planted: a tack mark moved is caught', planted.whatif > 0);
+  ok('planted: a veer mark moved is caught', planted.whatif > 0);
   ok('no script errors', errs.length === 0, errs.join(' | '));
   await browser.close();
   console.log(checks + ' checks on the routing lesson, its model and its seven figures' + (bad ? ': ' + bad + ' FAILED' : ', all hold'));

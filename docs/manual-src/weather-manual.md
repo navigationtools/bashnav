@@ -585,14 +585,16 @@ sea. One ocean navigator's rule of thumb is to route on the GRIB's wind times
 stream times 1.30 (Figure 23), then to correct both to the log. bashnav's
 router takes this as one line of a run: `scale wind 1.2 current 1.3`.
 
-![**Figure 24** — the 2025 Myth of Malham, routed three times by bashnav's
-router: the forecast wind, ten per cent lighter, ten per cent stronger. She
-tacked for Start Point within ten minutes each time; the finishing times are
-nearly two hours apart.](fig/weather-rtwhatif.png)
+![**Figure 24** — the beat of Figure 22, sailed three times with every one of
+the boat's speeds ten per cent lower and ten per cent higher. Going right is
+fastest every time; the finishing times are 25 minutes apart. The veer still
+comes an hour in at every speed.](fig/weather-rtwhatif.png)
 
 **7. Test the route, and say it in sailing terms.** Change what the router was
 told: lighter and stronger wind, the next run, another model. A route that
-holds is one to trust (Figure 24). Then say it to the watch in sailors' words:
+holds is one to trust (Figure 24): the call to go right holds at every speed,
+and the finishing time does not. Scaling her speed leaves the veer at the
+forecast's own time, so testing the timing takes another run or another model. Then say it to the watch in sailors' words:
 what we are doing, why, what we expect to see, what we do then, and what to do
 if it does not come. A route that cannot be said that way is not yet understood.
 

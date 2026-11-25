@@ -589,14 +589,14 @@ function rt_init(   i, n, a){
   #  thumb; docs/SOURCES.md says what was read)
   split("tropics 1.15 mid-latitudes 1.20 high-latitudes 1.25", RT_SC, " "); RT_SCN = 3
   RT_CUR = 1.30
-  #  the 2025 Myth of Malham, sailed three times by bashnav's router for
-  #  the course's routing page: the wind scaled, hours to the Eddystone,
-  #  hours in all (finishing 04:43:58, 03:58:31 and 02:48:09 UTC on 26
-  #  May, from a start at 10:00 on the 24th), and when she tacked for
-  #  Start Point in Lyme Bay.  From practical-navigator's
-  #  site/drafts/routing/runs.js: if the course sails them again, these
-  #  move with it.
-  split("0.9 25.74 42.7328 02:10 1.0 25.75 41.9753 02:20 1.1 25.53 40.8025 02:20", RT_RUN, " "); RT_RUNN = 3
+  #  TEST THE ROUTE: the all-in beat sailed three times, her speeds scaled
+  #  as a lighter and a stronger wind would scale them (rt_allin_k).
+  #  Until weather 1.0.26 this was three router runs of the 2025 Myth of
+  #  Malham on a polar built from tracker data fetched without its
+  #  publishers' permission; Larry's ruling TBOK, 25 November 2026, put
+  #  the app's own boat in their place.  CHANGELOG, weather 1.0.26, says
+  #  how to bring the race back if permission is given.
+  split("0.9 1.0 1.1", RT_K, " "); RT_KN = 3
   return 0
 }
 #  hours to make good (dx east, dy north) miles in a wind from wd
@@ -636,10 +636,14 @@ function rt_width(fx, fy, mins,   L, ux, uy, s, lo, hi, mid, k, tot){
 #  the all-in case.  She beats for RT_TS hours with a share `a` of it on
 #  port tack (1: all of it, the right-hand side; 0: the left), then
 #  sails the rest as well as she can in a wind from `wd`
-function rt_allin(a, wd,   px, py){
+function rt_allin(a, wd){ return rt_allin_k(a, wd, 1) }
+#  the same, with every speed of hers times k: the first hour covers k
+#  times the ground, and the rest takes 1/k of the time.  The shift still
+#  comes RT_TS hours in, at the forecast's own time, whatever her speed.
+function rt_allin_k(a, wd, k,   px, py){
   rt_init()
-  px = RT_TS * (a * RT_X[1] + (1 - a) * RT_X[RT_N]); py = RT_TS * RT_Y[1]
-  return RT_TS + rt_g(0 - px, RT_BEAT - py, wd)
+  px = RT_TS * k * (a * RT_X[1] + (1 - a) * RT_X[RT_N]); py = RT_TS * k * RT_Y[1]
+  return RT_TS + rt_g(0 - px, RT_BEAT - py, wd) / k
 }
 function rt_hm(t,   m){ m = int(t * 60 + 0.5); return sprintf("%d h %02d", int(m / 60), m % 60) }
 function rt_dump(   x, y, w, i, a){
@@ -658,8 +662,8 @@ function rt_dump(   x, y, w, i, a){
   for(i = 1; i <= RT_HZN; i++) printf "h %d %d %d\n", RT_HZ[3*i-2], RT_HZ[3*i-1], RT_HZ[3*i]
   for(i = 1; i <= RT_SCN; i++) printf "s %s %.2f %.0f\n", RT_SC[2*i-1], RT_SC[2*i], 20 * RT_SC[2*i]
   printf "s stream %.2f %.1f\n", RT_CUR, 2 * RT_CUR
-  for(i = 1; i <= RT_RUNN; i++)
-    printf "r %.1f %.2f %.2f %.2f %s\n", RT_RUN[4*i-3], RT_RUN[4*i-2], RT_RUN[4*i-1], RT_RUN[4*i-1] - RT_RUN[4*i-2], RT_RUN[4*i]
+  for(i = 1; i <= RT_KN; i++)
+    printf "k %.1f %s %s %s\n", RT_K[i], rt_hm(rt_allin_k(1, RT_SHIFT, RT_K[i])), rt_hm(rt_allin_k(0.5, RT_SHIFT, RT_K[i])), rt_hm(rt_allin_k(0, RT_SHIFT, RT_K[i]))
   return 0
 }
 

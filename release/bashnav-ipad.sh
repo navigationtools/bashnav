@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=004155824
+BASHNAV_BYTES=004156619
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -30751,7 +30751,7 @@ bn_unpack() {
 #  data that is never wrong - what you measured yourself - and the only
 #  one still available when the antenna comes down.
 # =====================================================================
-WEATHER_VERSION=1.0.25
+WEATHER_VERSION=1.0.26
 
 #  the log belongs to deck-log; weather only ever READS it
 : "${DECKLOG_HOME:=$(bn_home .bashnav)}"
@@ -32148,29 +32148,33 @@ function rt_scale_figure(   w, h, i, n, k, s, nm){
   gputsc(8, 0, "Rules of thumb. What you measure on deck outranks them.", C_DIM)
   return 0
 }
-function rt_whatif_figure(   w, h, i, n, k, s, a, b, c, t){
+#  TEST THE ROUTE (weather 1.0.26, Larry's ruling TBOK): the all-in beat
+#  above, sailed with her speeds at 0.9, 1.0 and 1.1, as a lighter and a
+#  stronger wind would make them.  Each bar is the time going right, an
+#  = for five minutes; the | is the veer, an hour in at every speed.
+function rt_whatif_figure(   w, h, i, k, n, m, s, t, r, a){
   rt_init()
   w = 66; h = 11
   gclear(w, h)
   FIGNAME = "rtwhatif"
-  gputsc(0, 0, "The 2025 Myth of Malham, routed three times by bashnav's router", C_ACC)
-  gputsc(2, 0, "wind    = to the Eddystone        # the run home          in all", C_DIM)
-  for(i = 1; i <= RT_RUNN; i++){
-    s = ""; n = int(RT_RUN[4*i-2] + 0.5)
-    for(k = 0; k < n; k++) s = s "="
-    gputsc(2 + i, 0, sprintf("x %.1f", RT_RUN[4*i-3]), "")
-    gputsc(2 + i, 8, s, C_DIM)
-    t = ""; n = int(RT_RUN[4*i-1] - RT_RUN[4*i-2] + 0.5)
-    for(k = 0; k < n; k++) t = t "#"
-    gputsc(2 + i, 8 + length(s), t, C_ACC)
-    gputsc(2 + i, 58, rt_hm(RT_RUN[4*i-1]), "")
-    a = a (i > 1 ? (i < RT_RUNN ? ", " : " and ") : "") sprintf("%.1f", RT_RUN[4*i-2])
-    b = b (i > 1 ? (i < RT_RUNN ? ", " : " and ") : "") RT_RUN[4*i]
-    c = c (i > 1 ? (i < RT_RUNN ? ", " : " and ") : "") sprintf("%.1f", RT_RUN[4*i-1] - RT_RUN[4*i-2])
+  gputsc(0, 0, "The beat above, sailed three times, her speeds scaled", C_ACC)
+  gputsc(2, 0, "speed     going right: each = is 5 minutes", C_DIM)
+  gputsc(2, 44, "right   middle  left", C_DIM)
+  for(i = 1; i <= RT_KN; i++){
+    k = RT_K[i]; r = rt_allin_k(1, RT_SHIFT, k)
+    n = int(rt_min(r) / 5 + 0.5); s = ""
+    for(m = 0; m < n; m++) s = s "="
+    gputsc(2 + i, 0, sprintf("x %.1f", k), "")
+    gputsc(2 + i, 10, s, C_ACC)
+    gputc(2 + i, 10 + int(60 * RT_TS / 5 + 0.5), "|", C_WARN)
+    gputsc(2 + i, 44, rt_hm(r), C_ACC)
+    gputsc(2 + i, 52, rt_hm(rt_allin_k(0.5, RT_SHIFT, k)), "")
+    gputsc(2 + i, 60, rt_hm(rt_allin_k(0, RT_SHIFT, k)), "")
+    t = t (i > 1 ? (i < RT_KN ? ", " : " and ") : "") rt_hm(r)
   }
-  gputsc(7, 0, "To the Eddystone: " a " hours. She tacked for Start", "")
-  gputsc(8, 0, "Point at " b " UTC: the same call each time.", C_ACC)
-  gputsc(9, 0, "The run home: " c " hours. The clock moved.", "")
+  gputsc(6, 10 + int(60 * RT_TS / 5 + 0.5), sprintf("| the veer of %d, an hour in, every time", RT_SHIFT), C_WARN)
+  gputsc(8, 0, "Right is fastest at every speed: the same call each time.", C_ACC)
+  gputsc(9, 0, "Going right: " t ". The clock moved.", "")
   return 0
 }
 # =====================================================================
@@ -32764,14 +32768,14 @@ function rt_init(   i, n, a){
   #  thumb; docs/SOURCES.md says what was read)
   split("tropics 1.15 mid-latitudes 1.20 high-latitudes 1.25", RT_SC, " "); RT_SCN = 3
   RT_CUR = 1.30
-  #  the 2025 Myth of Malham, sailed three times by bashnav's router for
-  #  the course's routing page: the wind scaled, hours to the Eddystone,
-  #  hours in all (finishing 04:43:58, 03:58:31 and 02:48:09 UTC on 26
-  #  May, from a start at 10:00 on the 24th), and when she tacked for
-  #  Start Point in Lyme Bay.  From practical-navigator's
-  #  site/drafts/routing/runs.js: if the course sails them again, these
-  #  move with it.
-  split("0.9 25.74 42.7328 02:10 1.0 25.75 41.9753 02:20 1.1 25.53 40.8025 02:20", RT_RUN, " "); RT_RUNN = 3
+  #  TEST THE ROUTE: the all-in beat sailed three times, her speeds scaled
+  #  as a lighter and a stronger wind would scale them (rt_allin_k).
+  #  Until weather 1.0.26 this was three router runs of the 2025 Myth of
+  #  Malham on a polar built from tracker data fetched without its
+  #  publishers' permission; Larry's ruling TBOK, 25 November 2026, put
+  #  the app's own boat in their place.  CHANGELOG, weather 1.0.26, says
+  #  how to bring the race back if permission is given.
+  split("0.9 1.0 1.1", RT_K, " "); RT_KN = 3
   return 0
 }
 #  hours to make good (dx east, dy north) miles in a wind from wd
@@ -32811,10 +32815,14 @@ function rt_width(fx, fy, mins,   L, ux, uy, s, lo, hi, mid, k, tot){
 #  the all-in case.  She beats for RT_TS hours with a share `a` of it on
 #  port tack (1: all of it, the right-hand side; 0: the left), then
 #  sails the rest as well as she can in a wind from `wd`
-function rt_allin(a, wd,   px, py){
+function rt_allin(a, wd){ return rt_allin_k(a, wd, 1) }
+#  the same, with every speed of hers times k: the first hour covers k
+#  times the ground, and the rest takes 1/k of the time.  The shift still
+#  comes RT_TS hours in, at the forecast's own time, whatever her speed.
+function rt_allin_k(a, wd, k,   px, py){
   rt_init()
-  px = RT_TS * (a * RT_X[1] + (1 - a) * RT_X[RT_N]); py = RT_TS * RT_Y[1]
-  return RT_TS + rt_g(0 - px, RT_BEAT - py, wd)
+  px = RT_TS * k * (a * RT_X[1] + (1 - a) * RT_X[RT_N]); py = RT_TS * k * RT_Y[1]
+  return RT_TS + rt_g(0 - px, RT_BEAT - py, wd) / k
 }
 function rt_hm(t,   m){ m = int(t * 60 + 0.5); return sprintf("%d h %02d", int(m / 60), m % 60) }
 function rt_dump(   x, y, w, i, a){
@@ -32833,8 +32841,8 @@ function rt_dump(   x, y, w, i, a){
   for(i = 1; i <= RT_HZN; i++) printf "h %d %d %d\n", RT_HZ[3*i-2], RT_HZ[3*i-1], RT_HZ[3*i]
   for(i = 1; i <= RT_SCN; i++) printf "s %s %.2f %.0f\n", RT_SC[2*i-1], RT_SC[2*i], 20 * RT_SC[2*i]
   printf "s stream %.2f %.1f\n", RT_CUR, 2 * RT_CUR
-  for(i = 1; i <= RT_RUNN; i++)
-    printf "r %.1f %.2f %.2f %.2f %s\n", RT_RUN[4*i-3], RT_RUN[4*i-2], RT_RUN[4*i-1], RT_RUN[4*i-1] - RT_RUN[4*i-2], RT_RUN[4*i]
+  for(i = 1; i <= RT_KN; i++)
+    printf "k %.1f %s %s %s\n", RT_K[i], rt_hm(rt_allin_k(1, RT_SHIFT, RT_K[i])), rt_hm(rt_allin_k(0.5, RT_SHIFT, RT_K[i])), rt_hm(rt_allin_k(0, RT_SHIFT, RT_K[i]))
   return 0
 }
 
@@ -34196,26 +34204,31 @@ function lesson_body(k){
     lp(cw("A route that holds is one to trust.",C_ACC) " A route that swaps sides is")
     lp("one to hold loosely, and where it swaps is where you must be awake.")
     print ""
+    lp("Here is the beat above, sailed again with every one of her speeds ten")
+    lp("per cent lower and ten per cent higher, as a lighter and a stronger")
+    lp("wind would make them.")
+    print ""
     rt_whatif_figure()
     gshow()
     print ""
-    lp("So the call in Lyme Bay is one to trust, as far as the wind's")
-    lp(sprintf("strength goes; the finishing time is not, by %s. " cw("And the test has",C_ACC), rt_hm(RT_RUN[3] - RT_RUN[11])))
-    lp(cw("a limit.",C_ACC) " Scaling the speed leaves every shift at the forecast's own")
-    lp("time. Testing the timing takes another run or another model.")
+    lp("So the call to go right is one to trust, as far as the wind's")
+    lp(sprintf("strength goes; the finishing time is not, by %d minutes. " cw("And the",C_ACC), rt_min(rt_allin_k(1, RT_SHIFT, RT_K[1])) - rt_min(rt_allin_k(1, RT_SHIFT, RT_K[RT_KN]))))
+    lp(cw("test has a limit.",C_ACC) " Scaling the speed leaves every shift at the")
+    lp("forecast's own time. Testing the timing takes another run or another")
+    lp("model.")
     print ""
     lph("SAY IT IN SAILING TERMS")
     lp("You are not done until you can explain the route to the watch in")
-    lp("sailors' words. For that night in Lyme Bay:")
+    lp("sailors' words. For the beat above:")
     print ""
-    lp("  " cw("what we are doing",C_ACC) "    port tack up into the bay, for four hours")
-    lp("  " cw("why",C_ACC) "                  the wind is forecast to veer, and a veer")
-    lp("                       lifts starboard tack")
-    lp("  " cw("what we expect",C_ACC) "       the wind at its strongest near midnight,")
-    lp("                       then the first degrees of veer")
-    lp("  " cw("what we do then",C_ACC) "      tack when it has veered 15 degrees and held")
-    lp("  " cw("if it does not come",C_ACC) "  no veer by 04:00, or it backs: call the")
-    lp("                       navigator")
+    lp("  " cw("what we are doing",C_ACC) "    port tack, out to the right, for the")
+    lp("                       first hour")
+    lp("  " cw("why",C_ACC) sprintf("                  the wind is forecast to veer %d degrees,", RT_SHIFT))
+    lp("                       and a veer lifts starboard tack")
+    lp("  " cw("what we expect",C_ACC) "       the veer about an hour in")
+    lp("  " cw("what we do then",C_ACC) "      tack when it has veered and held")
+    lp("  " cw("if it does not come",C_ACC) "  no veer when it is due, or it backs:")
+    lp("                       call the navigator")
     print ""
     lp("If you cannot say it that way you do not yet understand the route,")
     lp("and should not sail it.")

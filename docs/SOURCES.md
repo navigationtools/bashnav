@@ -745,17 +745,18 @@ teaches what to do with a router's answer, and says so (gap list rule 3).
       or sooner, slower polars, forced waypoints; and what goes wrong if the
       weather is wrong in different ways. His Comanche slides (item 9.3):
       different models, features moving faster and slower, the current off.
-   2. The course's routing page, sections 3 and 4, and its data
-      (`site/drafts/routing/runs.js`): the 2025 Myth of Malham sailed by
-      bashnav's router in the forecast wind and ten per cent lighter and
-      stronger. To the Eddystone in 25.74, 25.75 and 25.53 hours; finishing at
-      04:43:58, 03:58:31 and 02:48:09 UTC on 26 May; tacking for Start Point
-      at 02:10, 02:20 and 02:20 UTC. **These figures are copied into
-      `rt_init` (`wx.awk`) and `WX.RT` (`wx.js`); if the course sails the runs
-      again, they move with it.**
+   2. **The test itself is sailed on the lesson's own boat** (weather 1.0.26,
+      Larry's ruling TBOK): the all-in beat of item 5 with her speeds ten
+      per cent lower and higher (`rt_allin_k` in `wx.awk`, `WX.rtAllinK` in
+      `wx.js`). No figure here comes from a race. Until 1.0.26 this item
+      quoted three router runs of the 2025 Myth of Malham from the course's
+      routing page; they sailed on a polar built from tracker data fetched
+      without its publishers' permission, so they were taken out. The
+      CHANGELOG entry for weather 1.0.26 records how to bring them back.
 8. **Saying the route in sailing terms.** Stan Honey's Pacific Cup article
-   (item 3.1): explain the route in sailing terminology. The Lyme Bay brief is
-   shortened from the course's routing page, section 5.
+   (item 3.1): explain the route in sailing terminology. The brief is written
+   for the lesson's own beat (weather 1.0.26); the Lyme Bay brief it replaced
+   came from the course's routing page, section 5, and the same runs.
 9. **Stan Honey's talks, as posted at <https://honeynav.com/presentations/>.**
    Downloaded into NAV's cloud workspace on 19 November 2026 (Larry's TAZB) and
    read; the lesson is in our own words and copies no text or figure.

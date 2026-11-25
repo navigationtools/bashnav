@@ -766,7 +766,9 @@ var WX = (function () {
              REACH: 24, BEAT: 12, LANE: 10, TS: 1, SHIFT: 20,
              HZ: [[1, 5, 90], [6, 7, 80], [8, 10, 50]],
              SC: [['tropics', 1.15], ['mid-latitudes', 1.20], ['high-latitudes', 1.25]], CUR: 1.30,
-             RUN: [[0.9, 25.74, 42.7328, '02:10'], [1.0, 25.75, 41.9753, '02:20'], [1.1, 25.53, 40.8025, '02:20']] };
+             /* TEST THE ROUTE: her speeds scaled, as rt_init's RT_K in
+                wx.awk (weather 1.0.26, Larry's ruling TBOK) */
+             K: [0.9, 1.0, 1.1] };
   RT.V = (function () {
     var v = [], i, r;
     for (i = 0; i < RT.A.length; i++) { r = RT.A[i] * Math.PI / 180; v.push([RT.S[i] * Math.sin(r), RT.S[i] * Math.cos(r)]); }
@@ -800,9 +802,11 @@ var WX = (function () {
     }
     return tot;
   }
-  function rtAllin(a, wd) {
-    var n = RT.V.length, px = RT.TS * (a * RT.V[0][0] + (1 - a) * RT.V[n - 1][0]), py = RT.TS * RT.V[0][1];
-    return RT.TS + rtG(0 - px, RT.BEAT - py, wd);
+  function rtAllin(a, wd) { return rtAllinK(a, wd, 1); }
+  /*  every speed of hers times k; the shift still comes RT.TS hours in  */
+  function rtAllinK(a, wd, k) {
+    var n = RT.V.length, px = RT.TS * k * (a * RT.V[0][0] + (1 - a) * RT.V[n - 1][0]), py = RT.TS * k * RT.V[0][1];
+    return RT.TS + rtG(0 - px, RT.BEAT - py, wd) / k;
   }
   function rtHm(t) { var m = Math.trunc(t * 60 + 0.5), mm = m % 60; return Math.trunc(m / 60) + ' h ' + (mm < 10 ? '0' : '') + mm; }
 
@@ -815,7 +819,7 @@ var WX = (function () {
            report: report, renderTerminal: renderTerminal,
            cfixed: cfixed, cplus: cplus,
            FR_W: FR_W, FR_C: FR_C, FR_A: FR_A, FR_B: FR_B, frP: frP, frFrom: frFrom, frGlass: frGlass, frBand: frBand, pt16: pt16,
-           RT: RT, rtG: rtG, rtCost: rtCost, rtWidth: rtWidth, rtAllin: rtAllin, rtHm: rtHm };
+           RT: RT, rtG: rtG, rtCost: rtCost, rtWidth: rtWidth, rtAllin: rtAllin, rtAllinK: rtAllinK, rtHm: rtHm };
 })();
 
 if (typeof module !== 'undefined') module.exports = WX;

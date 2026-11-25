@@ -804,28 +804,32 @@ function rt_scale_figure(   w, h, i, n, k, s, nm){
   gputsc(8, 0, "Rules of thumb. What you measure on deck outranks them.", C_DIM)
   return 0
 }
-function rt_whatif_figure(   w, h, i, n, k, s, a, b, c, t){
+#  TEST THE ROUTE (weather 1.0.26, Larry's ruling TBOK): the all-in beat
+#  above, sailed with her speeds at 0.9, 1.0 and 1.1, as a lighter and a
+#  stronger wind would make them.  Each bar is the time going right, an
+#  = for five minutes; the | is the veer, an hour in at every speed.
+function rt_whatif_figure(   w, h, i, k, n, m, s, t, r, a){
   rt_init()
   w = 66; h = 11
   gclear(w, h)
   FIGNAME = "rtwhatif"
-  gputsc(0, 0, "The 2025 Myth of Malham, routed three times by bashnav's router", C_ACC)
-  gputsc(2, 0, "wind    = to the Eddystone        # the run home          in all", C_DIM)
-  for(i = 1; i <= RT_RUNN; i++){
-    s = ""; n = int(RT_RUN[4*i-2] + 0.5)
-    for(k = 0; k < n; k++) s = s "="
-    gputsc(2 + i, 0, sprintf("x %.1f", RT_RUN[4*i-3]), "")
-    gputsc(2 + i, 8, s, C_DIM)
-    t = ""; n = int(RT_RUN[4*i-1] - RT_RUN[4*i-2] + 0.5)
-    for(k = 0; k < n; k++) t = t "#"
-    gputsc(2 + i, 8 + length(s), t, C_ACC)
-    gputsc(2 + i, 58, rt_hm(RT_RUN[4*i-1]), "")
-    a = a (i > 1 ? (i < RT_RUNN ? ", " : " and ") : "") sprintf("%.1f", RT_RUN[4*i-2])
-    b = b (i > 1 ? (i < RT_RUNN ? ", " : " and ") : "") RT_RUN[4*i]
-    c = c (i > 1 ? (i < RT_RUNN ? ", " : " and ") : "") sprintf("%.1f", RT_RUN[4*i-1] - RT_RUN[4*i-2])
+  gputsc(0, 0, "The beat above, sailed three times, her speeds scaled", C_ACC)
+  gputsc(2, 0, "speed     going right: each = is 5 minutes", C_DIM)
+  gputsc(2, 44, "right   middle  left", C_DIM)
+  for(i = 1; i <= RT_KN; i++){
+    k = RT_K[i]; r = rt_allin_k(1, RT_SHIFT, k)
+    n = int(rt_min(r) / 5 + 0.5); s = ""
+    for(m = 0; m < n; m++) s = s "="
+    gputsc(2 + i, 0, sprintf("x %.1f", k), "")
+    gputsc(2 + i, 10, s, C_ACC)
+    gputc(2 + i, 10 + int(60 * RT_TS / 5 + 0.5), "|", C_WARN)
+    gputsc(2 + i, 44, rt_hm(r), C_ACC)
+    gputsc(2 + i, 52, rt_hm(rt_allin_k(0.5, RT_SHIFT, k)), "")
+    gputsc(2 + i, 60, rt_hm(rt_allin_k(0, RT_SHIFT, k)), "")
+    t = t (i > 1 ? (i < RT_KN ? ", " : " and ") : "") rt_hm(r)
   }
-  gputsc(7, 0, "To the Eddystone: " a " hours. She tacked for Start", "")
-  gputsc(8, 0, "Point at " b " UTC: the same call each time.", C_ACC)
-  gputsc(9, 0, "The run home: " c " hours. The clock moved.", "")
+  gputsc(6, 10 + int(60 * RT_TS / 5 + 0.5), sprintf("| the veer of %d, an hour in, every time", RT_SHIFT), C_WARN)
+  gputsc(8, 0, "Right is fastest at every speed: the same call each time.", C_ACC)
+  gputsc(9, 0, "Going right: " t ". The clock moved.", "")
   return 0
 }
