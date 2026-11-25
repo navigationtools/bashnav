@@ -153,6 +153,12 @@ differs, it says that too, and that how far apart lights look depends on her
 range as well as on her. A test taps every row from every vessel and every
 bearing, and fails if a look-alike is ever marked wrong.
 
+![**Figure 4** — a look-alike, marked right. The picture is a power-driven
+vessel under 50 m seen from right astern: one white light. The reader tapped
+*Pushing ahead, or towing alongside*, which from there is one white light
+too; the drill marks it right, lights the answer beside it, and says where
+the two come apart.](fig/colregs-lights-twin.png)
+
 ---
 
 ## 4. Day shapes
@@ -161,7 +167,7 @@ The same meanings by daylight: ten of them, from the single black ball of a
 vessel at anchor to the ball-diamond-ball of a vessel restricted in her
 ability to manoeuvre.
 
-![**Figure 4** — day shapes are black, against the sky.](fig/colregs-shapes.png)
+![**Figure 5** — day shapes are black, against the sky.](fig/colregs-shapes.png)
 
 **One deliberate inversion.** Day shapes are black. Drawing them white on a
 night sky would be backwards, so in dark mode this one view gets a daylight
@@ -176,7 +182,7 @@ Fifteen signals, with the rule each comes from and the circumstances it is
 made in. The browser build makes the sound: short blasts, prolonged blasts and
 the bell, synthesised at their real durations.
 
-![**Figure 5** — the blast pattern, drawn along a time
+![**Figure 6** — the blast pattern, drawn along a time
 axis.](fig/colregs-sounds.png)
 
 **A prolonged blast is supposed to feel long.** The shell tool's engine says,
@@ -199,7 +205,7 @@ and gives both rules: where you are decides which she means.
 
 Twenty-eight situations: what you are, what you see, and where she is.
 
-![**Figure 6** — a head-up plot. You are at the bottom, heading up the
+![**Figure 7** — a head-up plot. You are at the bottom, heading up the
 page.](fig/colregs-encounters.png)
 
 The plot is **head-up**: your own head is up the page, she is drawn where she
@@ -253,7 +259,7 @@ make the two states identical exactly where it matters most.
 Each lesson is a short passage, a question and the reason behind the answer.
 Progress is kept, so you can do one at a time.
 
-![**Figure 7** — a lesson. Read, answer, then the
+![**Figure 8** — a lesson. Read, answer, then the
 reason.](fig/colregs-lesson.png)
 
 | | |
@@ -278,41 +284,41 @@ In the shell tool, `colregs lesson L7` opens one directly, and
 `colregs numbers` drills which rule is which, both ways round.
 
 **Two lessons carry drawings.** L14 draws her lights' arcs from above, and
-L8 draws the same picture with the overtaking sector marked (Figure 8). The
+L8 draws the same picture with the overtaking sector marked (Figure 9). The
 browser draws it in the app's day, dark and night colours. The shell draws it
 in characters, with the letter on each ring showing the light you see from
 that bearing. The arcs are the ones the lights drill uses: a test walks every
 half degree round her and checks the drawing against the drill.
 
 L14 also draws twelve vessels, each from ahead, from her starboard beam and
-from astern (Figure 9): power-driven under and over 50 metres, sailing, the
+from astern (Figure 10): power-driven under and over 50 metres, sailing, the
 combined lantern, towing, trawling, fishing, the pilot, not under command,
 restricted, constrained by her draught, and at anchor. The pairs most often
 confused sit together, such as fishing and the pilot, the same two colours the
 other way up. Each view shows only the lights her arcs turn toward you, and a
 test checks every view against the lights drill.
 
-L14 also hangs the ten day shapes side by side on one chart (Figure 10). The
+L14 also hangs the ten day shapes side by side on one chart (Figure 11). The
 shapes drill shows one vessel at a time; the chart shows the pairs that are easy
 to confuse together: one ball and two, two and three, and the diamond alone
 against ball, diamond, ball. Each stack comes from the same table the drill
 uses, and a test checks the chart against it.
 
-![**Figure 8** — her lights from above, head up, from lesson L8. The outer
+![**Figure 9** — her lights from above, head up, from lesson L8. The outer
 ring is what you see from each bearing round her: green, her starboard
 sidelight; red, her port; white, her sternlight. The inner ring is her
 masthead light. Come up from inside the shaded sector, more than 22.5 degrees
 abaft her beam, and you see only her sternlight: you are overtaking
 (Rule 13).](fig/colregs-arcs.png)
 
-![**Figure 9** — one of L14's twelve vessels, restricted in her ability to
+![**Figure 10** — one of L14's twelve vessels, restricted in her ability to
 manoeuvre (Rule 27), from ahead, from her starboard beam and from astern. Red,
 white, red stays in every view; her masthead light and sidelights come and go
 with her arcs, and from astern only the sternlight joins the three. The
 letters are the colours, so the picture reads the same on the night
 palette, where every lamp is red.](fig/colregs-views.png)
 
-![**Figure 10** — the ten day shapes on one chart, from lesson L14, each hung
+![**Figure 11** — the ten day shapes on one chart, from lesson L14, each hung
 top first as the shapes drill hangs it. Shapes are black and shown by day; on
 the night palette the chart turns red on black, as the drill
 does.](fig/colregs-shapes-chart.png)
@@ -324,7 +330,7 @@ does.](fig/colregs-shapes-chart.png)
 The section a tracking party would recognise: what a contact's **bearing
 drift** tells you, how to say it, and the arithmetic you do in your head.
 
-![**Figure 11** — seven lessons, and two exercises that mark their own
+![**Figure 12** — seven lessons, and two exercises that mark their own
 answers.](fig/colregs-contacts.png)
 
 | | |

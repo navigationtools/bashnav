@@ -26,6 +26,15 @@ her", marking a correct reading wrong. The sounds drill did the same with one pr
    more look-alike named, and so different options drawn).
 4. **The manual** (section 3, PILOT's part 3 item 5; and section 5) says what the drill does with a
    look-alike, how often (43% of draws), and which four groups never come apart.
+5. **Figure 4, added the same night:** the drill after a look-alike tap. The picture is a
+   power-driven vessel under 50 m from right astern; the tap is *Pushing ahead, or towing
+   alongside*, marked right beside the answer, with the line that says where the two come apart.
+   Taken from the browser build in day mode, 732 px wide at twice scale, like Figure 3. The later
+   figures move up one (5 to 12), in their captions and in the text that cites them.
+6. **The PDFs first committed for 1.23 said "COLREGS 1.22" in every page footer.** `mkpdf.sh` reads
+   the version from `src/colregs/10-head.sh`, and the copy it read from had not been refreshed after
+   the bump. Both PDFs are rebuilt from the 1.23 source, and the quick reference too, so the two
+   agree with the tool.
 
 Measured: 43.3% of draws (28 vessels x 360 bearings) have a look-alike in the list. PILOT measured
 46% by colour and vertical order; the three points between them are not reconciled yet.
@@ -48,7 +57,8 @@ built without maths and says so, as the contacts diff already did.
   `soundTwin`, `aName`, `drill`, `lightsDrill`, `soundsDrill`), `README.md`; `sw.js` (colregs-v29)
 - `docs/web/launcher.js` (1.23), `docs/web/sw.js` (bashnav-launcher-v13), `docs/web/README.md`,
   `README.md`, `REPO-STATE.md`, `docs/ARCHITECTURE.md`
-- `docs/manual-src/colregs-manual.md`; manual PDF rebuilt
+- `docs/manual-src/colregs-manual.md`, `fig/colregs-lights-twin.png` (new); manual and quick
+  reference PDFs rebuilt
 - `docs/web/tests/colregs-twins.js` (new), `docs/web/tests/README.md`, `tests/colregs-web-dump.awk`,
   `tests/colregs-web-dump.js`, `tests/colregs-web-diff.sh`, `tests/run-tests.sh`
 - `tests/golden/quiz-lights.txt`; `release/bashnav-ipad.sh`
@@ -59,6 +69,10 @@ Introduced-in: the browser drill's confusable candidates (rows); `light_sig()` s
 lights quiz.
 Found-by: PILOT's COLREGS QA, part 2, items 1 and 2 (23 November 2026); the `light_sig()` fault by
 `docs/web/tests/colregs-twins.js` (NAV, 24 November 2026).
+
+Fault: the 1.23 manual and quick reference as first committed carried "COLREGS 1.22" in every footer.
+Introduced-in: c7f88ad (colregs 1.23), built from a stale copy of `src/colregs/10-head.sh`.
+Found-by: NAV, reading the rebuilt page that holds Figure 4 (25 November 2026).
 
 ## colregs 1.22: PILOT's QA part 3, the manual (and the lights drill's note)
 
