@@ -1,5 +1,20 @@
 # Changelog
 
+## The CHANGELOG no longer repeats the figures it took out
+
+**What.** The TBNM entry and the weather 1.0.26 entry, both of 25 November 2026, quoted the three
+routing runs' finishing times and hours to the Eddystone while recording that they had been taken
+out of the weather lesson. Those figures come from runs on the as-sailed Clipper 68 polar, which was
+built from tracker data fetched without permission. Both entries now point to commit 76585f0, where
+the figures stand, instead of repeating them.
+
+**Why.** Larry's rulings TBNM and TBOK: no figure made from that data in bashnav's current files.
+Repeating the figures in the record of their removal put them back. NAV's mistake, found by NAV
+while answering the XO's note on ruling TBPV (25 November 2026). The commits that quoted them stay
+in the repository's history, as ruling TBPY leaves all such history.
+
+**What it touches.** `CHANGELOG.md` only.
+
 ## Deck Log's manual and quick reference say 1.1.2
 
 **What.** Both Deck Log PDFs are rebuilt. They said "DECK-LOG 1.1" on every page, built on 12
@@ -72,8 +87,9 @@ the router so that it can be re-sailed and compared).
    commits fall around then: cd9e0b6 (08:53) and ce6ccff ("router bounds", 11:55), so the run at
    1.0 came before ce6ccff and the other two after it.
 4. **On 25 November the router at 76585f0 sailed the three `data/2025` files again and matched
-   every finish to the second:** 04:43:58, 03:58:31 and 02:48:09 UTC on 26 May. So 76585f0 is a
-   router known to reproduce them.
+   every finish to the second** (the finishing times themselves are in commit 76585f0's
+   `src/weather/wx.awk`, and are not repeated here: see the note below). So 76585f0 is a router
+   known to reproduce them.
 5. **To bring them back:** check out commit 76585f0's `docs/web/route/` beside the router of the
    day, sail the three runs with each (`node docs/web/route/sail.js <folder> <run>`), and compare.
    If both agree, restore the files in item 1 from 76585f0. If they differ, the difference is the
@@ -128,14 +144,13 @@ stream at Hurst teaches stands on Larry's own chart readings.
 
 **Found in the same search, and not changed** (each needs Larry's ruling):
 
-1. **The weather app's routing lesson** quotes three finishing times (04:43:58, 03:58:31 and
-   02:48:09 on 26 May), with hours to the Eddystone and when she tacked. They come from Level 3's
+1. **The weather app's routing lesson** quotes three finishing times, with hours to the Eddystone
+   and when she tacked. They come from Level 3's
    able-crew runs, which sail on the as-sailed Clipper 68 polar, and that polar was built from the
    same tracker positions. The figures are written in `src/weather/wx.awk` (`rt_init`),
    `docs/web/weather/wx.js` (`WX.RT`), `bin/weather`, the iPad bundle and `docs/SOURCES.md`
    (item 7). The lesson and its chart print them (`src/weather/teach.awk`, `grid.awk`), and
-   `tests/golden/weather.txt` holds what it prints: "To the Eddystone: 25.7, 25.8 and 25.5
-   hours", and the tack times.
+   `tests/golden/weather.txt` holds what it prints. (Weather 1.0.26 took them out: TBOK.)
 2. **The Eddystone berth of 0.15 nm** in PILOT's passage file is "the berth the tracked Clipper
    68s show" (`ROUTER.md`, "The 2025 race with its passing marks"; `COURSE.md`, "Why two
    decimals"). It is an input to the published passage-plan runs.
