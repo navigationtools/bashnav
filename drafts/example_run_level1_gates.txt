@@ -1,6 +1,6 @@
 # DRAFT, kept as it was written (Larry, 15 Nov 2026): a draft of 14 Nov in a run-file layout that was not built (marks in the run, since moved to the passage file); Larry's 12 Nov settings are in its comments; it uses the Shom stream and does not run with today's reader.
 RUN 3
-# Myth of Malham 2025, the Clipper 68s' start, as sailed (item P6).
+# Myth of Malham 2025, the 68-foot ocean racers' start, as sailed (item P6).
 # practical-navigator, 12 November 2026.  Every setting below is Larry's
 # decision of 12 November, made one at a time.
 #
@@ -11,7 +11,7 @@ areas  areas_rules_2025.txt
 areas  areas_coast_emodnet_2025.txt
 
 # The boat: our generic 70 ft polar, the mean of five ORC certificates.
-# It is NOT Clipper's polar (none is published).
+# It is NOT the class's polar (none is published).
 polar  polar_generic70_v1.txt
 
 # The weather and the water: the GFS 0.25 degree run of 00Z on race day,
@@ -19,7 +19,7 @@ polar  polar_generic70_v1.txt
 wind    wind_20250524_00z_v2.grid
 current current_20250524_v2.grid
 
-# The start the real Clipper 68s had, SI 8.1 (Larry, 10 Nov).
+# The start the real 68-foot ocean racers had, SI 8.1 (Larry, 10 Nov).
 start  class IRC One
 
 # Larry, 12 Nov 2026: a 10-minute isochrone step and a 5-degree heading
@@ -36,7 +36,7 @@ scale  wind 1.0 current 1.0
 layers coast-emodnet-lat tss-casquets sowley-boom
 
 # Larry, 12 Nov 2026: keep 0.1 nm off the low-water coastline ("but I'll
-# wager no Clipper boat went that close"); the TSS takes 0
+# wager no [68-foot ocean racer] went that close"); the TSS takes 0
 # (touch its edge, never inside it), and so does Sowley Boom.
 clear  coast-emodnet-lat 0.10 tss-casquets 0 sowley-boom 0
 

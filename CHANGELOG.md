@@ -1,5 +1,52 @@
 # Changelog
 
+## Drill practice asks a put-in-order question as the test does (build 27)
+
+**What.** In Practice, a put-in-order question now shows its steps scrambled, with the one that
+does not belong, to be tapped into order and checked, exactly as in the Test. Checking marks
+each placed row green or red and shows the right order. That result is the practice mark, in
+place of "I had it" / "I did not": it is recorded like the others (so the diagnostic sees the
+section as worked) and counts nothing towards the test. Going back to it shows the order and
+"You had the order right/wrong"; it cannot be tried again in that run. The end-of-practice
+summary no longer says every mark was self-given when ordering questions were in the run.
+`drill.js` is build 27 and `sw.js` caches `drill-v27`, so installed copies update.
+
+**Why.** Larry, testing the Rx1 pack on 25 November 2026: practice showed only the question and
+"Show the answer", which asks for the whole list of steps from memory, not what the test asks.
+"That's not fair. And it doesn't teach anything." Admitted by the XO on 26 November. The steps
+(`seq`) and the intruder (`extra`) were already in every pack; nothing about packs changes.
+
+**Impact.** Every pack with ordering questions practises them the way they are tested. Packs
+need no rebuild. Other kinds of question in Practice are unchanged.
+
+**Tests.** `docs/web/tests/drill-ui.js` has four new checks: the steps are offered and no answer
+is showing; a wrong order is marked wrong row by row and the right order shown; going back is
+review and counts nothing twice; practice keeps no test answers. The "no answer in the DOM"
+check now skips ordering questions, whose steps are on screen by design. Full suite: all checks
+pass, no console errors.
+
+**What it touches.** `docs/web/drill/drill.js`, `docs/web/drill/sw.js`,
+`docs/web/tests/drill-ui.js`, `docs/manual-src/drill-manual.md`,
+`docs/manual-src/drill-quickref.md` and their PDFs, `CHANGELOG.md`.
+
+## The four boats are "68-foot ocean racers" in the router's documents (TBPS)
+
+**What.** The router's documents name the four boats of that class in the 2025 Myth of Malham as
+"68-foot ocean racers", not by their builder's name. `ROUTER.md` (the first run, and what is not
+held), a comment in `docs/web/tests/race-2025.js` and the draft run file
+`drafts/example_run_level1_gates.txt`. In the draft, Larry's own words are kept, with the one
+changed phrase in square brackets to mark the edit. `ROUTER.pdf` is rebuilt.
+
+**Why.** Larry's ruling TBPS, 25 November 2026: the boats are "68-foot ocean racer A to D", lettered
+by finishing order, with the builder's name left out everywhere. Ruling TBQP keeps past CHANGELOG
+entries as written, so only current documents and new entries change.
+
+**Not changed.** Mentions of the race Larry sails and the training apps built for it are not about
+these four boats, and are outside this ruling.
+
+**What it touches.** `docs/web/route/ROUTER.md`, `ROUTER.pdf`; `docs/web/tests/race-2025.js` (a
+comment); `drafts/example_run_level1_gates.txt` (comments); `CHANGELOG.md`.
+
 ## The Eddystone berth no longer rests on the tracks (TBQH)
 
 **What.** `ROUTER.md` ("The 2025 race with its passing marks") and `COURSE.md` ("Why two decimals")

@@ -526,7 +526,7 @@ var AT_LINES = {
 //  Each entry: the boat as RORC lists her (type is enough), her elapsed
 //  time as "h:mm:ss", and `source` the page it was read from.  EMPTY
 //  UNTIL LARRY CONFIRMS THE FIGURES: then the part below holds them.
-//  Example of the form, not a figure:  { boat: 'Clipper 68', elapsed: 'h:mm:ss' }
+//  Example of the form, not a figure:  { boat: '68-foot ocean racer A', elapsed: 'h:mm:ss' }
 var RORC_RESULTS = {
   source: '',
   boats: []

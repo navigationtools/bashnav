@@ -799,7 +799,7 @@ is right everywhere. The model's ebb at Hurst is about a quarter weaker than
 the chart's: 2.7 knots against 3.6. Larry's ruling: teach the model as it is,
 with that caveat.
 
-**The real Clipper 68s took far longer,** as RORC's published results show
+**The real 68-foot ocean racers took far longer,** as RORC's published results show
 (their elapsed times will be quoted here from those results once Larry has
 confirmed them: TBNM). The difference is the point, not
 a fault: this is the fastest a generic 70-footer could go, tacking for nothing,
@@ -943,7 +943,7 @@ chart's ("The first run").
 1. **Single legs, and any time between the start and the finish.** RORC
    publishes the finish. The router makes the best passage, not the best of
    every leg.
-2. **A Clipper 68 against the real Clipper 68s.** No Clipper polar is
+2. **A 68-foot ocean racer against the real ones.** No polar for the class is
    published, and the router's boat is a generic one.
 
 ### The data is read where it lives
