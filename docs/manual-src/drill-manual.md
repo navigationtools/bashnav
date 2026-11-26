@@ -50,7 +50,7 @@ own pack replaces it.
 | | |
 |---|---|
 | **The reference** | the pack's own text, always open — including for sections you have not reached |
-| **Practice** | recall prompts: the question with no choices, and you check yourself |
+| **Practice** | recall prompts: the question with no choices, and you check yourself; a put-in-order question is asked as in the test |
 | **The test** | graded questions, marked, with the answer and its source |
 | **Where am I weak?** | a diagnostic across everything you have worked |
 
@@ -68,6 +68,16 @@ studying a section; a recall prompt marked or a test taken does.
 **Recall first, then the graded ones.** A section's practice run puts the
 author's own recall prompts first, because they are the harder kind, and then
 asks the graded questions as recall rather than as a list of choices.
+
+**A put-in-order question is the exception.** In practice it is asked exactly
+as the test asks it: its steps, scrambled, with one that does not belong, to be
+tapped into the order they happen. **Check** marks each row you placed and
+shows the right order. That result is your practice mark, recorded so the
+diagnostic knows the section was worked, and it counts nothing towards the
+test. Going back to it shows the order and the result; it cannot be tried
+again in that run. (Build 27. Before it, practice showed only the question and
+"Show the answer", which asks for the whole list from memory: not what the
+test asks, and it taught nothing.)
 
 ---
 

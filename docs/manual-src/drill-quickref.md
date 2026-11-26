@@ -6,7 +6,7 @@
 | | |
 |---|---|
 | **The reference** | the pack's text, always open, including for locked sections |
-| **Practice** | recall prompts — no choices, you check yourself |
+| **Practice** | recall prompts — no choices, you check yourself; put-in-order questions are tapped into order, as in the test |
 | **The test** | graded questions, marked, with the answer and its source |
 | **Where am I weak?** | a diagnostic across everything you have worked |
 

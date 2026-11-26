@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '26 \u2014 12 Nov 2026';
+var BUILD = '27 \u2014 26 Nov 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -517,10 +517,13 @@ function stepQuiz() {
   if (r.i >= r.qs.length) {
     var done = el('div', 'panel');
     done.appendChild(el('h2', null, 'Practice done'));
-    done.appendChild(el('p', null, 'You marked ' + r.right + ' right and ' +
+    done.appendChild(el('p', null, r.right + ' right and ' +
       r.wrong + ' wrong out of ' + r.qs.length + '.'));
     done.appendChild(el('p', 'note',
-      'Self-marked, so it opens nothing \u2014 but it is recorded, which is how ' +
+      (r.qs.some(function (x) { return isOrder(x); })
+        ? 'Self-marked, except the put-in-order questions, which were checked. ' +
+          'Either way it opens nothing'
+        : 'Self-marked, so it opens nothing') + ' \u2014 but it is recorded, which is how ' +
       'the diagnostic knows this section has been worked rather than only read.'));
     var again = el('button', 'btn wide', 'Again, reshuffled');
     again.addEventListener('click', function () { startQuiz(r.sid); });
@@ -542,12 +545,56 @@ function stepQuiz() {
   //  Already worked: show the answer and the mark you gave it, and do not
   //  offer to mark it again.
   if (r.marks && r.marks[r.i]) {
+    if (isOrder(q)) {
+      //  a put-in-order question shows the order, which is its answer
+      card.appendChild(el('p', 'qsrc', 'The order is:'));
+      var ord = el('ol', 'seq-picked right');
+      q.seq.forEach(function (t, i) {
+        var li = el('li', 'seq-row chosen');
+        li.setAttribute('data-mark', 'right');
+        li.appendChild(el('span', 'seq-n', String(i + 1)));
+        li.appendChild(el('span', null, t));
+        ord.appendChild(li);
+      });
+      card.appendChild(ord);
+    } else
     card.appendChild(el('p', 'atext', q.a || 'A recall prompt \u2014 check yourself against the reference.'));
     card.appendChild(el('p', 'qsrc' + (q.kind === 'hand' ? ' hand' : ''),
       (q.kind === 'hand' ? 'hand-written \u00b7 ' : '') + srcLine(q)));
-    card.appendChild(el('p', 'note', r.marks[r.i] === 'right'
-      ? 'You marked this one right.' : 'You marked this one wrong.'));
+    //  a put-in-order question was checked, not self-marked: say which
+    card.appendChild(el('p', 'note', isOrder(q)
+      ? (r.marks[r.i] === 'right' ? 'You had the order right.' : 'You had the order wrong.')
+      : (r.marks[r.i] === 'right' ? 'You marked this one right.' : 'You marked this one wrong.')));
     navRow(card, r, stepQuiz, 'Done');
+    body.appendChild(card);
+    return;
+  }
+
+  /*  A PUT-IN-ORDER QUESTION IS ASKED AS IN THE TEST (Larry, 25 November
+      2026, testing the Rx1 pack; admitted by the XO, 26 November).  It
+      used to show only its wording and "Show the answer", which asks for
+      a list of steps from memory -- not what the test asks, and, in
+      Larry's words, "That's not fair. And it doesn't teach anything."
+      Now its steps are offered scrambled, with the one that does not
+      belong, to be tapped into order, exactly as in the test
+      (renderOrder).  Checking it shows which rows are right and the
+      order it should be.  That result is the practice mark, in place
+      of "I had it" and "I did not": recorded as the others are, so the
+      diagnostic knows the section was worked, and counting nothing
+      towards the test. */
+  if (isOrder(q)) {
+    renderOrder(card, q, function (ok) {
+      var pr = prog(r.sid);
+      pr.seen[q.q] = 1;
+      if (ok) { r.right++; pr.right++; } else { r.wrong++; pr.wrong++; }
+      if (!r.marks) r.marks = {};
+      r.marks[r.i] = ok ? 'right' : 'wrong';
+      saveProg();
+      card.appendChild(el('p', 'qsrc' + (q.kind === 'hand' ? ' hand' : ''),
+        (q.kind === 'hand' ? 'hand-written \u00b7 ' : '') + srcLine(q)));
+    }, r.i + 1 >= r.qs.length ? 'Done' : 'Next',
+       function () { r.i++; stepQuiz(); },
+       function (c) { navRow(c, r, stepQuiz, 'Done'); });
     body.appendChild(card);
     return;
   }

@@ -744,7 +744,22 @@ window.answerCurrent = function (right) {
   //  RUN.qs[0] cannot test for a leak. Skip to the first question that
   //  HAS an answer -- that is the one that could leak.
   const leak = await page.evaluate(async () => {
-    while (RUN.i < RUN.qs.length && !RUN.qs[RUN.i].a) {
+    //  A put-in-order question is skipped too: since build 27 it is asked
+    //  in practice as in the test, so it has no "Show the answer" and its
+    //  steps are on screen by design -- it cannot test for a leak.
+    while (RUN.i < RUN.qs.length &&
+           (!RUN.qs[RUN.i].a || (RUN.qs[RUN.i].seq || []).length)) {
+      if ((RUN.qs[RUN.i].seq || []).length) {
+        RUN.qs[RUN.i].seq.forEach(t => {
+          const s = document.querySelector('#drill-body [data-seq-item="' + t + '"]');
+          if (s) s.click();
+        });
+        document.querySelector('#drill-body [data-seq-check]').click();
+        await new Promise(r => setTimeout(r, 10));
+        document.querySelector('#drill-body [data-advance]').click();
+        await new Promise(r => setTimeout(r, 10));
+        continue;
+      }
       const b = document.querySelector('#drill-body [data-reveal]');
       if (b) b.click();
       await new Promise(r => setTimeout(r, 10));
@@ -781,6 +796,71 @@ window.answerCurrent = function (right) {
   });
   if (!after) fail('the answer did not appear when asked for');
   else console.log('  ok   and appears when asked for');
+
+  // ---- PRACTICE ASKS A PUT-IN-ORDER QUESTION AS THE TEST DOES --------
+  //  Larry, 25 November 2026: practice showed only the wording and "Show
+  //  the answer", which asks for the steps from memory -- "That's not
+  //  fair. And it doesn't teach anything." It now offers the steps
+  //  scrambled, with the intruder, to be tapped into order; checking it
+  //  is the practice mark; and going back shows the order, not a second
+  //  attempt.
+  await page.evaluate(() => { openSection(0); startQuiz(PACK.sections[0].id); });
+  await page.waitForTimeout(120);
+  const pOrd = await page.evaluate(async () => {
+    const tick = () => new Promise(r => setTimeout(r, 15));
+    const at = RUN.qs.findIndex(q => (q.seq || []).length);
+    if (at < 0) return { none: true };
+    RUN.i = at; stepQuiz(); await tick();
+    const q = RUN.qs[at];
+    const body = () => document.getElementById('drill-body');
+    const out = {
+      items: body().querySelectorAll('[data-seq-item]').length,
+      want: q.seq.length + (q.extra || []).length,
+      reveal: !!body().querySelector('[data-reveal]'),
+      selfMark: !!body().querySelector('[data-mark-self]'),
+      answerShown: body().textContent.indexOf('The order is') >= 0 ||
+                   body().textContent.indexOf('Correct, in that order') >= 0,
+    };
+    const before = { right: RUN.right, wrong: RUN.wrong };
+    //  wrong on purpose: reversed
+    q.seq.slice().reverse().forEach(t => {
+      body().querySelector('[data-seq-item="' + t + '"]').click();
+    });
+    body().querySelector('[data-seq-check]').click(); await tick();
+    out.marked = RUN.marks && RUN.marks[at];
+    out.wrongCounted = RUN.wrong === before.wrong + 1 && RUN.right === before.right;
+    out.redRows = body().querySelectorAll('.seq-picked:not(.right) [data-mark="wrong"]').length;
+    out.orderShown = body().textContent.indexOf('Not right. The order is:') >= 0;
+    out.advance = !!body().querySelector('[data-advance]');
+    //  forward, then return to it: review, not a second attempt.  (An
+    //  unmarked practice question has no Back of its own, so the return
+    //  is made the way Back makes it: step back one and redraw.)
+    body().querySelector('[data-advance]').click(); await tick();
+    out.moved = RUN.i === at + 1;
+    RUN.i = at; stepQuiz(); await tick();
+    out.backItems = body().querySelectorAll('[data-seq-item]').length;
+    out.backCheck = !!body().querySelector('[data-seq-check]');
+    out.backSays = /You had the order wrong/.test(body().textContent);
+    out.backOrder = q.seq.every(t => body().textContent.indexOf(t) >= 0);
+    out.countedOnce = RUN.wrong === before.wrong + 1;
+    out.notTest = !RUN.answers;
+    return out;
+  });
+  if (pOrd.none) fail('the synthetic pack has no ordering question in section 1 practice');
+  else {
+    if (pOrd.items !== pOrd.want || pOrd.reveal || pOrd.selfMark || pOrd.answerShown)
+      fail('practice did not offer the steps to put in order: ' + JSON.stringify(pOrd));
+    else console.log('  ok   practice offers a put-in-order question\u2019s ' + pOrd.items +
+                     ' steps scrambled, with no answer showing');
+    if (pOrd.marked !== 'wrong' || !pOrd.wrongCounted || pOrd.redRows < 2 || !pOrd.orderShown)
+      fail('a wrong order in practice was not marked and corrected: ' + JSON.stringify(pOrd));
+    else console.log('  ok   a wrong order is marked wrong, row by row, and the right order shown');
+    if (!pOrd.moved || pOrd.backItems || pOrd.backCheck || !pOrd.backSays || !pOrd.backOrder || !pOrd.countedOnce)
+      fail('going back to a practice ordering question was not review: ' + JSON.stringify(pOrd));
+    else console.log('  ok   going back shows the order and the result, and counts nothing twice');
+    if (!pOrd.notTest) fail('practice touched the test record');
+    else console.log('  ok   and practice keeps no test answers');
+  }
 
   // ---- GOING BACK IS REVIEW, NOT A SECOND ATTEMPT --------------------
   //  You can return to a question you have answered and see what you
