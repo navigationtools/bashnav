@@ -799,9 +799,10 @@ is right everywhere. The model's ebb at Hurst is about a quarter weaker than
 the chart's: 2.7 knots against 3.6. Larry's ruling: teach the model as it is,
 with that caveat.
 
-**The real 68-foot ocean racers took far longer,** as RORC's published results show
-(their elapsed times will be quoted here from those results once Larry has
-confirmed them: TBNM). The difference is the point, not
+**The real 68-foot ocean racers took far longer,** as RORC's published results show:
+43:56:37 to 48:43:24 elapsed, against her 23h30 (Source: RORC, Myth of Malham
+Race 2025 results, published on SailRaceHQ; Larry's ruling TBRV). The
+difference is the point, not
 a fault: this is the fastest a generic 70-footer could go, tacking for nothing,
 steered perfectly, in a forecast that came exactly true.
 
@@ -908,19 +909,42 @@ The nine lines are four meridians off the headlands, out and home, the
 nearest she comes to the light, and the finish. The router is timed at
 each, from the gun.
 
-### What is held (Larry, 14 November 2026; the boats, TBNM, 25 November 2026)
+### What is held (Larry, 14 November 2026; the boats, TBNM, 25 November, and TBRV, 27 November 2026)
 
 | | what it checks | why |
 |---|---|---|
 | **rules** | Every step of every route against every piece of the coastline and each layer's clearance; each berth; the hand each mark was left on; each passing mark made; the start and the finish; each row handing on to the next. | By arithmetic of the test's own, that owes nothing to the router. The router keeps its water in a table of squares for speed; this goes through all of it. |
 | **orderings** | A restriction never makes her faster: headlands to keep off, a wider berth, passing marks. A worse crew is never quicker. A five-minute step is never slower than a ten-minute one. | These must be so whatever the answer is. Every fault found in the search so far was found by one of them and not by a wrong number. |
-| **pins** | The ten finishing times the documents and lessons quote, and the as-sailed run's time at each of the nine lines. | A change that moves one is seen, and must be made on purpose, with its reason in the CHANGELOG. |
-| **boats** | The router finishes ahead of every real boat's elapsed time in RORC's published results. | Its boat is a generic 70 ft racing yacht with free tacks and a forecast it knows in advance. It should finish first. |
+| **pins** | The fourteen finishing times the documents and lessons quote, and the as-sailed run's time at each of the nine lines. | A change that moves one is seen, and must be made on purpose, with its reason in the CHANGELOG. |
+| **boats** | 1. At full speed the router finishes ahead of every real boat's elapsed time in RORC's published results. 2. Level 3's crews (the generic polar times 0.5236, TBON) finish in order, crack, able, ordinary, green, and every one inside the real spread of the four 68-foot ocean racers, 43:56:37 to 48:43:24. | 1. Its boat is a generic 70 ft racing yacht with free tacks and a forecast it knows in advance. It should finish first. 2. Level 3 shows what good and bad crews look like on one boat; each should be a time a real crew made on the day. |
 
-**The boats are not held yet.** The test holds them as soon as RORC's
-published finishing times are written into it, with the page they came from.
-Until Larry has confirmed those figures it says "not held yet" on every run,
-and the suite says so too; it never passes for want of them.
+**RORC's times, and where they come from (Larry's ruling TBRV, 27 November
+2026).** The test holds five elapsed times, each cited in the file: "Source:
+RORC, Myth of Malham Race 2025 results (published on SailRaceHQ)". They are
+PILOT's fact list, rows F1 and F3, which PILOT checked against RORC's results:
+
+| Boat (by type; TBPS) | Elapsed | Fact |
+|---|---|---|
+| Ker 46, monohull line honours | 29:04:25 | F1 |
+| 68-foot ocean racer A | 43:56:37 | F3 |
+| 68-foot ocean racer B | 44:58:09 | F3 |
+| 68-foot ocean racer C | 45:58:46 | F3 |
+| 68-foot ocean racer D | 48:43:24 | F3 |
+
+Finishing times only: no track, and no other boat data.
+
+**The factor was fitted to these times, so part of the check holds by
+construction.** TBON's factor, 0.5236, was chosen (TBOW) so that the able
+crew finishes at the median of the four 68-foot ocean racers' times, 45:28:28.
+An able crew inside their spread is therefore no finding. What the check
+holds is the rest: the crews keep their order, and the best and the worst of
+them stay inside what real crews did. They sit about 47 minutes apart, where
+the real boats were 4 h 47 min apart; one factor cannot make beating cost
+more than running, and Larry ruled that this is enough for the launch.
+
+**If RORC objects,** the five times come out of the test (TBRV's undo). It
+then holds the crews' order only, and says so on every run, and so does the
+suite.
 
 **Every comparison of two times allows two minutes,** which is what the search
 cannot tell apart ("What the search can resolve").
@@ -943,8 +967,10 @@ chart's ("The first run").
 1. **Single legs, and any time between the start and the finish.** RORC
    publishes the finish. The router makes the best passage, not the best of
    every leg.
-2. **A 68-foot ocean racer against the real ones.** No polar for the class is
-   published, and the router's boat is a generic one.
+2. **A model of the 68-foot ocean racers.** No polar for the class is
+   published. Level 3's crews sail the generic polar slowed by one factor,
+   which puts them among the real boats at the finish and says nothing about
+   how the class sails a beat or a run.
 
 ### The data is read where it lives
 
@@ -958,18 +984,19 @@ PILOT has already made. It only reads.
 2. **If the folder is not there, the test fails and says where it looked.** A
    check that passes because it could not look is worse than none.
 3. **The crews and the passage plans are written by the test,** from PILOT's
-   as-sailed run, so that each differs from it in one thing.
+   as-sailed run, so that each differs from it in one thing. Level 3's TBON
+   crews are PILOT's own run files, read as they are and pinned.
 
 ### Running it, and changing a pinned time
 
-    node docs/web/tests/race-2025.js                  all of it: two to three minutes
+    node docs/web/tests/race-2025.js                  all of it: about three minutes
     node docs/web/tests/race-2025.js boats pins       some parts
     node docs/web/tests/race-2025.js --show           print what it measured
     node docs/web/tests/race-2025.js --data <folder>  another copy of the data
 
 The parts are `files`, `rules`, `pins`, `boats`, `crews`, `limits`, `steps`
 and `motor`.
-It sails the race eleven times, so it is its own command and the full suite
+It sails the race fifteen times, so it is its own command and the full suite
 runs it once, outside its loop over shells; it is not in the one-second gate.
 
 **To change a pinned time:** change the router on purpose, say why in the

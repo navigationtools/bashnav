@@ -28,22 +28,45 @@
 //               Twice a published figure moved because the search
 //               changed; both were right, and both were found by hand.
 //
-//    boats      The real boats, at the finish.  The router's boat is a
-//               generic 70 ft racing yacht with free tacks and a forecast
-//               it knows in advance, so it should finish ahead of every
-//               real boat, and that is held against each boat's elapsed
-//               time in RORC's published results (RORC_RESULTS below).
+//    boats      The real boats, at the finish, from RORC's published
+//               results (RORC_RESULTS below; Larry's ruling TBRV, 27
+//               November 2026).  Two things are held:
 //
-//               UNTIL LARRY CONFIRMS THOSE FIGURES THE PART IS NOT HELD,
-//               and says so on every run; it never passes for want of
-//               them.  Under Larry's ruling TBNM (25 November 2026) this
-//               part no longer reads the real boats' times at nine lines
+//               1. The router's boat at full speed, a generic 70 ft
+//                  racing yacht with free tacks and a forecast it knows
+//                  in advance, finishes ahead of every real boat.
+//
+//               2. Level 3's crews (TBON): the same generic polar with
+//                  every speed times 0.5236, sailed by the crack, able,
+//                  ordinary and green crews, from PILOT's run files.
+//                  They finish in that order, and every one finishes
+//                  inside the real spread of the four 68-foot ocean
+//                  racers (43:56:37 to 48:43:24).  They need not spread
+//                  out as the real fleet did: one factor cannot make
+//                  beating cost more than running, so they sit about 47
+//                  minutes apart (Larry, TBRV).
+//
+//               THE FACTOR WAS FITTED TO THESE TIMES, and that has to be
+//               said: 0.5236 was chosen (TBOW, 25 November 2026) so that
+//               the able crew finishes at the median of the four 68-foot
+//               ocean racers' elapsed times in RORC's results, 45:28:28.
+//               So an able crew inside the spread is by construction.
+//               What the check holds is the rest: the order of the
+//               crews, and that the best and the worst of them also stay
+//               inside what real crews did on the day.
+//
+//               IF RORC OBJECTS (TBRV's undo): delete the five times.
+//               The part then holds the crews' order only, and says so.
+//
+//               Under Larry's ruling TBNM (25 November 2026) this part
+//               does not read the real boats' times at nine lines
 //               (PILOT's legs file).  Those times were worked out from
 //               tracker data that had been fetched without its
 //               publishers' permission (PILOT's record, 25 November
 //               2026), so they are not used here or quoted in ROUTER.md.
 //               The nine lines stay: the router's own times at them are
-//               pinned, which needs no one else's data.
+//               pinned, which needs no one else's data.  Only finishing
+//               times are used: no track, and no other boat data.
 //
 //  WHAT IS NOT HELD.  Single legs, and any boat's time between the start
 //  and the finish: RORC publishes the finish.
@@ -60,9 +83,10 @@
 //  A MINUTE OR TWO IS NOT A FINDING (ROUTER.md, "What the search can
 //  resolve"), so every comparison of two times here allows two minutes.
 //
-//  It sails the race eleven times and takes about two minutes, so it is
-//  its own command and the full suite runs it once; it is not in the
-//  one-second gate (Larry, 14 November 2026).
+//  It sails the race fifteen times (eleven until 27 November 2026, when
+//  the four TBON crews joined the boats part) and takes about three
+//  minutes, so it is its own command and the full suite runs it once; it
+//  is not in the one-second gate (Larry, 14 November 2026).
 //
 //    node docs/web/tests/race-2025.js                 all of it
 //    node docs/web/tests/race-2025.js boats pins      some parts
@@ -139,7 +163,14 @@ var PINNED = {
   'polar_generic70_v1.txt':              '4646a1e3b720aab6',
   'run_2025_as_sailed_cmems_v1.txt':     'c7ed2127729e5745',
   'run_2025_headlands_1nm_cmems_v1.txt': '4187a58e653a109d',
-  'stream_check_readings_2025_v1.txt':   '51ecd1f0aa4c7a1f'
+  'stream_check_readings_2025_v1.txt':   '51ecd1f0aa4c7a1f',
+  //  Level 3's crews on the slowed generic polar (TBON), pinned on 27
+  //  November 2026 when NAV wrote them into PILOT's folder
+  'polar_generic70_x05236_tbon_v1.txt':               '272e8f384dd087f2',
+  'run_2025_generic70_tbon_crew_crack_cmems_v1.txt':  '3bb75590c6757a31',
+  'run_2025_generic70_tbon_crew_able_cmems_v1.txt':   'ed996785fbbd90e4',
+  'run_2025_generic70_tbon_crew_ordinary_cmems_v1.txt': 'd674e4a54ed2de14',
+  'run_2025_generic70_tbon_crew_green_cmems_v1.txt':  '07fdbfea8e3ab7f6'
 };
 function fileText(name) {
   try { return fs.readFileSync(path.join(DATA, name), 'utf8'); } catch (e) { return null; }
@@ -465,7 +496,13 @@ var FINISH = {
   'berth 0.15':       84739,   //  09:32:19Z: the Eddystone at PILOT's berth
   'lines':            85167,   //  09:39:27Z: the Level 1 headlands, south within two miles
   'circles':          85111,   //  09:38:31Z: the same as circles
-  'five-minute step': 84184    //  09:23:04Z, 23.38 hours
+  'five-minute step': 84184,   //  09:23:04Z, 23.38 hours
+  //  Level 3's crews on the generic polar times 0.5236 (TBON), sailed
+  //  on 27 November 2026; the finish is on 26 May
+  'TBON crack crew':    163193,  //  07:19:53Z, 45:19:53
+  'TBON able crew':     163643,  //  07:27:23Z, 45:27:23
+  'TBON ordinary crew': 164213,  //  07:36:53Z, 45:36:53
+  'TBON green crew':    166037   //  08:07:17Z, 46:07:17
 };
 function pinned(r) {
   if (!r.ok) return;
@@ -522,15 +559,30 @@ var AT_LINES = {
   "St Alban's Head (back)": 21.8904,
   'North Head (finish)': 23.5042
 };
-//  THE REAL BOATS' FINISHES, FROM RORC'S PUBLISHED RESULTS (TBNM).
-//  Each entry: the boat as RORC lists her (type is enough), her elapsed
-//  time as "h:mm:ss", and `source` the page it was read from.  EMPTY
-//  UNTIL LARRY CONFIRMS THE FIGURES: then the part below holds them.
-//  Example of the form, not a figure:  { boat: '68-foot ocean racer A', elapsed: 'h:mm:ss' }
+//  THE REAL BOATS' FINISHES, FROM RORC'S PUBLISHED RESULTS (TBRV).
+//  Larry's ruling TBRV, 27 November 2026, after an interview
+//  (spec/plan/2026-11-27_rorc-results-interview.md): these five elapsed
+//  times may be used, each cited to RORC.  Finishing times only.  The
+//  figures are PILOT's fact list, rows F1 and F3
+//  (inbox/bashnav/2026-11-25_pilot-tbnf-fact-list.md), which PILOT
+//  verified against RORC's results.  The boats are named by type only;
+//  the four 68-foot ocean racers are lettered by finishing order (TBPS).
+//  `fleet` marks the boats whose spread the crews are held inside.
+//  To undo (TBRV): empty `boats`, and the part holds the crews' order only.
+var RORC = 'Source: RORC, Myth of Malham Race 2025 results (published on SailRaceHQ)';
 var RORC_RESULTS = {
-  source: '',
-  boats: []
+  source: RORC,
+  boats: [
+    { boat: 'Ker 46 (monohull line honours)', elapsed: '29:04:25', fact: 'F1', source: RORC },
+    { boat: '68-foot ocean racer A', elapsed: '43:56:37', fact: 'F3', fleet: true, source: RORC },
+    { boat: '68-foot ocean racer B', elapsed: '44:58:09', fact: 'F3', fleet: true, source: RORC },
+    { boat: '68-foot ocean racer C', elapsed: '45:58:46', fact: 'F3', fleet: true, source: RORC },
+    { boat: '68-foot ocean racer D', elapsed: '48:43:24', fact: 'F3', fleet: true, source: RORC }
+  ]
 };
+//  the slowed polar's factor, and what it was fitted to (TBOW): stated
+//  here because the check below rests on it
+var TBON = { factor: 0.5236, fittedTo: 'the median of F3, 45:28:28' };
 function hrs(hms) {
   var m = /^(\d+):(\d\d):(\d\d)$/.exec(hms || '');
   return m ? +m[1] + m[2] / 60 + m[3] / 3600 : null;
@@ -571,22 +623,42 @@ if (asked('pins')) {
 }
 
 if (asked('boats')) {
+  //  LEVEL 3'S CREWS (TBON), from PILOT's run files: held in order with
+  //  or without RORC's times
+  var tb = ['crack', 'able', 'ordinary', 'green'].map(function (lv) {
+    return sailed('TBON ' + lv + ' crew', 'run_2025_generic70_tbon_crew_' + lv + '_cmems_v1.txt');
+  });
+  tb.forEach(function (r) { if (sound(r)) pinned(r); });
+  for (var ti = 1; ti < tb.length; ti++) {
+    notFaster('on the TBON polar, the ' + tb[ti].label.slice(5) + ' is no quicker than the ' + tb[ti - 1].label.slice(5), tb[ti], tb[ti - 1]);
+  }
   if (!RORC_RESULTS.boats.length) {
-    //  not a pass and not a fail: a part that has nothing to hold says so
-    say('  --    boats: NOT HELD YET. RORC\'s published finishing times are awaited (TBNM);');
-    say('        no time worked out from the tracker is used. Fill RORC_RESULTS to hold it.');
+    //  TBRV's undo: the order only, said on every run
+    say('  --    boats: RORC\'s times are not in this file, so only the crews\' order is held.');
   } else {
-    var r2 = asSailed();
+    say('  --    the TBON factor ' + TBON.factor + ' was fitted to ' + TBON.fittedTo + ' (RORC); the able crew inside the spread is by construction');
     ok('RORC\'s results name their source', !!RORC_RESULTS.source, 'RORC_RESULTS.source is empty');
-    ok('every RORC time reads as h:mm:ss', RORC_RESULTS.boats.every(function (b) { return hrs(b.elapsed) !== null; }));
+    ok('every RORC time is cited to RORC, and reads as h:mm:ss',
+       RORC_RESULTS.boats.every(function (b) { return /^Source: RORC\b/.test(b.source || '') && hrs(b.elapsed) !== null; }));
+    var r2 = asSailed();
     if (sound(r2)) {
       var mine = secs(r2) / 3600, behind = [];
       RORC_RESULTS.boats.forEach(function (b) {
         var h = hrs(b.elapsed);
         if (h !== null && (h - mine) * 3600 <= TOL) behind.push(b.boat + ' ' + b.elapsed);
       });
-      ok('the router finishes ahead of every real boat in RORC\'s results, by more than ' + TOL + ' s',
+      ok('at full speed the router finishes ahead of every real boat in RORC\'s results, by more than ' + TOL + ' s',
          behind.length === 0, 'not ahead of: ' + behind.join('; '));
+    }
+    var fleet = RORC_RESULTS.boats.filter(function (b) { return b.fleet; }).map(function (b) { return hrs(b.elapsed); });
+    if (fleet.length) {
+      var lo = Math.min.apply(null, fleet), hi = Math.max.apply(null, fleet);
+      tb.forEach(function (r) {
+        if (!r.ok) return;
+        var h = secs(r) / 3600;
+        ok('the ' + r.label + ' finishes inside the real spread of the 68-foot ocean racers (' + hms(lo * 3600) + ' to ' + hms(hi * 3600) + ')',
+           h >= lo && h <= hi, 'she finishes after ' + hms(secs(r)));
+      });
     }
   }
 }

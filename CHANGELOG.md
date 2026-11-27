@@ -1,5 +1,52 @@
 # Changelog
 
+## The router test holds RORC's finishing times, and Level 3's crews (TBRV)
+
+**What.** The real-race test, `docs/web/tests/race-2025.js`, now holds the boats part. The
+table of RORC's results, empty since TBNM, holds five elapsed times, each cited in the file as
+"Source: RORC, Myth of Malham Race 2025 results (published on SailRaceHQ)":
+
+| Boat (by type; TBPS) | Elapsed | PILOT's fact list |
+|---|---|---|
+| Ker 46, monohull line honours | 29:04:25 | F1 |
+| 68-foot ocean racers A to D | 43:56:37, 44:58:09, 45:58:46, 48:43:24 | F3 |
+
+The part holds two things:
+1. At full speed, the router's generic 70 ft boat finishes ahead of every one of them. This is
+   unchanged from before TBNM.
+2. Level 3's crews (TBON: the generic polar times 0.5236, sailed by the crack, able, ordinary
+   and green crews from PILOT's run files) finish in that order. Every one finishes inside the
+   real spread of the four 68-foot ocean racers, 43:56:37 to 48:43:24.
+
+The four TBON run files and the slowed polar are pinned by checksum, and the four crews'
+finishes are pinned: 45:19:53, 45:27:23, 45:36:53, 46:07:17. The test now sails the race
+fifteen times, not eleven, and takes about three minutes.
+
+**Why.** Larry's ruling TBRV, 27 November 2026, after an interview
+(`spec/plan/2026-11-27_rorc-results-interview.md`): use the five times now, cited to RORC,
+finishing times only. The test's bar is Larry's: the crews in the right order and inside the
+real spread. They need not spread out like the real fleet. They sit 47 minutes apart, against
+4 h 47 min for the real boats, because one factor cannot make beating cost more than running.
+
+**Stated, because it bears on the result.** TBON's factor was fitted (TBOW) to the median of the
+F3 times, 45:28:28. So the able crew inside the spread is by construction. What the check holds
+is the crews' order, and that the best and the worst of them also stay inside it. The test file
+and `ROUTER.md` say so, and the test prints it on every run.
+
+**Undo, if RORC objects (TBRV).** Delete the five times. The part then holds the crews' order
+only, and says so on every run, as does the suite's line.
+
+**Checked.** The boats part passes, 29 checks. A copy with two of the real times moved inside
+the crews' finishes fails on the green crew, so the spread check can fail.
+
+**Impact.** Launch gap item 2 is closed: the router test can pass in full. `ROUTER.md`'s
+"Held to the real race" says what is held, with the five times and their source. "The first
+run" now quotes the real boats' elapsed times. The suite's line names what is held.
+
+**What it touches.** `docs/web/tests/race-2025.js`, `tests/run-tests.sh` (the race line),
+`docs/web/route/ROUTER.md` and `ROUTER.pdf`, `CHANGELOG.md`. In PILOT's folder, nothing is
+changed by this; it reads the TBON files that practical-navigator request 1626 commits.
+
 ## Drill practice asks a put-in-order question as the test does (build 27)
 
 **What.** In Practice, a put-in-order question now shows its steps scrambled, with the one that
