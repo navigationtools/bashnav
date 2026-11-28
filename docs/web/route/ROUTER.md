@@ -185,20 +185,22 @@ that may go where it likes. A restriction cannot make a passage faster, so that
 is the size of what the search cannot tell apart, in a passage of nearly a day.
 
 **The time itself is good to about ten minutes in a day.** The 2025 race, on
-the Copernicus stream, at five steps:
+the Copernicus stream with the Eddystone at 0.25 nm, at five steps (measured
+again on 28 November 2026 when the runs moved to that berth, TBSP):
 
 | step | tacks free | an able crew |
 |---|---|---|
-| 10 min (the published runs) | 23.50 h | 23.73 h |
-| 6 min 40 s | 23.42 h | |
-| 5 min | 23.38 h | 23.63 h |
-| 3 min 20 s | 23.32 h | |
-| 2 min 30 s | 23.41 h | 23.61 h |
+| 10 min (the published runs) | 23.58 h | 23.77 h |
+| 6 min 40 s | 23.46 h | |
+| 5 min | 23.41 h | 23.65 h |
+| 3 min 20 s | 23.42 h | |
+| 2 min 30 s | 23.50 h | 23.72 h |
 
-1. **From ten minutes to five she gains seven minutes,** six with a crew: she
+1. **From ten minutes to five she gains ten minutes,** seven with a crew: she
    may put the helm down twice as often.
-2. **Below five minutes it stops paying steadily.** Three minutes twenty gains
-   under four minutes more, and two and a half loses five of them again. A step
+2. **Below five minutes it stops paying.** Three minutes twenty is no faster
+   (44 seconds slower, inside what the search resolves), and two and a half
+   loses five minutes more. A step
    is then shorter than a square. The first boat into a square is decided to
    the minute but kept to the half mile, and the first in tends to be the one
    footing off for speed, not the one pointing. On a dead beat at one-minute
@@ -339,40 +341,41 @@ polar's and not as a fact about boats (PILOT's).
 
 ### The 2025 race with its passing marks
 
-PILOT's passage file (`passage_2025_v1.txt`): the race as set, with the
-Eddystone at a berth of 0.15 nm, our own pilotage choice, which PILOT is
-re-sourcing from the chart (TBQH); and Level 1, south
+PILOT's passage file (`passage_2025_v2.txt`): the race as set, with the
+Eddystone at a berth of 0.25 nm, Larry's pilotage choice set from his chart
+(TBSG): clear of everything that dries and of every sounding under 20 ft. Boats
+in the real race go closer; we do not advise it. And Level 1, south
 of St Alban's Head and Portland Bill inside two miles, out and home. The same
 boat, weather and Copernicus stream as the first run below.
 
 | plan | tacks free: finish, 25 May | an able crew: finish, 25 May |
 |---|---|---|
-| `as-sailed`: Eddystone berth 0.15 | 09:32:19Z | 09:44:29Z |
-| `two-miles`: the four passing marks as lines | 09:39:27Z (7 min later) | 10:00:10Z (16 min later) |
-| `two-mile-circles`: the same as circles | 09:38:31Z | |
+| `as-sailed`: Eddystone berth 0.25 | 09:34:51Z | 09:46:21Z |
+| `two-miles`: the four passing marks as lines | 09:45:31Z (11 min later) | 09:58:42Z (12 min later) |
+| `two-mile-circles`: the same as circles | 09:42:51Z | |
 
 With tacks free on `two-miles` she passes St Alban's at 13:40Z and Portland
-Bill at 15:47Z, rounds the Eddystone at 01:11Z, and on the way home passes the
-Bill at 06:50Z and St Alban's at 08:02Z.
+Bill at 15:47Z, rounds the Eddystone at 01:15Z, and on the way home passes the
+Bill at 06:55Z and St Alban's at 08:08Z.
 
 Checked by brute force, with none of the router's own index:
 
 1. **No step crosses the coastline,** the Casquets scheme or the Sowley boom.
-2. **She is never nearer the Eddystone than 0.158 nm,** against a berth of
-   0.15, and the track goes once round the light, leaving it to port.
+2. **She is never nearer the Eddystone than 0.268 nm,** against a berth of
+   0.25, and the track goes once round the light, leaving it to port.
 3. **Each line is crossed out and home.**
-4. **She passes Portland Bill 0.23 nm off and St Alban's 1.14.** Close under
+4. **She passes Portland Bill 0.23 nm off and St Alban's 0.82.** Close under
    the Bill is where the line is quickest to cross, and the only thing holding
    her off is the coastline's clearance of a tenth of a mile. The Portland Race
    is not in these files.
 
-**The berth of 0.15 at the Eddystone costs two minutes** against 0.10, about
-what the search can resolve. **The NE Rock is kept off by its own area,** not
-by the berth: PILOT's `eddystone-reef` layer, a keep-out area round the rock,
-which dries 1 m about 0.16 nm north-east of the light. The rest of the reef
-stays on the chart.
+**The berth of 0.25 at the Eddystone costs under five minutes** against the
+old 0.10 (09:34:51 against 09:30:15), and two and a half against 0.15: about
+what the search can resolve. **The NE Rock now lies inside the berth.** It
+dries 1 m about 0.15 nm north-east of the light, and PILOT's `eddystone-reef`
+layer, a keep-out area round it, is still switched on; it changes nothing.
 
-**Going by the headlands costs her seven to sixteen minutes on this day.** A
+**Going by the headlands costs her eleven to twelve minutes on this day.** A
 minute or two of any such figure is inside what the search can resolve, and it
 is one day and a generic boat: a thing to show, not a rule to teach.
 
@@ -422,8 +425,9 @@ mark outside the box is refused by name, because no route could reach it.
 **The routes are the same.** All thirteen sailings of the 2025 race, with the
 coast file's box added, give the same rows and the same report to the letter.
 The search holds about a third fewer positions (22,655 for the as-sailed run,
-where it held 35,215), none of them outside the box, and the run takes 11
-seconds where it took 16.
+where it held 35,215, both measured with the Eddystone at the old 0.10 nm
+berth), none of them outside the box, and the run takes 11 seconds where it
+took 16.
 
 ## The cost of a tack
 
@@ -480,15 +484,15 @@ estimates.
 
 | crew | a tack costs | tacks | given to tacking and gybing | finish, 25 May | behind free tacks |
 |---|---|---|---|---|---|
-| (tacks free) | nothing | 30 | nothing | 09:30Z | |
-| crack | 17 s | 15 | 4 min 51 s | 09:34Z | 4 min |
-| able | 41 s | 13 | 10 min 9 s | 09:44Z | 14 min |
-| ordinary | 81 s | 13 | 20 min 25 s | 09:54Z | 24 min |
-| green | 2 min 39 s | 10 | 32 min 15 s | 10:15Z | 45 min |
+| (tacks free) | nothing | 30 | nothing | 09:35Z | |
+| crack | 17 s | 15 | 4 min 51 s | 09:36Z | 1 min |
+| able | 41 s | 13 | 10 min 9 s | 09:46Z | 11 min |
+| ordinary | 81 s | 13 | 20 min 25 s | 09:55Z | 20 min |
+| green | 2 min 39 s | 10 | 32 min 15 s | 10:19Z | 44 min |
 
 Each crew gybed once, after the Eddystone.
 
-**What it shows.** Between the crack crew and the green one there are 41 minutes
+**What it shows.** Between the crack crew and the green one there are 43 minutes
 in a race of a day. The green crew gives 32 minutes of that to the manoeuvres
 themselves. The rest is the price of tacking less: longer boards, further
 from where the wind and the stream would have had her.
@@ -615,12 +619,13 @@ place is made, then 1, and so on.
 6. **The positions are in no order.** They are as the search holds them, which
    is not along the line.
 
-**How big.** The 2025 race, as sailed, on the Copernicus stream: 23 lines,
-35,215 positions, from 83 at the first hour to 3,230 at the nineteenth. The
-route file goes from 107 KB to 875 KB. So that it stays under a megabyte, each
+**How big.** The 2025 race, as sailed, on the Copernicus stream with the
+Eddystone at 0.25 nm: 23 lines, 35,120 positions, from 83 at the first hour to
+3,204 at the nineteenth. The route file goes from 107 KB to 873 KB. So that it stays under a megabyte, each
 isochrone is one line of the file; the summary, the log and the rows are still
 laid out a figure to a line, to be read. With the coast file's `bounds` the
-same race holds 22,655 positions, and the file is smaller in proportion.
+same race held 22,655 positions at the old 0.10 nm berth, and the file is
+smaller in proportion.
 
 **The search is not changed.** It reads none of this. The 2025 race, on both
 streams, gives the same report and the same rows to the letter as before, the
@@ -782,8 +787,8 @@ tacks that cost nothing — in about fifteen seconds.
 |---|---|
 | Start, IRC One | 10:00Z, 24 May, towards the outer end of the line |
 | The wind | 248 at 16 knots at the start: **a dead beat to the Eddystone** |
-| Eddystone, left to port | 01:09Z, after 15 hours and 30 tacks, 0.10 miles off |
-| Finish | 09:30Z, 25 May: **23.5 hours**, 262 miles over the ground |
+| Eddystone, left to port | 01:11Z, after 15 hours and 30 tacks, 0.26 miles off (the berth is 0.25) |
+| Finish | 09:35Z, 25 May: **23.6 hours**, 262 miles over the ground |
 | Nearest the coast | 0.135 miles, against the 0.1 allowed |
 | Where the stream data is silent | nowhere: the model covers the Solent |
 
@@ -800,7 +805,7 @@ the chart's: 2.7 knots against 3.6. Larry's ruling: teach the model as it is,
 with that caveat.
 
 **The real 68-foot ocean racers took far longer,** as RORC's published results show:
-43:56:37 to 48:43:24 elapsed, against her 23h30 (Source: RORC, Myth of Malham
+43:56:37 to 48:43:24 elapsed, against her 23h35 (Source: RORC, Myth of Malham
 Race 2025 results, published on SailRaceHQ; Larry's ruling TBRV). The
 difference is the point, not
 a fault: this is the fastest a generic 70-footer could go, tacking for nothing,
@@ -866,20 +871,20 @@ Every line below is the log's own output from that run, nothing added.
          stream fair 0.9 kt   9.6 kt through the water, 10.4 made good
          since 22:00: wind veered 9 degrees
 -- 25 May 2025, times UTC --
-00:40  tacked to starboard, heading 217   0h29  4.7 nm
+00:40  tacked to starboard, heading 219   0h31  5.1 nm
          wind 261 at 22 kt (22 over the water)
-         stream slack   9.9 kt through the water, 9.9 made good
+         stream slack   9.8 kt through the water, 9.7 made good
          since 23:20: wind veered 15 degrees;
            stream slack on this line, fair on the last
-01:09  ROUNDED Eddystone Lt House  15h09 from the start
-01:09  bore away 93 degrees, still starboard, heading 109   2h21  33.6 nm
+01:11  ROUNDED Eddystone Lt House  15h11 from the start
+01:11  bore away 20 degrees, still starboard, heading 110   2h19  33.2 nm
          wind 261 at 23 kt (22 over the water)
-         stream fair 0.7 kt   13.6 kt through the water, 14.3 made good
+         stream fair 0.7 kt   13.7 kt through the water, 14.4 made good
          since 00:40: stream fair on this line, slack on the last
-03:30  gybed to port, heading 057   6h00  82.6 nm
+03:30  gybed to port, heading 057   6h05  83.4 nm
          wind 262 at 22 kt (21 over the water)
-         stream fair 1.5 kt   12.3 kt through the water, 13.8 made good
-09:30  FINISH  23h30 from the start
+         stream fair 1.4 kt   12.3 kt through the water, 13.7 made good
+09:35  FINISH  23h35 from the start
 ```
 
 The first line is eight boards in an hour and a half. With tacks that
@@ -892,6 +897,11 @@ tack".
 `docs/web/tests/race-2025.js` holds the router to the race that was sailed:
 PILOT's course, coastline, wind, stream and polar, and the real boats'
 finishing times as RORC published them. It is board item B3.
+
+**It reads PILOT's v2 runs, with the Eddystone at 0.25 nm** (Larry's rulings
+TBSH and TBSP, 27 and 28 November 2026). Every time it pins was measured again
+on them. The v1 runs, at the old `round 0.10`, are kept in PILOT's folder and
+no longer read.
 
 ```
    W                                                                        E
@@ -915,7 +925,7 @@ each, from the gun.
 |---|---|---|
 | **rules** | Every step of every route against every piece of the coastline and each layer's clearance; each berth; the hand each mark was left on; each passing mark made; the start and the finish; each row handing on to the next. | By arithmetic of the test's own, that owes nothing to the router. The router keeps its water in a table of squares for speed; this goes through all of it. |
 | **orderings** | A restriction never makes her faster: headlands to keep off, a wider berth, passing marks. A worse crew is never quicker. A five-minute step is never slower than a ten-minute one. | These must be so whatever the answer is. Every fault found in the search so far was found by one of them and not by a wrong number. |
-| **pins** | The fourteen finishing times the documents and lessons quote, and the as-sailed run's time at each of the nine lines. | A change that moves one is seen, and must be made on purpose, with its reason in the CHANGELOG. |
+| **pins** | The sixteen finishing times the documents and lessons quote, and the as-sailed run's time at each of the nine lines. | A change that moves one is seen, and must be made on purpose, with its reason in the CHANGELOG. |
 | **boats** | 1. At full speed the router finishes ahead of every real boat's elapsed time in RORC's published results. 2. Level 3's crews (the generic polar times 0.5236, TBON) finish in order, crack, able, ordinary, green, and every one inside the real spread of the four 68-foot ocean racers, 43:56:37 to 48:43:24. | 1. Its boat is a generic 70 ft racing yacht with free tacks and a forecast it knows in advance. It should finish first. 2. Level 3 shows what good and bad crews look like on one boat; each should be a time a real crew made on the day. |
 
 **RORC's times, and where they come from (Larry's ruling TBRV, 27 November
@@ -938,7 +948,7 @@ construction.** TBON's factor, 0.5236, was chosen (TBOW) so that the able
 crew finishes at the median of the four 68-foot ocean racers' times, 45:28:28.
 An able crew inside their spread is therefore no finding. What the check
 holds is the rest: the crews keep their order, and the best and the worst of
-them stay inside what real crews did. They sit about 47 minutes apart, where
+them stay inside what real crews did. They sit about 48 minutes apart, where
 the real boats were 4 h 47 min apart; one factor cannot make beating cost
 more than running, and Larry ruled that this is enough for the launch.
 
@@ -996,7 +1006,7 @@ PILOT has already made. It only reads.
 
 The parts are `files`, `rules`, `pins`, `boats`, `crews`, `limits`, `steps`
 and `motor`.
-It sails the race fifteen times, so it is its own command and the full suite
+It sails the race sixteen times, so it is its own command and the full suite
 runs it once, outside its loop over shells; it is not in the one-second gate.
 
 **To change a pinned time:** change the router on purpose, say why in the
@@ -1080,8 +1090,9 @@ is an arc", gives the reason and the limit.
 On the Copernicus stream, Level 1's bare file, nine of PILOT's timing lines and
 the Eddystone, is refused once. Leg 1 passes 0.08 nm from the low-water shore
 in the Hurst narrows, and Level 3's tack at 11:00 clears it. The arc round the
-Eddystone is 01:00, 01:08, the closest point and 01:10: the 01:00 point is
-taken to clear the light's berth on the way in.
+Eddystone is 01:11, the closest point and 01:20. With the berth at 0.25 nm
+(TBSH) Level 3's own track already keeps clear of it, so the arc takes no
+extra point; at the old 0.10 nm it took one more on the way in.
 
 | leg | to | nm | course | Level 3 time | Level 1 speed | Level 2, same speed | Level 2, on time |
 |---|---|---|---|---|---|---|---|
@@ -1090,22 +1101,21 @@ taken to clear the light's berth on the way in.
 | 3 | St Alban's Head | 24.7 | 231 | 2h45 | 9.0 kn | 33 min early | 7.8 kn |
 | 4 | Portland Bill | 15.3 | 275 | 1h54 | 8.1 kn | 31 min early | 8.9 kn |
 | 5 | Start Point | 48.1 | 250 | 6h31 | 7.4 kn | 10 min late | 8.2 kn |
-| 6 | Eddystone 01:00 | 23.6 | 272 | 2h35 | 9.1 kn | 5 min early | 8.2 kn |
-| 7 | Eddystone 01:08 | 1.6 | 204 | 0h09 | 10.6 kn | 4 min early | 10.8 kn |
-| 8 | Eddystone, closest | 0.1 | 111 | 0h01 | 14.0 kn | 5 min early | 13.6 kn |
-| 9 | Eddystone 01:10 | 0.1 | 111 | 0h01 | 14.0 kn | 5 min early | 13.6 kn |
-| 10 | Start Point | 25.3 | 108 | 1h46 | 14.3 kn | 8 min early | 13.8 kn |
-| 11 | Portland Bill | 50.2 | 065 | 3h46 | 13.3 kn | 32 min early | 11.7 kn |
-| 12 | St Alban's Head | 16.9 | 065 | 1h12 | 14.1 kn | 44 min early | 11.8 kn |
-| 13 | finish | 21.1 | 057 | 1h37 | 13.1 kn | 51 min early | 12.8 kn |
+| 6 | Eddystone 01:11 | 24.4 | 269 | 2h46 | 8.8 kn | 6 min early | 7.9 kn |
+| 7 | Eddystone, closest | 0.2 | 124 | 0h01 | 14.8 kn | 6 min early | 14.5 kn |
+| 8 | Eddystone 01:20 | 1.9 | 124 | 0h08 | 14.9 kn | 6 min early | 14.5 kn |
+| 9 | Start Point | 23.8 | 108 | 1h40 | 14.4 kn | 9 min early | 13.8 kn |
+| 10 | Portland Bill | 50.7 | 064 | 3h46 | 13.4 kn | 34 min early | 11.7 kn |
+| 11 | St Alban's Head | 16.8 | 065 | 1h12 | 14.1 kn | 45 min early | 11.8 kn |
+| 12 | finish | 20.9 | 058 | 1h37 | 12.9 kn | 52 min early | 12.8 kn |
 
 The same-speed column is how early or late she is at each waypoint, carried
-from the legs before. Level 1 sails 238.2 nm of rhumb lines, against Level 3's
-261.6 over the ground. In the stream at Level 1's speeds she finishes at
-08:39, 51 minutes before Level 3. The Solent has a stream now, so she is
+from the legs before. Level 1 sails 238.1 nm of rhumb lines, against Level 3's
+262.4 over the ground. In the stream at Level 1's speeds she finishes at
+08:43, 52 minutes before Level 3. The Solent has a stream now, so she is
 already early at Hurst.
 
-**In 2025 she holds every line.** At 7 to 14 knots, no stream across her line
+**In 2025 she holds every line.** At 7 to 15 knots, no stream across her line
 is as strong as she is. The "it cannot be done" case is held by
 `tests/motor.js`, on a stream made to do it. These figures are pinned by
 `tests/race-2025.js motor`.

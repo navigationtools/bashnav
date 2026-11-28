@@ -1,5 +1,54 @@
 # Changelog
 
+## The router's documents and its race test take the Eddystone at 0.25 nm (TBSH, TBSP)
+
+**What.** `docs/web/tests/race-2025.js` now reads PILOT's v2 runs, which round the Eddystone at
+0.25 nm, and `ROUTER.md` quotes them. PILOT's v1 runs, at `round 0.10`, are kept in his folder and
+are no longer read here. Every time the test pins was measured again:
+
+| | Before (0.10 nm) | Now (0.25 nm) |
+|---|---|---|
+| The first run, tacks free | 09:30:15, 23h30 | 09:34:51, 23h35 |
+| Crack, able, ordinary, green (full speed) | 09:34:03, 09:44:03, 09:54:12, 10:15:22 | 09:36:06, 09:46:21, 09:55:12, 10:18:46 |
+| Level 1 headlands as lines, as circles | 09:39:27, 09:38:31 | 09:45:31, 09:42:51 |
+| Five-minute step | 09:23:04 | 09:24:32 |
+| TBON crack, able, ordinary, green | 45:19:53, 45:27:23, 45:36:53, 46:07:17 | 45:26:45, 45:29:25, 45:41:53, 46:14:54 |
+| Times at the nine lines | the four outbound unchanged | Eddystone 15.20 h (was 15.16), and every line home about 3 to 5 minutes later |
+| The motorboat: Level 1 legs; Level 2 same speed; Level 2 on time | 13 legs; 08:39:07; 7.4 to 13.8 kn | 12 legs; 08:42:55; 7.4 to 14.5 kn |
+
+**Why.** Larry's rulings. TBSG (27 November): the berth was set from his chart, which shows depths
+in feet, clear of everything that dries and of every sounding under 20 ft. TBSH: every run that
+rounds the Eddystone takes it. TBSP (28 November): bashnav's test and documents follow, so that
+bashnav and the course quote the same runs.
+
+**How the test changed, beyond the pins.**
+1. The v2 runs are RUN 3 and name PILOT's passage plan, not `round`. The test's own variants are
+   made from them by replacing that line.
+2. A plan with the Eddystone at 0.25 nm is held row for row against PILOT's plan as-sailed. That is
+   the check that the move from `round 0.10` changed only the berth.
+3. "Nor 0.25 against 0.15" is a new ordering. The Level 1 headland plans now take 0.25, and are held
+   against it.
+4. The motorboat's arc round the Eddystone is now Level 3's closest point and one track point each
+   side. At 0.25 nm her own track keeps the berth, so it needs no extra point; Level 1 therefore
+   sails 12 legs, not 13.
+5. The race is sailed sixteen times, not fifteen: 145 checks, all passing.
+
+**Impact.**
+1. All the router's figures in `ROUTER.md` are the 0.25 nm runs': the first run and its log, the
+   crews, the passing marks, the isochrones, the step table and the motorboat. The step table was
+   sailed again at five steps.
+2. The 0.25 nm berth costs her under five minutes against 0.10, inside what the search resolves.
+3. Lyme Bay does not move.
+4. Two measurements stay at the old berth and say so: the coast file's `bounds` comparison and its
+   22,655 positions.
+5. **PILOT's motorboat files for Levels 1 and 2** (`motor_2025_*` in his folder) follow
+   `run_2025_as_sailed_v1.txt`, the Shom run at 0.10 nm. bashnav's check follows the Copernicus v2
+   run, as before it followed the Copernicus v1. Whether PILOT's files move to a v2 run is his, and
+   is raised with him.
+
+**What it touches.** `docs/web/tests/race-2025.js`, `docs/web/route/ROUTER.md` and `ROUTER.pdf`,
+`CHANGELOG.md`. It reads PILOT's v2 files, committed by practical-navigator request 0125.
+
 ## The router test holds RORC's finishing times, and Level 3's crews (TBRV)
 
 **What.** The real-race test, `docs/web/tests/race-2025.js`, now holds the boats part. The

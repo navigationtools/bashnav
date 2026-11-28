@@ -83,8 +83,9 @@
 //  A MINUTE OR TWO IS NOT A FINDING (ROUTER.md, "What the search can
 //  resolve"), so every comparison of two times here allows two minutes.
 //
-//  It sails the race fifteen times (eleven until 27 November 2026, when
-//  the four TBON crews joined the boats part) and takes about three
+//  It sails the race sixteen times (eleven until 27 November 2026, when
+//  the four TBON crews joined the boats part; fifteen until 28 November,
+//  when the 0.25 nm berth joined the limits part) and takes about three
 //  minutes, so it is its own command and the full suite runs it once; it
 //  is not in the one-second gate (Larry, 14 November 2026).
 //
@@ -152,8 +153,14 @@ if (!DATA || !fs.existsSync(path.join(DATA, 'course_2025_v3.txt'))) {
 //  LARRY'S STREAM READINGS ARE PINNED TOO, because ROUTER.md's first run
 //  quotes them (the model's ebb at Hurst runs light): if they change, so
 //  does what the documents say about the stream there.
-var AS_SAILED = 'run_2025_as_sailed_cmems_v1.txt';
-var HEADLANDS = 'run_2025_headlands_1nm_cmems_v1.txt';
+//  THE EDDYSTONE AT 0.25 NM (Larry's rulings TBSH and TBSP, 27 and 28
+//  November 2026).  The berth was set from Larry's chart (TBSG): clear of
+//  everything that dries and of every sounding under 20 ft.  The runs read
+//  here are PILOT's v2 files, which take it from passage_2025_v2.txt; the
+//  v1 files, with `round 0.10`, are kept in PILOT's folder and no longer
+//  read here.  Every time pinned below was re-measured on the v2 runs.
+var AS_SAILED = 'run_2025_as_sailed_cmems_v2.txt';
+var HEADLANDS = 'run_2025_headlands_1nm_cmems_v2.txt';
 var PINNED = {
   'course_2025_v3.txt':                  'e840534aa9c58780',
   'areas_rules_2025.txt':                '37d2ff50b2a3f532',
@@ -161,16 +168,17 @@ var PINNED = {
   'wind_20250524_00z_v2.grid':           '6b112cc12af4944d',
   'current_20250524_cmems_v1.grid':      'c8790f97dbfaebec',
   'polar_generic70_v1.txt':              '4646a1e3b720aab6',
-  'run_2025_as_sailed_cmems_v1.txt':     'c7ed2127729e5745',
-  'run_2025_headlands_1nm_cmems_v1.txt': '4187a58e653a109d',
+  'run_2025_as_sailed_cmems_v2.txt':     '8802f31e15bf4d5e',
+  'run_2025_headlands_1nm_cmems_v2.txt': '299cac0b9da288ec',
+  'passage_2025_v2.txt':                 'a8ab9ae0437c0340',
   'stream_check_readings_2025_v1.txt':   '51ecd1f0aa4c7a1f',
   //  Level 3's crews on the slowed generic polar (TBON), pinned on 27
   //  November 2026 when NAV wrote them into PILOT's folder
   'polar_generic70_x05236_tbon_v1.txt':               '272e8f384dd087f2',
-  'run_2025_generic70_tbon_crew_crack_cmems_v1.txt':  '3bb75590c6757a31',
-  'run_2025_generic70_tbon_crew_able_cmems_v1.txt':   'ed996785fbbd90e4',
-  'run_2025_generic70_tbon_crew_ordinary_cmems_v1.txt': 'd674e4a54ed2de14',
-  'run_2025_generic70_tbon_crew_green_cmems_v1.txt':  '07fdbfea8e3ab7f6'
+  'run_2025_generic70_tbon_crew_crack_cmems_v2.txt':  'a622d5a80cc4f6e8',
+  'run_2025_generic70_tbon_crew_able_cmems_v2.txt':   '1264a51d92be8b8f',
+  'run_2025_generic70_tbon_crew_ordinary_cmems_v2.txt': '8b024e90eaa718d7',
+  'run_2025_generic70_tbon_crew_green_cmems_v2.txt':  '88621fcc27e6fff1'
 };
 function fileText(name) {
   try { return fs.readFileSync(path.join(DATA, name), 'utf8'); } catch (e) { return null; }
@@ -222,25 +230,29 @@ function variant(name, edits) {
   made[name] = t;
   return name;
 }
-var V3 = [/^RUN 2[ \t]*$/m, 'RUN 3'];
+//  the v2 runs already say RUN 3 (a passage is a RUN 3 line); a RUN 2
+//  base is lifted to it
+var V3 = [/^RUN [23][ \t]*$/m, 'RUN 3'];
 function withCrew(level) {
   return variant('b3_crew_' + level + '.txt', [V3, [/^end[ \t]*$/m, 'crew ' + CREW_FILE + ' ' + level + '\nend']]);
 }
 function withPlan(plan) {
   return variant('b3_plan_' + plan + '.txt',
-                 [V3, [/^round[ \t].*$/m, ''], [/^end[ \t]*$/m, 'passage b3_passage.txt ' + plan + '\nend']]);
+                 [V3, [/^(round|passage)[ \t].*$/m, ''], [/^end[ \t]*$/m, 'passage b3_passage.txt ' + plan + '\nend']]);
 }
-//  the plans: the Eddystone at the berth `round` gives and at PILOT's
-//  0.15, and the Level 1 headlands, as lines to cross and as circles
+//  the plans: the Eddystone at 0.10 (the old `round`), 0.15 (PILOT's first
+//  passage file) and 0.25 (TBSG, the berth the runs now take), and the
+//  Level 1 headlands, as lines to cross and as circles, at 0.25
 var HEADS = { 'St Albans Head': '50.57868 -2.05644', 'Portland Bill': '50.51353 -2.45676' };
 function passes(word) {
   function p(n) { return '  pass ' + n + ' ' + HEADS[n] + ' ' + word + 'within 2.0'; }
-  return [p('St Albans Head'), p('Portland Bill'), '  mark Eddystone Lt House berth 0.15',
+  return [p('St Albans Head'), p('Portland Bill'), '  mark Eddystone Lt House berth 0.25',
           p('Portland Bill'), p('St Albans Head'), '  mark North Head Buoy'];
 }
 made['b3_passage.txt'] = ['PASSAGE 1',
   'plan berth-010', '  mark Eddystone Lt House berth 0.10', '  mark North Head Buoy',
   'plan berth-015', '  mark Eddystone Lt House berth 0.15', '  mark North Head Buoy',
+  'plan berth-025', '  mark Eddystone Lt House berth 0.25', '  mark North Head Buoy',
   'plan lines'].concat(passes('south ')).concat(['plan circles']).concat(passes('')).concat(['end']).join('\n') + '\n';
 
 var RUNS = {};
@@ -486,23 +498,27 @@ function notFaster(what, slow, fast) {
 //  router on purpose, say why in the CHANGELOG, and write the new time.
 //  Re-pinned on 15 November 2026 when the stream became Copernicus's
 //  (Larry: "move both"); the reason is in the CHANGELOG.
+//  Re-pinned on 28 November 2026 when the runs moved to the Eddystone at
+//  0.25 nm (TBSH, TBSP); the old times are in the CHANGELOG beside the new.
 var FINISH = {
-  'as-sailed':        84615,   //  09:30:15Z, 23.50 hours: tacks free, PILOT's run as it stands
-  'headlands':        84615,   //  09:30:15Z: a mile off three headlands costs nothing on this stream
-  'crack crew':       84843,   //  09:34:03Z
-  'able crew':        85443,   //  09:44:03Z
-  'ordinary crew':    86052,   //  09:54:12Z
-  'green crew':       87322,   //  10:15:22Z
-  'berth 0.15':       84739,   //  09:32:19Z: the Eddystone at PILOT's berth
-  'lines':            85167,   //  09:39:27Z: the Level 1 headlands, south within two miles
-  'circles':          85111,   //  09:38:31Z: the same as circles
-  'five-minute step': 84184,   //  09:23:04Z, 23.38 hours
+  'as-sailed':        84891,   //  09:34:51Z, 23.58 hours: tacks free, PILOT's run as it stands
+  'headlands':        84891,   //  09:34:51Z: a mile off three headlands costs nothing on this stream
+  'crack crew':       84966,   //  09:36:06Z
+  'able crew':        85581,   //  09:46:21Z
+  'ordinary crew':    86112,   //  09:55:12Z
+  'green crew':       87526,   //  10:18:46Z
+  'berth 0.10':       84615,   //  09:30:15Z: the Eddystone at the old `round 0.10`
+  'berth 0.15':       84739,   //  09:32:19Z: the Eddystone at PILOT's first passage file
+  'berth 0.25':       84891,   //  09:34:51Z: the berth the runs now take, as as-sailed
+  'lines':            85531,   //  09:45:31Z: the Level 1 headlands, south within two miles
+  'circles':          85371,   //  09:42:51Z: the same as circles
+  'five-minute step': 84272,   //  09:24:32Z, 23.41 hours
   //  Level 3's crews on the generic polar times 0.5236 (TBON), sailed
   //  on 27 November 2026; the finish is on 26 May
-  'TBON crack crew':    163193,  //  07:19:53Z, 45:19:53
-  'TBON able crew':     163643,  //  07:27:23Z, 45:27:23
-  'TBON ordinary crew': 164213,  //  07:36:53Z, 45:36:53
-  'TBON green crew':    166037   //  08:07:17Z, 46:07:17
+  'TBON crack crew':    163605,  //  07:26:45Z, 45:26:45
+  'TBON able crew':     163765,  //  07:29:25Z, 45:29:25
+  'TBON ordinary crew': 164513,  //  07:41:53Z, 45:41:53
+  'TBON green crew':    166494   //  08:14:54Z, 46:14:54
 };
 function pinned(r) {
   if (!r.ok) return;
@@ -553,11 +569,11 @@ var AT_LINES = {
   "St Alban's Head (out)": 4.0181,
   'Portland Bill (out)': 5.9126,
   'Start Point (out)': 12.4226,
-  'Eddystone (rounding)': 15.1574,
-  'Start Point (back)': 16.9360,
-  'Portland Bill (back)': 20.6961,
-  "St Alban's Head (back)": 21.8904,
-  'North Head (finish)': 23.5042
+  'Eddystone (rounding)': 15.2048,
+  'Start Point (back)': 16.9920,
+  'Portland Bill (back)': 20.7662,
+  "St Alban's Head (back)": 21.9619,
+  'North Head (finish)': 23.5808
 };
 //  THE REAL BOATS' FINISHES, FROM RORC'S PUBLISHED RESULTS (TBRV).
 //  Larry's ruling TBRV, 27 November 2026, after an interview
@@ -626,7 +642,7 @@ if (asked('boats')) {
   //  LEVEL 3'S CREWS (TBON), from PILOT's run files: held in order with
   //  or without RORC's times
   var tb = ['crack', 'able', 'ordinary', 'green'].map(function (lv) {
-    return sailed('TBON ' + lv + ' crew', 'run_2025_generic70_tbon_crew_' + lv + '_cmems_v1.txt');
+    return sailed('TBON ' + lv + ' crew', 'run_2025_generic70_tbon_crew_' + lv + '_cmems_v2.txt');
   });
   tb.forEach(function (r) { if (sound(r)) pinned(r); });
   for (var ti = 1; ti < tb.length; ti++) {
@@ -682,16 +698,21 @@ if (asked('crews')) {
 if (asked('limits')) {
   var f2 = asSailed(), hl = sailed('headlands', HEADLANDS);
   var b10 = sailed('berth 0.10', withPlan('berth-010')), b15 = sailed('berth 0.15', withPlan('berth-015'));
+  var b25 = sailed('berth 0.25', withPlan('berth-025'));
   var li = sailed('lines', withPlan('lines')), ci2 = sailed('circles', withPlan('circles'));
-  [f2, hl, b10, b15, li, ci2].forEach(function (r) { if (sound(r) && FINISH.hasOwnProperty(r.label)) pinned(r); });
+  [f2, hl, b10, b15, b25, li, ci2].forEach(function (r) { if (sound(r) && FINISH.hasOwnProperty(r.label)) pinned(r); });
   notFaster('keeping a mile off three headlands does not make her faster', hl, f2);
-  if (b10.ok && f2.ok) {
-    ok('a plan that gives the Eddystone the berth `round` gave sails the same route, row for row',
-       JSON.stringify(b10.rows) === JSON.stringify(f2.rows), b10.rows.length + ' rows against ' + f2.rows.length);
+  //  the test's own 0.25 plan and PILOT's plan as-sailed are the same
+  //  race, so they must sail the same route: the berth is all that the
+  //  move from `round 0.10` to PILOT's plan changed (TBSH)
+  if (b25.ok && f2.ok) {
+    ok('a plan that gives the Eddystone 0.25 nm sails the same route as PILOT\'s plan as-sailed, row for row',
+       JSON.stringify(b25.rows) === JSON.stringify(f2.rows), b25.rows.length + ' rows against ' + f2.rows.length);
   }
-  notFaster('a wider berth at the Eddystone does not make her faster', b15, b10);
-  notFaster('four passing marks do not make her faster', li, b15);
-  notFaster('nor do the same four as circles', ci2, b15);
+  notFaster('a wider berth at the Eddystone does not make her faster: 0.15 against 0.10', b15, b10);
+  notFaster('nor 0.25 against 0.15', b25, b15);
+  notFaster('four passing marks do not make her faster', li, b25);
+  notFaster('nor do the same four as circles', ci2, b25);
   notFaster('a line is no easier than the circle it lies inside', li, ci2);
 }
 
@@ -747,12 +768,16 @@ if (asked('motor')) {
       if (SHOW) say('  motor  refused: ' + offer);
     }
     var eddy = (bare.points || []).filter(function (p) { return p.kind === 'mark'; })[0];
-    ok('the arc round the Eddystone is Level 3\'s closest point, two track points before and one after, grown to clear the light\'s berth',
-       eddy && eddy.arc.before === 2 && eddy.arc.after === 1 && eddy.arc.grew.join() === 'the berth round Eddystone Lt House',
+    //  At the 0.25 nm berth (TBSH) Level 3's own track keeps the berth,
+    //  so the arc is the closest point and one track point either side,
+    //  and does not need growing.  At 0.10 nm it took two before and one
+    //  after, grown to clear the berth.
+    ok('the arc round the Eddystone is Level 3\'s closest point and one track point either side, with no growing needed',
+       eddy && eddy.arc.before === 1 && eddy.arc.after === 1 && eddy.arc.grew.length === 0,
        eddy ? eddy.arc.before + ' before, ' + eddy.arc.after + ' after, grew for ' + eddy.arc.grew.join() : 'no mark waypoint');
 
     var lv1 = motorFile('same', 0, true);
-    ok('Level 1 with it sails 13 legs', lv1.ok && lv1.legs.length === 13, lv1.why);
+    ok('Level 1 with it sails 12 legs', lv1.ok && lv1.legs.length === 12, lv1.why);
     ok('and arrives at every one of Level 3\'s times, to a second', on1(lv1));
     var lv1nm = lv1.ok ? lv1.legs.reduce(function (a, l) { return a + l.nm; }, 0) : 0;
     if (SHOW && lv1.ok) say('  motor  Level 1: ' + lv1nm.toFixed(1) + ' nm of rhumb lines');
@@ -760,8 +785,8 @@ if (asked('motor')) {
     var same = motorFile('same', '1.0', true);
     ok('Level 2 at the same speed sails', same.ok, same.why);
     if (same.ok) {
-      var fin = same.legs[same.legs.length - 1].sailed.ms, want2 = Date.parse('2025-05-25T08:39:07Z');
-      ok('PINNED: at Level 1\'s speeds the stream brings her in at 08:39:07, 51 minutes before Level 3',
+      var fin = same.legs[same.legs.length - 1].sailed.ms, want2 = Date.parse('2025-05-25T08:42:55Z');
+      ok('PINNED: at Level 1\'s speeds the stream brings her in at 08:42:55, 52 minutes before Level 3',
          Math.abs(fin - want2) <= 120000, new Date(fin).toISOString());
       ok('PINNED: in 2025 she never meets a stream across her line as strong as she is',
          same.legs.every(function (l) { return !l.sailed.held.length; }));
@@ -772,7 +797,7 @@ if (asked('motor')) {
     if (ontime.ok) {
       var vs = ontime.legs.map(function (l) { return l.v; });
       var lo = Math.min.apply(null, vs), hi = Math.max.apply(null, vs);
-      ok('PINNED: the speeds it needs run from 7.4 to 13.8 knots', Math.abs(lo - 7.4) < 0.1 && Math.abs(hi - 13.8) < 0.1,
+      ok('PINNED: the speeds it needs run from 7.4 to 14.5 knots', Math.abs(lo - 7.4) < 0.1 && Math.abs(hi - 14.5) < 0.1,
          lo.toFixed(2) + ' to ' + hi.toFixed(2));
       if (SHOW) say('  motor  Level 2, on time: ' + vs.map(function (v) { return v.toFixed(1); }).join(' '));
     }
