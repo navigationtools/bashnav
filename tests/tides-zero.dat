@@ -12,12 +12,19 @@
 #         NTSLF puts at "about 0.2 m" today, so it is held between least and
 #         most above it
 #
-# Every figure was read from the page named, on 16 November 2026. None was
-# copied from the station file. Cherbourg has no published figure yet: the
-# almanac Larry has ordered will give its mean level, and its line goes here.
+# Every figure was read from the page named, on 16 November 2026, except
+# Cherbourg's, read on 28 November 2026 from Shom's Références Altimétriques
+# Maritimes (RAM), 2025 edition, through Shom's public map service (WFS layer
+# RAM_BDD_WLD_WGS84G_WFS:ram_3857); Larry's ruling TBUP. None was copied from
+# the station file. The RAM is "Shom, 2025. Références Altimétriques
+# Maritimes, https://dx.doi.org/10.17183/MAREE_COURANTS_RAM", Licence Ouverte
+# / Open Licence 2.0; Shom says of it "ce produit ne doit pas être utilisé
+# pour la navigation" (this product must not be used for navigation). Here it
+# only checks a figure; see NOTICE.
 ticon/brest-3-fra-refmar|msl|4.13|-0.05|0.05|Shom niveau moyen, as maree.info prints it (06/2016), maree.info/82/ports-rattaches
 ticon/le_conquet-152-fra-refmar|msl|3.98|-0.05|0.05|Shom niveau moyen, as maree.info prints it (06/2016), maree.info/82/ports-rattaches
 ticon/portsmouth-ptm-gbr-bodc|mhws|4.7|-0.05|0.05|Admiralty chart 5600, Portsmouth MHWS
 ticon/portsmouth-ptm-gbr-bodc|odn|2.73|0.10|0.30|NTSLF, chart datum relative to Ordnance Datum, ntslf.org/tides/datum
 ticon/weymouth-wey-gbr-bodc|odn|0.93|0.10|0.30|NTSLF, chart datum relative to Ordnance Datum, ntslf.org/tides/datum
 ticon/devonport-dev-gbr-bodc|odn|3.22|0.10|0.30|NTSLF, chart datum relative to Ordnance Datum, ntslf.org/tides/datum
+ticon/cherbourg-13-fra-refmar|msl|3.87|-0.05|0.05|Shom, 2025. Références Altimétriques Maritimes (NM), https://dx.doi.org/10.17183/MAREE_COURANTS_RAM

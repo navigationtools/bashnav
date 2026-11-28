@@ -242,3 +242,15 @@ Two things to know about that link:
   report to `~/.colregs/review-report.md` instead, and tells the reviewer to
   attach it to a new issue. Worth testing that path too if you want to be
   thorough: answer thirty or forty claims with notes and try to submit.
+
+## PILOT's course: read it in private first (TBTY)
+
+PILOT's course is not on the site yet, and nothing here puts it there. To read it on this Mac and on
+the iPad, from the bashnav folder:
+
+    sh docs/course-preview.sh
+
+Not read-only: it writes a new folder in `~/Downloads/claude_downloads/bashnav/` and serves it until
+you press Ctrl-C. It prints two addresses: one for this Mac and one for the iPad on the same Wi-Fi.
+It changes no repository. Publishing it is a separate step, `BASHNAV_PUBLISH_COURSE=yes` in
+`docs/make-site.sh`, and waits for Larry's word.

@@ -554,9 +554,9 @@ bad input.**
    something that shares none of its code.
 4. **The zero at the six ports on chart datum is each port's mean sea level
    above chart datum,** from its own gauge, held to published figures: Shom's
-   mean level at Brest and Le Conquet, the Admiralty's springs level at
-   Portsmouth, and chart datum's height against Ordnance Datum at the three
-   British ports. Cherbourg's published mean level is still to be checked.
+   mean level at Brest, Le Conquet and Cherbourg, the Admiralty's springs
+   level at Portsmouth, and chart datum's height against Ordnance Datum at the
+   three British ports.
 5. **HAT and mean high water come from nineteen years of the tool's own
    prediction,** 2007 to 2025, and are held to what NOAA publishes for three
    of its stations: within 15 mm on all six figures.

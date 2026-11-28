@@ -59,8 +59,9 @@ BEGIN{
     n++; d=Z[id]-Z[a]; if(d<0) d=-d
     if(d>0.045) fail(sprintf("%s: %.0f mm from its port's first record %s", id, d*1000, a))
   }
-  #  a port with no published figure is allowed only by name, so a new one
-  #  cannot arrive unchecked
-  for(p in FIRST) if(!(p in HASPUB)){ n++; if(p!="Cherbourg") fail(p ": corrected with no published figure to hold it to") }
+  #  every corrected port is held to a published figure, so a new one
+  #  cannot arrive unchecked. Cherbourg was allowed by name until Shom's
+  #  RAM gave its mean level (TBUP, 28 Nov 2026); no port is exempt now.
+  for(p in FIRST) if(!(p in HASPUB)){ n++; fail(p ": corrected with no published figure to hold it to") }
   printf "TIDESZERO %d of %d\n", bad, n
 }

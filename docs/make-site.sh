@@ -288,3 +288,17 @@ n=$(grep -c '{{' docs/index.html || true)
   grep -n '{{' docs/index.html | head -5 | sed 's/^/    /'
   exit 1
 }
+
+#  THE COURSE: PILOT's practical-navigator, at /practical-navigator/.
+#  TBTS, as Larry ruled it (TBTY, 28 Nov 2026): this step is built but
+#  OFF.  Everything this script writes under docs/ is public on GitHub
+#  Pages once committed, so the course is copied here only when
+#  BASHNAV_PUBLISH_COURSE=yes, and nothing sets that until Larry says
+#  "publish".  His read-through uses docs/course-preview.sh, which writes
+#  outside every repository.  COURSE_PUBLISH=yes makes the copy refuse a
+#  drafts/ folder: the published course leaves drafts/ out (TBUN).  The copy and its two checks are in the
+#  course copy script; tests/course-copy-check.sh holds this step to being
+#  the only one and to sitting behind the setting.
+if [ "${BASHNAV_PUBLISH_COURSE:-no}" = yes ]; then
+  COURSE_PUBLISH=yes sh docs/course-copy.sh docs/practical-navigator
+fi

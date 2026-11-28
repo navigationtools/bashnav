@@ -1,5 +1,77 @@
 # Changelog
 
+## Cherbourg's zero is held to Shom's published mean level; no port is exempt now (TBUB, ruled TBUP)
+
+**What.** `tests/tides-zero.dat` has a line for Cherbourg: its mean level above chart datum must sit
+within 0.05 m of Shom's 3.87 m. bashnav's is 3.876 m, so it is +0.006 m off. Both Cherbourg records,
+refmar and Copernicus, carry that zero, and they are held to each other as twins. `tests/tides-zero-check.awk`
+no longer allows Cherbourg by name: every corrected port must now have a published figure, or the
+suite fails. Tried both ways on a copy of the file: a figure of 3.80 fails (+0.076 m), and no line at
+all fails ("corrected with no published figure").
+
+**The source (rule 22).** Shom, 2025, *Références Altimétriques Maritimes* (RAM),
+<https://dx.doi.org/10.17183/MAREE_COURANTS_RAM>, as Shom asks it to be cited. It was read on 28
+November 2026 through Shom's public map service, WFS layer `RAM_BDD_WLD_WGS84G_WFS:ram_3857`. Its
+licence is Licence Ouverte / Open Licence 2.0 (Etalab): free use with the source named. Shom says of
+the product "ce produit ne doit pas être utilisé pour la navigation", that it must not be used for
+navigation. bashnav uses one figure from it, in the test suite only, to check its own zero. No height
+the program predicts comes from it. NOTICE and `docs/SOURCES.md` record the source, the licence and
+that sentence.
+
+**Why.** B24 waited on a published mean level for Cherbourg, from the almanac Larry had ordered.
+The almanac was cancelled. Larry ruled TBUP (28 November): use Shom's RAM 2025, cited as Shom asks,
+with the disclaimer recorded beside it. His words: "That disclaimer is just them being super careful."
+
+**Docs.** `docs/TESTING.md`, the tides manual (rebuilt) and the header of `tests/tides-zero.dat` no
+longer say Cherbourg is waiting. Earlier entries below that say so are left as they were written.
+
+**Found, not changed.** The RAM also gives Brest 4.14 m and Le Conquet 4.01 m. The test holds them to
+4.13 and 3.98, Shom's figures as maree.info reprinted them in 2016, and bashnav passes against both
+(Brest +0.023 m against the RAM, Le Conquet −0.032 m). Its highest tide (PHMA) at Le Conquet is
+0.11 m above bashnav's HAT; no port's HAT is in this test. Both are for Larry to order or not.
+
+## The course can be copied and read in private; it is not published (TBTS, ruled TBTY)
+
+**What.** Three new files and one step, all off until Larry says "publish":
+1. `docs/course-copy.sh DEST` runs PILOT's public build (`practical-navigator/tools/public_build.py`)
+   straight into DEST, and stops unless that prints "ok". Then it checks DEST itself, a second time:
+   no file may name the extract (OSCAR) or the retired files (`legs_2025*`, `*clipper68*`, TBNF) or
+   carry the private-preview box, and no page may draw a real boat (`class="real"`). A refused copy
+   is renamed `DEST.REFUSED`; nothing is deleted.
+2. `docs/course-preview.sh` is Larry's read-through. It writes a new folder,
+   `~/Downloads/claude_downloads/bashnav/course-preview-<date-time>/`, and serves it from his Mac
+   on port 8765 to the Mac and to devices on the same Wi-Fi (the iPad), until Ctrl-C. It changes no
+   repository.
+3. `docs/make-site.sh` has a last step that copies the course to `docs/practical-navigator/`, but
+   only when `BASHNAV_PUBLISH_COURSE=yes`. Nothing sets it.
+4. `tests/course-copy-check.sh`, run by the suite once per shell, holds all of this.
+   A clean tree is copied whole; each of the five kinds of private material is refused, and kept
+   as `.REFUSED`; an existing folder is not written over; `docs/practical-navigator/` does not exist,
+   and the make-site step is the only one and sits behind the setting.
+
+**Why.** TBTS asked for the course to be served from bashnav's site. bashnav's site is public
+GitHub Pages, and the queue commits and pushes in one run, so committing the course would have
+published it before Larry had read a page. Larry ruled TBTY (28 November, 09:44): build the step now,
+read on a private copy served from his Mac, publish only when he says. PILOT named the output:
+`build/site-public/`, made by his `public_build.py`.
+
+**Why it runs PILOT's build rather than copying his folder.** On 28 November PILOT's
+`build/site-public/` on disk was from 24 November. It still named OSCAR and the retired clipper68 and
+`legs_2025` files in five `drafts/` files, and drew a real boat in one. `site/` today holds none of
+them, and a fresh build passes. The second check refuses the stale folder: tried on it, it named all
+six files.
+
+**`drafts/` stays out of the published course (TBUN, ruled 28 November, 09:49).** Only pages Larry
+has read and ruled into the launch go public. PILOT's public build will leave `drafts/` out from his
+move to `coastal/` (TBTI). Until then every course page is still in `drafts/`, which the private
+read-through may keep. So the make-site step runs the copy with `COURSE_PUBLISH=yes`, which refuses
+any copy that has a `drafts/` folder. Today's build is refused that way, as it should be. The test
+holds this: 9 checks.
+
+**Impact.** Nothing on the public site changes. When Larry says "publish", two things change on
+purpose: the setting, and the test's check that `docs/practical-navigator/` does not exist. The
+publish also needs PILOT's build without `drafts/`, or the copy refuses it.
+
 ## The router's documents and its race test take the Eddystone at 0.25 nm (TBSH, TBSP)
 
 **What.** `docs/web/tests/race-2025.js` now reads PILOT's v2 runs, which round the Eddystone at

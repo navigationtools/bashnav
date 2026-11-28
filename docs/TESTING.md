@@ -1508,8 +1508,9 @@ the station file must agree with `src/tides/gen/corrections.dat` station by
 station; no station may be named `CD` without a line there; each port is held
 to the published figures in `tests/tides-zero.dat`, none of which was copied
 from the station file; a twin record of the same gauge must be within 45 mm of
-its port's first; and a port with no published figure is allowed only by name
-(Cherbourg, until the almanac gives its mean level). **To add a port,** find
+its port's first; and every port must have a published figure, with none
+exempt (Cherbourg was, by name, until Shom's RAM gave its mean level: Larry's
+ruling TBUP, 28 November 2026). **To add a port,** find
 its published mean level, check that the provider's gauge zero is chart datum,
 add its lines to both files, apply, and say so in the CHANGELOG.
 

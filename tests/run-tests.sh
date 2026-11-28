@@ -1839,6 +1839,18 @@ WXLOG
   done
   [ "$xbad" = 0 ] && ok "all $xn scripts the docs tell you to run with ./ are executable"
 
+  # ---- the course is copied clean, and not published ------------------
+  #  TBTY (28 Nov 2026): docs/course-copy.sh copies PILOT's public course
+  #  and refuses a copy with anything private in it; the course is not in
+  #  docs/ until Larry says publish. Shell only, so once per shell.
+  if [ "$AW" != "$FIRSTAWK" ]; then :
+  elif o=$("$SH" tests/course-copy-check.sh 2>&1); then
+    ok "the course copy refuses private material, and the course is not in docs/ ($(echo "$o" | sed -n 's/^COURSECOPY ok //p') checks)"
+  else
+    printf '%s\n' "$o" | sed 's/^/    /' | head -8
+    bad "the course copy let something through, or the course is in docs/"
+  fi
+
   # ---- every service worker caches what its page loads ---------------
   #  The eviction check above makes sure a tool keeps its cache. This
   #  one makes sure the cache is worth keeping: a file the page loads

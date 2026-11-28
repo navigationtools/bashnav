@@ -56,6 +56,19 @@ Tide station harmonic constants
   These constants are redistributed under their own terms, which are not
   changed by the Apache License above. Attribution must travel with them.
 
+Tide reference levels (one figure, used to check the program)
+  Shom, 2025. Références Altimétriques Maritimes,
+  https://dx.doi.org/10.17183/MAREE_COURANTS_RAM
+  Licence Ouverte / Open Licence version 2.0 (Etalab). Shom's record: the
+  data "may be freely used providing that the source is mentioned".
+  Shom says of this product: "Ce produit ne doit pas être utilisé pour la
+  navigation" (this product must not be used for navigation).
+
+  bashnav uses one figure from it, Cherbourg's mean level above chart datum
+  (3.87 m), and only in the test suite, to check the program's own zero at
+  Cherbourg (tests/tides-zero.dat). No predicted height comes from it, and
+  it is not redistributed.
+
 Star positions
   Derived from the Hipparcos and Yale Bright Star catalogues.
 

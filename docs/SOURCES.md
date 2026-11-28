@@ -134,6 +134,17 @@ implementation of the same theory. See `docs/TESTING.md` for why that
 distinction found three real bugs that a library-to-library comparison would
 have passed.
 
+**The zero at the six ports on chart datum** is held to figures each port's
+hydrographic office published (`tests/tides-zero.dat`, which names each).
+Cherbourg's mean level is from **Shom, 2025, *Références Altimétriques
+Maritimes*** (<https://dx.doi.org/10.17183/MAREE_COURANTS_RAM>), read on 28
+November 2026 through Shom's public map service: NM 3.87 m above chart datum,
+against bashnav's 3.876 m. Licence Ouverte / Open Licence 2.0: free use with
+the source named as above (rule 22; Larry's ruling TBUP). Shom says of the
+product "ce produit ne doit pas être utilisé pour la navigation" (it must not
+be used for navigation); bashnav uses the figure only to check its own zero,
+and that sentence is recorded in NOTICE too.
+
 **The weather's effect on the height of tide** (gap list W48; Larry's ruling
 TAUU, with TAUW's rule that a figure is read in a public source before a page
 uses it; read 18 November 2026). Neither `tides` nor the course's tide pages
